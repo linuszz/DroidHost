@@ -197,7 +197,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var stretch16x9 by mutableStateOf(false)
     private var orientation by mutableStateOf(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
     private var launcherOrientation by mutableStateOf(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER)
-    private var homePage by mutableStateOf(com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_STEAM)
+    private var homePage by mutableStateOf(com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_DESKTOP)
     private var launcherFullscreen by mutableStateOf(true)
     private var downloadSource by mutableStateOf(DownloadSource.MODE_AUTO)
     private var downloadMirror by mutableStateOf("")
@@ -1380,6 +1380,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         onResume = { startActivity(Intent(this, SessionActivity::class.java)) },
                         onSteamSettings = { loadModeSettings(SessionService.MODE_STEAM) },
                         onRemoveDesktop = { removeDesktop() },
+                        onVmStop = { if (SessionState.running) SessionService.stop(this) },
                         onDesktopSettings = { loadModeSettings(SessionService.MODE_DESKTOP) },
                         modeSheet = { mode, tab, extras -> ModeSheetHost(mode, tab, extras) },
                         onInstallPackage = { id -> installPackage(id) },

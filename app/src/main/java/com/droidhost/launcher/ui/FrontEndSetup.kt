@@ -176,7 +176,6 @@ internal fun SetupPanel(
     val gpuOk = gpu.support == com.droidhost.launcher.gpu.GpuInfo.Support.TESTED || s.vkBridge
     val gpuName = remember { DeviceSupport.gpuName(ctx) }
     val limitBlocks = PhantomProcessLimit.blocksSteam(s.phantomProcessStatus)
-    val signedIn = s.offlineAccount != null
     var showLimitDetails by rememberSaveable { mutableStateOf(false) }
     var editSgdbKey by remember { mutableStateOf(false) }
     var editDownloadPrefix by remember { mutableStateOf(false) }
@@ -234,7 +233,7 @@ internal fun SetupPanel(
         }
     }
     val runtimeOk = s.ready && !s.busy && !s.removalPending
-    val checks = listOf(gpuOk, runtimeOk, !limitBlocks, signedIn)
+    val checks = listOf(gpuOk, runtimeOk, !limitBlocks)
     val passing = checks.count { it }
     var showChecks by rememberSaveable { mutableStateOf(s.vkBridge) }
     Rise(0, Modifier.fillMaxSize()) {
@@ -373,28 +372,13 @@ internal fun SetupPanel(
                             }
                             if (divider && showLimitDetails) Box(Modifier.fillMaxWidth().height(1.dp).background(pal.line))
                         }
-                        val accountCheck: @Composable (Boolean) -> Unit = { divider ->
-                            CheckRow(
-                                if (signedIn) CheckState.OK else CheckState.WARN,
-                                stringResource(R.string.setup_account),
-                                s.offlineAccount?.let {
-                                    when {
-                                        it.isEmpty() -> stringResource(if (s.offline) R.string.setup_signed_in_offline_unnamed else R.string.setup_signed_in_unnamed)
-                                        s.offline -> stringResource(R.string.setup_signed_in_offline, it)
-                                        else -> stringResource(R.string.setup_signed_in, it)
-                                    }
-                                } ?: stringResource(R.string.setup_sign_in),
-                                divider = divider,
-                            )
-                        }
-                        val all = listOf(gpuCheck, runtimeCheck, limitCheck, accountCheck)
+                        val all = listOf(gpuCheck, runtimeCheck, limitCheck)
                         ReadinessCard(
                             passing, checks.size,
                             listOfNotNull(
                                 gpu.displayName(ctx),
                                 s.installed?.let { stringResource(R.string.setup_ready_runtime, it) },
                                 stringResource(R.string.setup_ready_limit_off).takeIf { !limitBlocks },
-                                s.offlineAccount?.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.setup_ready_signed_in, it) },
                             ).joinToString(" · "),
                             open = showChecks, onDetails = { showChecks = !showChecks },
                         ) {
@@ -411,7 +395,6 @@ internal fun SetupPanel(
                             }
                         }
                         SettingsGroup(stringResource(R.string.setup_runtime)) { runtimeCheck(false) }
-                        SteamIntegrationGroup(s.integration, s.integrationFocus, a.onIntegration, a.onIntegrationAppInfo, a.onIntegrationLocation)
                     }
                     1 -> {
                         val controller = s.controller

@@ -88,11 +88,11 @@ class AppScaleTest {
         assertEquals(320, base.densityDpi)
     }
 
-    @Test fun homePageDefaultsToSteamAndIgnoresAnUnknownStoredPage() {
-        assertEquals(AppUiPrefs.HOME_PAGE_STEAM, AppUiPrefs.homePage(context))
+    @Test fun homePageDefaultsToDesktopAndIgnoresAnUnknownStoredPage() {
+        assertEquals(AppUiPrefs.HOME_PAGE_DESKTOP, AppUiPrefs.homePage(context))
         AppUiPrefs.setHomePage(context, AppUiPrefs.HOME_PAGE_APPS)
         assertEquals(AppUiPrefs.HOME_PAGE_APPS, AppUiPrefs.homePage(context))
         context.getSharedPreferences("app-ui", Context.MODE_PRIVATE).edit().putString("home-page", "gone").commit()
-        assertEquals(AppUiPrefs.HOME_PAGE_STEAM, AppUiPrefs.homePage(context))
+        assertEquals(AppUiPrefs.HOME_PAGE_DESKTOP, AppUiPrefs.homePage(context))
     }
 }

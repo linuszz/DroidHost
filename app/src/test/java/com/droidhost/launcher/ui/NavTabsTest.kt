@@ -40,26 +40,26 @@ class NavTabsTest {
         com.droidhost.launcher.agent.AgentTab.load(ctx)
     }
 
-    @Test fun musicStartsInMore() {
-        assertEquals(listOf("steam", "games", "stores", "desktop", "components", "setup", "updates", NavTabs.MORE), navigationKeys(state()))
-        assertEquals(listOf("soundtracks"), NavTabs.more(state()))
-        assertEquals(setOf("soundtracks", "agent"), NavTabs.shelved)
+    @Test fun shelvedFeaturesStayOutOfTheBarOnAFreshInstall() {
+        assertEquals(listOf("games", "desktop", "components", "setup", "updates"), navigationKeys(state()))
+        assertEquals(emptyList<String>(), NavTabs.more(state()))
+        assertEquals(setOf("agent"), NavTabs.shelved)
         assertTrue(com.droidhost.launcher.agent.AgentTab.shown)
     }
 
-    @Test fun showingMusicOnceKeepsItShownAfterReload() {
-        place("soundtracks", TabPlace.BAR)
+    @Test fun shelvingATabOnceKeepsItShelvedAfterReload() {
+        place("components", TabPlace.MORE)
         NavTabs.load(ctx)
-        assertEquals(listOf("steam", "games", "soundtracks", "stores", "desktop", "components", "setup", "updates"), navigationKeys(state()))
+        assertEquals(listOf("components"), NavTabs.more(state()))
     }
 
     @Test fun shelvedTabsLeaveTheBarAndAddMoreAtTheEnd() {
-        place("stores", TabPlace.MORE)
         place("components", TabPlace.MORE)
+        place("updates", TabPlace.MORE)
         val s = state()
-        assertEquals(listOf("components", "soundtracks", "stores"), NavTabs.more(s))
+        assertEquals(listOf("updates", "components"), NavTabs.more(s))
         assertEquals(NavTabs.MORE, navigationKeys(s).last())
-        assertFalse("stores" in navigationKeys(s))
+        assertFalse("components" in navigationKeys(s))
     }
 
     @Test fun hiddenTabsAreNowhereAndSetupCannotBeHidden() {
@@ -71,55 +71,50 @@ class NavTabsTest {
         assertTrue("setup" in navigationKeys(s))
     }
 
-    @Test fun disabledStoresFeatureReadsAsHidden() {
-        assertEquals(TabPlace.HIDDEN, NavTabs.place(state(storesOn = false), "stores"))
+    @Test fun aDisabledFeatureReadsAsHidden() {
+        com.droidhost.launcher.agent.AgentTab.set(ctx, false)
+        assertEquals(TabPlace.HIDDEN, NavTabs.place(state(), "agent"))
     }
 
     @Test fun movingSwapsWithTheNextVisibleTabAndPersists() {
-        place("soundtracks", TabPlace.BAR)
-        moveTab("stores", -1)
-        assertEquals(listOf("steam", "games", "stores", "soundtracks"), navigationKeys(state()).take(4))
+        moveTab("setup", -1)
+        assertEquals(listOf("games", "desktop", "setup", "components", "updates"), navigationKeys(state()))
         NavTabs.load(ctx)
-        assertEquals(listOf("steam", "games", "stores", "soundtracks"), navigationKeys(state()).take(4))
+        assertEquals(listOf("games", "desktop", "setup", "components", "updates"), navigationKeys(state()))
     }
 
     @Test fun tabsMissingFromASavedOrderSlotInAfterTheirDefaultNeighbour() {
-        assertEquals(listOf("updates", "steam", "games", "soundtracks", "stores", "desktop", "agent", "components", "android-apps", "setup"),
+        assertEquals(listOf("games", "desktop", "agent", "components", "android-apps", "setup", "updates"),
             NavTabs.arrange(listOf("updates", "steam")))
-        assertEquals(listOf("games", "soundtracks", "steam", "setup", "stores", "desktop", "agent", "components", "android-apps", "updates"),
+        assertEquals(listOf("games", "setup", "desktop", "agent", "components", "android-apps", "updates"),
             NavTabs.arrange(listOf("games", "steam", "setup", "stores", "desktop", "components", "android-apps", "updates", "bogus")))
     }
 
-    @Test fun moreCarriesTheDownloadCountAndBadgesOfShelvedTabs() {
-        place("stores", TabPlace.MORE)
+    @Test fun moreCarriesTheBadgeOfAShelvedTabThatNeedsAttention() {
         place("setup", TabPlace.MORE)
-        val s = state(downloads = 3, setupReady = false)
-        assertEquals(3, railCount(s, NavTabs.MORE))
-        assertTrue(railBadge(s, NavTabs.MORE))
-        place("stores", TabPlace.BAR)
-        assertEquals(0, railCount(s, NavTabs.MORE))
-        assertEquals(3, railCount(s, "stores"))
+        assertTrue(railBadge(state(setupReady = false), NavTabs.MORE))
+        place("setup", TabPlace.BAR)
+        assertFalse(railBadge(state(setupReady = false), NavTabs.MORE))
     }
 
-    @Test fun sideRailShowsTheDownloadCountOnMoreWhenStoresIsShelved() {
-        place("stores", TabPlace.MORE)
-        val s = state(downloads = 2)
+    @Test fun sideRailOffersMoreWhenATabIsShelved() {
+        place("setup", TabPlace.MORE)
+        val s = state()
         compose.setContent {
             DroidHostTheme {
                 CompositionLocalProvider(LocalFrontFocus provides FrontFocus()) {
-                    Box(Modifier.height(752.dp)) { SideRail(s, "steam", {}, {}, actions(), Modifier) }
+                    Box(Modifier.height(752.dp)) { SideRail(s, "desktop", {}, {}, actions(), Modifier) }
                 }
             }
         }
-        compose.onNodeWithTag("rail-stores").assertDoesNotExist()
+        compose.onNodeWithTag("rail-setup").assertDoesNotExist()
         compose.onNode(hasTestTag("rail-more")).assertIsDisplayed()
-        compose.onNode(hasText("2") and hasParentTag("rail-more"), useUnmergedTree = true).assertIsDisplayed()
     }
 
-    @Test fun morePageListsShelvedTabsWithTheirCount() {
-        place("stores", TabPlace.MORE)
-        place("components", TabPlace.MORE)
-        val s = state(downloads = 4)
+    @Test fun morePageListsShelvedTabs() {
+        place("setup", TabPlace.MORE)
+        place("updates", TabPlace.MORE)
+        val s = state()
         compose.setContent {
             DroidHostTheme {
                 CompositionLocalProvider(LocalFrontFocus provides FrontFocus()) {
@@ -127,9 +122,8 @@ class NavTabsTest {
                 }
             }
         }
-        compose.onNodeWithTag("more-stores").assertIsDisplayed()
-        compose.onNodeWithTag("more-components").assertIsDisplayed()
-        compose.onNode(hasText("4") and hasParentTag("more-stores"), useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("more-setup").assertIsDisplayed()
+        compose.onNodeWithTag("more-updates").assertIsDisplayed()
     }
 
     @Test fun backFromAShelvedTabReturnsToMore() {
@@ -151,8 +145,8 @@ class NavTabsTest {
         compose.onNodeWithTag("more-desktop").assertIsDisplayed()
     }
 
-    @Test fun startupWithSteamHiddenNeverLandsOnABareComponentsSelection() {
-        place("steam", TabPlace.HIDDEN)
+    @Test fun startupWithTheHomeTabHiddenNeverLandsOnABareComponentsSelection() {
+        place("desktop", TabPlace.HIDDEN)
         repeat(NavTabs.ALL.size) { moveTab("components", -1) }
         assertEquals("components", navigationKeys(state()).first())
         compose.mainClock.autoAdvance = false
@@ -200,8 +194,6 @@ class NavTabsTest {
         val split = rows.indexOf(rows.first { it !in keys })
         NavTabs.rearrange(ctx, s, rows.subList(0, split), rows.subList(split + 1, rows.size))
     }
-
-    private fun hasParentTag(tag: String) = androidx.compose.ui.test.hasAnyAncestor(hasTestTag(tag))
 
     private fun state(storesOn: Boolean = true, downloads: Int = 0, setupReady: Boolean = true) = FrontEndState(
         installed = "r9", ready = setupReady, available = null, busy = false, stage = "", percent = -1,

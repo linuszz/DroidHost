@@ -171,7 +171,7 @@ class FrontEndState(
     val showPhantomGate: Boolean = false,
     val orientation: Int = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
     val launcherOrientation: Int = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER,
-    val homePage: String = com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_STEAM,
+    val homePage: String = com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_DESKTOP,
     val launcherFullscreen: Boolean = true,
     val downloadSource: String = DownloadSource.MODE_AUTO,
     val downloadMirror: String = "",
@@ -228,6 +228,7 @@ class FrontEndActions(
     val onDesktopSettings: () -> Unit,
     val modeSheet: @Composable (mode: String, tab: String, extras: SheetExtras) -> Unit = { _, _, _ -> },
     val onRemoveDesktop: () -> Unit = {},
+    val onVmStop: () -> Unit = {},
     val onInstallPackage: (String) -> Unit,
     val onRemovePackage: (String) -> Unit,
     val onRuntime: () -> Unit,
@@ -469,7 +470,7 @@ fun FrontEndScreen(s: FrontEndState, a: FrontEndActions, page: (@Composable () -
 @Composable
 private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Composable () -> Unit)?, frontFocus: FrontFocus) {
     var selected by rememberSaveable {
-        mutableStateOf(if (s.shortcutPicker) "games" else if (NavTabs.place(s, "steam") == TabPlace.HIDDEN) navigationKeys(s).first { it != "components" } else "steam")
+        mutableStateOf(if (s.shortcutPicker) "games" else if (NavTabs.place(s, "desktop") == TabPlace.HIDDEN) navigationKeys(s).first { it != "components" } else "desktop")
     }
     LaunchedEffect(s.shortcutPicker) { if (s.shortcutPicker) selected = "games" }
     LaunchedEffect(s.navigate) {
@@ -581,7 +582,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
     BackHandler(enabled = !processSettingsPageVisible && backToMore) {
         selected = NavTabs.MORE
     }
-    LaunchedEffect(s.isHomeApp) { if (!s.isHomeApp && selected == "android-apps") selected = "steam" }
+    LaunchedEffect(s.isHomeApp) { if (!s.isHomeApp && selected == "android-apps") selected = "desktop" }
     LaunchedEffect(s.soundtracksEnabled) {
         if (!s.soundtracksEnabled && (selected == "soundtracks" || selected.startsWith("sound:"))) selected = "games"
     }
@@ -595,7 +596,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
 
     val openTab = when {
         Hops.origin != null && s.pageKey == Hops.origin?.page -> Hops.origin!!.dest
-        s.pageKey == "performance" -> "steam"
+        s.pageKey == "performance" -> "desktop"
         s.pageKey == "controller-mapping" -> "setup"
         selected.startsWith("app:") -> "games"
         selected.startsWith("sound:") -> "soundtracks"

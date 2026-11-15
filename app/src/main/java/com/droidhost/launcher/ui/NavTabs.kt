@@ -12,8 +12,8 @@ internal enum class TabPlace { BAR, MORE, HIDDEN }
 
 internal object NavTabs {
     const val MORE = "more"
-    val FEATURES = setOf("stores", "soundtracks", "agent")
-    val ALL = listOf("steam", "games", "soundtracks", "stores", "desktop", "agent", "components", "android-apps", "setup", "updates")
+    val FEATURES = setOf("agent")
+    val ALL = listOf("games", "desktop", "agent", "components", "android-apps", "setup", "updates")
 
     var order by mutableStateOf(ALL)
         private set
@@ -54,8 +54,6 @@ internal object NavTabs {
     }
 
     private fun featureOff(s: FrontEndState, key: String) = when (key) {
-        "stores" -> !s.gameStoresEnabled
-        "soundtracks" -> !s.soundtracksEnabled
         "agent" -> !AgentTab.shown
         else -> false
     }

@@ -1,19 +1,11 @@
 package com.droidhost.launcher.ui
 
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.hoverable
@@ -21,26 +13,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Apps
-import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Storefront
-import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -60,9 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -74,29 +57,25 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.FileUtils
-import com.droidhost.launcher.frontend.Library
-import com.droidhost.launcher.runtime.UserApps
 import com.droidhost.launcher.session.SessionService
-import com.droidhost.launcher.store.UserAppsState
+import com.droidhost.launcher.vm.VmCatalog
+import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmStore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
-private val DESKTOP_TABS = modeSheetTabs(steam = false) + SheetTab.FILES
+private val VM_TABS = modeSheetTabs(steam = false) + SheetTab.FILES
 
 @Composable
 internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier, onSelect: (String) -> Unit) {
@@ -105,53 +84,83 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     val narrow = LocalNarrowPane.current
     val short = compactDesktop()
     val colors = MaterialTheme.colorScheme
-    LaunchedEffect(Unit) { UserAppsState.refresh(ctx) }
-    LaunchedEffect(s.ready) { com.droidhost.launcher.store.StoreState.refresh(ctx) }
-    val installed = s.emulators.filter { it.installed }
-    val apps = UserAppsState.items
-    var adding by rememberSaveable { mutableStateOf(false) }
     val mode = SessionService.MODE_DESKTOP
-    val tabs = DESKTOP_TABS.map { it to sheetTabLabel(it) }
-    val open = if (s.desktopInstalled) stringResource(R.string.content_open_desktop) else stringResource(R.string.content_install_open_desktop)
+    val tabs = VM_TABS.map { it to sheetTabLabel(it) }
     fun openFrom(at: Rect?, art: Any?, page: String) {
         at?.let { PageOrigin.mark(Origin(it, 16f * density.density, art = art)) }
         onSelect(page)
     }
 
+    var machine by remember { mutableStateOf(VmStore.load(ctx)) }
+    // A build that already carries the desktop predates any record; it is still the one machine.
+    val vm = machine ?: if (s.desktopPresent) VmCatalog.of(VmCatalog.UBUNTU)?.let { VmMachine(it, 0L) } else null
+    val status = vmStatus(s, vm)
+    var picking by rememberSaveable { mutableStateOf(false) }
+    var everPresent by remember { mutableStateOf(s.desktopPresent) }
+    LaunchedEffect(s.desktopPresent) { if (s.desktopPresent) everPresent = true }
+    LaunchedEffect(s.desktopPresent, s.removalPending) {
+        // The record outlives the install it describes only until the desktop is gone for good.
+        if (everPresent && !s.desktopPresent && !s.removalPending) {
+            VmStore.forget(ctx)
+            machine = null
+        }
+    }
+
+    val primary: () -> Unit = when (status) {
+        VmStatus.ABSENT -> ({ picking = true })
+        VmStatus.NEW -> a.onDesktop
+        VmStatus.READY -> a.onResume
+        VmStatus.RUNNING -> a.onVmStop
+        else -> ({})
+    }
+    val primaryEnabled = when (status) {
+        VmStatus.ABSENT -> !s.busy
+        VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked
+        VmStatus.READY, VmStatus.RUNNING -> !s.busy
+        else -> false
+    }
+    val label = vmPrimaryLabel(status)
+    val head = vm?.distro?.name ?: stringResource(R.string.vm_title)
+
     LiftHero(
         key = "desktop", tabs = tabs,
-        onOpen = a.onDesktopSettings, onPrimary = a.onDesktop,
+        onOpen = a.onDesktopSettings, onPrimary = primary,
         modifier = modifier.clipToBounds(),
         start = if (narrow) 20.dp else 44.dp, bottom = 44.dp,
-        background = {
-            DesktopWall(installed.map { it.iconRes } + apps.mapNotNull { it.icon })
-        },
+        background = { DesktopWall(emptyList()) },
         scrim = { lifted ->
             WallFade()
             Box(Modifier.graphicsLayer { val v = lifted(); alpha = 1f - v; translationY = -12.dp.toPx() * v }) {
-                DesktopDock(s, a, installed, apps, openFrom = ::openFrom)
+                VmDock(s, vm, status, onPrimary = primary, onNew = { picking = true })
             }
         },
         words = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (LocalConfiguration.current.screenHeightDp >= 400) Text(
-                    stringResource(R.string.rail_desktop), fontSize = if (short) 30.sp else 42.sp, lineHeight = if (short) 34.sp else 46.sp,
+                    head, fontSize = if (short) 30.sp else 42.sp, lineHeight = if (short) 34.sp else 46.sp,
                     fontWeight = FontWeight.Black, color = colors.onBackground,
                 )
-                BusyChip(s)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    VmStateChip(status)
+                    BusyChip(s)
+                }
             }
         },
         button = { click ->
-            PrimaryButton(open, enabled = !s.busy, main = true, large = true, icon = Icons.Outlined.DesktopWindows, onClick = click)
+            PrimaryButton(label, enabled = primaryEnabled, main = true, large = true, icon = vmPrimaryIcon(status), onClick = click)
         },
         beside = {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
             ) {
-                HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "desktop:flathub") { at -> openFrom(at, null, "store") }
-                HeroIconButton(Icons.Filled.Add, stringResource(R.string.user_apps_add), null, "desktop:add") { if (!s.busy) adding = true }
-                if (s.desktopPresent) UninstallDesktop(enabled = !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop)
+                HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
+                HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
+                if (vm != null) UninstallDesktop(
+                    label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
+                    note = stringResource(R.string.vm_delete_text),
+                    enabled = !s.busy && !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
+                )
             }
         },
         rows = { tab ->
@@ -159,99 +168,18 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             else a.modeSheet(mode, tab, SheetExtras())
         },
     )
-    if (adding && !s.busy) AddAppDialog(s.ready, onDismiss = { adding = false }) { request, label -> UserAppsState.add(ctx, request, label) }
-}
-
-@Composable
-private fun compactDesktop() = LocalNarrowPane.current || LocalConfiguration.current.screenHeightDp < 600
-
-@Composable
-private fun DesktopDock(
-    s: FrontEndState, a: FrontEndActions, installed: List<Library.Emulator>, apps: List<UserApps.App>,
-    openFrom: (Rect?, Any?, String) -> Unit,
-) {
-    val colors = MaterialTheme.colorScheme
-    val pal = LocalPalette.current
-    val narrow = LocalNarrowPane.current
-    val available = s.emulators.filter { !it.installed }
-    val flatpaks = com.droidhost.launcher.store.StoreState.installed.filter { f -> apps.none { it.key == "flatpak:${f.id}" } }
-    val keys = installed.map { "emu:${it.id}" } + apps.map { "user:${it.key}" } + flatpaks.map { "flatpak:${it.id}" }
-    var lastAt by remember { mutableStateOf<Rect?>(null) }
-    var dockAt by remember { mutableStateOf<Rect?>(null) }
-    val seen = remember { mutableSetOf<String>() }
-    val mounted = remember { booleanArrayOf(false) }
-    LaunchedEffect(Unit) { mounted[0] = true }
-    val scroll = rememberScrollState()
-    if (keys.isEmpty() && available.isEmpty() && UserAppsState.working == null && UserAppsState.lastError == null) return
-    Column(Modifier.fillMaxWidth().padding(top = if (compactDesktop()) 14.dp else 22.dp)) {
-        Text(
-            stringResource(R.string.user_apps_section).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp,
-            color = colors.onSurfaceVariant, modifier = Modifier.padding(start = if (narrow) 20.dp else 44.dp, bottom = 8.dp),
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top,
-            modifier = Modifier.fillMaxWidth().onGloballyPositioned { dockAt = it.boundsInRoot() }
-                .edgeFade(scroll).horizontalScroll(scroll).padding(start = if (narrow) 20.dp else 44.dp, end = 20.dp, top = 2.dp, bottom = 4.dp),
-        ) {
-            keys.forEachIndexed { i, k ->
-                key(k) {
-                    val state = remember { MutableTransitionState(!mounted[0] || k in seen) }.apply { targetState = true }
-                    LaunchedEffect(Unit) { seen += k }
-                    AnimatedVisibility(state, enter = expandHorizontally(Motion.sp(0.75f)) + fadeIn(Motion.tw(300, 80))) {
-                        Box(if (i == keys.lastIndex) Modifier.onGloballyPositioned { lastAt = it.boundsInRoot() } else Modifier) {
-                            val e = installed.firstOrNull { "emu:${it.id}" == k }
-                            val flatpak = flatpaks.firstOrNull { "flatpak:${it.id}" == k }
-                            val app = apps.firstOrNull { "user:${it.key}" == k }
-                            if (e != null) {
-                                val system = if (e.systemRes != 0) stringResource(e.systemRes) else e.system.replaceFirstChar { c -> c.uppercase() }
-                                DesktopCard(
-                                    k, e.name,
-                                    if (e.id == "retroarch") system else "$system · " + pluralStringResource(R.plurals.mode_added_count, e.games.size, e.games.size),
-                                    art = e.iconRes, first = i == 0,
-                                ) { at -> openFrom(at, e.iconRes, k) }
-                            } else if (flatpak != null) DesktopCard(
-                                k, flatpak.name, flatpak.summary ?: stringResource(R.string.flathub_name),
-                                art = flatpak.icon ?: com.droidhost.launcher.store.FlathubApi.iconUrl(flatpak.id), first = i == 0,
-                            ) { at ->
-                                com.droidhost.launcher.store.StoreState.openRequest = flatpak.id
-                                openFrom(at, flatpak.icon, "store")
-                            } else if (app != null) DesktopCard(k, app.name, stringResource(app.kind.label()), art = app.icon, fallback = if (app.kind == UserApps.Kind.SCRIPT) Icons.Outlined.Terminal else Icons.Outlined.Apps, first = i == 0) { at ->
-                                openFrom(at, app.icon, k)
-                            }
-                        }
-                    }
-                }
-            }
-            if (keys.isNotEmpty()) Box(Modifier.padding(horizontal = 4.dp).width(1.dp).height(120.dp).background(pal.line2))
-            available.forEach { e ->
-                key(e.id) {
-                    val pkg = Library.packageId(e.id)?.let { id -> s.packages?.firstOrNull { it.id == id } }
-                    val busyHere = pkg != null && s.packageBusyId == pkg.id
-                    val canGet = pkg != null && !s.busy && s.packageBusyId == null && s.ready && !s.packageCatalogLoading && !s.sessionRunning
-                    val system = if (e.systemRes != 0) stringResource(e.systemRes) else e.system.replaceFirstChar { c -> c.uppercase() }
-                    DesktopCard(
-                        "emu:${e.id}", e.name, if (busyHere) (s.packageStage ?: stringResource(R.string.store_installing)) else system,
-                        art = e.iconRes, badge = if (busyHere) null else stringResource(R.string.comp_get),
-                        progress = if (busyHere) s.packagePercent else null, first = keys.isEmpty() && e == available.first(),
-                    ) { at ->
-                        if (canGet && pkg != null && at != null) {
-                            a.onInstallPackage(pkg.id)
-                            val end = lastAt
-                            val row = dockAt
-                            Flights.fly(Flight(at, to = {
-                                val r = row ?: return@Flight null
-                                Offset((end?.right ?: r.left) + 70.dp.toPx(), r.center.y)
-                            }))
-                        } else openFrom(at, e.iconRes, "emu:${e.id}")
-                    }
-                }
-            }
-        }
-        if (UserAppsState.working != null || UserAppsState.lastError != null) {
-            Box(Modifier.padding(start = if (narrow) 20.dp else 44.dp, end = 20.dp, top = 6.dp)) { UserAppsProgressLine() }
+    if (picking && vm == null) VmPickerDialog(onDismiss = { picking = false }) { distro ->
+        picking = false
+        val created = VmStore.create(ctx, distro)
+        if (created != null) {
+            machine = created
+            a.onDesktop()
         }
     }
 }
+
+@Composable
+internal fun compactDesktop() = LocalNarrowPane.current || LocalConfiguration.current.screenHeightDp < 600
 
 @Composable
 private fun HeroIconButton(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, tint: Color?, id: String, onClick: (Rect?) -> Unit) {
@@ -286,7 +214,7 @@ private fun DesktopWall(icons: List<Any>) {
 }
 
 @Composable
-private fun DesktopCard(
+internal fun DesktopCard(
     key: String, name: String, detail: String, art: Any?,
     fallback: androidx.compose.ui.graphics.vector.ImageVector = Icons.Outlined.Apps,
     first: Boolean = false, badge: String? = null, progress: Int? = null, accent: Boolean = false, tint: Color? = null,
@@ -370,19 +298,20 @@ private fun DesktopFiles(s: FrontEndState, a: FrontEndActions) {
     if (s.desktopPresent) SettingsGroup(stringResource(R.string.content_linux_desktop)) {
         val size by produceState<Long?>(null) { value = withContext(Dispatchers.IO) { runCatching { com.droidhost.launcher.runtime.DesktopCatalog.desktopSize(ctx) }.getOrNull() } }
         SettingsRow(stringResource(R.string.desktop_size), size?.let { FileUtils.sizeToString(it) } ?: "…") {}
-        SettingsRow(stringResource(R.string.desktop_remove_title), stringResource(R.string.desktop_remove_text)) {
-            UninstallDesktop(enabled = !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop)
+        SettingsRow(stringResource(R.string.vm_delete), stringResource(R.string.vm_delete_text)) {
+            UninstallDesktop(
+                label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
+                note = stringResource(R.string.vm_delete_text),
+                enabled = !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
+            )
         }
     }
 }
 
 @Composable
-private fun UninstallDesktop(enabled: Boolean, onUninstall: () -> Unit) {
+private fun UninstallDesktop(label: String, title: String, note: String, enabled: Boolean, onUninstall: () -> Unit) {
     val canUninstall by rememberUpdatedState(enabled)
     val colors = MaterialTheme.colorScheme
-    val label = stringResource(R.string.common_uninstall)
-    val title = stringResource(R.string.desktop_uninstall_title)
-    val note = stringResource(R.string.desktop_remove_text)
     val keep = stringResource(R.string.flathub_keep)
     var at by remember { mutableStateOf<Rect?>(null) }
     Box(Modifier.onGloballyPositioned { at = it.boundsInRoot() }) {
@@ -400,23 +329,5 @@ private fun UninstallDesktop(enabled: Boolean, onUninstall: () -> Unit) {
                 }
             })
         }
-    }
-}
-
-@Composable
-private fun UserAppsProgressLine() {
-    val colors = MaterialTheme.colorScheme
-    val working = UserAppsState.working
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
-        if (working != null) {
-            val stage = UserAppsState.stage ?: stringResource(R.string.user_apps_starting)
-            val percent = UserAppsState.percent
-            Text(
-                if (percent >= 0) stringResource(R.string.user_apps_progress_percent, working, stage, percent) else stringResource(R.string.user_apps_progress, working, stage),
-                fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
-            )
-            if (percent >= 0) androidx.compose.material3.LinearProgressIndicator(progress = { percent / 100f }, modifier = Modifier.fillMaxWidth().height(4.dp))
-            else androidx.compose.material3.LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(4.dp))
-        } else UserAppsState.lastError?.let { Note(it) }
     }
 }

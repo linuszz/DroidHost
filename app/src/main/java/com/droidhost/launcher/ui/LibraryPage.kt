@@ -229,7 +229,8 @@ internal fun LibraryPage(s: FrontEndState, a: FrontEndActions, selected: String,
     remember { LibraryFavorites.load(ctx) }
     val soundMode = selected == "soundtracks" || selected.startsWith("sound:")
     val favorites = if (soundMode) emptySet() else LibraryFavorites.keys
-    val stores = s.gameStoresEnabled && !s.shortcutPicker && !soundMode
+    // 商店页已从导航移除：库页只呈现手动添加的条目，不再合并商店库与 Steam 库。
+    val stores = false
     val signedIn = Store.entries.filter { StoresState.isSignedIn(it) }
     LaunchedEffect(stores, signedIn) { if (stores) signedIn.forEach { StoresState.loadLibrary(ctx, it) } }
     val owned = if (stores) signedIn.associateWith { StoresState.library[it].orEmpty() } else emptyMap()
@@ -243,7 +244,7 @@ internal fun LibraryPage(s: FrontEndState, a: FrontEndActions, selected: String,
         if (soundMode) s.soundtracks.map { LibraryEntry("sound:${it.appId}", it.source, it.name, it, null, true) } +
             (if (s.soundtracks.isEmpty() && savedSnapshot.favorites.isEmpty() && savedSnapshot.collections.isEmpty()) emptyList() else SoundtrackCollections.games(ctx, favoritesLabel))
                 .map { LibraryEntry("sound:${it.appId}", it.source, it.name, it, null, true) }
-        else libraryEntries(s.steamGames + cloudRows + if (s.soundtracksEnabled) emptyList() else s.soundtracks.filter { it.library != Library.ADDED }, owned, installedStore)
+        else libraryEntries(s.steamGames.filter { it.library == Library.ADDED }, owned, installedStore)
     }
     var addingSoundtrack by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { XboxLibraryFilter.load(ctx) }
@@ -466,7 +467,6 @@ private fun LibraryEmpty(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     Column(modifier = modifier.padding(horizontal = if (narrow) 16.dp else 22.dp, vertical = if (narrow) 12.dp else 18.dp)) {
         Rise(0) {
             PageHeader(stringResource(R.string.rail_games)) {
-                if (s.steamGamesX64) ClientTag()
                 if (!s.shortcutPicker) AddGameButton { GamesDialogState.adding = true }
             }
         }
@@ -651,7 +651,6 @@ private fun LibraryHeader(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(start = 2.dp, end = 4.dp)) {
                 Text(heading, fontSize = if (narrow) 20.sp else 24.sp, fontWeight = FontWeight.Bold, color = colors.onBackground, maxLines = 1)
                 Text(if (soundMode) total.toString() else pluralStringResource(R.plurals.mode_added_count, total, total), fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1)
-                if (s.steamGamesX64 && !narrow) ClientTag()
             }
         },
     ) {
@@ -664,7 +663,6 @@ private fun LibraryHeader(
         if (!soundMode) GameFileFolderActions(s, a)
         if (!s.shortcutPicker) AddGameButton { if (soundMode) onAddSoundtrack() else GamesDialogState.adding = true }
     }
-    if (s.steamGamesX64 && narrow) Box(Modifier.padding(top = 4.dp)) { ClientTag() }
 }
 
 @Composable

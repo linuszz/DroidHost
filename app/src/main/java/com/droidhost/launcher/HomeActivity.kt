@@ -28,7 +28,7 @@ class HomeActivity : Activity() {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .apply {
                     val page = com.droidhost.launcher.core.AppUiPrefs.homePage(this@HomeActivity)
-                    if (page != com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_STEAM) {
+                    if (page != com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_DESKTOP) {
                         putExtra(com.droidhost.launcher.stores.download.StoreDownloadService.EXTRA_NAV, page)
                     }
                 }
