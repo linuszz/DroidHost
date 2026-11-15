@@ -482,15 +482,17 @@ class SessionService : Service() {
         }
         SessionTerminal.clear()
         com.droidhost.launcher.gpu.TpUbwcHint.forThisDevice(this)
+        // A machine that brings its own distribution runs in its own rootfs; every other mode
+        // stays on the app's shared runtime.
+        val root = LinuxRuntime.rootDir(this, sessionMachineId())
         try {
-            LinuxRuntime.writeAccounts(this)
+            LinuxRuntime.writeAccounts(this, root)
         } catch (e: Exception) {
             Log.e(TAG, "could not write the guest's passwd/group", e)
             stopSession(-1, gen)
             return
         }
 
-        val root = LinuxRuntime.rootDir(this)
         val sessionRoot = LinuxRuntime.sessionRoot(this).apply { mkdirs() }
         val runtimeDir = File(filesDir, ".wayland-rt").apply { mkdirs() }
         killStragglers()
@@ -700,9 +702,8 @@ class SessionService : Service() {
         }
         val fastPathKey = if (ProotFastPath.enabled(this)) {
             val prootBinds = LinuxRuntime.binds(
-                this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds,
+                this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds,
             )
-            val root = LinuxRuntime.rootDir(this)
             ProotFastPath.key(root, prootBinds)?.also { key ->
                 val env = ProotFastPath.guestEnv(root, prootBinds, key)
                 guest.addAll(fastPathAt, env)
@@ -714,12 +715,12 @@ class SessionService : Service() {
             }
         } else null
 
-        val sessionBindSpecs = LinuxRuntime.binds(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds)
+        val sessionBindSpecs = LinuxRuntime.binds(this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds)
         val command = if (nativeUserland) {
             LinuxRuntime.rememberSessionBinds(sessionBindSpecs)
             com.droidhost.launcher.runtime.NativeGuest.command(root, guest.first(), guest.drop(1))
         } else {
-            LinuxRuntime.command(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, guest)
+            LinuxRuntime.command(this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, guest, false)
         }
 
         val prootEnv = HostEnvironment()
@@ -748,7 +749,7 @@ class SessionService : Service() {
         val terminalCommand = if (nativeUserland) {
             com.droidhost.launcher.runtime.NativeGuest.command(root, shellGuest.first(), shellGuest.drop(1))
         } else {
-            LinuxRuntime.command(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, shellGuest)
+            LinuxRuntime.command(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, shellGuest, false)
         }
         val terminalHostEnvironment = LinkedHashMap(System.getenv())
         hostEnv.asArray().forEach { entry ->
@@ -990,7 +991,7 @@ class SessionService : Service() {
         if (SessionPrefs.glThread(this)) guest.add("mesa_glthread=true")
         if (SessionPrefs.noGlError(this)) guest.add("MESA_NO_ERROR=1")
         guest.add("MESA_DISK_CACHE_DATABASE=1")
-        guest.addAll(GpuStatsComponent.guestEnv(LinuxRuntime.rootDir(this)))
+        guest.addAll(GpuStatsComponent.guestEnv(sessionRootfs()))
         guest.add("GLIBC_TUNABLES=glibc.pthread.rseq=0:glibc.malloc.top_pad=16777216")
         if (SessionState.mode == MODE_STEAM) guest.add("BL_MANGOAPP=" + (if (SessionPrefs.mangoapp(this)) "1" else "0"))
         SessionState.steamClientArch = if (steamHere) SessionPrefs.steamClientArch(this) else null
@@ -1056,6 +1057,16 @@ class SessionService : Service() {
     }
     private fun noSteamGame(): Boolean =
         SessionState.mode == MODE_RUN && SessionState.program in setOf(NoSteamLaunch.PROTON_RUN, NoSteamLaunch.EPIC, NoSteamLaunch.BATTLENET)
+
+    /**
+     * The machine a desktop session runs for. Every other mode stays on the app's shared
+     * runtime, because the games and the stores live there.
+     */
+    private fun sessionMachineId(): String? =
+        if (SessionState.mode == MODE_DESKTOP) com.droidhost.launcher.vm.VmStore.load(this)?.id else null
+
+    /** The rootfs this session runs in: the machine's own when it has one, the shared runtime otherwise. */
+    private fun sessionRootfs(): File = LinuxRuntime.rootDir(this, sessionMachineId())
 
     private fun startAudio(guest: MutableList<String>, sessionDir: File, directAudioPack: Boolean): PulseAudioComponent {
         val wantsDirectAudio = directAudioPack &&
@@ -1156,7 +1167,7 @@ class SessionService : Service() {
         guest.add("FAKE_EVDEV_LOG=1")
         guest.add("FAKE_EVDEV_LOG_FILE=" + File(sessionDir, "pad.log").path)
         inputSysfs = InputSysfsComponent(fakeInputDir, File(fakeInputDir.parentFile!!.parentFile!!, "sys/input"),
-            File(LinuxRuntime.rootDir(this), "run/udev/data"), SessionState.deckPad, !uinput && SessionState.mode == MODE_STEAM)
+            File(sessionRootfs(), "run/udev/data"), SessionState.deckPad, !uinput && SessionState.mode == MODE_STEAM)
             .takeIf { it.prepare() }
         SessionState.fakeInputDir = fakeInputDir
     }
@@ -1179,12 +1190,12 @@ class SessionService : Service() {
         }
         val battery = BatteryComponent(
             File(filesDir, "session/sys/power_supply"),
-            File(LinuxRuntime.rootDir(this), "run/vpower"),
+            File(sessionRootfs(), "run/vpower"),
         )
         battery.attach(this)
         components.add(battery)
         binds.add(battery.dir.path + ":/sys/class/power_supply")
-        val hwmon = HwmonComponent(File(filesDir, "session/sys/hwmon"), LinuxRuntime.rootDir(this))
+        val hwmon = HwmonComponent(File(filesDir, "session/sys/hwmon"), sessionRootfs())
         if (hwmon.prepare()) {
             hwmon.attach(this)
             components.add(hwmon)
@@ -1196,19 +1207,19 @@ class SessionService : Service() {
             components.add(cpuStat)
             binds.add(cpuStat.file.path + ":/proc/stat")
         }
-        val gpuMem = GpuMemComponent(File(LinuxRuntime.rootDir(this), "run/droiddeck-hud/gpu-mem"), LinuxRuntime.rootDir(this))
+        val gpuMem = GpuMemComponent(File(sessionRootfs(), "run/droiddeck-hud/gpu-mem"), sessionRootfs())
         if (gpuMem.prepare()) {
             gpuMem.attach(this)
             components.add(gpuMem)
         }
-        val gpuStats = GpuStatsComponent(File(filesDir, "session/sys/kgsl-3d0"), LinuxRuntime.rootDir(this))
+        val gpuStats = GpuStatsComponent(File(filesDir, "session/sys/kgsl-3d0"), sessionRootfs())
         if (gpuStats.prepare()) {
             gpuStats.attach(this)
             components.add(gpuStats)
             binds.addAll(gpuStats.binds())
         }
         if (controllersOn) components.add(RumbleComponent().also { it.attach(this) })
-        val home = File(LinuxRuntime.rootDir(this), "root")
+        val home = File(sessionRootfs(), "root")
         File(home, "Storage").mkdirs()
         binds.add(Environment.getExternalStorageDirectory().path + ":/root/Storage")
         val library = GameStorage.effective(this)
@@ -1217,8 +1228,8 @@ class SessionService : Service() {
         if (library != null) {
             val problem = GameStorage.prepare(this, library.path)
             if (problem == null) {
-                File(LinuxRuntime.rootDir(this), "mnt/droiddeck-sd").mkdirs()
-                File(LinuxRuntime.rootDir(this), "mnt/bannerlator-sd").mkdirs()
+                File(sessionRootfs(), "mnt/droiddeck-sd").mkdirs()
+                File(sessionRootfs(), "mnt/bannerlator-sd").mkdirs()
                 try {
                     val configured = File(library.path)
                     val content = SecondaryLibrary.contentPath(configured)
@@ -1237,7 +1248,7 @@ class SessionService : Service() {
             Log.i(TAG, "game storage: internal only")
         }
         if (SessionState.mode == MODE_STEAM && SessionPrefs.storageDiagnosticsEnabled(this)) {
-            val target = storageDiagnosticLibrary ?: File(LinuxRuntime.rootDir(this), "root/.local/share/Steam")
+            val target = storageDiagnosticLibrary ?: File(sessionRootfs(), "root/.local/share/Steam")
             val device = StorageDiagnostics.writeSnapshot(
                 sessionDir, target,
                 selectedLibrary = if (storageDiagnosticLibrary != null) "secondary" else "internal",
@@ -1256,7 +1267,7 @@ class SessionService : Service() {
         }
         for (root in com.droidhost.launcher.frontend.AddedGames.roots(this)) {
             if (root.host.isDirectory && root.host.canRead()) {
-                File(LinuxRuntime.rootDir(this), root.guest.removePrefix("/")).mkdirs()
+                File(sessionRootfs(), root.guest.removePrefix("/")).mkdirs()
                 binds.add(root.host.path + ":" + root.guest)
                 Log.i(TAG, "added games: ${root.host} -> ${root.guest}")
             } else {
@@ -1265,7 +1276,7 @@ class SessionService : Service() {
         }
         for ((host, guest) in com.droidhost.launcher.stores.StoreInstallRoot.externalRootsForXodus(this)) {
             if (host.isDirectory && host.canRead()) {
-                File(LinuxRuntime.rootDir(this), guest.removePrefix("/")).mkdirs()
+                File(sessionRootfs(), guest.removePrefix("/")).mkdirs()
                 binds.add(host.path + ":" + guest)
                 Log.i(TAG, "store games: $host -> $guest")
             }
@@ -1284,7 +1295,7 @@ class SessionService : Service() {
         val gamesLibraries = GameStorage.gamesFolderLibraries(this)
         if (gamesLibraries.isNotEmpty()) {
             var room = if (ProotFastPath.enabled(this)) {
-                ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
+                ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
             } else Int.MAX_VALUE
             for (games in gamesLibraries) {
                 if (games.host.path + ":" + games.guest !in binds) continue
@@ -1326,7 +1337,7 @@ class SessionService : Service() {
             }
             try {
                 val room = if (ProotFastPath.enabled(this)) {
-                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
+                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
                 } else Int.MAX_VALUE
                 val content = SecondaryLibrary.contentPath(entry.host)
                 val extra = SecondaryLibrary.binds(filesDir, entry.host, listOf(entry.guest), content = content)
@@ -1334,7 +1345,7 @@ class SessionService : Service() {
                     Log.w(TAG, "added steam library: ${entry.path} needs ${extra.size} binds, $room left for the fast path; not a library this session")
                     continue
                 }
-                File(LinuxRuntime.rootDir(this), entry.guest.removePrefix("/")).mkdirs()
+                File(sessionRootfs(), entry.guest.removePrefix("/")).mkdirs()
                 binds.addAll(extra)
                 libraries.add(entry.guest to entry.label)
                 steamLibraryMounts = steamLibraryMounts + (entry.guest to content)
@@ -1355,7 +1366,7 @@ class SessionService : Service() {
                 Log.w(TAG, "x86-64 steam library: $problem")
             } else try {
                 val room = if (ProotFastPath.enabled(this)) {
-                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
+                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
                 } else Int.MAX_VALUE
                 val extra = SecondaryLibrary.binds(filesDir, x64, listOf(GameStorage.X64_CARD_GUEST)).drop(1)
                 if (extra.size > room) {
@@ -1377,7 +1388,7 @@ class SessionService : Service() {
             }
             try {
                 val room = if (ProotFastPath.enabled(this)) {
-                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
+                    ProotFastPath.MAX_BINDS - LinuxRuntime.binds(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds).size
                 } else Int.MAX_VALUE
                 val extra = SecondaryLibrary.binds(filesDir, entry.x64Host, listOf(entry.x64Guest)).drop(1)
                 if (extra.size > room) {
@@ -1772,7 +1783,7 @@ class SessionService : Service() {
         val guestPath = fields["path"]?.takeIf { it.startsWith("/") && !it.contains("/../") } ?: return
         val folder = fields["kind"] == "folder"
         val binds = LinuxRuntime.lastBinds(this).map { BwrapSpawner.Bind.parse(it) }
-        val file = File(BwrapSpawner.hostPath(binds, LinuxRuntime.rootDir(this).path, guestPath))
+        val file = File(BwrapSpawner.hostPath(binds, sessionRootfs().path, guestPath))
         val context = applicationContext
         val lock = desktopImports.computeIfAbsent(key) { Any() }
         Thread({
@@ -2350,7 +2361,7 @@ class SessionService : Service() {
                     updateSuspendPolicy()
                     return
                 }
-                val root = LinuxRuntime.rootDir(this@SessionService)
+                val root = sessionRootfs()
                 val wasActive = downloadActive
                 val wasInstalling = clientInstallActive
                 clientInstallActive = !SessionState.firstFrameSeen &&

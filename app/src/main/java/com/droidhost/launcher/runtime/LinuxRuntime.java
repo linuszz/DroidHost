@@ -47,6 +47,15 @@ public final class LinuxRuntime {
         return new File(context.getFilesDir(), DIR);
     }
 
+    /**
+     * The rootfs a machine runs in: its own when it has one, the shared runtime otherwise. A
+     * machine without a rootfs of its own keeps the app's runtime, so a build with no machine
+     * behaves exactly as it did before machines existed.
+     */
+    public static File rootDir(Context context, String machineId) {
+        return com.droidhost.launcher.vm.VmRuntime.rootFor(context, machineId);
+    }
+
     public static File sessionRoot(Context context) {
         return new File(context.getFilesDir(), "session");
     }
@@ -145,8 +154,14 @@ public final class LinuxRuntime {
     public static List<String> command(Context context, File sessionRoot, File runtimeDir,
                                        File externalStorage, List<String> extraBinds,
                                        List<String> guestCommand, boolean fakeRoot) {
-        File root = rootDir(context);
-        List<String> binds = binds(context, sessionRoot, runtimeDir, externalStorage, extraBinds);
+        return command(context, rootDir(context), sessionRoot, runtimeDir, externalStorage, extraBinds, guestCommand, fakeRoot);
+    }
+
+    /** The same command, run in the rootfs a machine brings of its own. */
+    public static List<String> command(Context context, File root, File sessionRoot, File runtimeDir,
+                                       File externalStorage, List<String> extraBinds,
+                                       List<String> guestCommand, boolean fakeRoot) {
+        List<String> binds = binds(context, root, sessionRoot, runtimeDir, externalStorage, extraBinds);
         if (sessionRoot != null) lastBinds = binds;
         return commandWithBinds(context, root, binds, guestCommand, fakeRoot);
     }
@@ -208,7 +223,12 @@ public final class LinuxRuntime {
 
     public static List<String> binds(Context context, File sessionRoot, File runtimeDir,
                                      File externalStorage, List<String> extraBinds) {
-        File root = rootDir(context);
+        return binds(context, rootDir(context), sessionRoot, runtimeDir, externalStorage, extraBinds);
+    }
+
+    /** The mounts of a session that runs in the rootfs a machine brings of its own. */
+    public static List<String> binds(Context context, File root, File sessionRoot, File runtimeDir,
+                                     File externalStorage, List<String> extraBinds) {
         LegacyNames.migrateEtc(root);
         List<String> cmd = new ArrayList<>();
         bind(cmd, "/dev");
@@ -603,7 +623,11 @@ public final class LinuxRuntime {
     }
 
     public static synchronized void writeAccounts(Context context) throws IOException {
-        File root = rootDir(context);
+        writeAccounts(context, rootDir(context));
+    }
+
+    /** The guest's accounts, written into the rootfs the session actually runs in. */
+    public static synchronized void writeAccounts(Context context, File root) throws IOException {
         int uid = Process.myUid();
         mergeAccounts(new File(root, "etc/passwd"), 2,
                 "root:x:" + uid + ":" + uid + ":root:/root:/bin/bash", "root:x:0:0:root:/root:/bin/bash", uid);
