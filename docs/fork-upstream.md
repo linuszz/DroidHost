@@ -45,9 +45,17 @@ git config branch.main.pushRemote origin
 |---|---|
 | `app/src/main/java/com/droidhost/launcher/vm/Vm.kt` | 发行版清单与机器模型 |
 | `app/src/main/java/com/droidhost/launcher/vm/VmRuntime.kt` | 每台机器自己的 rootfs 布局 |
+| `app/src/main/java/com/droidhost/launcher/vm/VmProbe.kt` | 读 rootfs 得出发行版/架构/包管理器 |
+| `app/src/main/java/com/droidhost/launcher/vm/VmUnpacker.kt` | rootfs 压缩包解包（含路径穿越防护） |
+| `app/src/main/java/com/droidhost/launcher/vm/VmImport.kt` | 导入流程：解包 → 探测 → 确认 → 登记 |
+| `app/src/main/java/com/droidhost/launcher/vm/VmStage.kt` | 导入阶段的名字（vm 层不写文案） |
 | `app/src/main/java/com/droidhost/launcher/ui/VmHome.kt` | 桌面页的机器界面 |
+| `app/src/main/java/com/droidhost/launcher/ui/VmImportDialog.kt` | 新建机器与导入向导 |
 | `app/src/main/java/com/droidhost/launcher/App.kt` | 应用入口 |
 | `app/src/test/java/com/droidhost/launcher/ui/VmHomeTest.kt` | 机器界面测试 |
+| `app/src/test/java/com/droidhost/launcher/vm/VmRuntimeTest.kt` | rootfs 布局与机器存储测试 |
+| `app/src/test/java/com/droidhost/launcher/vm/VmProbeTest.kt` | 探测测试 |
+| `app/src/test/java/com/droidhost/launcher/vm/VmUnpackerTest.kt` | 解包测试 |
 
 ```bash
 git diff --diff-filter=A --name-only upstream/main..main   # 新增：fork 层
