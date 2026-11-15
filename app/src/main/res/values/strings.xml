@@ -4206,6 +4206,10 @@
     <string name="vm_install_desktop">Install the desktop</string>
     <string name="vm_install_desktop_running">Installing the desktop from the distribution\'s own repository: %1$d%%</string>
     <string name="vm_install_desktop_failed">The desktop could not be installed: %1$s</string>
+    <string name="vm_install_reason_repository">the distribution\'s repository could not be reached</string>
+    <string name="vm_install_reason_packages">the distribution has none of the packages a session needs</string>
+    <string name="vm_install_reason_install">the packages could not be installed</string>
+    <string name="vm_install_reason_settings">the desktop settings could not be copied</string>
     <string name="vm_delete_machine">Delete machine</string>
     <string name="vm_delete_machine_title">Delete this machine?</string>
     <string name="vm_delete_machine_text">Removes the imported system and everything in it. The shared runtime is not touched.</string>

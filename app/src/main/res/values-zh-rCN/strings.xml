@@ -4106,6 +4106,10 @@
     <string name="vm_install_desktop">安装桌面</string>
     <string name="vm_install_desktop_running">正在用该发行版自己的仓库安装桌面：%1$d%%</string>
     <string name="vm_install_desktop_failed">桌面安装失败：%1$s</string>
+    <string name="vm_install_reason_repository">连不上该发行版的软件仓库</string>
+    <string name="vm_install_reason_packages">该发行版缺少会话需要的软件包</string>
+    <string name="vm_install_reason_install">软件包安装失败</string>
+    <string name="vm_install_reason_settings">桌面配置没能复制过去</string>
     <string name="vm_delete_machine">删除虚拟机</string>
     <string name="vm_delete_machine_title">删除这台虚拟机？</string>
     <string name="vm_delete_machine_text">移除导入的系统及其全部内容。共享运行时不受影响。</string>

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
+import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmMachine
 
 internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, RUNNING, DELETING, IMPORTED }
@@ -57,6 +58,16 @@ internal fun vmStatus(s: FrontEndState, machine: VmMachine?, desktopInMachine: B
     machine.imported -> if (desktopInMachine) VmStatus.READY else VmStatus.IMPORTED
     s.desktopInstalled -> VmStatus.READY
     else -> VmStatus.NEW
+}
+
+/** Why the install of a desktop did not finish, in words. */
+@Composable
+internal fun vmInstallReason(reason: VmDesktop.Reason): String = when (reason) {
+    VmDesktop.Reason.NONE -> ""
+    VmDesktop.Reason.REPOSITORY_UNREACHABLE -> stringResource(R.string.vm_install_reason_repository)
+    VmDesktop.Reason.NO_PACKAGES -> stringResource(R.string.vm_install_reason_packages)
+    VmDesktop.Reason.INSTALL_FAILED -> stringResource(R.string.vm_install_reason_install)
+    VmDesktop.Reason.NO_SETTINGS -> stringResource(R.string.vm_install_reason_settings)
 }
 
 @Composable

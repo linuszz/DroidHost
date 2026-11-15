@@ -168,7 +168,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     when {
                         install.busy -> stringResource(R.string.vm_install_desktop_running, install.percent)
                         install.stage == VmDesktop.Stage.FAILED ->
-                            stringResource(R.string.vm_install_desktop_failed, install.detail)
+                            stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
                         else -> stringResource(R.string.vm_imported_note)
                     },
                     fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant,

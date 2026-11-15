@@ -31,14 +31,17 @@ object VmDesktop {
     /** What the installer is doing. */
     enum class Stage { IDLE, UPDATING, INSTALLING, CONFIGURING, READY, FAILED }
 
+    /** Why the install did not finish. The page turns it into words. */
+    enum class Reason { NONE, REPOSITORY_UNREACHABLE, NO_PACKAGES, INSTALL_FAILED, NO_SETTINGS }
+
     /** What the page shows while the desktop is fitted in. */
-    data class State(val stage: Stage, val percent: Int, val detail: String) {
+    data class State(val stage: Stage, val percent: Int, val reason: Reason = Reason.NONE) {
         val busy: Boolean
             get() = stage == Stage.UPDATING || stage == Stage.INSTALLING || stage == Stage.CONFIGURING
     }
 
     @Volatile
-    private var progress = State(Stage.IDLE, 0, "")
+    private var progress = State(Stage.IDLE, 0)
     private val running = AtomicBoolean(false)
     private val installed = AtomicInteger(0)
 
@@ -66,56 +69,56 @@ object VmDesktop {
     private fun install(context: Context, machine: VmMachine) {
         val root = VmRuntime.ownRootfs(context, machine.id)
         if (root == null) {
-            fail("the machine has no rootfs of its own")
+            fail(Reason.NO_PACKAGES)
             return
         }
         installed.set(0)
         try {
-            progress = State(Stage.UPDATING, 3, "apt-get update")
+            progress = State(Stage.UPDATING, 3)
             val update = VmGuest.run(context, machine.id,
                 listOf("/usr/bin/apt-get", "update"), guestRoot = true, timeoutMs = UPDATE_TIMEOUT_MS)
             // apt-get update only warns when it cannot reach a mirror, so the warnings are the
             // thing to look at rather than its exit status.
             if (update.exitCode != 0 || update.output.contains("Failed to fetch")) {
-                fail("the distribution's repository could not be reached")
+                fail(Reason.REPOSITORY_UNREACHABLE)
                 return
             }
 
-            progress = State(Stage.INSTALLING, 10, "reading the runtime's packages")
+            progress = State(Stage.INSTALLING, 10)
             val packages = runtimePackages(context)
             if (packages.isEmpty()) {
-                fail("the runtime holds no packages to install")
+                fail(Reason.NO_PACKAGES)
                 return
             }
             val wanted = packagesTheMachineHas(context, machine.id, packages)
             if (wanted.isEmpty()) {
-                fail("the distribution has none of the packages a session needs")
+                fail(Reason.NO_PACKAGES)
                 return
             }
 
-            progress = State(Stage.INSTALLING, 15, "installing ${wanted.size} packages")
+            progress = State(Stage.INSTALLING, 15)
             val result = VmGuest.run(context, machine.id,
                 listOf("/bin/bash", "-c", installScript()), guestRoot = true, timeoutMs = INSTALL_TIMEOUT_MS) { line ->
                 onInstallLine(line, wanted.size)
             }
             if (result.exitCode != 0) {
-                fail("the packages could not be installed")
+                fail(Reason.INSTALL_FAILED)
                 return
             }
 
-            progress = State(Stage.CONFIGURING, 90, "the desktop settings")
+            progress = State(Stage.CONFIGURING, 90)
             val copied = copySettings(context, root)
             if (copied == 0) {
-                fail("the desktop settings could not be copied")
+                fail(Reason.NO_SETTINGS)
                 return
             }
             val marker = File(root, MARKER)
             marker.parentFile?.mkdirs()
             marker.writeText("installed ${System.currentTimeMillis()}\n")
-            progress = State(Stage.READY, 100, "")
+            progress = State(Stage.READY, 100)
         } catch (e: Exception) {
             Log.w(TAG, "the desktop could not be fitted in", e)
-            fail(e.message ?: "the desktop could not be fitted in")
+            fail(Reason.INSTALL_FAILED)
         } finally {
             running.set(false)
         }
@@ -151,7 +154,7 @@ object VmDesktop {
         if (!line.startsWith("Setting up ")) return
         val done = installed.incrementAndGet()
         val percent = if (total <= 0) 0 else (15 + done * 70 / total).coerceAtMost(85)
-        progress = State(Stage.INSTALLING, percent, "$done of $total packages")
+        progress = State(Stage.INSTALLING, percent)
     }
 
     /**
@@ -187,9 +190,9 @@ object VmDesktop {
             }
         }.getOrDefault(emptyList())
 
-    private fun fail(detail: String) {
-        Log.w(TAG, detail)
-        progress = State(Stage.FAILED, 0, detail)
+    private fun fail(reason: Reason) {
+        Log.w(TAG, "the desktop could not be fitted in: $reason")
+        progress = State(Stage.FAILED, 0, reason)
     }
 
     private fun filterScript(): String = """
