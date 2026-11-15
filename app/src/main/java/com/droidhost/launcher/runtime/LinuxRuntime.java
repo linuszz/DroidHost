@@ -202,6 +202,19 @@ public final class LinuxRuntime {
         return cmd;
     }
 
+    /**
+     * The prefix for a guest that has to be root inside a machine of its own.
+     *
+     * A package manager keeps the package database it is about to replace by linking it aside, and
+     * the device denies an app the permission to make a hard link. proot can answer with something
+     * that behaves like one instead.
+     */
+    public static List<String> guestRootPrefix(Context context, File root, String cwd) {
+        List<String> cmd = prootPrefix(context, root, cwd, "0:0");
+        cmd.add(1, "--link2symlink");
+        return cmd;
+    }
+
     public static List<String> prootPrefix(Context context, File root, String cwd, boolean fakeRoot) {
         if (!fakeRoot) return prootPrefix(context, root, cwd, Process.myUid() + ":" + Process.myUid());
         List<String> cmd = new ArrayList<>();
