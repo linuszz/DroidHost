@@ -2,6 +2,7 @@ package com.droidhost.launcher.vm
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.archivers.tar.TarConstants
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -34,9 +35,8 @@ class VmUnpackerTest {
     }
 
     private fun TarArchiveOutputStream.link(path: String, target: String, hard: Boolean) {
-        val entry = TarArchiveEntry(path)
-        // The setter of a hard link is not the counterpart of its getter, so it is called by name.
-        if (hard) entry.setLink(true) else entry.setSymbolicLink(true)
+        // A link entry carries its kind in the flag the constructor takes.
+        val entry = TarArchiveEntry(path, if (hard) TarConstants.LF_LINK else TarConstants.LF_SYMLINK)
         entry.linkName = target
         putArchiveEntry(entry)
         closeArchiveEntry()
