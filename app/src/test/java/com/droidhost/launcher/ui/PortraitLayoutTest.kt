@@ -82,7 +82,7 @@ class PortraitLayoutTest {
             }
         }
         compose.mainClock.advanceTimeBy(1_000)
-        for (key in listOf("games", "desktop", "components", "android-apps", "setup", "updates")) {
+        for (key in listOf("desktop", "components", "android-apps", "setup", "updates")) {
             compose.onNodeWithTag("rail-$key").performScrollTo()
             compose.mainClock.advanceTimeBy(1_000)
             compose.onNodeWithTag("rail-$key").assertIsDisplayed().performClick()
@@ -100,12 +100,12 @@ class PortraitLayoutTest {
             DroidHostTheme { BottomBar(state, "desktop", {}, {}, actions, Modifier.size(480.dp, 64.dp)) }
         }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Library").assertDoesNotExist()
-        compose.onNodeWithContentDescription("Library").assertIsDisplayed()
+        compose.onNodeWithText("Desktop").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Desktop").assertIsDisplayed()
         compose.runOnIdle { RailLabels.set(context, true) }
         androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Library").assertIsDisplayed()
+        compose.onNodeWithText("Desktop").assertIsDisplayed()
     }
 
     @Test fun compactHeaderKeepsAllActionsReachable() {

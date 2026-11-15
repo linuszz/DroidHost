@@ -56,13 +56,13 @@ class NavigationSelectionTest {
         }
         compose.mainClock.advanceTimeBy(1_000)
         val desktop = compose.onNodeWithTag("rail-desktop")
-        val games = compose.onNodeWithTag("rail-games")
+        val components = compose.onNodeWithTag("rail-components")
         assertTab(desktop, true)
-        assertTab(games, false)
-        games.performClick()
+        assertTab(components, false)
+        components.performClick()
         compose.mainClock.advanceTimeBy(1_000)
         assertTab(desktop, false)
-        assertTab(games, true)
+        assertTab(components, true)
         assertGroup()
     }
 

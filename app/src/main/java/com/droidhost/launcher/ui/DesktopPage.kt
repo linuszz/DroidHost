@@ -108,8 +108,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
 
     val primary: () -> Unit = when (status) {
         VmStatus.ABSENT -> ({ picking = true })
-        VmStatus.NEW -> a.onDesktop
-        VmStatus.READY -> a.onResume
+        VmStatus.NEW, VmStatus.READY -> a.onDesktop
         VmStatus.RUNNING -> a.onVmStop
         else -> ({})
     }

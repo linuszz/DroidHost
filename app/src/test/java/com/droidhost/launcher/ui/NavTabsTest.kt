@@ -42,7 +42,7 @@ class NavTabsTest {
     }
 
     @Test fun shelvedFeaturesStayOutOfTheBarOnAFreshInstall() {
-        assertEquals(listOf("games", "desktop", "components", "setup", "updates"), navigationKeys(state()))
+        assertEquals(listOf("desktop", "components", "setup", "updates"), navigationKeys(state()))
         assertEquals(emptyList<String>(), NavTabs.more(state()))
         assertEquals(setOf("agent"), NavTabs.shelved)
         assertTrue(com.droidhost.launcher.agent.AgentTab.shown)
@@ -79,15 +79,15 @@ class NavTabsTest {
 
     @Test fun movingSwapsWithTheNextVisibleTabAndPersists() {
         moveTab("setup", -1)
-        assertEquals(listOf("games", "desktop", "setup", "components", "updates"), navigationKeys(state()))
+        assertEquals(listOf("desktop", "setup", "components", "updates"), navigationKeys(state()))
         NavTabs.load(ctx)
-        assertEquals(listOf("games", "desktop", "setup", "components", "updates"), navigationKeys(state()))
+        assertEquals(listOf("desktop", "setup", "components", "updates"), navigationKeys(state()))
     }
 
     @Test fun tabsMissingFromASavedOrderSlotInAfterTheirDefaultNeighbour() {
-        assertEquals(listOf("games", "desktop", "agent", "components", "android-apps", "setup", "updates"),
+        assertEquals(listOf("desktop", "agent", "components", "android-apps", "setup", "updates"),
             NavTabs.arrange(listOf("updates", "steam")))
-        assertEquals(listOf("games", "setup", "desktop", "agent", "components", "android-apps", "updates"),
+        assertEquals(listOf("setup", "desktop", "agent", "components", "android-apps", "updates"),
             NavTabs.arrange(listOf("games", "steam", "setup", "stores", "desktop", "components", "android-apps", "updates", "bogus")))
     }
 
@@ -154,7 +154,7 @@ class NavTabsTest {
         compose.setContent { DroidHostTheme { FrontEndScreen(state(), actions(), page = null) } }
         compose.mainClock.advanceTimeBy(2_000)
         compose.onNode(hasText(ctx.getString(com.droidhost.launcher.R.string.content_page_gone))).assertDoesNotExist()
-        compose.onNode(hasTestTag("rail-games") and androidx.compose.ui.test.isSelected()).assertExists()
+        compose.onNode(hasTestTag("rail-setup") and androidx.compose.ui.test.isSelected()).assertExists()
     }
 
     @Test fun theDesktopPageOffersANewMachineWhenNothingIsInstalled() {
