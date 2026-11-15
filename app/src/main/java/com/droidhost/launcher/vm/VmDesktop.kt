@@ -31,6 +31,7 @@ object VmDesktop {
     private const val INSTALL_LOG = "/root/.droiddeck-install.log"
     private const val UPDATE_TIMEOUT_MS = 15 * 60 * 1000L
     private const val INSTALL_TIMEOUT_MS = 180 * 60 * 1000L
+    private const val DRIVER_TIMEOUT_MS = 30 * 60 * 1000L
 
     /** What the installer is doing. */
     enum class Stage { IDLE, UPDATING, INSTALLING, CONFIGURING, READY, FAILED }
@@ -113,6 +114,19 @@ object VmDesktop {
             if (result.exitCode != 0) {
                 fail(Reason.INSTALL_FAILED)
                 return
+            }
+
+            // The driver the app's own runtime has, for a machine that runs the same system.
+            if (VmDriver.sameDistribution(context, root) && VmDriver.prepare(context, root)) {
+                val driver = VmGuest.run(context, machine.id,
+                    listOf("/bin/bash", "-c", VmDriver.installScript()), guestRoot = true,
+                    timeoutMs = DRIVER_TIMEOUT_MS) { line ->
+                    onInstallLine(context, line, wanted.size)
+                }
+                if (driver.exitCode != 0) {
+                    fail(Reason.INSTALL_FAILED)
+                    return
+                }
             }
 
             progress = State(Stage.CONFIGURING, 90)
