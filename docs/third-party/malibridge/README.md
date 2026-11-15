@@ -11,7 +11,7 @@ DroidHost uses it only on a GPU without Adreno's KGSL; an Adreno keeps Turnip.
 The DroidHost side of the bridge (the Setup switches, the server's start and session wiring, the
 Mali render node stand-in, the compositor's AHardwareBuffer import off Adreno, the Steam web helper
 layout, the socket wait and the DXVK choice for older Vulkan drivers) is Ahmad Sayed Alsayed
-Ebrahim's (ASEbrahim) work from https://github.com/ASEbrahim/DroidHost, kept under their name in
+Ebrahim's (ASEbrahim) work from https://github.com/ASEbrahim/DroidDeck, kept under their name in
 this repository's history.
 
 MaliBridge's own credits, in its README, include:

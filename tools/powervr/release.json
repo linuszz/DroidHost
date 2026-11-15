@@ -129,7 +129,7 @@
         "x64/dxgi.dll.a"
       ],
       "provenance": {
-        "ci_run": "https://github.com/wallentx/DroidHost/actions/runs/38119192562",
+        "ci_run": "https://github.com/wallentx/DroidDeck/actions/runs/38119192562",
         "repository_commit": "aee0ebd43557ef9964ba7f6a11d7d30efaf983ac"
       },
       "recipe_inputs": {
@@ -141,7 +141,7 @@
       },
       "sha256": "d08dd962ced3482883ad9e9eb4903a4d27a3756b4f989a97ecdfcccb53fbee66",
       "size": 24063241,
-      "url": "https://github.com/wallentx/DroidHost/releases/download/v0.3.2-progress.20261011.3/dxvk-aee0ebd.zip"
+      "url": "https://github.com/wallentx/DroidDeck/releases/download/v0.3.2-progress.20261011.3/dxvk-aee0ebd.zip"
     },
     {
       "files": [
@@ -205,7 +205,7 @@
       "id": "wsi",
       "ignored": [],
       "provenance": {
-        "ci_run": "https://github.com/wallentx/DroidHost/actions/runs/38047627963",
+        "ci_run": "https://github.com/wallentx/DroidDeck/actions/runs/38047627963",
         "repository_commit": "abe58618a5194f1f15499cbd5f9ec75503782556",
         "vulkan_headers_licenses": {
           "note": "Added from tracked assembly inputs; the original WSI archive and compiled library are unchanged.",
@@ -225,7 +225,7 @@
       },
       "sha256": "348f9ec42159c1ee6e2baba4312a5e845d26687238f29e3f4a1b0c3c97e13b3c",
       "size": 362717,
-      "url": "https://github.com/wallentx/DroidHost/releases/download/v0.3.2-progress.20261010.4/wsi-abe5861.zip"
+      "url": "https://github.com/wallentx/DroidDeck/releases/download/v0.3.2-progress.20261010.4/wsi-abe5861.zip"
     },
     {
       "files": [
@@ -316,8 +316,8 @@
   "format": 1,
   "hybris": {
     "provenance": {
-      "apk_ci_run": "https://github.com/wallentx/DroidHost/actions/runs/38123715308",
-      "extracted_from_apk": "https://github.com/wallentx/DroidHost/releases/download/v0.3.2-progress.20261011.3/DroidHost-0.3.2-1b6185b.apk",
+      "apk_ci_run": "https://github.com/wallentx/DroidDeck/actions/runs/38123715308",
+      "extracted_from_apk": "https://github.com/wallentx/DroidDeck/releases/download/v0.3.2-progress.20261011.3/DroidDeck-0.3.2-1b6185b.apk",
       "note": "APK build reused a cached bridge. Original source and compiler metadata are preserved in build-manifest.json; no APK commit is claimed as the bridge producer.",
       "upstream_source_commit": "bc8cb3586b79d208fd21b925fa0209b3e432e008"
     },
@@ -330,6 +330,6 @@
     "sha256": "f4f12c26ed21003c2c98a7cececd76c8a3b332d79ece9d1f963cf3b9e8943978",
     "size": 5552486,
     "tree_sha256": "de9cc2c4107bf396e4f963d7e91f936a966593fb1df680a0b5d43db0f9fef4e1",
-    "url": "https://github.com/wallentx/DroidHost/releases/download/v0.3.2-progress.20261011.3/hybris-runtime-f4f12c26.tzst"
+    "url": "https://github.com/wallentx/DroidDeck/releases/download/v0.3.2-progress.20261011.3/hybris-runtime-f4f12c26.tzst"
   }
 }

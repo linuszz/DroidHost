@@ -1,7 +1,7 @@
 # Quest presentation candidate Test 2 — 2026-10-13
 
 Base: `main` at `a394dfd31b2102e20dd99c6f51b4873bbdedab05`.
-Reference APK: `DroidHost-PR669-A6xx-Test2(1).apk`, SHA-256
+Reference APK: `DroidDeck-PR669-A6xx-Test2(1).apk`, SHA-256
 `95ffb5ea6ae61d6a92c4ce9ad46f329d77a0f113ebbaabc6da30d6c8bd951154`.
 Its embedded source revision is `d3f3439bbc45ca67de86d0093356a449c2c74600`.
 

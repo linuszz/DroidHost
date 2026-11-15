@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn manifest_conflicts_and_names() {
         assert!(conflicts(".droiddeck-epic-staging/x"));
-        assert!(conflicts(".DroidHost-Epic-Staging"));
+        assert!(conflicts(".DroidDeck-Epic-Staging"));
         assert!(!conflicts("Game/.droiddeck-epic-staging"));
         let (a, b) = (unique_name(), unique_name());
         assert_ne!(a, b);

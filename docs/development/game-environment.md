@@ -38,7 +38,7 @@ or imported on the Default Components page.
 FEX, DXVK and VKD3D-Proton each have an **Auto** or **Manual** mode on the Default
 Components page. Auto is the default unless a component already uses a package the
 user picked, which keeps it on Manual. In Auto, DroidHost checks the
-DroidHost-Components nightly release when DroidHost is opened, at most hourly and
+DroidDeck-Components nightly release when DroidHost is opened, at most hourly and
 never during a running session, and installs the newest build into DroidDeck-Proton.
 Valve's Proton, GE-Proton, proton-cachyos and any other tool keep their own components;
 builds an earlier Auto had placed in them go back to the original once. A build the user

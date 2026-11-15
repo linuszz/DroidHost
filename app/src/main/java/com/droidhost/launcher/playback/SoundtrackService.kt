@@ -209,13 +209,13 @@ class SoundtrackService : MediaSessionService() {
     }
 
     companion object {
-        const val HINT_OWNER = "droiddeck.owner"
-        private val SHUFFLE = SessionCommand("droiddeck.shuffle", Bundle.EMPTY)
-        private val REPEAT = SessionCommand("droiddeck.repeat", Bundle.EMPTY)
-        val SKIP_SILENCE = SessionCommand("droiddeck.skipsilence", Bundle.EMPTY)
-        val EQUALIZER = SessionCommand("droiddeck.equalizer", Bundle.EMPTY)
-        val SLEEP = SessionCommand("droiddeck.sleep", Bundle.EMPTY)
-        val INGAME = SessionCommand("droiddeck.ingame", Bundle.EMPTY)
+        const val HINT_OWNER = "droidhost.owner"
+        private val SHUFFLE = SessionCommand("droidhost.shuffle", Bundle.EMPTY)
+        private val REPEAT = SessionCommand("droidhost.repeat", Bundle.EMPTY)
+        val SKIP_SILENCE = SessionCommand("droidhost.skipsilence", Bundle.EMPTY)
+        val EQUALIZER = SessionCommand("droidhost.equalizer", Bundle.EMPTY)
+        val SLEEP = SessionCommand("droidhost.sleep", Bundle.EMPTY)
+        val INGAME = SessionCommand("droidhost.ingame", Bundle.EMPTY)
         const val ARG_ON = "on"
         const val ARG_BANDS = "bands"
         const val ARG_BASS = "bass"

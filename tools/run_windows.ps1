@@ -14,9 +14,9 @@ try {
     & adb @adbArgs install -r 'app/build/outputs/apk/debug/app-debug.apk'
     if ($LASTEXITCODE -ne 0) { throw 'APK installation failed; existing app data was not removed.' }
     $suffixLine = if (Test-Path -LiteralPath 'local.properties' -PathType Leaf) {
-        Get-Content -LiteralPath 'local.properties' | Where-Object { $_ -match '^droiddeck.debugApplicationIdSuffix=' } | Select-Object -First 1
+        Get-Content -LiteralPath 'local.properties' | Where-Object { $_ -match '^droid(host|deck)\.debugApplicationIdSuffix=' } | Select-Object -First 1
     }
-    $suffix = if ($suffixLine) { $suffixLine.Substring('droiddeck.debugApplicationIdSuffix='.Length) } else { '' }
+    $suffix = if ($suffixLine) { $suffixLine.Substring($suffixLine.IndexOf('=') + 1) } else { '' }
     & adb @adbArgs shell am start -W -n "com.droidhost.launcher$suffix/com.droidhost.launcher.MainActivity"
     if ($LASTEXITCODE -ne 0) { throw 'App launch failed.' }
 } finally {

@@ -256,7 +256,7 @@ jobs:
             digest=$({ gh api "repos/Droid-Deck/DroidDeck-Components/releases/tags/$tag" 2>/dev/null || echo '{}'; } |
               jq -r --arg n "$name.tar.zst" '.assets // [] | .[] | select(.name == $n) | .digest // empty')
             if [ "$digest" = "sha256:$sha" ]; then
-              echo "$name: served from DroidHost-Components $tag"
+              echo "$name: served from DroidDeck-Components $tag"
             else
               cp "$file" "pr-packs/$tag.tar.zst"
               echo "$name: attached to the PR release as $tag.tar.zst"
@@ -286,8 +286,8 @@ jobs:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidHost-CI
-      - name: Publish to DroidHost-CI
+          repositories: DroidDeck-CI
+      - name: Publish to DroidDeck-CI
         id: publish
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}

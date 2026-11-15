@@ -53,7 +53,7 @@ jobs:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidHost-Components
+          repositories: DroidDeck-Components
       - name: Refuse a published tag
         if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
         env:

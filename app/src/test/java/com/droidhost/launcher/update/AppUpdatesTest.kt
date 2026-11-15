@@ -24,7 +24,7 @@ import java.io.IOException
 class AppUpdatesTest {
     private fun apk(versionCode: Int = 9) = AppUpdates.Apk(
         "DroidHost.apk",
-        "https://github.com/Droid-Deck/DroidDeck-CI/releases/download/t/DroidHost.apk",
+        "https://github.com/Droid-Deck/DroidDeck-CI/releases/download/t/DroidDeck.apk",
         10,
         "a".repeat(64),
         "com.droidhost.launcher",
@@ -231,8 +231,8 @@ class AppUpdatesTest {
                 "url": "https://github.com/Droid-Deck/DroidDeck-CI/releases/tag/main-deadbee",
                 "apks": {
                   "com.droidhost.launcher": {
-                    "name": "DroidHost-main-deadbee.apk",
-                    "url": "https://github.com/Droid-Deck/DroidDeck-CI/releases/download/main-deadbee/DroidHost-main-deadbee.apk",
+                    "name": "DroidDeck-main-deadbee.apk",
+                    "url": "https://github.com/Droid-Deck/DroidDeck-CI/releases/download/main-deadbee/DroidDeck-main-deadbee.apk",
                     "size": 10,
                     "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                     "packageName": "com.droidhost.launcher",

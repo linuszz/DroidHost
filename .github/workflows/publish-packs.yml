@@ -41,7 +41,7 @@ jobs:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidHost-Components
+          repositories: DroidDeck-Components
 
       - name: Publish
         env:

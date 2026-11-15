@@ -28,7 +28,7 @@
 - 合并基线：main 69ffc096，tag mali-0.6.7-v0.5.4.2
 - 旧版源码：/home/g/openMali/reference/mali0542-src
 - 旧版 APK：/home/g/openMali/reference/DroidDeck-MaliBridge-v0.5.4.2.apk
-- 最终 APK：/home/g/openMali/output/DroidHost-0.6.7-Mali-rc4.apk
+- 最终 APK：/home/g/openMali/output/DroidDeck-0.6.7-Mali-rc4.apk
 - 基准/参考工具：/home/g/openMali/reference/vkbridge-bench，/home/g/openMali/reference/oldapk
 
 ## 4. 已验证的修改
@@ -196,10 +196,10 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 - 修改 runtime inputs 后先记录：
   - python3 tools/release/runtime_inputs.py record
 - APK（DNS 自动修复 + GPU 状态文案 + HUD/CPU 温度 + mscoree 兜底，当前安装）：
-  - /home/g/openMali/output/DroidHost-0.6.7-Mali-rc4-dnsfix-v25.apk
+  - /home/g/openMali/output/DroidDeck-0.6.7-Mali-rc4-dnsfix-v25.apk
   - 76 MB；versionCode 25；versionName 0.6.7-dnsfix-v25
   - SHA-256 9808a8ab17f2d9a39e0b3abc9a05c2ee1c07ec7f4ac7cfa77866b2229fb6eb82
-  - 上一版保留：v24（SHA-256 56b0ab03c0120c2a7a6ad0e4ed8d30a748021d7fe9e99a13b60f62a41e13b5e0）、v23（SHA-256 b0fadc5c...）、v22（SHA-256 69cd4f5f...）、v21（SHA-256 508294a6...）、v20（SHA-256 afd1ce12...）、v19（SHA-256 f63f4eae...）、v18（SHA-256 cc469703...）、v16 DroidHost-0.6.7-Mali-rc4-dnsfix.apk（SHA-256 6c5f8c1f...）和 DroidHost-0.6.7-Mali-rc4.apk（无 App 内 DNS 修复，SHA-256 c58fcc58...）。
+  - 上一版保留：v24（SHA-256 56b0ab03c0120c2a7a6ad0e4ed8d30a748021d7fe9e99a13b60f62a41e13b5e0）、v23（SHA-256 b0fadc5c...）、v22（SHA-256 69cd4f5f...）、v21（SHA-256 508294a6...）、v20（SHA-256 afd1ce12...）、v19（SHA-256 f63f4eae...）、v18（SHA-256 cc469703...）、v16 DroidDeck-0.6.7-Mali-rc4-dnsfix.apk（SHA-256 6c5f8c1f...）和 DroidDeck-0.6.7-Mali-rc4.apk（无 App 内 DNS 修复，SHA-256 c58fcc58...）。
   - testkey 签名；官方 release 私钥不在本机。
 - MIUI 安装：
   - 对已安装的旧包，adb push + adb shell pm install -r 可更新。
@@ -228,7 +228,7 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 4. vkcube 纹理断言是桥接兼容性 bug，可单独排查。
 5. 真实游戏帧率/Proton/DXVK 尚未测试；当前性能数据主要是桌面、vkgears、IO/CPU。
 6. 仍是 testkey；如需官方升级安装，需要官方 release keystore。
-7. 官方 0.6.9 与 testkey 不兼容：只能完整卸载后安装，App 数据会丢；官方 APK 备份在 /tmp/installed-069.apk（宿主）和 /sdcard/Download/DroidHost-0.6.9.apk（平板），回滚同样要先卸载。
+7. 官方 0.6.9 与 testkey 不兼容：只能完整卸载后安装，App 数据会丢；官方 APK 备份在 /tmp/installed-069.apk（宿主）和 /sdcard/Download/DroidDeck-0.6.9.apk（平板），回滚同样要先卸载。
 8. HUD 的 Mali GPU load/temp/VRAM 受驱动 sysfs 权限限制；除非 root/厂商接口，普通 App 无法获取。v21 已移除误导性的 GPU - 和 VRAM 0.0，保留 GPU 型号。
 
 ## 10. 已放弃 / 不再使用

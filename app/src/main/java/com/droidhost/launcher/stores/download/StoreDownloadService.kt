@@ -166,12 +166,12 @@ class StoreDownloadService : Service() {
         private const val WAKE_TIMEOUT_MS = 10 * 60_000L
         private const val WAKE_RENEW_MS = 5 * 60_000L
         private const val EXTRA_KEY = "key"
-        private const val ACTION_PAUSE = "droiddeck.stores.PAUSE"
-        private const val ACTION_RESUME = "droiddeck.stores.RESUME"
-        private const val ACTION_CANCEL = "droiddeck.stores.CANCEL"
-        private const val ACTION_DELETE = "droiddeck.stores.DELETE"
-        private const val ACTION_KEEP = "droiddeck.stores.KEEP"
-        const val EXTRA_NAV = "droiddeck.nav"
+        private const val ACTION_PAUSE = "droidhost.stores.PAUSE"
+        private const val ACTION_RESUME = "droidhost.stores.RESUME"
+        private const val ACTION_CANCEL = "droidhost.stores.CANCEL"
+        private const val ACTION_DELETE = "droidhost.stores.DELETE"
+        private const val ACTION_KEEP = "droidhost.stores.KEEP"
+        const val EXTRA_NAV = "droidhost.nav"
         private val active = ConcurrentHashMap.newKeySet<String>()
         @Volatile private var instance: StoreDownloadService? = null
 

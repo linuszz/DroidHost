@@ -76,8 +76,8 @@ class SyncthingService : Service() {
         const val NAV = "setup:sync"
         private const val CHANNEL = "syncthing"
         private const val ID = 9203
-        private const val ACTION_PAUSE = "droiddeck.sync.PAUSE"
-        private const val ACTION_OFF = "droiddeck.sync.OFF"
+        private const val ACTION_PAUSE = "droidhost.sync.PAUSE"
+        private const val ACTION_OFF = "droidhost.sync.OFF"
         @Volatile private var running = false
 
         private fun channel(context: Context) {

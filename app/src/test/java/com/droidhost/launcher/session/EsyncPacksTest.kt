@@ -163,7 +163,7 @@ class EsyncPacksTest {
     @Test fun parseIndexDropsEntriesOutsideTheReleasePrefixOrMalformed() {
         val packs = entries(
             entryJson("good-r1"),
-            entryJson("other-repo-r1", url = "https://github.com/Someone/DroidHost/releases/download/droiddeck-esync-ge/other-repo-r1.tzst"),
+            entryJson("other-repo-r1", url = "https://github.com/Someone/DroidDeck/releases/download/droiddeck-esync-ge/other-repo-r1.tzst"),
             entryJson("plain-http-r1", url = "http://github.com/Droid-Deck/DroidDeck-Components/releases/download/droiddeck-esync-ge/plain-http-r1.tzst"),
             entryJson("dotdot-r1", url = "https://github.com/Droid-Deck/DroidDeck-Components/releases/download/droiddeck-esync-ge/../../x/dotdot-r1.tzst"),
             entryJson("other-tag-r1", url = "https://github.com/Droid-Deck/DroidDeck-Components/releases/download/v1/other-tag-r1.tzst"),

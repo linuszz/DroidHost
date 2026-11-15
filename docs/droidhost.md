@@ -126,8 +126,8 @@ devices:
   `Droid-Deck/DroidDeck-CI`. The catalogue is keyed by Android package name, so no upstream
   entry matches `com.droidhost.launcher` and the app will not offer an update. That is the
   safe failure mode, but it means DroidHost cannot update itself until it publishes its own
-  catalogue. This needs a `DroidHost-CI` repository and a matching `REPO`/`CI_REPO` pair in
-  `AppUpdates.kt`.
+  catalogue. This needs a `DroidHost-CI` repository of its own and a matching `REPO`/`CI_REPO`
+  pair in `AppUpdates.kt`.
 - **The runtime components still come from upstream.** `DroidDeck-Components` hosts the Linux
   userland, the desktop KDE package, the Windows components, FEX and the Proton builds. DroidHost
   consumes them as-is for now.

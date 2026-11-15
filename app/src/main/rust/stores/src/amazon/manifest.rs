@@ -271,7 +271,7 @@ mod tests {
             "a\\",
             "a\\.\\b",
             ".droiddeck-store.json",
-            ".DroidHost-Launch.BAT",
+            ".DroidDeck-Launch.BAT",
             ".amazon_download_complete",
         ] {
             assert!(check_path(bad).is_err(), "{bad}");

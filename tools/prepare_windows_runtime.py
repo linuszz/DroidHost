@@ -34,7 +34,7 @@ DONOR_MAIN_SOURCE = '46fac69438ed428f2ca43ea935cd47790264f380'
 DONOR_TREE = 'ddbca4d572b809fb969be0cf80ef83d6ef6580ce'
 DONOR_REVISION = 'cf24c5f2c771633ea426046006c2b977c7bd7d32'
 DONOR_CERT_SHA256 = 'b241ea7d77822d39b89d3227e06f3ecf62adec6cbfd38ad06196787991b5d3f0'
-DONOR_URL = 'https://github.com/Droid-Deck/DroidDeck-CI/releases/download/pr-732/DroidHost-PR.732-bdf876d.apk'
+DONOR_URL = 'https://github.com/Droid-Deck/DroidDeck-CI/releases/download/pr-732/DroidDeck-PR.732-bdf876d.apk'
 AUDITED_SOURCE = '1dc66bf9be64a404c80400049c0803614814461b'
 LOCAL_BUILD_PLUMBING = {'app/build.gradle', 'tools/release/runtime_inputs.py'}
 LOCAL_ANDROID_SOURCES = {'app/src/main/cpp/CMakeLists.txt',
@@ -311,7 +311,7 @@ def prepare(apk, rebuilt_dir, gamescope, llvm_strip=None, rebuilt_vr=None, vk_in
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--apk', type=Path, default=ROOT / 'build/windows-setup/DroidHost-PR.732-bdf876d.apk')
+    parser.add_argument('--apk', type=Path, default=ROOT / 'build/windows-setup/DroidDeck-PR.732-bdf876d.apk')
     parser.add_argument('--rebuilt-linuxfs', type=Path, default=ROOT / 'build/windows-setup/rebuilt-linuxfs')
     parser.add_argument('--gamescope', type=Path, default=ROOT / 'build/windows-setup/gamescope.tzst')
     parser.add_argument('--llvm-strip', type=Path, default=Path.home() /

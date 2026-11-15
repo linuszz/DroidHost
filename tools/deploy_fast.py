@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deploy session-helper changes by grafting them into the latest main CI APK.
 
-Downloads the newest release-signed main build from DroidHost-CI that this checkout
+Downloads the newest release-signed main build from DroidDeck-CI that this checkout
 descends from, replaces the helper assets whose sources differ from that build, re-signs
 the result with the local release signer and optionally installs it. Any other change
 (Kotlin, resources, native code, runtime components, deletions) stops the run so a full
@@ -114,7 +114,7 @@ def release_tags(limit=60):
     out = run_bounded(['gh', 'release', 'list', '-R', CI_REPO, '--limit', str(limit), '--json', 'tagName'],
                       120, capture_output=True, text=True)
     if out.returncode:
-        raise Refused('Could not list DroidHost-CI releases: ' + out.stderr.strip())
+        raise Refused('Could not list DroidDeck-CI releases: ' + out.stderr.strip())
     return [item['tagName'] for item in json.loads(out.stdout) if item['tagName'].startswith('main-')]
 
 
@@ -140,7 +140,7 @@ def pick_tag(requested):
                 return tag
         except Refused:
             continue
-    raise Refused('No recent DroidHost-CI main build is an ancestor of this checkout; merge main first.')
+    raise Refused('No recent DroidDeck-CI main build is an ancestor of this checkout; merge main first.')
 
 
 def fetch_donor(tag):
@@ -311,7 +311,7 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--donor', help='DroidHost-CI main tag such as main-4aa19b6; default is the newest ancestor build')
+    parser.add_argument('--donor', help='DroidDeck-CI main tag such as main-4aa19b6; default is the newest ancestor build')
     parser.add_argument('--plan', action='store_true', help='Show what would be grafted without building')
     parser.add_argument('--install', action='store_true', help='Install the signed APK on the connected device')
     try:

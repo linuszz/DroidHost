@@ -965,14 +965,14 @@ jobs:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidHost-CI
+          repositories: DroidDeck-CI
 
       - name: Describe the change
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash tools/release/describe-build.sh
 
-      - name: Publish to DroidHost-CI
+      - name: Publish to DroidDeck-CI
         id: publish
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}
