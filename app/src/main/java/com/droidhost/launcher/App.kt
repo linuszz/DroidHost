@@ -21,6 +21,13 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Thread({ runCatching { EnhancedSessionLogShare.cleanupAbandonedStages(this) } }, "diagnostic-stage-cleanup").start()
+        // A machine the user brought that was never confirmed leaves its rootfs behind.
+        Thread({
+            runCatching {
+                val known = com.droidhost.launcher.vm.VmStore.all(this).map { it.id }.toSet()
+                com.droidhost.launcher.vm.VmRuntime.sweep(this, known)
+            }
+        }, "vm-orphan-sweep").start()
         com.droidhost.launcher.ui.Themes.loadGradient(this)
         com.droidhost.launcher.ui.BuildWatermark.install(this)
         HomeApp.trackRecents(this)

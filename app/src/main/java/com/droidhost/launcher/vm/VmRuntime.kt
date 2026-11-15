@@ -41,4 +41,27 @@ object VmRuntime {
     @JvmStatic
     fun rootFor(context: Context, machineId: String?): File =
         ownRootfs(context, machineId) ?: LinuxRuntime.rootDir(context)
+
+    /**
+     * Takes a directory away on its own thread.
+     *
+     * A rootfs holds tens of thousands of files, so the interface must not wait for it.
+     */
+    fun removeInBackground(dir: File) {
+        Thread({ dir.deleteRecursively() }, "vm-remove").apply { isDaemon = true }.start()
+    }
+
+    /**
+     * The machine directories that no machine points at.
+     *
+     * An import that was abandoned leaves its rootfs behind; nothing points at it, so it is only
+     * taking up space.
+     */
+    fun orphans(context: Context, known: Set<String>): List<File> =
+        machinesDir(context).listFiles().orEmpty().filter { it.isDirectory && it.name !in known }
+
+    /** Takes the rootfs of an abandoned import away. */
+    fun sweep(context: Context, known: Set<String>) {
+        for (dir in orphans(context, known)) removeInBackground(dir)
+    }
 }

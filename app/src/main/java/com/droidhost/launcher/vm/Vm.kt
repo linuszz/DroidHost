@@ -41,8 +41,16 @@ object VmCatalog {
 /**
  * A machine the user owns. [id] names its rootfs under files/vms, so a machine that brings its
  * own distribution keeps it to itself.
+ *
+ * [imported] marks a machine the user brought rather than one we packaged, so it is restored
+ * from the name it carried instead of from the catalogue.
  */
-data class VmMachine(val distro: VmDistro, val createdAt: Long, val id: String = DEFAULT_ID) {
+data class VmMachine(
+    val distro: VmDistro,
+    val createdAt: Long,
+    val id: String = DEFAULT_ID,
+    val imported: Boolean = false,
+) {
     companion object {
         /** The id of the machine a build made before machines had a rootfs of their own. */
         const val DEFAULT_ID = "default"
@@ -73,10 +81,14 @@ object VmStore {
     /** The machine the desktop page acts on. */
     fun load(context: Context): VmMachine? = all(context).firstOrNull()
 
-    /** Null when the system has no engine, or when a machine exists: the runtime owns one rootfs. */
-    fun create(context: Context, distro: VmDistro): VmMachine? {
+    /**
+     * Null when the system has no engine, or when a machine exists: the runtime owns one rootfs.
+     *
+     * [id] names the rootfs the machine keeps, so an import can say which one it unpacked into.
+     */
+    fun create(context: Context, distro: VmDistro, id: String = newId(), imported: Boolean = false): VmMachine? {
         if (!distro.engine || load(context) != null) return null
-        val machine = VmMachine(distro, System.currentTimeMillis(), newId())
+        val machine = VmMachine(distro, System.currentTimeMillis(), id, imported)
         write(context, listOf(machine))
         return machine
     }
@@ -85,12 +97,25 @@ object VmStore {
         prefs(context).edit().remove(KEY).remove(KEY_MACHINES).apply()
     }
 
+    /**
+     * Removes a machine and the rootfs it kept.
+     *
+     * A machine that runs on the shared runtime keeps that runtime, so only a machine with a
+     * rootfs of its own has files of its own to take away.
+     */
+    fun remove(context: Context, machine: VmMachine) {
+        write(context, all(context).filter { it.id != machine.id })
+        VmRuntime.ownRootfs(context, machine.id)?.parentFile?.let { VmRuntime.removeInBackground(it) }
+    }
+
     private fun write(context: Context, machines: List<VmMachine>) {
         val json = JSONArray()
         for (machine in machines) {
             json.put(JSONObject()
                 .put("id", machine.id)
                 .put("distro", machine.distro.id)
+                .put("name", machine.distro.name)
+                .put("imported", machine.imported)
                 .put("createdAt", machine.createdAt))
         }
         prefs(context).edit()
@@ -105,12 +130,19 @@ object VmStore {
             val json = JSONArray(raw)
             (0 until json.length()).mapNotNull { i ->
                 val o = json.optJSONObject(i) ?: return@mapNotNull null
-                val distro = VmCatalog.of(o.optString("distro")) ?: return@mapNotNull null
+                val id = o.optString("distro")
+                val imported = o.optBoolean("imported")
+                // A machine the user brought is not in the catalogue; it is restored from the
+                // name it carried, so it survives a restart.
+                val distro = VmCatalog.of(id)
+                    ?: if (imported) VmDistro(id, o.optString("name").ifEmpty { id }, VmFamily.LINUX, engine = true)
+                    else return@mapNotNull null
                 VmMachine(distro, o.optLong("createdAt"),
-                    o.optString("id").ifEmpty { VmMachine.DEFAULT_ID })
+                    o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported)
             }
         }.getOrDefault(emptyList())
     }
 
-    private fun newId(): String = "vm-" + System.currentTimeMillis().toString(36)
+    /** The id a machine gets when the user has not named one. */
+    fun newId(): String = "vm-" + System.currentTimeMillis().toString(36)
 }

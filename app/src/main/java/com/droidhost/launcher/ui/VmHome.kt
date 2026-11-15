@@ -1,16 +1,13 @@
 package com.droidhost.launcher.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -19,23 +16,26 @@ import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
-import com.droidhost.launcher.vm.VmCatalog
-import com.droidhost.launcher.vm.VmDistro
-import com.droidhost.launcher.vm.VmFamily
 import com.droidhost.launcher.vm.VmMachine
 
-internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, RUNNING, DELETING }
+internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, RUNNING, DELETING, IMPORTED }
 
 internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = when {
     machine == null -> VmStatus.ABSENT
@@ -43,6 +43,9 @@ internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = when {
     s.removalPending -> VmStatus.DELETING
     s.busy -> VmStatus.INSTALLING
     s.sessionRunning -> VmStatus.RUNNING
+    // A machine the user brought runs on a system of its own, so the shared runtime's desktop
+    // says nothing about it; its own desktop pack is not installed yet.
+    machine.imported -> VmStatus.IMPORTED
     s.desktopInstalled -> VmStatus.READY
     else -> VmStatus.NEW
 }
@@ -56,6 +59,7 @@ internal fun VmStateChip(status: VmStatus) {
         VmStatus.READY -> Chip(stringResource(R.string.vm_state_ready), ok = true)
         VmStatus.RUNNING -> Chip(stringResource(R.string.vm_state_running), ok = true)
         VmStatus.DELETING -> Chip(stringResource(R.string.vm_deleting), ok = false)
+        VmStatus.IMPORTED -> Chip(stringResource(R.string.vm_state_imported), ok = false)
     }
 }
 
@@ -67,6 +71,7 @@ internal fun vmStateLabel(status: VmStatus): String = when (status) {
     VmStatus.READY -> stringResource(R.string.vm_state_ready)
     VmStatus.RUNNING -> stringResource(R.string.vm_state_running)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
+    VmStatus.IMPORTED -> stringResource(R.string.vm_state_imported)
 }
 
 @Composable
@@ -77,6 +82,7 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.RUNNING -> stringResource(R.string.vm_stop)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
+    VmStatus.IMPORTED -> stringResource(R.string.vm_imported_wait)
 }
 
 internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
@@ -107,9 +113,9 @@ internal fun VmDock(s: FrontEndState, machine: VmMachine?, status: VmStatus, onP
                 art = null, fallback = Icons.Outlined.DesktopWindows, first = true,
                 progress = if (status == VmStatus.INSTALLING) s.percent else null,
             ) { if (!s.busy) onPrimary() }
-            else DesktopCard(
+            DesktopCard(
                 "vm:new", stringResource(R.string.vm_new), stringResource(R.string.vm_new_hint),
-                art = null, fallback = Icons.Filled.Add, first = true,
+                art = null, fallback = Icons.Filled.Add, first = machine == null,
             ) { onNew() }
         }
         if (machine == null) Text(
@@ -119,53 +125,38 @@ internal fun VmDock(s: FrontEndState, machine: VmMachine?, status: VmStatus, onP
     }
 }
 
+/**
+ * The delete button of a machine the user brought.
+ *
+ * Removing such a machine takes the rootfs it unpacked with it, so the wording says what goes
+ * away; the shared runtime is not touched.
+ */
 @Composable
-internal fun VmPickerDialog(onDismiss: () -> Unit, onPick: (VmDistro) -> Unit) {
+internal fun VmRemoveMachine(
+    label: String,
+    title: String,
+    note: String,
+    enabled: Boolean,
+    onRemove: () -> Unit,
+) {
+    val canRemove by rememberUpdatedState(enabled)
     val colors = MaterialTheme.colorScheme
-    GlideAlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.vm_pick_title)) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text(
-                    stringResource(R.string.vm_pick_note), fontSize = 13.sp, lineHeight = 18.sp,
-                    color = colors.onSurfaceVariant, modifier = Modifier.padding(bottom = 10.dp),
-                )
-                Text(
-                    stringResource(R.string.vm_one_only), fontSize = 12.sp, lineHeight = 16.sp,
-                    color = colors.onSurfaceVariant, modifier = Modifier.padding(bottom = 14.dp),
-                )
-                for (family in VmFamily.values()) {
-                    val list = VmCatalog.distros.filter { it.family == family }
-                    if (list.isEmpty()) continue
-                    Text(
-                        stringResource(family.labelRes).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 10.dp, bottom = 6.dp),
-                    )
-                    list.forEach { VmDistroRow(it, onPick) }
+    val keep = stringResource(R.string.common_cancel)
+    var at by remember { mutableStateOf<Rect?>(null) }
+    Box(Modifier.onGloballyPositioned { at = it.boundsInRoot() }) {
+        SecondaryButton(label, enabled = enabled, compact = true) {
+            val from = at ?: return@SecondaryButton
+            Steps.ask(StepAsk(
+                anchor = from, side = StepSide.Left, accent = colors.error, pillCorner = 12.dp, items = 3,
+                handle = { Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = colors.error, maxLines = 1) },
+            ) {
+                StepTitle(title)
+                Text(note, fontSize = 13.sp, color = colors.onSurfaceVariant, modifier = Modifier.stepItem(1).padding(start = 4.dp, bottom = 12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth().stepItem(2)) {
+                    StepChoice(keep, enabled = open, modifier = Modifier.focusRequester(first)) { Steps.fold() }
+                    StepChoice(label, danger = true, enabled = open && canRemove) { Steps.fold(); onRemove() }
                 }
-            }
-        },
-        confirmButton = { PadTextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
-    )
-}
-
-@Composable
-private fun VmDistroRow(d: VmDistro, onPick: (VmDistro) -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(12.dp)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 3.dp).clip(shape)
-            .background(colors.surfaceVariant)
-            .clickable(enabled = d.engine, role = Role.Button) { onPick(d) }
-            .padding(horizontal = 14.dp, vertical = 11.dp),
-    ) {
-        Text(
-            d.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
-            modifier = Modifier.weight(1f).alpha(if (d.engine) 1f else 0.45f),
-        )
-        if (d.engine) Chip(stringResource(R.string.vm_install), ok = true)
-        else Chip(stringResource(R.string.vm_needs_engine), ok = false)
+            })
+        }
     }
 }

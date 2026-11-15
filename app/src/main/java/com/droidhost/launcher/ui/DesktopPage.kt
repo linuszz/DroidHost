@@ -98,9 +98,11 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     var picking by rememberSaveable { mutableStateOf(false) }
     var everPresent by remember { mutableStateOf(s.desktopPresent) }
     LaunchedEffect(s.desktopPresent) { if (s.desktopPresent) everPresent = true }
-    LaunchedEffect(s.desktopPresent, s.removalPending) {
+    LaunchedEffect(s.desktopPresent, s.removalPending, vm?.imported) {
         // The record outlives the install it describes only until the desktop is gone for good.
-        if (everPresent && !s.desktopPresent && !s.removalPending) {
+        // A machine the user brought has a system of its own, so the shared desktop says nothing
+        // about it and its record stays.
+        if (everPresent && !s.desktopPresent && !s.removalPending && vm?.imported != true) {
             VmStore.forget(ctx)
             machine = null
         }
@@ -143,6 +145,10 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     VmStateChip(status)
                     BusyChip(s)
                 }
+                if (vm?.imported == true) Text(
+                    stringResource(R.string.vm_imported_note), fontSize = 12.5.sp, lineHeight = 17.sp,
+                    color = colors.onSurfaceVariant,
+                )
             }
         },
         button = { click ->
@@ -155,7 +161,17 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             ) {
                 HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
                 HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
-                if (vm != null) UninstallDesktop(
+                if (vm != null && vm.imported) VmRemoveMachine(
+                    label = stringResource(R.string.vm_delete_machine),
+                    title = stringResource(R.string.vm_delete_machine_title),
+                    note = stringResource(R.string.vm_delete_machine_text),
+                    enabled = !s.busy && !s.runtimeActionsBlocked,
+                    onRemove = {
+                        VmStore.remove(ctx, vm)
+                        machine = null
+                    },
+                )
+                else if (vm != null) UninstallDesktop(
                     label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
                     note = stringResource(R.string.vm_delete_text),
                     enabled = !s.busy && !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
@@ -167,13 +183,10 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             else a.modeSheet(mode, tab, SheetExtras())
         },
     )
-    if (picking && vm == null) VmPickerDialog(onDismiss = { picking = false }) { distro ->
+    if (picking) VmSourceDialog(onDismiss = { picking = false }) { created, start ->
         picking = false
-        val created = VmStore.create(ctx, distro)
-        if (created != null) {
-            machine = created
-            a.onDesktop()
-        }
+        machine = created
+        if (start) a.onDesktop()
     }
 }
 
