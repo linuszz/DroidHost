@@ -1480,8 +1480,10 @@ int lchown(const char *path, uid_t uid, gid_t gid) { return fchownat(AT_FDCWD, p
 static long fp_utimens(int dirfd, const char *path, const struct timespec times[2], int flags) {
   struct res r;
   long rs;
-  if (!path && fp_ready()) {
-    rs = sc(SYS_utimensat, dirfd, 0, (long)times, flags, 0);
+  /* The file behind the descriptor: the kernel wants an empty name and AT_EMPTY_PATH, and glibc
+   * refuses a null name without AT_EMPTY_PATH. */
+  if (path && !path[0] && fp_ready()) {
+    rs = sc(SYS_utimensat, dirfd, "", (long)times, flags, 0);
   } else {
     rs = flags & ~AT_SYMLINK_NOFOLLOW ? FP_SLOW : resolve(dirfd, path, (flags & AT_SYMLINK_NOFOLLOW ? 0 : 1) | MAY_BE_UNSEEN, &r);
     if (rs == 1) rs = -ENOENT;
@@ -1496,8 +1498,9 @@ static int utimens_common(int dirfd, const char *path, const struct timespec tim
 int utimensat(int dirfd, const char *path, const struct timespec times[2], int flags) {
   return utimens_common(dirfd, path, times, flags);
 }
-/* The kernel only accepts a null path together with AT_EMPTY_PATH, so a call without it fails. */
-int futimens(int fd, const struct timespec times[2]) { return utimens_common(fd, NULL, times, AT_EMPTY_PATH); }
+/* The kernel only accepts an empty name together with AT_EMPTY_PATH, and glibc only accepts a
+ * null name together with AT_EMPTY_PATH, so the file behind the descriptor is named empty. */
+int futimens(int fd, const struct timespec times[2]) { return utimens_common(fd, "", times, AT_EMPTY_PATH); }
 
 static int utimes_common(int dirfd, const char *path, const struct timeval tv[2], int flags) {
   struct timespec ts[2];
@@ -1512,7 +1515,7 @@ static int utimes_common(int dirfd, const char *path, const struct timeval tv[2]
 }
 int utimes(const char *path, const struct timeval tv[2]) { return utimes_common(AT_FDCWD, path, tv, 0); }
 int lutimes(const char *path, const struct timeval tv[2]) { return utimes_common(AT_FDCWD, path, tv, AT_SYMLINK_NOFOLLOW); }
-int futimes(int fd, const struct timeval tv[2]) { return utimes_common(fd, NULL, tv, AT_EMPTY_PATH); }
+int futimes(int fd, const struct timeval tv[2]) { return utimes_common(fd, "", tv, AT_EMPTY_PATH); }
 int utime(const char *path, const struct utimbuf *times) {
   if (!times) return utimens_common(AT_FDCWD, path, NULL, 0);
   struct timespec ts[2] = { { times->actime, 0 }, { times->modtime, 0 } };
