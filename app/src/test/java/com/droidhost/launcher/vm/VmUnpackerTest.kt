@@ -160,6 +160,22 @@ class VmUnpackerTest {
         assertFalse(File(root, "etc/passwd").exists())
     }
 
+    @Test fun aBigHardLinkBecomesALinkBackToTheFileItPointsAt() {
+        // Ubuntu ships coreutils once and hard links every applet of it: the archive holds one
+        // 10.5 MB binary and a name per applet. Copying each name costs a gigabyte of rootfs.
+        val content = "x".repeat(2 shl 20)
+        val archive = tar("system.tar") { tar ->
+            tar.file("usr/lib/cargo/bin/coreutils", content)
+            tar.link("usr/bin/ls", "usr/lib/cargo/bin/coreutils", hard = true)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val link = File(root, "usr/bin/ls")
+        assertTrue(Files.isSymbolicLink(link.toPath()))
+        assertEquals("../lib/cargo/bin/coreutils", Files.readSymbolicLink(link.toPath()).toString())
+        assertEquals(content.length, link.length().toInt())
+    }
+
     @Test fun aHardLinkBecomesACopyOfTheFileItPointsAt() {
         val archive = tar("system.tar") { tar ->
             tar.file("etc/os-release", "ID=debian\n")

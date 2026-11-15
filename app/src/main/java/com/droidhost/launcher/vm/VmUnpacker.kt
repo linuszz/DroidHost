@@ -30,6 +30,9 @@ object VmUnpacker {
     private const val TAR_EXEC = 0b001_001_001
     private const val TAR_PERMISSIONS = 0b111_111_111
 
+    // The size from which a hard link is kept as a link instead of being written out again.
+    private const val LINK_THRESHOLD = 1L shl 20
+
     /** How much of the archive has been unpacked. */
     fun interface Progress {
         fun onProgress(stage: VmStage, percent: Int)
@@ -90,7 +93,7 @@ object VmUnpacker {
                             continue
                         }
                         if (entry.isLink) {
-                            copyHardLink(destination, file, entry.linkName ?: continue)
+                            writeHardLink(destination, file, entry.linkName ?: continue)
                             continue
                         }
                         val parent = file.parentFile
@@ -174,16 +177,33 @@ object VmUnpacker {
         if ((bits and TAR_WRITE) != 0) file.setWritable(true, false)
     }
 
-    /** A hard link becomes a copy of the file it points at, which the archive wrote earlier. */
-    private fun copyHardLink(destination: File, file: File, target: String) {
+    /**
+     * What a hard link becomes here.
+     *
+     * Android refuses to create a hard link, so the other name of a file has to be written some
+     * other way. A distribution ships a multi-call binary once and hard links every applet of it:
+     * Ubuntu 26.04's coreutils is 10.5 MB and arrives 115 times, so copying each one costs a
+     * gigabyte where the archive was a hundred megabytes. A file this large is written as a
+     * relative link back to the one the archive wrote, which the guest follows and runs as it
+     * would the original; anything smaller is still copied, so an applet stays a file of its own.
+     */
+    private fun writeHardLink(destination: File, file: File, target: String) {
         val source = ArchivePaths.inside(destination, target)
         if (source == null || !source.isFile) {
             Log.w(TAG, "skipping a hard link without its file: ${file.name}")
             return
         }
+        val parent = file.parentFile
+        if (parent == null) return
+        if (!parent.isDirectory && !parent.mkdirs()) return
+        if (source.length() >= LINK_THRESHOLD) {
+            val relative = parent.canonicalFile.toPath()
+                .relativize(source.canonicalFile.toPath())
+                .toString()
+            writeLink(destination, file, relative)
+            return
+        }
         try {
-            val parent = file.parentFile
-            if (parent != null && !parent.isDirectory && !parent.mkdirs()) return
             source.copyTo(file, overwrite = true)
             if (source.canExecute()) file.setExecutable(true, false)
         } catch (e: IOException) {
