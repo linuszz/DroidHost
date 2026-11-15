@@ -93,6 +93,10 @@ class AgentBridgeProvider : ContentProvider() {
             AgentAccess.requireCommands(context)
             vm(context, request, timeoutMs(request, 120.0, 5_000))
         }
+        "desktop" -> {
+            AgentAccess.requireCommands(context)
+            desktop(context, request)
+        }
         "cdp" -> {
             AgentAccess.requireCommands(context)
             guest(context, JSONObject(request.toString()).put("kind", "cdp"), timeoutMs(request, 15.0, 5_000))
@@ -392,9 +396,26 @@ class AgentBridgeProvider : ContentProvider() {
             .put("output", result.output)
     }
 
+    /**
+     * Fits a desktop into a machine the user brought.
+     *
+     * The install runs on a thread of its own and keeps the guest alive while it works, so this
+     * only starts it and says how far it has got.
+     */
+    private fun desktop(context: Context, request: JSONObject): JSONObject {
+        val machine = machineFor(context, request.optString("machine"))
+        val started = com.droidhost.launcher.vm.VmDesktop.start(context, machine)
+        val state = com.droidhost.launcher.vm.VmDesktop.state()
+        return JSONObject().put("ok", true).put("command", "desktop")
+            .put("machine", machine.id)
+            .put("started", started)
+            .put("stage", state.stage.name)
+            .put("percent", state.percent)
+            .put("reason", state.reason.name)
+    }
+
     /** The machine a command is meant for: the one that was named, or the only one there is. */
-    private fun machineFor(context: Context, named: String): com.droidhost.launcher.vm.VmMachine {
-        val machines = com.droidhost.launcher.vm.VmStore.all(context)
+    private fun machineFor(context: Context, named: String): com.droidhost.launcher.vm.VmMachine {        val machines = com.droidhost.launcher.vm.VmStore.all(context)
         val id = named.trim()
         if (id.isNotEmpty()) {
             return machines.firstOrNull { it.id == id }
