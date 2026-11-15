@@ -14,7 +14,19 @@ import java.util.concurrent.atomic.AtomicBoolean
 object GuestCommand {
     fun run(context: Context, argv: List<String>, fakeRoot: Boolean = false, logName: String? = null,
             linkDir: File? = null, extraBinds: List<String>? = null, fastPath: Boolean = false, cancelled: AtomicBoolean? = null,
-            onLine: (String) -> Unit): Int {
+            onLine: (String) -> Unit): Int =
+        run(context, argv, fakeRoot, logName, linkDir, extraBinds, fastPath, cancelled, null, false, onLine)
+
+    /**
+     * The same command, run in the rootfs a machine brings of its own.
+     *
+     * [root] is the rootfs to run in; the app's shared runtime when it is null. [guestRoot] makes
+     * the guest believe it is root, which a package manager needs and the app's own identity
+     * cannot give it.
+     */
+    fun run(context: Context, argv: List<String>, fakeRoot: Boolean, logName: String?, linkDir: File?,
+            extraBinds: List<String>?, fastPath: Boolean, cancelled: AtomicBoolean?, root: File?,
+            guestRoot: Boolean, onLine: (String) -> Unit): Int {
         val log = logName?.let {
             try {
                 File(File(LinuxRuntime.logDir(context), SessionPaths.TOOLS_DIR).apply { mkdirs() }, "$it.log").printWriter()
@@ -22,22 +34,22 @@ object GuestCommand {
         }
         log?.println("== ${java.util.Date()} ${argv.joinToString(" ")}")
         try {
-            return runLogged(context, argv, fakeRoot, linkDir, extraBinds, fastPath, cancelled) { line -> log?.println(line); log?.flush(); onLine(line) }
+            return runLogged(context, argv, fakeRoot, linkDir, extraBinds, fastPath, cancelled, root, guestRoot) { line -> log?.println(line); log?.flush(); onLine(line) }
         } finally {
             log?.close()
         }
     }
 
     private fun runLogged(context: Context, argv: List<String>, fakeRoot: Boolean, linkDir: File?, extraBinds: List<String>?,
-                          fastPath: Boolean, cancelled: AtomicBoolean?, onLine: (String) -> Unit): Int {
-        val root = LinuxRuntime.rootDir(context)
-        LinuxRuntime.writeAccounts(context)
-        SessionFiles.stage(context, root)
-        LinuxNetworkLinkComponent(context, root).publish()
+                          fastPath: Boolean, cancelled: AtomicBoolean?, root: File?, guestRoot: Boolean, onLine: (String) -> Unit): Int {
+        val rootfs = root ?: LinuxRuntime.rootDir(context)
+        LinuxRuntime.writeAccounts(context, rootfs)
+        SessionFiles.stage(context, rootfs)
+        LinuxNetworkLinkComponent(context, rootfs).publish()
         val runtimeDir = File(context.filesDir, ".flatpak-rt").apply { mkdirs() }
-        val binds = LinuxRuntime.binds(context, null, runtimeDir, Environment.getExternalStorageDirectory(), extraBinds)
+        val binds = LinuxRuntime.binds(context, rootfs, null, runtimeDir, Environment.getExternalStorageDirectory(), extraBinds)
         val native = NativeGuest.forSession(context)
-        val fastPathKey = if (!native && fastPath && !fakeRoot && linkDir == null && ProotFastPath.enabled(context)) ProotFastPath.key(root, binds) else null
+        val fastPathKey = if (!native && fastPath && !fakeRoot && linkDir == null && ProotFastPath.enabled(context)) ProotFastPath.key(rootfs, binds) else null
         val guest = mutableListOf(
             "/usr/bin/env", "-i", "HOME=/root", "USER=root", "LANG=C.UTF-8",
             "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games", "XDG_RUNTIME_DIR=${LinuxRuntime.GUEST_RUNTIME_DIR}",
@@ -52,16 +64,17 @@ object GuestCommand {
                 "no_proxy=localhost,127.0.0.1,::1", "NO_PROXY=localhost,127.0.0.1,::1",
             )
         }
-        fastPathKey?.let { guest += ProotFastPath.guestEnv(root, binds, it) }
+        fastPathKey?.let { guest += ProotFastPath.guestEnv(rootfs, binds, it) }
         guest += argv
         val builder = if (native) {
-            NativeGuest.processBuilder(context, root, binds, guest).redirectErrorStream(true)
+            NativeGuest.processBuilder(context, rootfs, binds, guest).redirectErrorStream(true)
         } else {
-            val cmd = LinuxRuntime.prootPrefix(context, root, "/root", fakeRoot)
+            val cmd = if (guestRoot) LinuxRuntime.prootPrefix(context, rootfs, "/root", "0:0")
+                      else LinuxRuntime.prootPrefix(context, rootfs, "/root", fakeRoot)
             if (linkDir != null) cmd.add(1, "--link2symlink")
             binds.forEach { cmd.add("-b"); cmd.add(it) }
             cmd += guest
-            ProcessBuilder(cmd).directory(root).redirectErrorStream(true).also { b ->
+            ProcessBuilder(cmd).directory(rootfs).redirectErrorStream(true).also { b ->
                 b.environment().apply {
                     put("PROOT_LOADER", LinuxRuntime.prootLoader(context).path)
                     put("PROOT_TMP_DIR", LinuxRuntime.prootTempDir(context).path)

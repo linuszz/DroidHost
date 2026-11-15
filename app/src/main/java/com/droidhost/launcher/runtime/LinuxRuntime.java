@@ -203,17 +203,33 @@ public final class LinuxRuntime {
     }
 
     public static List<String> prootPrefix(Context context, File root, String cwd, boolean fakeRoot) {
+        if (!fakeRoot) return prootPrefix(context, root, cwd, Process.myUid() + ":" + Process.myUid());
         List<String> cmd = new ArrayList<>();
         cmd.add(prootBinary(context).getPath());
         cmd.add("--kill-on-exit");
         cmd.add("--kernel-release=" + guestUtsname(SessionPrefs.guestHostname(context)));
-        int uid = Process.myUid();
-        if (fakeRoot) {
-            cmd.add("-0");
-        } else {
-            cmd.add("-i");
-            cmd.add(uid + ":" + uid);
-        }
+        cmd.add("-0");
+        cmd.add("-r");
+        cmd.add(root.getPath());
+        cmd.add("-w");
+        cmd.add(cwd);
+        return cmd;
+    }
+
+    /**
+     * The same prefix, with an identity of the caller's choosing.
+     *
+     * A package manager refuses to work for a guest that is not root, and the app's own identity
+     * cannot give it that: "0:0" makes the guest believe it is root while the files on the device
+     * stay owned by the app.
+     */
+    public static List<String> prootPrefix(Context context, File root, String cwd, String guestUid) {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(prootBinary(context).getPath());
+        cmd.add("--kill-on-exit");
+        cmd.add("--kernel-release=" + guestUtsname(SessionPrefs.guestHostname(context)));
+        cmd.add("-i");
+        cmd.add(guestUid);
         cmd.add("-r");
         cmd.add(root.getPath());
         cmd.add("-w");

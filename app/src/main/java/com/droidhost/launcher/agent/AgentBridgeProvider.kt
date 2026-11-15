@@ -89,6 +89,10 @@ class AgentBridgeProvider : ContentProvider() {
             AgentAccess.requireCommands(context)
             AgentNative.run(context, request, timeoutMs(request, 30.0, 0))
         }
+        "vm" -> {
+            AgentAccess.requireCommands(context)
+            vm(context, request, timeoutMs(request, 120.0, 5_000))
+        }
         "cdp" -> {
             AgentAccess.requireCommands(context)
             guest(context, JSONObject(request.toString()).put("kind", "cdp"), timeoutMs(request, 15.0, 5_000))
@@ -364,6 +368,30 @@ class AgentBridgeProvider : ContentProvider() {
 
     private fun guest(context: Context, request: JSONObject, timeoutMs: Long): JSONObject =
         AgentGuest.call(context, request, timeoutMs)
+
+    /**
+     * A program in a machine's own rootfs.
+     *
+     * This is the way to see what a distribution the user brought really holds, and to let it
+     * install what it is missing.
+     */
+    private fun vm(context: Context, request: JSONObject, timeoutMs: Long): JSONObject {
+        val machineId = request.optString("machine")
+        if (machineId.isEmpty()) throw AgentException("INVALID_REQUEST", "machine is required")
+        val argvJson = request.optJSONArray("argv")
+            ?: throw AgentException("INVALID_REQUEST", "argv is required")
+        val argv = (0 until argvJson.length()).map { argvJson.getString(it) }
+        if (argv.isEmpty()) throw AgentException("INVALID_REQUEST", "argv is empty")
+        val env = linkedMapOf<String, String>()
+        request.optJSONObject("env")?.let { obj -> obj.keys().forEach { env[it] = obj.getString(it) } }
+        val result = com.droidhost.launcher.vm.VmGuest.run(context, machineId, argv,
+            request.optBoolean("root", false), timeoutMs, env)
+        return JSONObject().put("ok", true).put("command", "vm")
+            .put("machine", machineId)
+            .put("exitCode", result.exitCode)
+            .put("timedOut", result.timedOut)
+            .put("output", result.output)
+    }
 
     private fun timeoutMs(request: JSONObject, defaultSeconds: Double, slackMs: Long): Long {
         val seconds = if (request.has("timeout")) request.opt("timeout")?.toString()?.toDoubleOrNull()

@@ -26,9 +26,10 @@ class VmUnpackerTest {
         return archive
     }
 
-    private fun TarArchiveOutputStream.file(path: String, content: String) {
+    private fun TarArchiveOutputStream.file(path: String, content: String, mode: Int = 0644) {
         val entry = TarArchiveEntry(path)
         entry.size = content.toByteArray().size.toLong()
+        entry.mode = mode
         putArchiveEntry(entry)
         write(content.toByteArray())
         closeArchiveEntry()
@@ -151,5 +152,30 @@ class VmUnpackerTest {
     @Test fun anArchiveThatIsNotThereIsReported() {
         val root = folder.newFolder()
         assertNull(VmUnpacker.unpack(File(folder.root, "nowhere.tar"), root, VmUnpacker.Kind.TAR))
+    }
+
+    @Test fun aProgramKeepsTheExecuteBitTheArchiveGaveIt() {
+        // Without it the guest cannot run its own shell, and the session dies before it writes a
+        // single line to its log.
+        val archive = tar("system.tar") { tar ->
+            tar.file("bin/sh", "binary", 0755)
+            tar.file("etc/passwd", "root:x:0:0", 0644)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertTrue(File(root, "bin/sh").canExecute())
+        assertFalse(File(root, "etc/passwd").canExecute())
+    }
+
+    @Test fun aDirectoryKeepsTheExecuteBitTheArchiveGaveIt() {
+        val archive = tar("system.tar") { tar ->
+            val entry = TarArchiveEntry("usr/bin")
+            entry.mode = 0755
+            tar.putArchiveEntry(entry)
+            tar.closeArchiveEntry()
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertTrue(File(root, "usr/bin").canExecute())
     }
 }

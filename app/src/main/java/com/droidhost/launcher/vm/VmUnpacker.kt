@@ -76,6 +76,7 @@ object VmUnpacker {
                         }
                         if (entry.isDirectory) {
                             if (!file.isDirectory) file.mkdirs()
+                            applyMode(file, entry.mode)
                             continue
                         }
                         if (entry.isSymbolicLink) {
@@ -92,6 +93,7 @@ object VmUnpacker {
                             continue
                         }
                         file.outputStream().use { out -> tar.copyTo(out) }
+                        applyMode(file, entry.mode)
                         written++
                         if (written % 200 == 0) {
                             progress?.onProgress(VmStage.UNPACKING, (written / 200 * 5).coerceAtMost(95))
@@ -136,6 +138,20 @@ object VmUnpacker {
         }
     }
 
+    /**
+     * The permissions the archive gave the file.
+     *
+     * A distribution's programs have to keep their execute bit: the guest cannot run its own
+     * shell without it, and a session then dies before it writes a single line. Only what the
+     * archive asked for is added, so a data file stays a data file.
+     */
+    private fun applyMode(file: File, mode: Int) {
+        val bits = mode and 0777
+        if (bits and 0111 != 0) file.setExecutable(true, false)
+        if (bits and 0444 != 0) file.setReadable(true, false)
+        if (bits and 0222 != 0) file.setWritable(true, false)
+    }
+
     /** A hard link becomes a copy of the file it points at, which the archive wrote earlier. */
     private fun copyHardLink(destination: File, file: File, target: String) {
         val source = ArchivePaths.inside(destination, target)
@@ -147,6 +163,7 @@ object VmUnpacker {
             val parent = file.parentFile
             if (parent != null && !parent.isDirectory && !parent.mkdirs()) return
             source.copyTo(file, overwrite = true)
+            if (source.canExecute()) file.setExecutable(true, false)
         } catch (e: IOException) {
             Log.w(TAG, "cannot copy the hard link ${file.name}", e)
         }
