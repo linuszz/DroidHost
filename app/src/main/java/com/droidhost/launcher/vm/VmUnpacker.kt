@@ -146,10 +146,10 @@ object VmUnpacker {
      * archive asked for is added, so a data file stays a data file.
      */
     private fun applyMode(file: File, mode: Int) {
-        val bits = mode and 0777
-        if ((bits and 0111) != 0) file.setExecutable(true, false)
-        if ((bits and 0444) != 0) file.setReadable(true, false)
-        if ((bits and 0222) != 0) file.setWritable(true, false)
+        val bits = mode and TAR_PERMISSIONS
+        if ((bits and TAR_EXEC) != 0) file.setExecutable(true, false)
+        if ((bits and TAR_READ) != 0) file.setReadable(true, false)
+        if ((bits and TAR_WRITE) != 0) file.setWritable(true, false)
     }
 
     /** A hard link becomes a copy of the file it points at, which the archive wrote earlier. */
@@ -178,5 +178,13 @@ object VmUnpacker {
             Kind.TAR_BZ2 -> BZip2CompressorInputStream(file)
             Kind.TAR -> file
         }
+    }
+
+    companion object {
+        // The access bits of a tar mode. They are octal there, and Kotlin has no octal literals.
+        private const val TAR_READ = 0b100_100_100
+        private const val TAR_WRITE = 0b010_010_010
+        private const val TAR_EXEC = 0b001_001_001
+        private const val TAR_PERMISSIONS = 0b111_111_111
     }
 }

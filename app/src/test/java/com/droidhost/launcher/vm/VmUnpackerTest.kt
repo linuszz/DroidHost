@@ -26,7 +26,7 @@ class VmUnpackerTest {
         return archive
     }
 
-    private fun TarArchiveOutputStream.file(path: String, content: String, mode: Int = 0644) {
+    private fun TarArchiveOutputStream.file(path: String, content: String, mode: Int = 0b110_100_100) {
         val entry = TarArchiveEntry(path)
         entry.size = content.toByteArray().size.toLong()
         entry.mode = mode
@@ -158,8 +158,8 @@ class VmUnpackerTest {
         // Without it the guest cannot run its own shell, and the session dies before it writes a
         // single line to its log.
         val archive = tar("system.tar") { tar ->
-            tar.file("bin/sh", "binary", 0755)
-            tar.file("etc/passwd", "root:x:0:0", 0644)
+            tar.file("bin/sh", "binary", 0b111_101_101)
+            tar.file("etc/passwd", "root:x:0:0", 0b110_100_100)
         }
         val root = folder.newFolder()
         VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
@@ -171,7 +171,7 @@ class VmUnpackerTest {
         val archive = tar("system.tar") { tar ->
             // A name that ends in a slash is a directory to the tar format.
             val entry = TarArchiveEntry("usr/bin/")
-            entry.mode = 0700
+            entry.mode = 0b111_000_000
             tar.putArchiveEntry(entry)
             tar.closeArchiveEntry()
         }
