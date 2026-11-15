@@ -26,7 +26,7 @@ object VmDesktop {
     private const val MARKER = "usr/share/droiddeck/desktop-installed"
     private const val PACKAGE_LIST = "/root/.droiddeck-packages.txt"
     private const val UPDATE_TIMEOUT_MS = 15 * 60 * 1000L
-    private const val INSTALL_TIMEOUT_MS = 90 * 60 * 1000L
+    private const val INSTALL_TIMEOUT_MS = 180 * 60 * 1000L
 
     /** What the installer is doing. */
     enum class Stage { IDLE, UPDATING, INSTALLING, CONFIGURING, READY, FAILED }
