@@ -129,7 +129,7 @@ object VmDesktop {
      */
     private fun runtimePackages(context: Context): List<String> {
         val out = StringBuilder()
-        GuestCommand.run(context, listOf("/usr/bin/dpkg-query", "-W", "-f=${Package}\n")) { line ->
+        GuestCommand.run(context, listOf("/usr/bin/dpkg-query", "-W", "-f=\${Package}\n")) { line ->
             out.append(line).append('\n')
         }
         return out.toString().lines().map { it.trim() }.filter { it.isNotEmpty() }.distinct()
