@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Process
 import android.util.Base64
 import com.droidhost.launcher.BuildConfig
+import com.droidhost.launcher.core.Downloader
 import com.droidhost.launcher.frontend.GameLaunchLink
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.runtime.LinuxRuntimeInstaller
@@ -96,6 +97,10 @@ class AgentBridgeProvider : ContentProvider() {
         "desktop" -> {
             AgentAccess.requireCommands(context)
             desktop(context, request)
+        }
+        "machine" -> {
+            AgentAccess.requireCommands(context)
+            machine(context, request)
         }
         "cdp" -> {
             AgentAccess.requireCommands(context)
@@ -421,8 +426,56 @@ class AgentBridgeProvider : ContentProvider() {
             .put("reason", state.reason.name)
     }
 
+    /**
+     * The machines there are, and the bringing of a new one in.
+     *
+     * A system the user brought is an archive. This fetches one, unpacks it and registers it, so
+     * that a machine can be brought in without a hand on the screen.
+     */
+    private fun machine(context: Context, request: JSONObject): JSONObject =
+        when (request.optString("op", "list")) {
+            "list" -> JSONObject().put("ok", true).put("command", "machine")
+                .put("machines", JSONArray().apply {
+                    com.droidhost.launcher.vm.VmStore.all(context).forEach { machine ->
+                        put(JSONObject().put("id", machine.id).put("name", machine.distro.name))
+                    }
+                })
+            "import" -> importMachine(context, request)
+            else -> error("INVALID_OP", "Unknown machine op")
+        }
+
+    private fun importMachine(context: Context, request: JSONObject): JSONObject {
+        val url = request.optString("url")
+        if (url.isBlank()) throw AgentException("INVALID_REQUEST", "url is required")
+        val name = request.optString("name").ifBlank { url.substringAfterLast('/').substringBefore('?') }
+        val kind = com.droidhost.launcher.vm.VmUnpacker.Kind.of(name)
+            ?: throw AgentException("INVALID_REQUEST", "the archive kind is unknown")
+        val archive = File(context.cacheDir, "vm-import-" + name.replace(Regex("[^A-Za-z0-9._-]"), "_"))
+        val sha = request.optString("sha256")
+        if (!Downloader.downloadFile(url, archive, true, sha.ifBlank { null }, null)) {
+            throw AgentException("DOWNLOAD_FAILED", Downloader.lastFailure() ?: url)
+        }
+        val staged = when (val result = com.droidhost.launcher.vm.VmImport.stage(context, archive, kind)) {
+            is com.droidhost.launcher.vm.VmImport.Result.Prepared -> result.staged
+            is com.droidhost.launcher.vm.VmImport.Result.Failed ->
+                throw AgentException("IMPORT_FAILED", result.reason.name)
+            else -> throw AgentException("IMPORT_FAILED", "the system was not prepared")
+        }
+        val ready = when (val result = com.droidhost.launcher.vm.VmImport.register(context, staged)) {
+            is com.droidhost.launcher.vm.VmImport.Result.Ready -> result
+            is com.droidhost.launcher.vm.VmImport.Result.Failed ->
+                throw AgentException("IMPORT_FAILED", result.reason.name)
+            else -> throw AgentException("IMPORT_FAILED", "the system was not registered")
+        }
+        return JSONObject().put("ok", true).put("command", "machine")
+            .put("machine", ready.machine.id)
+            .put("name", ready.machine.distro.name)
+            .put("system", ready.probe.prettyName)
+    }
+
     /** The machine a command is meant for: the one that was named, or the only one there is. */
-    private fun machineFor(context: Context, named: String): com.droidhost.launcher.vm.VmMachine {        val machines = com.droidhost.launcher.vm.VmStore.all(context)
+    private fun machineFor(context: Context, named: String): com.droidhost.launcher.vm.VmMachine {
+        val machines = com.droidhost.launcher.vm.VmStore.all(context)
         val id = named.trim()
         if (id.isNotEmpty()) {
             return machines.firstOrNull { it.id == id }
