@@ -35,7 +35,8 @@ class VmUnpackerTest {
 
     private fun TarArchiveOutputStream.link(path: String, target: String, hard: Boolean) {
         val entry = TarArchiveEntry(path)
-        if (hard) entry.isLink = true else entry.isSymbolicLink = true
+        // The setter of a hard link is not the counterpart of its getter, so it is called by name.
+        if (hard) entry.setLink(true) else entry.setSymbolicLink(true)
         entry.linkName = target
         putArchiveEntry(entry)
         closeArchiveEntry()
