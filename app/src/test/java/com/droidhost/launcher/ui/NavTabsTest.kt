@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyPress
@@ -154,6 +155,28 @@ class NavTabsTest {
         compose.mainClock.advanceTimeBy(2_000)
         compose.onNode(hasText(ctx.getString(com.droidhost.launcher.R.string.content_page_gone))).assertDoesNotExist()
         compose.onNode(hasTestTag("rail-games") and androidx.compose.ui.test.isSelected()).assertExists()
+    }
+
+    @Test fun theDesktopPageOffersANewMachineWhenNothingIsInstalled() {
+        ctx.getSharedPreferences("vm", Context.MODE_PRIVATE).edit().clear().commit()
+        val s = FrontEndState(
+            installed = "r9", ready = true, available = null, busy = false, stage = "", percent = -1,
+            desktopInstalled = false, desktopPresent = false, offlineAccount = null, offline = false,
+            frameGenLabel = "", romsDir = null, logsEnabled = false, steamGames = emptyList(),
+            emulators = emptyList(), running = null,
+        )
+        compose.mainClock.autoAdvance = false
+        compose.setContent { DroidHostTheme { FrontEndScreen(s, actions(), page = null) } }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.onNodeWithContentDescription(ctx.getString(com.droidhost.launcher.R.string.vm_new)).assertExists()
+    }
+
+    @Test fun aDesktopAlreadyOnDiskShowsUpAsTheUbuntuMachine() {
+        ctx.getSharedPreferences("vm", Context.MODE_PRIVATE).edit().clear().commit()
+        compose.mainClock.autoAdvance = false
+        compose.setContent { DroidHostTheme { FrontEndScreen(state(), actions(), page = null) } }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.onNodeWithContentDescription("Ubuntu").assertExists()
     }
 
     @Test fun setupListMovesATabAcrossTheMoreLineWithTheControllerAndHidesWithItsSwitch() {
