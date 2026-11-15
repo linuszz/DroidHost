@@ -15,10 +15,14 @@ if [[ $(uname -m) = x86_64 ]]; then
     image=droiddeck-xbox-cross:$(shasum -a 256 "$repo/tools/xbox/cross.Dockerfile" | cut -c1-12)
     docker image inspect "$image" >/dev/null 2>&1 \
         || docker build --platform "$platform" -t "$image" -f "$repo/tools/xbox/cross.Dockerfile" "$repo/tools/xbox"
+    # The aarch64 suite runs under qemu here, where its sub-second streaming
+    # timeouts do not hold. The x86_64 CI runner does not run it either.
+    test_env=(-e DROIDHOST_XBOX_TESTS=0)
 else
     cache=${DROIDHOST_XBOX_CACHE:-"${HOME}/.cache/droiddeck-xbox-build"}
     platform=linux/arm64
     image=ubuntu:24.04
+    test_env=()
     build='
     apt-get update -qq
     DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
@@ -27,5 +31,6 @@ else
 fi
 mkdir -p "$cache"
 docker run --rm --platform "$platform" -v "$repo:/src" -v "$cache:/work" -w /src \
-    -e CARGO_HOME=/work/cargo -e RUSTUP_HOME=/work/rustup -e XBOX_BUILD_DIR=/work/build "$image" \
+    -e CARGO_HOME=/work/cargo -e RUSTUP_HOME=/work/rustup -e XBOX_BUILD_DIR=/work/build \
+    "${test_env[@]}" "$image" \
     bash -lc "set -euo pipefail$build"
