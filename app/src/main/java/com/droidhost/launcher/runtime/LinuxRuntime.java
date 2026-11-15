@@ -375,6 +375,21 @@ public final class LinuxRuntime {
         }
     }
 
+    /**
+     * The render node the guest sees. KGSL numbers its own node, so the name rarely matches the
+     * system's renderD128; the bind in {@link #bindGpuNode} creates that name in /dev/dri.
+     */
+    public static String guestRenderNode(Context context) {
+        if (com.droidhost.launcher.gpu.SystemVulkanDriver.isPowerVr()) {
+            String node = com.droidhost.launcher.gpu.SystemVulkanDriver.renderNodePath();
+            return node == null ? null : new File(node).getName();
+        }
+        String standIn = gpuStandIn(context);
+        if (standIn == null) return null;
+        String numbers = deviceNumbers(standIn);
+        return numbers == null ? null : "renderD" + numbers.substring(numbers.indexOf(':') + 1);
+    }
+
     private static void bindGpuNode(Context context, List<String> cmd) {
         String standIn = gpuStandIn(context);
         if (standIn == null) return;
