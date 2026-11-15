@@ -400,14 +400,21 @@ class AgentBridgeProvider : ContentProvider() {
      * Fits a desktop into a machine the user brought.
      *
      * The install runs on a thread of its own and keeps the guest alive while it works, so this
-     * only starts it and says how far it has got.
+     * only starts it and says how far it has got. Asking for the state alone does not start
+     * another one: an install that is already going would be fought over the package database.
      */
     private fun desktop(context: Context, request: JSONObject): JSONObject {
         val machine = machineFor(context, request.optString("machine"))
-        val started = com.droidhost.launcher.vm.VmDesktop.start(context, machine)
+        val op = request.optString("op", "start")
+        val started = when (op) {
+            "start" -> com.droidhost.launcher.vm.VmDesktop.start(context, machine)
+            "state" -> false
+            else -> throw AgentException("INVALID_OP", "Unknown desktop op '$op'")
+        }
         val state = com.droidhost.launcher.vm.VmDesktop.state()
         return JSONObject().put("ok", true).put("command", "desktop")
             .put("machine", machine.id)
+            .put("op", op)
             .put("started", started)
             .put("stage", state.stage.name)
             .put("percent", state.percent)
