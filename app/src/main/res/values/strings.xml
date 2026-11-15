@@ -24,14 +24,14 @@
     <string name="glasses_joycons_hint">Use the glasses cameras to position your paired Joy-Cons. Rotation and button inputs come from the Joy-Cons. Position is estimated when your wrists are hidden. Replaces bare-hand controllers and pauses phone-camera tracking. Point the Joy-Cons forward when connecting or recentering.</string>
     <string name="glasses_joycons_requires_position">Enable positional tracking first. Requires motion-capable Joy-Cons on Android 12 or later. Off by default.</string>
     <string name="steamvr_recovery_title">SteamVR graphics stopped</string>
-    <string name="steamvr_recovery_countdown">DroidDeck will restart in %1$d seconds to reset graphics and reopen SteamVR. Your running game will close; unsaved progress cannot be restored.</string>
+    <string name="steamvr_recovery_countdown">DroidHost will restart in %1$d seconds to reset graphics and reopen SteamVR. Your running game will close; unsaved progress cannot be restored.</string>
     <string name="steamvr_recovery_repeated">The graphics fault returned after a recent restart. Automatic recovery is paused to prevent a loop. Restarting will close your game; unsaved progress cannot be restored.</string>
     <string name="steamvr_recovery_restart">Restart now</string>
     <string name="steamvr_recovery_cancel">Keep open</string>
     <string name="steamvr_recovery_restarting">Resetting graphics and reopening SteamVR…</string>
-    <string name="steamvr_recovery_failed">DroidDeck could not restart automatically. Close the app completely, then reopen it.</string>
-    <string name="app_name">DroidDeck</string>
-    <string name="steam_wall_label" translatable="false">DroidDeck Wall</string>
+    <string name="steamvr_recovery_failed">DroidHost could not restart automatically. Close the app completely, then reopen it.</string>
+    <string name="app_name">DroidHost</string>
+    <string name="steam_wall_label" translatable="false">DroidHost Wall</string>
     <string name="wall_settings_fps" translatable="false">Frame rate (fps)</string>
     <string name="wall_settings_match" translatable="false">Match screen</string>
     <string name="wall_settings_speed" translatable="false">Scroll speed</string>
@@ -173,7 +173,7 @@
     <string name="user_apps_stop_session">Stop the session to remove</string>
     <string name="bnet_name" translatable="false">Battle.net</string>
     <string name="user_apps_script_linked">Runs %1$s from its folder, linked into the session where it lies. Removing the app leaves that folder alone.</string>
-    <string name="user_apps_script_copied">Runs %1$s from a copy of its folder inside DroidDeck. Removing the app deletes the copy, not the original.</string>
+    <string name="user_apps_script_copied">Runs %1$s from a copy of its folder inside DroidHost. Removing the app deletes the copy, not the original.</string>
     <string name="user_apps_runtime_required">Install the Linux runtime first</string>
     <string name="user_apps_file_gone">The file is gone</string>
     <string name="user_apps_no_space">Not enough free space: copying the folder needs %1$s</string>
@@ -208,8 +208,8 @@
     <string name="app_fex_off">Off</string>
     <string name="app_fex_hint">FEX runs x86 Linux programs on this ARM64 device. Auto uses it when the program is built for x86.</string>
     <string name="app_fex_x86">%1$s through FEX</string>
-    <string name="app_fex_not_ready">This program is built for %1$s PCs and runs through FEX, which is not set up yet. Open Steam once while signed in: DroidDeck has it download FEX and the Steam Linux Runtime it needs, then this opens.</string>
-    <string name="session_proot_missing">DroidDeck\'s proot could not be downloaded. Check the connection and try again. The session was not started, because the fallback proot is too slow to play on.</string>
+    <string name="app_fex_not_ready">This program is built for %1$s PCs and runs through FEX, which is not set up yet. Open Steam once while signed in: DroidHost has it download FEX and the Steam Linux Runtime it needs, then this opens.</string>
+    <string name="session_proot_missing">DroidHost\'s proot could not be downloaded. Check the connection and try again. The session was not started, because the fallback proot is too slow to play on.</string>
     <string name="session_powervr_missing">The PowerVR graphics runtime could not be downloaded. Check the connection and try again.</string>
     <string name="session_directaudio_missing">DirectAudio could not be downloaded, so game audio uses the slower path this session.</string>
     <string name="session_end_program">This program</string>
@@ -249,13 +249,13 @@
     <string name="edit_app_save">Save</string>
     <string name="add_app_checking_folder">Checking the folder…</string>
     <string name="add_app_folder_linked">Its folder is linked into the session: %1$s</string>
-    <string name="add_app_folder_copied">Its folder holds Linux programs, which shared storage cannot run, so it is copied into DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Its folder holds Linux programs, which shared storage cannot run, so it is copied into DroidHost (%1$s).</string>
     <string name="add_app_confirm">Add</string>
     <string name="add_app_cancel">Cancel</string>
     <string name="add_app_runtime_required">Install the Linux runtime from Setup first.</string>
     <string name="add_app_busy">Wait for %1$s to finish.</string>
     <string name="steam_compat_label">Compatible</string>
-    <string name="proton_compatible_note">Builds marked “%1$s” in Steam’s Compatibility menu have DroidDeck’s prefix fixes and start games here. The default is Proton Experimental ARM64 (%1$s), or Proton 11.0 ARM64 (%1$s) once that newer build is installed. Valve’s own Proton entries without the mark cannot start a game on this device.</string>
+    <string name="proton_compatible_note">Builds marked “%1$s” in Steam’s Compatibility menu have DroidHost’s prefix fixes and start games here. The default is Proton Experimental ARM64 (%1$s), or Proton 11.0 ARM64 (%1$s) once that newer build is installed. Valve’s own Proton entries without the mark cannot start a game on this device.</string>
     <string name="proton_installed_compatible">Installed %1$s · %2$s</string>
     <string name="common_cancel">Cancel</string>
     <string name="common_auto">Auto</string>
@@ -321,7 +321,7 @@
     <string name="back_double_tap_window">Double-tap window</string>
     <string name="back_tap_ms">%1$d ms</string>
     <string name="brightness_permission_title">Allow brightness control</string>
-    <string name="brightness_permission_text">Set up brightness control in DroidDeck.</string>
+    <string name="brightness_permission_text">Set up brightness control in DroidHost.</string>
     <string name="back_menu_then_qam">Menu → QAM</string>
     <string name="back_qam_then_menu">QAM → Menu</string>
     <string name="mode_session">Session</string>
@@ -335,7 +335,7 @@
     <string name="mode_suspend_note">Auto pauses in the background and resumes when shown. Manual waits for Resume. Never keeps running.</string>
     <string name="mode_startup">Startup</string>
     <string name="mode_startup_session">Open at launch</string>
-    <string name="mode_startup_session_hint">Starts this session when DroidDeck launches.</string>
+    <string name="mode_startup_session_hint">Starts this session when DroidHost launches.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Checking for releases…</string>
     <string name="mode_decky_ready">Ready to install %1$s.</string>
@@ -358,8 +358,8 @@
     <string name="mode_client">Client</string>
     <string name="mode_mangoapp">Performance overlay</string>
     <string name="mode_mangoapp_hint">Turn off if games crash or go black in Deck mode. Applies next session.</string>
-    <string name="mode_return_after_game">Return to DroidDeck after a game</string>
-    <string name="mode_return_after_game_hint">When a game you started from DroidDeck or another launcher closes, Steam exits cleanly (cloud saves finish first) and you go back there. Off: stay in Steam.</string>
+    <string name="mode_return_after_game">Return to DroidHost after a game</string>
+    <string name="mode_return_after_game_hint">When a game you started from DroidHost or another launcher closes, Steam exits cleanly (cloud saves finish first) and you go back there. Off: stay in Steam.</string>
     <string name="mode_shader_precache">Shader pre-caching</string>
     <string name="mode_shader_precache_hint">Steam downloads shaders prebuilt for your games and processes them in the background, so games stutter less. Off saves data, storage and battery; games build shaders as they play instead. The same setting as Steam’s Downloads > Shader Pre-Caching. Applies next session.</string>
     <string name="mode_steam_repair">Repair Steam client</string>
@@ -442,7 +442,7 @@
     <string name="mode_wifi_open_settings">Open settings</string>
     <string name="mode_wifi_continue">Continue</string>
     <string name="mode_wifi_explain_title">Enable Wi-Fi discovery?</string>
-    <string name="mode_wifi_explain_text">Android requires Location permission to read Wi-Fi names and discover nearby networks. DroidDeck uses this access to show those networks in Steam. We don\'t track your location. Internet access works without this permission.</string>
+    <string name="mode_wifi_explain_text">Android requires Location permission to read Wi-Fi names and discover nearby networks. DroidHost uses this access to show those networks in Steam. We don\'t track your location. Internet access works without this permission.</string>
     <string name="mode_storage">Game storage</string>
     <string name="mode_storage_auto">Automatic - the SD card when present, plus your Games folders</string>
     <string name="mode_storage_auto_none">Automatic - your Games folders, plus the SD card when present (none now)</string>
@@ -462,7 +462,7 @@
     <string name="libraries_found_hint">Found on this device · %1$s · %2$s</string>
     <string name="libraries_add_found">Add</string>
     <string name="libraries_access_title">Find libraries on internal storage</string>
-    <string name="libraries_access_hint">Allow all files access so DroidDeck can see Steam libraries other apps keep on internal storage</string>
+    <string name="libraries_access_hint">Allow all files access so DroidHost can see Steam libraries other apps keep on internal storage</string>
     <string name="libraries_access_allow">Allow</string>
     <string name="libraries_used_inner">Added %1$s, the Steam library inside the folder you chose</string>
     <string name="mode_storage_note">Games that stream assets from SD or shared storage may stutter.</string>
@@ -580,7 +580,7 @@
     <string name="comp_nightlies_count">On the Nightlies · %1$d</string>
     <string name="comp_channel_stable">Stable</string>
     <string name="comp_channel_nightly">Nightly</string>
-    <string name="comp_refresh_to_list">Refresh to list packages on the Nightlies and DroidDeck releases.</string>
+    <string name="comp_refresh_to_list">Refresh to list packages on the Nightlies and DroidHost releases.</string>
     <string name="comp_nothing_new">Nothing new since the last check.</string>
     <string name="comp_import_wcp">Import .wcp</string>
     <string name="comp_restore_original">Restore this Proton\'s original</string>
@@ -592,7 +592,7 @@
     <string name="comp_tag_new">New</string>
     <string name="comp_tag_stored">Stored</string>
     <string name="comp_mode_title">How builds are chosen</string>
-    <string name="comp_mode_auto_detail">Newest DroidDeck build, kept current</string>
+    <string name="comp_mode_auto_detail">Newest DroidHost build, kept current</string>
     <string name="comp_mode_manual_detail">Pick and install builds yourself</string>
     <string name="comp_auto_title">Auto keeps %1$s current</string>
     <string name="comp_auto_hint">New builds install in the background. If a game that ran before closes within seconds twice, Auto goes back to the build that worked.</string>
@@ -758,7 +758,7 @@
     <string name="hud_temp_red_battery">Battery red at</string>
     <string name="hud_group_more">More</string>
     <string name="hud_export">HUD diagnostics</string>
-    <string name="hud_export_hint">Saves a report of every sensor the HUD reads to Downloads/DroidDeck.</string>
+    <string name="hud_export_hint">Saves a report of every sensor the HUD reads to Downloads/DroidHost.</string>
     <string name="hud_export_button">Save</string>
     <string name="hud_export_done">Saved to %1$s</string>
     <string name="hud_export_failed">Couldn\'t save the HUD report.</string>
@@ -978,7 +978,7 @@
     <string name="setup_language_system">System default (%1$s)</string>
     <string name="setup_language_system_short">System default</string>
     <string name="setup_app_scale">App scale</string>
-    <string name="setup_app_scale_hint">DroidDeck text and controls</string>
+    <string name="setup_app_scale_hint">DroidHost text and controls</string>
     <string name="setup_app_scale_default">%1$d%% (Default)</string>
     <string name="setup_theme">Theme</string>
     <string name="setup_theme_hint">Launcher appearance</string>
@@ -986,11 +986,11 @@
     <string name="setup_launcher_icon_dark">Dark</string>
     <string name="setup_launcher_icon_light">Light</string>
     <string name="setup_home">Use as Home screen</string>
-    <string name="setup_home_on">DroidDeck can be the Home app</string>
-    <string name="setup_home_off">DroidDeck is never offered as a Home app</string>
+    <string name="setup_home_on">DroidHost can be the Home app</string>
+    <string name="setup_home_off">DroidHost is never offered as a Home app</string>
     <string name="setup_home_page">Home button opens</string>
-    <string name="setup_home_page_hint">The page shown when DroidDeck is the Home app and you press Home</string>
-    <string name="setup_home_game_space_first">In Add Games, set DroidDeck to Include</string>
+    <string name="setup_home_page_hint">The page shown when DroidHost is the Home app and you press Home</string>
+    <string name="setup_home_game_space_first">In Add Games, set DroidHost to Include</string>
     <string name="setup_orientation">Orientation</string>
     <string name="setup_launcher_orientation">Launcher orientation</string>
     <string name="setup_launcher_orientation_auto">Follow device rotation</string>
@@ -1018,7 +1018,7 @@
     <string name="setup_default_home">Default Home app</string>
     <string name="setup_choose_home">Choose a Home app</string>
     <string name="setup_hide_home_from_recents">Hide launcher from Recents while idle</string>
-    <string name="setup_hide_home_from_recents_hint">Only applies when DroidDeck is the default Home app and no session is running.</string>
+    <string name="setup_hide_home_from_recents_hint">Only applies when DroidHost is the default Home app and no session is running.</string>
     <string name="setup_choose">Choose</string>
     <string name="setup_linux_apps">Linux apps (beta)</string>
     <string name="setup_tool_files">Files</string>
@@ -1088,16 +1088,16 @@
     <string name="store_website">Website</string>
     <string name="store_verified">Verified</string>
     <string name="upd_title">Updates</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">DroidHost %1$s · %2$s</string>
     <string name="upd_checked">Checked %1$s</string>
     <string name="upd_not_checked">Not checked yet</string>
-    <string name="upd_perm_title">Let DroidDeck update itself</string>
+    <string name="upd_perm_title">Let DroidHost update itself</string>
     <string name="upd_perm_text">On the next screen, turn on Allow from this source, then come back. The update continues by itself.</string>
     <string name="upd_open_settings">Open settings</string>
     <string name="upd_not_now">Not now</string>
     <string name="upd_signed_status">Signed differently</string>
     <string name="upd_signed_headline">Can\'t update in place</string>
-    <string name="upd_signed_detail">This copy isn\'t signed with DroidDeck\'s release key, so updates can\'t install over it. Uninstall it to switch.</string>
+    <string name="upd_signed_detail">This copy isn\'t signed with DroidHost\'s release key, so updates can\'t install over it. Uninstall it to switch.</string>
     <string name="upd_available">Update available</string>
     <string name="upd_blocked_status">Can\'t install</string>
     <string name="upd_switch">Ready to switch</string>
@@ -1119,7 +1119,7 @@
     <string name="upd_stop_session">Stop the running session to update.</string>
     <string name="upd_less">Less</string>
     <string name="upd_more">More</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">DroidHost %1$s</string>
     <string name="upd_new_preview">New Preview build</string>
     <string name="upd_new_test">PR #%1$d test build</string>
     <string name="upd_mb">%1$d MB</string>
@@ -1159,7 +1159,7 @@
     <string name="upd_lab">Lab build</string>
     <string name="lab_builds">Lab builds</string>
     <string name="lab_in_use">In use</string>
-    <string name="lab_paused_row">Paused after Android re-optimized DroidDeck</string>
+    <string name="lab_paused_row">Paused after Android re-optimized DroidHost</string>
     <string name="lab_not_loaded">Not loaded: %1$s</string>
     <string name="lab_waiting">Waiting for a restart</string>
     <string name="lab_kept">Kept</string>
@@ -1173,12 +1173,12 @@
     <string name="lab_delete_confirm">Delete now</string>
     <string name="lab_restart_failed">Could not prepare the restart: %1$s. Pair wireless debugging in Setup and try again.</string>
     <string name="lab_installed_title">Lab build installed</string>
-    <string name="lab_installed_text">DroidDeck restarted on %1$s</string>
+    <string name="lab_installed_text">DroidHost restarted on %1$s</string>
     <string name="lab_paused_title">Lab build paused</string>
-    <string name="lab_paused_text">Android re-optimized DroidDeck, so %1$s is not loaded. Open Updates to restart on it.</string>
+    <string name="lab_paused_text">Android re-optimized DroidHost, so %1$s is not loaded. Open Updates to restart on it.</string>
     <string name="lab_off_title">Lab build turned off</string>
-    <string name="lab_off_other_install">It was built for another version of DroidDeck. It is kept in Updates.</string>
-    <string name="lab_off_did_not_start">DroidDeck did not start on it twice</string>
+    <string name="lab_off_other_install">It was built for another version of DroidHost. It is kept in Updates.</string>
+    <string name="lab_off_did_not_start">DroidHost did not start on it twice</string>
     <string name="rail_agent">Agent</string>
     <string name="agent_channel_name">Agent</string>
     <string name="agent_working">Agent is working</string>
@@ -1198,7 +1198,7 @@
     <string name="agent_tools_add">Add</string>
     <string name="agent_voice">Dictate</string>
     <string name="agent_voice_stop">Stop dictating</string>
-    <string name="agent_voice_denied">DroidDeck needs the microphone to dictate</string>
+    <string name="agent_voice_denied">DroidHost needs the microphone to dictate</string>
     <string name="agent_attach_game">Attach what the game shows</string>
     <string name="agent_attach_game_failed">Could not capture the game</string>
     <string name="agent_done_channel">Agent replies</string>
@@ -1214,7 +1214,7 @@
     <string name="agent_history_search">Search conversations</string>
     <string name="agent_history_no_match">No conversation mentions that</string>
     <string name="agent_missing">Install Claude Code in the Linux userland to use the agent.</string>
-    <string name="agent_hint">Ask about a game, a crash, or a change to DroidDeck</string>
+    <string name="agent_hint">Ask about a game, a crash, or a change to DroidHost</string>
     <string name="agent_send">Send</string>
     <string name="agent_new">New conversation</string>
     <string name="agent_stop">Stop</string>
@@ -1223,20 +1223,20 @@
     <string name="agent_storage_confirm">Remove now</string>
     <string name="agent_storage_claude">Claude Code</string>
     <string name="agent_storage_codex">Codex</string>
-    <string name="agent_storage_source">DroidDeck source</string>
+    <string name="agent_storage_source">DroidHost source</string>
     <string name="agent_storage_caches">Download caches</string>
     <string name="agent_storage_source_warning">Changes that are not pushed are lost</string>
     <string name="agent_storage_caches_warning">Builds download these again</string>
     <string name="agent_storage_reinstall_warning">Setup can install it again; sign-ins are kept</string>
-    <string name="agent_resumed">DroidDeck restarted on your Lab build. Continue where you left off.</string>
-    <string name="agent_empty">Ask it why a game won\'t start, to explain a log, or to change DroidDeck and try the change on this device.</string>
+    <string name="agent_resumed">DroidHost restarted on your Lab build. Continue where you left off.</string>
+    <string name="agent_empty">Ask it why a game won\'t start, to explain a log, or to change DroidHost and try the change on this device.</string>
     <string name="agent_failed">Failed: %1$s</string>
     <string name="agent_exited">%1$s ended (exit %2$d)</string>
     <string name="agent_stopped">Stopped</string>
     <string name="agent_no_reply">Ended without a reply</string>
     <string name="agent_retry">Retry</string>
     <string name="agent_setting_up">Setting up the agent</string>
-    <string name="agent_rebuild_lab">Rebuild my Lab build %1$s for the installed version of DroidDeck and restart on it.</string>
+    <string name="agent_rebuild_lab">Rebuild my Lab build %1$s for the installed version of DroidHost and restart on it.</string>
     <string name="agent_tokens">%1$s in · %2$s out</string>
     <string name="agent_thinking">Thinking</string>
     <string name="agent_thought">Thought</string>
@@ -1297,7 +1297,7 @@
     <string name="agent_lab_stage_starting">Starting</string>
     <string name="agent_lab_stage_building">%1$d%%</string>
     <string name="agent_lab_stage_packaging">Packaging</string>
-    <string name="agent_lab_stage_restarting">Restarting DroidDeck on it</string>
+    <string name="agent_lab_stage_restarting">Restarting DroidHost on it</string>
     <string name="agent_lab_stage_ready">Done</string>
     <string name="agent_lab_stage_failed">Failed: %1$s</string>
     <string name="agent_setup_title">Set up the agent</string>
@@ -1305,7 +1305,7 @@
     <string name="agent_setup_retry">Retry</string>
     <string name="agent_setup_done">Start chatting</string>
     <string name="agent_step_connection">Device connection</string>
-    <string name="agent_step_connection_hint">Wireless debugging, so the agent can see and drive DroidDeck</string>
+    <string name="agent_step_connection_hint">Wireless debugging, so the agent can see and drive DroidHost</string>
     <string name="agent_step_install">Install %1$s</string>
     <string name="agent_step_install_hint">Into the Linux userland, with git, gh and adb</string>
     <string name="agent_step_sign_in">Sign in to %1$s</string>
@@ -1328,7 +1328,7 @@
     <string name="agent_action_install">Install</string>
     <string name="agent_action_sign_in">Sign in</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Not built for this copy of DroidDeck</string>
+    <string name="upd_not_built">Not built for this copy of DroidHost</string>
     <string name="upd_updated">Updated %1$s</string>
     <string name="upd_test_name">the PR #%1$d test</string>
     <string name="upd_while_ago">a while ago</string>
@@ -1351,13 +1351,13 @@
     <string name="gate_fix_for_me">Fix it for me</string>
     <string name="gate_toggle_steps">Turn on “Disable child process restrictions”, then come back. Leave Developer options on, or the switch turns off again.</string>
     <string name="gate_open_dev">Open Developer options</string>
-    <string name="gate_no_toggle">This Android version has no switch for it, so DroidDeck changes it over Wireless debugging. Takes about a minute, no computer needed.</string>
+    <string name="gate_no_toggle">This Android version has no switch for it, so DroidHost changes it over Wireless debugging. Takes about a minute, no computer needed.</string>
     <string name="gate_needs_wifi">Wireless debugging needs Wi-Fi. Any network works; it doesn\'t need internet.</string>
-    <string name="gate_needs_notifications">The pairing code goes in a notification. Allow notifications for DroidDeck, or use Other ways.</string>
+    <string name="gate_needs_notifications">The pairing code goes in a notification. Allow notifications for DroidHost, or use Other ways.</string>
     <string name="gate_allow_notifications">Allow notifications</string>
     <string name="gate_step1">Open Settings → Developer options → Wireless debugging and turn it on</string>
     <string name="gate_step2">Tap “Pair device with pairing code”</string>
-    <string name="gate_step3">Type the code into the DroidDeck notification</string>
+    <string name="gate_step3">Type the code into the DroidHost notification</string>
     <string name="pairguide_build_number">In About phone, tap Build number 7 times</string>
     <string name="pairguide_wireless">Turn on Wireless debugging</string>
     <string name="pairguide_pair">Open Wireless debugging, then tap “Pair device with pairing code”</string>
@@ -1527,7 +1527,7 @@
     <string name="desktop_removing">Removing desktop</string>
     <string name="desktop_removed">Desktop removed</string>
     <string name="desktop_cleaning_legacy">Removing old LXQt files</string>
-    <string name="desktop_removal_unknown">Update DroidDeck before removing this desktop version.</string>
+    <string name="desktop_removal_unknown">Update DroidHost before removing this desktop version.</string>
     <string name="content_linux_desktop">Linux desktop</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox and your emulators</string>
     <string name="games_empty">Games you install in Steam show up here after the session.</string>
@@ -1572,8 +1572,8 @@
     <string name="gpu_hide_other">Hide drivers for other GPUs</string>
     <string name="gpu_show_other">Show drivers for other GPUs</string>
     <string name="gpu_ubwc_title">UBWC compatibility</string>
-    <string name="gpu_ubwc_hint">Try On or Off if Steam or Android shows stripes or flickering. Applies to both drivers after restarting DroidDeck.</string>
-    <string name="gpu_ubwc_restart">Restart DroidDeck to apply.</string>
+    <string name="gpu_ubwc_hint">Try On or Off if Steam or Android shows stripes or flickering. Applies to both drivers after restarting DroidHost.</string>
+    <string name="gpu_ubwc_restart">Restart DroidHost to apply.</string>
     <string name="gpu_set_with_display">Set together with the display driver: %1$s carries both.</string>
     <string name="gpu_set_with_runtime">Set together with the runtime driver: %1$s carries both.</string>
     <string name="gpu_runtime_hint">Used by games and the desktop.</string>
@@ -1581,7 +1581,7 @@
     <string name="gpu_auto_by_gpu">Auto - picked by GPU</string>
     <string name="gpu_manage">Download, import or delete…</string>
     <string name="gpu_in_use_caps">IN USE</string>
-    <string name="gpu_builtin">The drivers built into DroidDeck</string>
+    <string name="gpu_builtin">The drivers built into DroidHost</string>
     <string name="gpu_matched_pair">Runtime and display drivers set together as a matched pair.</string>
     <string name="gpu_recommended_for">Recommended for this GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Refresh to look for drivers for this GPU.</string>
@@ -1690,7 +1690,7 @@
     <string name="unfolded_controls_with_controller_hint">Also show these touch controls while a controller is connected.</string>
     <string name="pip_suspended">Suspended</string>
     <string name="pip_not_ready">Picture in picture is available once the session is ready.</string>
-    <string name="pip_permission">Allow picture in picture for DroidDeck in Android settings.</string>
+    <string name="pip_permission">Allow picture in picture for DroidHost in Android settings.</string>
     <string name="pip_unavailable">Android could not open picture in picture.</string>
     <string name="game_more">More</string>
     <string name="game_edit_art">Edit art</string>
@@ -1703,7 +1703,7 @@
     <string name="game_link_copied">Launch link copied</string>
     <string name="game_shortcut_unsupported">This launcher cannot add shortcuts. Use Copy launch link instead.</string>
     <string name="game_link_invalid">Invalid game launch link.</string>
-    <string name="game_link_missing">This game is no longer in your DroidDeck library.</string>
+    <string name="game_link_missing">This game is no longer in your DroidHost library.</string>
     <string name="game_link_session_busy">Stop the current session before launching a Steam game.</string>
     <string name="game_link_failed">Could not send the game to Steam. Try launching it again.</string>
     <string name="setup_retry_removal">Retry removal</string>
@@ -1731,8 +1731,8 @@
         <item quantity="other">Imported %1$d files from the %2$s into %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">Imported %1$d file from the %2$s into %3$s. Old saves backed up to Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">Imported %1$d files from the %2$s into %3$s. Old saves backed up to Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">Imported %1$d file from the %2$s into %3$s. Old saves backed up to Download/DroidHost/Saves/backups</item>
+        <item quantity="other">Imported %1$d files from the %2$s into %3$s. Old saves backed up to Download/DroidHost/Saves/backups</item>
     </plurals>
     <string name="main_addons_close_session">Close the session first, so the game isn\'t using its addons during the import</string>
     <string name="main_addons_importing">Importing addons into %1$s</string>
@@ -1804,7 +1804,7 @@
 
     <string name="upd_unknown_apps_failed">Couldn\'t open Android\'s \"Install unknown apps\" setting</string>
     <string name="upd_couldnt_check">Couldn\'t check: %1$s</string>
-    <string name="upd_no_download">This build has no download for this copy of DroidDeck</string>
+    <string name="upd_no_download">This build has no download for this copy of DroidHost</string>
     <string name="upd_stop_first">Stop the running session first, then update</string>
     <string name="upd_stage_downloading">Downloading</string>
     <string name="upd_stage_installing">Installing</string>
@@ -1833,22 +1833,22 @@
     <string name="drivers_recommended_unpublished">The recommended drivers aren\'t published right now</string>
     <string name="drivers_downloading_pair">Downloading %1$s %2$s…</string>
     <string name="drivers_updated_to">Updated to %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Updated to %1$s %2$s. The display driver applies after DroidDeck restarts.</string>
+    <string name="drivers_updated_to_restart">Updated to %1$s %2$s. The display driver applies after DroidHost restarts.</string>
     <string name="drivers_auto_waits_for_session">Driver updates wait until the session ends.</string>
     <string name="drivers_auto_waits_for_network">%1$s %2$s will download once you\'re off mobile data and battery saver.</string>
     <string name="drivers_skipping_bad">%1$s %2$s didn\'t start a session here, so Auto is staying on the drivers that did.</string>
     <string name="drivers_rolled_back">%1$s didn\'t start a session twice, so Auto went back to the drivers that worked.</string>
     <string name="drivers_switched_to">Switched to %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Switched to %1$s %2$s. The display driver applies after DroidDeck restarts.</string>
+    <string name="drivers_switched_to_restart">Switched to %1$s %2$s. The display driver applies after DroidHost restarts.</string>
     <string name="drivers_using">Using %1$s %2$s.</string>
-    <string name="drivers_using_restart">Using %1$s %2$s. The display driver applies after DroidDeck restarts.</string>
+    <string name="drivers_using_restart">Using %1$s %2$s. The display driver applies after DroidHost restarts.</string>
     <string name="drivers_using_quest">Using the bundled Quest display driver and runtime default.</string>
-    <string name="drivers_using_quest_restart">Using the bundled Quest display driver and runtime default. The display driver applies after DroidDeck restarts.</string>
+    <string name="drivers_using_quest_restart">Using the bundled Quest display driver and runtime default. The display driver applies after DroidHost restarts.</string>
     <string name="drivers_not_a_driver">Not a driver zip: neither an AdrenoTools driver, a -Linux Turnip nor an Android + Linux bundle</string>
     <string name="drivers_import_failed">Import failed: %1$s</string>
     <string name="drivers_imported_unnamed">Imported driver</string>
     <string name="drivers_using_bundle">Using %1$s as both the runtime and display driver.</string>
-    <string name="drivers_using_bundle_restart">Using %1$s as both the runtime and display driver. The display driver applies after DroidDeck restarts.</string>
+    <string name="drivers_using_bundle_restart">Using %1$s as both the runtime and display driver. The display driver applies after DroidHost restarts.</string>
     <string name="drivers_deleted_bundle">Deleted %1$s (both drivers)</string>
     <string name="drivers_deleted">Deleted %1$s</string>
     <string name="drivers_release_status">Latest: %1$s · checked %2$s</string>
@@ -1865,7 +1865,7 @@
         <item quantity="one">%1$d day ago</item>
         <item quantity="other">%1$d days ago</item>
     </plurals>
-    <string name="drivers_checking_sources">Checking Banners-Turnip, WinNative and DroidDeck…</string>
+    <string name="drivers_checking_sources">Checking Banners-Turnip, WinNative and DroidHost…</string>
     <string name="drivers_check_failed">check failed</string>
     <string name="drivers_installed_pick_either">Installed %1$s - pick it in either list to set both drivers</string>
     <string name="drivers_installed_pick">Installed %1$s - pick it in the menu</string>
@@ -2089,7 +2089,7 @@
     <string name="fm_decline">Decline</string>
     <string name="fm_drive_not_readable">%1$s is mounted but not readable right now</string>
     <string name="fm_drive_access_title">Allow access to %1$s</string>
-    <string name="fm_drive_access_text">Android lets DroidDeck see this drive but not read it. Turn on All files access for DroidDeck, then come back.</string>
+    <string name="fm_drive_access_text">Android lets DroidHost see this drive but not read it. Turn on All files access for DroidHost, then come back.</string>
     <string name="fm_list_view">List view</string>
     <string name="fm_grid_view">Grid view</string>
     <string name="fm_search">Search</string>
@@ -2245,7 +2245,7 @@
     <string name="bottom_telemetry_send_close">Close %1$s to change this.</string>
     <string name="bottom_telemetry_send_failed">Could not change the settings of %1$s.</string>
     <string name="bottom_telemetry_send_menu">%1$s: turn on %2$s in the game\'s settings with IP 127.0.0.1 and port %3$d.</string>
-    <string name="bottom_shots_where">Saved to Pictures/DroidDeck. Steam screenshots show here too.</string>
+    <string name="bottom_shots_where">Saved to Pictures/DroidHost. Steam screenshots show here too.</string>
     <string name="bottom_shots_take">Take screenshot</string>
     <string name="bottom_shots_saved">Screenshot saved.</string>
     <string name="bottom_shots_failed">Could not take a screenshot.</string>
@@ -2253,12 +2253,12 @@
     <string name="bottom_page_chat">Chat &amp; voice</string>
     <string name="bottom_chat_why">Read and answer Steam chat here while the game keeps running on the main screen. It uses the account Steam is signed in with.</string>
     <string name="bottom_chat_not_signed_in">Steam has no web sign-in to share yet, so sign in here once.</string>
-    <string name="bottom_chat_stopped">Android closed the chat page while DroidDeck was in the background. It opens again when you come back to DroidDeck.</string>
+    <string name="bottom_chat_stopped">Android closed the chat page while DroidHost was in the background. It opens again when you come back to DroidHost.</string>
     <string name="bottom_chat_open">Open Steam Chat</string>
     <string name="bottom_chat_close">Close chat</string>
     <string name="bottom_chat_mic_on">Mic on</string>
     <string name="bottom_chat_mic_off">Mic off</string>
-    <string name="bottom_chat_mic_unavailable">Mic is off for this game. To talk, turn on Microphone in DroidDeck\'s Steam settings (Audio) and start the game again.</string>
+    <string name="bottom_chat_mic_unavailable">Mic is off for this game. To talk, turn on Microphone in DroidHost\'s Steam settings (Audio) and start the game again.</string>
     <string name="bottom_chat_volume">Volume %1$d%%</string>
     <string name="bottom_page_telemetry">In-game stats</string>
     <string name="bottom_hud_group">Bottom screen HUD</string>
@@ -2312,7 +2312,7 @@
     <string name="flatpakmgr_not_ready">Set up Flatpak first</string>
     <string name="flatpakmgr_starting">Starting</string>
     <string name="flatpakmgr_exit_status">Flatpak exited with status %1$d</string>
-    <string name="flatpakmgr_wrong_arch">%1$s is built for %2$s, which DroidDeck can\'t run. Flatpak apps here need an ARM64 or x86_64 build.</string>
+    <string name="flatpakmgr_wrong_arch">%1$s is built for %2$s, which DroidHost can\'t run. Flatpak apps here need an ARM64 or x86_64 build.</string>
     <string name="flatpakmgr_installing">Installing %1$s</string>
     <string name="flatpakmgr_updating">Updating %1$s</string>
     <string name="flatpakmgr_removing">Removing %1$s</string>
@@ -2395,7 +2395,7 @@
     <string name="adbfix_no_pairing">No Wireless debugging pairing is saved</string>
     <string name="adbfix_enter_address">Enter the current Wireless debugging IP address &amp; Port</string>
 
-    <string name="adbpair_timed_out">Timed out waiting for the pairing pop-up. Try again from DroidDeck.</string>
+    <string name="adbpair_timed_out">Timed out waiting for the pairing pop-up. Try again from DroidHost.</string>
     <string name="adbpair_discovery_failed_code">Could not look for the pairing pop-up (%1$d). Check that Wi-Fi is on.</string>
     <string name="adbpair_discovery_failed">Could not look for the pairing pop-up: %1$s</string>
     <string name="adbpair_six_digits">Enter all 6 digits of the code</string>
@@ -2418,20 +2418,20 @@
     <string name="adbpair_enter_code">Enter code</string>
     <string name="adbpair_title_working">Setting up Steam</string>
     <string name="adbpair_title_done">Steam is ready</string>
-    <string name="adbpair_done_text">Tap to go back to DroidDeck. You can turn Wireless debugging off now.</string>
+    <string name="adbpair_done_text">Tap to go back to DroidHost. You can turn Wireless debugging off now.</string>
     <string name="adbpair_title_failed">Wireless debugging setup stopped</string>
 
     <string name="selfinst_download_failed">Download failed</string>
     <string name="selfinst_size_mismatch">The download size didn\'t match the published APK and was discarded - try again</string>
     <string name="selfinst_checksum_mismatch">The download didn\'t match its checksum and was discarded - try again</string>
     <string name="selfinst_wrong_package">The update is for Android package %1$s, not %2$s</string>
-    <string name="selfinst_metadata_signer">The update metadata doesn\'t name DroidDeck\'s release signing key</string>
+    <string name="selfinst_metadata_signer">The update metadata doesn\'t name DroidHost\'s release signing key</string>
     <string name="selfinst_unreadable">Android couldn\'t read the downloaded APK</string>
     <string name="selfinst_apk_wrong_package">The downloaded APK is for %1$s, not %2$s</string>
     <string name="selfinst_version_mismatch">The downloaded APK says versionCode %1$d, not the published %2$d</string>
     <string name="selfinst_downgrade">Android won\'t install versionCode %1$d over the installed %2$d</string>
     <string name="selfinst_no_signing">The downloaded APK has no signing information</string>
-    <string name="selfinst_wrong_signer">The downloaded APK isn\'t signed with DroidDeck\'s release key</string>
+    <string name="selfinst_wrong_signer">The downloaded APK isn\'t signed with DroidHost\'s release key</string>
     <string name="appupd_http">The update catalog answered HTTP %1$d</string>
 
     <string name="loadstate_starting">Starting the session…</string>
@@ -2478,7 +2478,7 @@
     <string name="cmgr_original_kept">The installed build\'s original is kept: it is the way back.</string>
     <string name="cmgr_not_stored">Not stored</string>
     <string name="cmgr_deleted_original">Deleted the %1$s original of %2$s.</string>
-    <string name="cmgr_nightlies_only">Downloads come only from the Nightlies and DroidDeck releases</string>
+    <string name="cmgr_nightlies_only">Downloads come only from the Nightlies and DroidHost releases</string>
     <string name="cmgr_nightly_replaced">Download failed: this nightly may have been replaced by a newer build. Refresh the list and try again.</string>
     <string name="cmgr_list_predates_checksums">This package list predates checksums - refresh it and try again</string>
     <string name="cmgr_checksum_mismatch">Checksum mismatch</string>
@@ -2521,7 +2521,7 @@
     <string name="drivers_powervr_builtin">The system PowerVR driver is selected for the runtime and display.</string>
     <string name="drivers_mali_bridge_auto">No open driver covers this Mali yet: the Mali bridge is on.</string>
     <string name="upd_block_non_adreno_test">This is the non-Snapdragon test build: the official builds here only run on Adreno, so they are not installed over it. New test builds are on github.com/The412Banner/droiddeck-nonadreno-drivers.</string>
-    <string name="session_killed_for_memory">The last session ended because Android closed DroidDeck to free memory, not a crash. Close other apps or lower the game\'s texture settings, then try again.</string>
+    <string name="session_killed_for_memory">The last session ended because Android closed DroidHost to free memory, not a crash. Close other apps or lower the game\'s texture settings, then try again.</string>
     <string name="drivers_route_venus">Mali (Venus)</string>
     <string name="drivers_route_bridge">the Mali bridge</string>
     <string name="drivers_mali_no_pair_auto">No open driver covers this Mali yet: %1$s is used, on the phone\'s own driver.</string>
@@ -2580,10 +2580,10 @@
     <string name="phantom_instructions_not_applicable">This Android version does not use this limit.</string>
     <string name="phantom_fix_toggle">Turn on “Disable child process restrictions” in Developer options, and keep Developer options on afterwards.</string>
     <string name="phantom_fix_no_toggle">This Android version has no switch for it. Use Wireless debugging to change it from this device.</string>
-    <string name="upd_block_no_apk">This build has no download for this copy of DroidDeck.</string>
+    <string name="upd_block_no_apk">This build has no download for this copy of DroidHost.</string>
     <string name="upd_block_version_code">Android won\'t install it over this build because its versionCode %1$d is below the installed %2$d.</string>
     <string name="upd_fail_downgrade">Android won\'t install an older version over a newer one. Stay on this build until the channel catches up.</string>
-    <string name="upd_fail_signature">This copy of DroidDeck is signed differently (a local build?), so Android won\'t update it in place.</string>
+    <string name="upd_fail_signature">This copy of DroidHost is signed differently (a local build?), so Android won\'t update it in place.</string>
     <string name="upd_fail_storage">There isn\'t enough free space for the update.</string>
     <string name="upd_fail_aborted">The update was cancelled.</string>
     <string name="upd_fail_with_message">The update didn\'t install: %1$s</string>
@@ -2608,7 +2608,7 @@
     <string name="gstore_volume_free">%1$s · %2$s free</string>
     <string name="mode_storage_auto_short">Automatic</string>
     <string name="appupd_catalog_rejected">The update catalog failed its checks (%1$s)</string>
-    <string name="main_adb_clip_label">DroidDeck child-process setting</string>
+    <string name="main_adb_clip_label">DroidHost child-process setting</string>
     <string name="setup_signed_in_offline_unnamed">Signed in · offline mode</string>
     <string name="setup_signed_in_unnamed">Signed in</string>
     <string name="driver_tag_bundled">BUNDLED</string>
@@ -3032,7 +3032,7 @@
     <string name="gpu_display_next">Draws the screen. Applies from the next session.</string>
     <string name="gpu_previous_driver">the previous driver</string>
     <string name="gpu_restart_banner">Restart to switch the display driver.</string>
-    <string name="gpu_restart_blocked">Stop the running session, then restart DroidDeck to switch the display driver.</string>
+    <string name="gpu_restart_blocked">Stop the running session, then restart DroidHost to switch the display driver.</string>
     <string name="gpu_restart_now">Restart now</string>
     <string name="gpu_restart_later">Later</string>
     <string name="gpu_auto_title">Auto picked this pair for your %1$s</string>
@@ -3053,7 +3053,7 @@
     <string name="proton_remove_title">Remove %1$s?</string>
     <string name="setup_tab_diagnostics">Developer</string>
     <string name="setup_tab_glasses">Smart glasses</string>
-    <string name="setup_glasses_scope">Display and head-tracking settings are shared across DroidDeck menus, games and desktop sessions.</string>
+    <string name="setup_glasses_scope">Display and head-tracking settings are shared across DroidHost menus, games and desktop sessions.</string>
     <string name="setup_glasses_connect">Connect smart glasses to change their display and tracking settings. Your saved settings are kept when you disconnect.</string>
     <string name="setup_ready">Ready to play</string>
     <string name="setup_not_ready">Not ready to play yet</string>
@@ -3118,7 +3118,7 @@
     <string name="touch_speed_normal">Normal</string>
     <string name="touch_speed_fast">Fast</string>
     <string name="touch_edit_layout">Edit layout</string>
-    <string name="touch_droiddeck_menu">DroidDeck menu</string>
+    <string name="touch_droiddeck_menu">DroidHost menu</string>
     <string name="touch_drag_hint">Drag controls onto the screen</string>
     <string name="touch_arrange">Arrange</string>
     <string name="touch_discard">Discard</string>
@@ -3184,7 +3184,7 @@
     <string name="glasses_driver_missing">This build does not include the driver for these glasses.</string>
     <string name="glasses_connection_failed">Could not connect to the glasses. Reconnect the cable or tap Allow to retry.</string>
     <string name="glasses_allow">Allow</string>
-    <string name="glasses_allow_hint">Let DroidDeck set the glasses\' refresh rate, 3D mode, brightness, volume and sunblock, and read their head tracking.</string>
+    <string name="glasses_allow_hint">Let DroidHost set the glasses\' refresh rate, 3D mode, brightness, volume and sunblock, and read their head tracking.</string>
     <string name="glasses_asking">Waiting for you to allow it in Android\'s prompt…</string>
     <string name="glasses_denied">Control was declined. Allow it to change the glasses\' settings.</string>
     <string name="glasses_no_control">These glasses show the game, but their settings can\'t be changed from here.</string>
@@ -3228,7 +3228,7 @@
     <string name="glasses_screen_size">Screen width</string>
     <string name="glasses_screen_distance">Screen distance</string>
     <string name="glasses_screen_next_session">Width and distance apply when a game runs on the glasses as a virtual screen.</string>
-    <string name="glasses_screen_app_wide">Width and distance update the tracked virtual screen for DroidDeck menus, games and desktop sessions immediately.</string>
+    <string name="glasses_screen_app_wide">Width and distance update the tracked virtual screen for DroidHost menus, games and desktop sessions immediately.</string>
     <string name="glasses_screen_no_output">These settings apply while Game on glasses is enabled and the game is displayed there.</string>
     <string name="glasses_screen_flat_hint">Automatic keeps this 2D game full-screen. Use a virtual screen to adjust its width, distance and head tracking.</string>
     <string name="glasses_screen_use">Use virtual screen</string>
@@ -3363,7 +3363,7 @@
     <string name="storage_internal">Internal storage</string>
     <string name="storage_used_of">%1$s of %2$s used</string>
     <string name="storage_free">%1$s free</string>
-    <string name="storage_droiddeck_uses">DroidDeck uses %1$s. Measured at %2$s.</string>
+    <string name="storage_droiddeck_uses">DroidHost uses %1$s. Measured at %2$s.</string>
     <string name="storage_rescanning">measuring again…</string>
     <string name="storage_other_apps">Other Android apps</string>
     <string name="storage_safe_now">Safe to free now</string>
@@ -3397,7 +3397,7 @@
     <string name="storage_desktop_hint">Flatpak apps and runtimes</string>
     <string name="storage_system">Linux system &amp; Steam client</string>
     <string name="storage_system_hint">Needed to run anything</string>
-    <string name="storage_app_data">DroidDeck data</string>
+    <string name="storage_app_data">DroidHost data</string>
     <string name="storage_app_data_hint">Old session logs %1$s · caches · drivers</string>
     <string name="storage_legend_games">Games</string>
     <string name="storage_legend_data">Game data</string>
@@ -3405,7 +3405,7 @@
     <string name="storage_legend_stores">Other stores</string>
     <string name="storage_legend_desktop">Desktop apps</string>
     <string name="storage_legend_system">Linux system</string>
-    <string name="storage_legend_app">DroidDeck</string>
+    <string name="storage_legend_app">DroidHost</string>
     <string name="storage_clean_up_title">Clean up</string>
     <string name="storage_clean_up_lede">Nothing here touches your installed games or downloads in progress.</string>
     <string name="storage_nothing_to_clean">Nothing to clean up right now.</string>
@@ -3455,8 +3455,8 @@
     <string name="storage_tool_fex">Runs Linux x86 games</string>
     <string name="storage_tool_steam">Steam tool</string>
     <string name="storage_tool_anticheat">Steam downloads this for games that ship anti-cheat, even when it is off. Removing it stalls their install at 0%</string>
-    <string name="storage_tool_old_runtime">DroidDeck runs games without this runtime</string>
-    <string name="storage_tool_x86_proton">x86 Proton, which DroidDeck cannot run</string>
+    <string name="storage_tool_old_runtime">DroidHost runs games without this runtime</string>
+    <string name="storage_tool_x86_proton">x86 Proton, which DroidHost cannot run</string>
     <string name="storage_tool_custom_default">Default for every game</string>
     <string name="storage_tool_custom_unused">No game is set to it</string>
     <string name="storage_tool_custom_unknown">Steam’s settings could not be read, so it is kept</string>
@@ -3491,8 +3491,8 @@
         <item quantity="one">%d game</item>
         <item quantity="other">%d games</item>
     </plurals>
-    <string name="storage_tool_default_proton">DroidDeck’s default Proton</string>
-    <string name="storage_tool_proton">DroidDeck’s Proton 11 option</string>
+    <string name="storage_tool_default_proton">DroidHost’s default Proton</string>
+    <string name="storage_tool_proton">DroidHost’s Proton 11 option</string>
     <plurals name="storage_tool_custom_games">
         <item quantity="one">Used by %d game</item>
         <item quantity="other">Used by %d games</item>
@@ -3582,7 +3582,7 @@
     <string name="tracking_recovery_automatic">This screen closes automatically when head tracking is ready.</string>
     <string name="boot_movie">Boot movie</string>
     <string name="boot_movie_video">Movie</string>
-    <string name="boot_movie_droiddeck">DroidDeck · %1$d fps</string>
+    <string name="boot_movie_droiddeck">DroidHost · %1$d fps</string>
     <string name="boot_movie_note">60 fps looks smoother but uses more CPU while Steam starts. A movie picked in Steam\'s own settings shows up here too.</string>
     <string name="boot_movie_sound">Sound</string>
     <string name="boot_movie_skip">Skip boot movie</string>
@@ -3592,13 +3592,13 @@
     <string name="boot_movie_import">Import</string>
     <string name="boot_movie_remove">Remove</string>
     <string name="boot_movie_remove_confirm">Remove %1$s?</string>
-    <string name="boot_movie_remove_confirm_body">This deletes the movie from DroidDeck and from Steam\'s movies folder.</string>
+    <string name="boot_movie_remove_confirm_body">This deletes the movie from DroidHost and from Steam\'s movies folder.</string>
     <string name="boot_movie_pick">Choose a boot movie</string>
     <string name="boot_movie_imported">%1$s is now the boot movie</string>
     <string name="boot_movie_imported_silent">%1$s is now the boot movie, without sound</string>
     <string name="boot_movie_too_long">Movies that need converting must be %1$d seconds or shorter</string>
     <string name="boot_movie_converting">Converting %1$d%%</string>
-    <string name="boot_movie_converting_started">Converting %1$s for Steam. Keep DroidDeck open.</string>
+    <string name="boot_movie_converting_started">Converting %1$s for Steam. Keep DroidHost open.</string>
     <string name="boot_movie_unsupported">This device cannot decode that video.</string>
     <string name="boot_movie_import_failed">Could not import that movie</string>
     <string name="boot_movie_tab_installed">Installed</string>
@@ -3607,13 +3607,13 @@
     <string name="boot_movie_tab_sound">Sound</string>
     <string name="boot_movie_installed">Installed movies</string>
     <string name="boot_movie_browse">Browse</string>
-    <string name="boot_movie_source_droiddeck">DroidDeck</string>
+    <string name="boot_movie_source_droiddeck">DroidHost</string>
     <string name="boot_movie_source_import">Imported</string>
     <string name="boot_movie_source_repo">SteamDeckRepo</string>
     <string name="boot_movie_source_steam">Steam</string>
     <string name="boot_movie_source_pointshop">Points Shop</string>
     <string name="boot_movie_report">Boot movie report</string>
-    <string name="boot_movie_report_hint">Saves what DroidDeck and Steam know about boot movies to a text file you can attach to a bug report.</string>
+    <string name="boot_movie_report_hint">Saves what DroidHost and Steam know about boot movies to a text file you can attach to a bug report.</string>
     <string name="boot_movie_report_save">Save</string>
     <string name="boot_movie_report_saved">Saved to %1$s</string>
     <string name="boot_movie_report_failed">Could not save the report.</string>
@@ -3703,8 +3703,8 @@
     <string name="spatial_timing_values">%1$.1f Hz • frame age %2$.1f ms • processing %3$.1f ms</string>
     <string name="spatial_input_values">Input limit %1$.1f Hz • %2$.0f%% of camera frames. Head tracking stays at full rate.</string>
     <string name="spatial_frame_counts">%1$d processed • %2$d dropped • %3$d skipped by input limit</string>
-    <string name="spatial_print_job">DroidDeck ChArUco 30 mm</string>
-    <string name="spatial_print_title">DroidDeck - Luma Ultra calibration</string>
+    <string name="spatial_print_job">DroidHost ChArUco 30 mm</string>
+    <string name="spatial_print_title">DroidHost - Luma Ultra calibration</string>
     <string name="spatial_print_scale" formatted="false">Print at 100% / Actual size. Each square: 30 mm (1.181 in).</string>
     <string name="spatial_print_stationary">Keep the board flat and stationary; move the glasses between captures.</string>
     <string name="spatial_print_check">Scale check: 100 mm (3.937 in) between ticks</string>
@@ -3789,7 +3789,7 @@
     <string name="setup_tab_sync">Syncthing</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Sync with Syncthing</string>
-    <string name="sync_enable_hint">Based on Syncthing-Fork, this is a Syncthing implementation that lets you sync files in DroidDeck\'s internal file system with other Syncthing instances. This is only for files you are storing within DroidDeck\'s internal file system.</string>
+    <string name="sync_enable_hint">Based on Syncthing-Fork, this is a Syncthing implementation that lets you sync files in DroidHost\'s internal file system with other Syncthing instances. This is only for files you are storing within DroidHost\'s internal file system.</string>
     <string name="sync_missing">This build doesn\'t include Syncthing.</string>
     <string name="sync_starting">Starting Syncthing</string>
     <string name="sync_status_starting">Starting</string>
@@ -3819,7 +3819,7 @@
     <string name="sync_waiting">Waiting for you</string>
     <string name="sync_pending_device">%1$s wants to connect</string>
     <string name="sync_pending_folder">%1$s wants to share “%2$s”</string>
-    <string name="sync_pending_folder_hint">Accept to choose where it\'s saved in DroidDeck.</string>
+    <string name="sync_pending_folder_hint">Accept to choose where it\'s saved in DroidHost.</string>
     <string name="sync_review">Review in web UI</string>
     <string name="sync_folders">Folders</string>
     <string name="sync_no_folders">No folders yet.</string>
@@ -3831,7 +3831,7 @@
     <string name="sync_folder_out_of_sync">Out of sync</string>
     <string name="sync_folder_errors">%1$d files couldn\'t sync</string>
     <string name="sync_folder_blocked">Blocked</string>
-    <string name="sync_folder_blocked_hint">This folder is outside DroidDeck\'s storage, so DroidDeck paused it. To sync folders outside DroidDeck, use the Syncthing-Fork app.</string>
+    <string name="sync_folder_blocked_hint">This folder is outside DroidHost\'s storage, so DroidHost paused it. To sync folders outside DroidHost, use the Syncthing-Fork app.</string>
     <string name="sync_remove_folder">Remove from Syncthing</string>
     <string name="sync_remove_folder_hint">Removing it doesn\'t delete any files.</string>
     <string name="sync_devices">Devices</string>
@@ -3859,12 +3859,12 @@
     <string name="sync_api_key">API key</string>
     <string name="sync_regenerate">Regenerate</string>
     <string name="sync_reset">Reset Syncthing</string>
-    <string name="sync_reset_hint">New device ID, folders and devices removed. Files in DroidDeck\'s storage are kept.</string>
+    <string name="sync_reset_hint">New device ID, folders and devices removed. Files in DroidHost\'s storage are kept.</string>
     <string name="sync_reset_button">Reset</string>
     <string name="sync_reset_confirm_title">Reset Syncthing?</string>
     <string name="sync_running_group">Running</string>
     <string name="sync_run">Run</string>
-    <string name="sync_run_open">While DroidDeck is open</string>
+    <string name="sync_run_open">While DroidHost is open</string>
     <string name="sync_run_background">In the background</string>
     <string name="sync_wifi_only">Wi-Fi only</string>
     <string name="sync_pause_games">Pause during games</string>
@@ -3876,7 +3876,7 @@
     <string name="sync_accept">Accept</string>
     <string name="sync_accept_title">Save “%1$s” to</string>
     <string name="sync_add_folder">Add folder</string>
-    <string name="sync_add_folder_hint">Sync a folder in DroidDeck\'s storage</string>
+    <string name="sync_add_folder_hint">Sync a folder in DroidHost\'s storage</string>
     <string name="sync_choose">Choose</string>
     <string name="sync_add">Add</string>
     <string name="sync_add_failed">The folder couldn\'t be added.</string>
@@ -3886,10 +3886,10 @@
     <string name="sync_new_folder">New folder</string>
     <string name="sync_location_home">Container home</string>
     <string name="sync_location_sync">Sync folder</string>
-    <string name="sync_location_shared">DroidDeck shared storage</string>
-    <string name="sync_location_card">DroidDeck on %1$s</string>
-    <string name="sync_location_app">DroidDeck app data</string>
-    <string name="sync_web_path_locked">New folders are saved in DroidDeck\'s Sync folder. To sync a different DroidDeck folder, use Add folder on the Syncthing tab.</string>
+    <string name="sync_location_shared">DroidHost shared storage</string>
+    <string name="sync_location_card">DroidHost on %1$s</string>
+    <string name="sync_location_app">DroidHost app data</string>
+    <string name="sync_web_path_locked">New folders are saved in DroidHost\'s Sync folder. To sync a different DroidHost folder, use Add folder on the Syncthing tab.</string>
     <string name="sync_web_title">Syncthing</string>
     <string name="sync_web_reload">Reload</string>
     <string name="sync_not_running">Syncthing isn\'t running.</string>
@@ -3904,22 +3904,22 @@
     <string name="session_end_gpu_unsupported">This session cannot start because this GPU has no compatible Linux Vulkan driver in the current setup. Adreno Turnip drivers cannot enable support for MediaTek/Mali GPUs.</string>
     <string name="setup_group_memory">Memory</string>
     <string name="setup_clear_cached">Clear cached apps before a session</string>
-    <string name="setup_clear_cached_hint">When a session starts, DroidDeck closes the apps Android keeps parked in the background, so the game has more memory. Wireless debugging must be on.</string>
-    <string name="setup_clear_cached_unpaired">Needs DroidDeck paired with Wireless debugging (Pair, below).</string>
+    <string name="setup_clear_cached_hint">When a session starts, DroidHost closes the apps Android keeps parked in the background, so the game has more memory. Wireless debugging must be on.</string>
+    <string name="setup_clear_cached_unpaired">Needs DroidHost paired with Wireless debugging (Pair, below).</string>
     <string name="setup_memory_hud">Memory readout</string>
-    <string name="setup_memory_hud_hint">Memory and swap in use, on the session screen. Advanced splits it into the game, DroidDeck, Android and the GPU.</string>
+    <string name="setup_memory_hud_hint">Memory and swap in use, on the session screen. Advanced splits it into the game, DroidHost, Android and the GPU.</string>
     <string name="setup_memory_hud_simple">Simple</string>
     <string name="setup_memory_hud_advanced">Advanced</string>
     <string name="memory_hud_simple">RAM %1$s/%2$s GB · swap %3$s/%4$s GB</string>
-    <string name="memory_hud_split">game %1$s · DroidDeck %2$s · Android %3$s GB</string>
+    <string name="memory_hud_split">game %1$s · DroidHost %2$s · Android %3$s GB</string>
     <string name="memory_hud_gpu">GPU %1$s GB</string>
     <string name="setup_bg_limit">Background apps during a session</string>
-    <string name="setup_bg_limit_hint">While a session runs, Android keeps at most this many apps cached and closes the rest, so the game has their memory. DroidDeck puts the limit back as it was when the session ends. Wireless debugging must be on.</string>
+    <string name="setup_bg_limit_hint">While a session runs, Android keeps at most this many apps cached and closes the rest, so the game has their memory. DroidHost puts the limit back as it was when the session ends. Wireless debugging must be on.</string>
     <string name="setup_bg_limit_4">At most 4</string>
     <string name="setup_bg_limit_1">At most 1</string>
     <string name="setup_bg_limit_0">None</string>
     <string name="setup_adb_pair">Wireless debugging</string>
-    <string name="setup_adb_pair_hint">Pairs DroidDeck with Android\'s Wireless debugging for the options above. The child-process limit stays off.</string>
+    <string name="setup_adb_pair_hint">Pairs DroidHost with Android\'s Wireless debugging for the options above. The child-process limit stays off.</string>
     <string name="setup_adb_pair_button">Pair</string>
     <string name="stores_xbox_update">Update / verify</string>
     <string name="stores_xbox_manage">Manage content</string>
@@ -3989,7 +3989,7 @@
     <string name="integration_app_info">App info</string>
     <string name="integration_wifi">Wi-Fi names</string>
     <string name="integration_brightness">Brightness</string>
-    <string name="integration_home">DroidDeck as Home</string>
+    <string name="integration_home">DroidHost as Home</string>
     <string name="integration_shortcuts">System keys</string>
     <string name="integration_wifi_hint">Show networks in Steam · needs Location access, never tracked</string>
     <string name="integration_wifi_on">Networks show in Steam</string>
@@ -4000,11 +4000,11 @@
     <string name="integration_shortcuts_hint">Alt+Tab, Win key and Home button stay in the session</string>
     <string name="integration_shortcuts_maybe_restricted">Greyed out in Android? App info → ⋮ → Allow restricted settings</string>
     <string name="integration_shortcuts_restricted">Blocked by Android · App info → ⋮ → Allow restricted settings</string>
-    <string name="integration_shortcuts_service">DroidDeck system keys</string>
-    <string name="integration_shortcuts_service_description">Keep Alt+Tab, the Win key and the Home button inside a focused DroidDeck session instead of Android.</string>
+    <string name="integration_shortcuts_service">DroidHost system keys</string>
+    <string name="integration_shortcuts_service_description">Keep Alt+Tab, the Win key and the Home button inside a focused DroidHost session instead of Android.</string>
     <string name="integration_brightness_needed">Turn on Brightness in Setup → Steam integration</string>
     <string name="desktop_restore_title">Restoring your software</string>
-    <string name="desktop_restore_body">Reinstalling the apps you added after a DroidDeck update.</string>
+    <string name="desktop_restore_body">Reinstalling the apps you added after a DroidHost update.</string>
     <string name="desktop_restore_done_title">Software restored</string>
     <string name="desktop_restore_done_body">The apps you added are installed again.</string>
     <string name="desktop_restore_failed_title">Some software couldn\'t be restored</string>

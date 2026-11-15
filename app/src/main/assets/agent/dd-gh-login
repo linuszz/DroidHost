@@ -3,7 +3,7 @@
 url=https://github.com/login/device
 inbox=${DD_AGENT_INBOX:-}
 
-# DroidDeck takes $inbox/device-code within a few seconds when it can float the code.
+# DroidHost takes $inbox/device-code within a few seconds when it can float the code.
 float_code() {
   [ -n "$inbox" ] && [ -d "$inbox" ] || return 1
   rm -f "$inbox/device-code.result"
@@ -17,7 +17,7 @@ float_code() {
     rm -f "$inbox/device-code"
     return 1
   fi
-  # DroidDeck writes "ok" or "failed" once it has tried to open the page; no answer counts as failed.
+  # DroidHost writes "ok" or "failed" once it has tried to open the page; no answer counts as failed.
   i=0
   while [ $i -lt 50 ] && [ ! -e "$inbox/device-code.result" ]; do
     sleep 0.2

@@ -6,7 +6,7 @@ import sys
 
 HOME = os.environ.get("HOME", "/root")
 STEAM = os.path.join(HOME, ".local/share/Steam")
-STORES = os.environ.get("DROIDDECK_STORES_ROOT", "/mnt/droiddeck-stores")
+STORES = os.environ.get("DROIDHOST_STORES_ROOT", "/mnt/droiddeck-stores")
 TOOLS = re.compile(r"^(Proton |Proton$|SteamLinuxRuntime|Steamworks Shared$)")
 
 

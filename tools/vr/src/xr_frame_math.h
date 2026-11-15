@@ -1,7 +1,7 @@
 #pragma once
 #include "xr_frame.h"
 
-struct DroidDeckXrRenderView {
+struct DroidHostXrRenderView {
     float orientation[4];
     float position[3];
     float fov[4];
@@ -23,9 +23,9 @@ inline void xr_frame_eye_pose(float result[3][4], const float head[3][4], const 
     }
 }
 
-inline DroidDeckXrRenderView xr_frame_view(const DroidDeckXrFrameHeader &header, int eye) {
+inline DroidHostXrRenderView xr_frame_view(const DroidHostXrFrameHeader &header, int eye) {
     const auto &matrix = header.eye_pose[eye];
-    DroidDeckXrRenderView view{};
+    DroidHostXrRenderView view{};
     float trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
     if (trace > 0) {
         float scale = std::sqrt(trace + 1.f) * 2.f;

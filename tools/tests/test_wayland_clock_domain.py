@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
             subprocess.run(["cc", "-Wall", "-Wextra", "-Werror", "-O2", "-I", str(SOURCE.parent),
                             "-o", str(binary), str(program), str(SOURCE)], check=True)
             subprocess.run([str(binary), str(root / "clock")], check=True, timeout=5)
-        host = SOURCE.parents[3] / "java/com/droiddeck/launcher/wayland/CompositorHost.kt"
+        host = SOURCE.parents[3] / "java/com/droidhost/launcher/wayland/CompositorHost.kt"
         self.assertIn("nativeSetClockControl(null)", host.read_text().split("fun newSession() {", 1)[1].split("}", 1)[0])
 
     def test_startup_reset_keeps_host_and_guest_on_the_same_inode(self):

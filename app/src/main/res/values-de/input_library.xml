@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">Controller-Eingaben an Steam Input oder das Spiel senden.</string>
     <string name="input_disabled_hint">Dieses Element sendet keine Controller-, Maus- oder Tastatureingaben.</string>
     <string name="input_mouse_click">Mausklick</string>
-    <string name="input_command">DroidDeck-Aktion</string>
+    <string name="input_command">DroidHost-Aktion</string>
     <string name="input_action">Aktion</string>
     <string name="input_scroll_speed">Scrollgeschwindigkeit: %1$d Schritte/s</string>
     <string name="input_new_profile">+ Neues Profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Maus-Touchpad-Gesten</string>
     <string name="input_mouse_gestures_hint">Wenn dem Mauszeiger zugewiesen: Tippen zum Klicken, Halten zum Ziehen, mit zwei Fingern scrollen.</string>
     <string name="input_quick_override_hint">%1$s hat eine Schnellmenü-Überschreibung. Wähle dort Auto, um sein Standardprofil und alle drei gespeicherten Teile zu verwenden.</string>
-    <string name="input_route_local">DroidDeck Input</string>
-    <string name="input_axis_action_hint" formatted="false">Gehalten, während der Stick in eine beliebige Richtung bewegt wird: drücken über 55 %, loslassen unter 35 %. Mit Richtungstasten jede Richtung einzeln zuweisen. DroidDeck-Aktionen laufen einmal pro Ausschlag. Der Stick-Klick wird separat konfiguriert.</string>
-    <string name="input_contact_action_hint">Gehalten, während das Touchpad berührt wird; losgelassen beim Abheben des Fingers. DroidDeck-Aktionen laufen einmal pro Berührung. Der Touchpad-Klick wird separat konfiguriert.</string>
-    <string name="input_trigger_action_hint" formatted="false">Gehalten, wenn der Trigger 55 % überschreitet; losgelassen unter 35 %. DroidDeck-Aktionen laufen einmal pro Druck.</string>
+    <string name="input_route_local">DroidHost Input</string>
+    <string name="input_axis_action_hint" formatted="false">Gehalten, während der Stick in eine beliebige Richtung bewegt wird: drücken über 55 %, loslassen unter 35 %. Mit Richtungstasten jede Richtung einzeln zuweisen. DroidHost-Aktionen laufen einmal pro Ausschlag. Der Stick-Klick wird separat konfiguriert.</string>
+    <string name="input_contact_action_hint">Gehalten, während das Touchpad berührt wird; losgelassen beim Abheben des Fingers. DroidHost-Aktionen laufen einmal pro Berührung. Der Touchpad-Klick wird separat konfiguriert.</string>
+    <string name="input_trigger_action_hint" formatted="false">Gehalten, wenn der Trigger 55 % überschreitet; losgelassen unter 35 %. DroidHost-Aktionen laufen einmal pro Druck.</string>
     <string name="input_scroll_axis">Scrollrichtung</string>
     <string name="input_vertical">Vertikal</string>
     <string name="input_horizontal">Horizontal</string>
     <string name="input_scroll_horizontal">Horizontal scrollen</string>
     <string name="input_measurements">Messwerte</string>
-    <string name="input_measure_instructions">Aktiviere die Aufzeichnung, benutze die Steuerung in einer laufenden Sitzung und lies dann die Ergebnisse. Misst nur die DroidDeck-Dispatch-Zeit, nicht die Anzeigelatenz. Die Aufzeichnung endet beim Schließen des App-Prozesses.</string>
+    <string name="input_measure_instructions">Aktiviere die Aufzeichnung, benutze die Steuerung in einer laufenden Sitzung und lies dann die Ergebnisse. Misst nur die DroidHost-Dispatch-Zeit, nicht die Anzeigelatenz. Die Aufzeichnung endet beim Schließen des App-Prozesses.</string>
     <string name="input_layout_count">%1$d Steuerelemente</string>
     <string name="input_other_layouts">Andere gespeicherte Layouts (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Andere gespeicherte Layouts ausblenden (%1$d) ▴</string>

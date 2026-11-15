@@ -226,7 +226,7 @@ int main() {
     droiddeck_joycon_hand joy{};
     joy.rotation[0] = 1;
     joy.time_ns = now;
-    joy.buttons = DROIDDECK_JOYCON_TRIGGER;
+    joy.buttons = DROIDHOST_JOYCON_TRIGGER;
     droiddeck_spatialpose spatial{};
     spatial.flags = DD_SPATIAL_ACTIVE | DD_SPATIAL_JOYCONS;
     spatial.connection = spatial.origin = 1;

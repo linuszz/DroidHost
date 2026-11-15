@@ -3418,7 +3418,7 @@ static int ioctl_mouse(int op, void *argp) {
       return 0;
     }
     case 0x06:
-      if (argp && _IOC_SIZE(op)) snprintf(static_cast<char *>(argp), _IOC_SIZE(op), "DroidDeck Mouse");
+      if (argp && _IOC_SIZE(op)) snprintf(static_cast<char *>(argp), _IOC_SIZE(op), "DroidHost Mouse");
       return 0;
     case 0x07:
       if (argp && _IOC_SIZE(op)) snprintf(static_cast<char *>(argp), _IOC_SIZE(op), "usb-droiddeck/mouse");

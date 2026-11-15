@@ -18,7 +18,7 @@ The dummy service tools are the hash-checked upstream v0.3.2 release. They are
 registered through the game's selected Proton in its own prefix. GOG overlays
 are not installed. Pending databases survive session resets and sign-out.
 
-Local unlocks show a five-second DroidDeck notification without taking input focus.
+Local unlocks show a five-second DroidHost notification without taking input focus.
 The notification queue belongs to the session, ignores duplicate SDK unlocks, and clears
 on account replacement or session stop. Upload acknowledgements refresh the achievement
 reader without replaying notifications.

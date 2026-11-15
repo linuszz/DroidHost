@@ -16,7 +16,7 @@
 static uint64_t g_cap;
 
 __attribute__((constructor)) static void init(void) {
-    g_cap = vramcap_parse_mb(getenv("DROIDDECK_VRAM_CAP_MB"));
+    g_cap = vramcap_parse_mb(getenv("DROIDHOST_VRAM_CAP_MB"));
 }
 
 struct inst {
@@ -169,15 +169,15 @@ static void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallback
     if (destroy) destroy(device, alloc);
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVramCap_GetDeviceProcAddr(VkDevice device, const char *name);
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVramCap_GetDeviceProcAddr(VkDevice device, const char *name);
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVramCap_GetInstanceProcAddr(VkInstance instance, const char *name) {
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVramCap_GetInstanceProcAddr(VkInstance instance, const char *name) {
     if (!strcmp(name, "vkCreateInstance")) return (PFN_vkVoidFunction)CreateInstance;
     if (!strcmp(name, "vkDestroyInstance")) return (PFN_vkVoidFunction)DestroyInstance;
     if (!strcmp(name, "vkCreateDevice")) return (PFN_vkVoidFunction)CreateDevice;
     if (!strcmp(name, "vkDestroyDevice")) return (PFN_vkVoidFunction)DestroyDevice;
-    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVramCap_GetInstanceProcAddr;
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVramCap_GetDeviceProcAddr;
+    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidHostVramCap_GetInstanceProcAddr;
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostVramCap_GetDeviceProcAddr;
     if (!instance) return NULL;
     struct inst *in = inst_for(instance);
     if (!in) return NULL;
@@ -189,18 +189,18 @@ EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVramCap_GetInstanceProc
     return in->gipa(instance, name);
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVramCap_GetDeviceProcAddr(VkDevice device, const char *name) {
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVramCap_GetDeviceProcAddr;
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVramCap_GetDeviceProcAddr(VkDevice device, const char *name) {
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostVramCap_GetDeviceProcAddr;
     if (!strcmp(name, "vkDestroyDevice")) return (PFN_vkVoidFunction)DestroyDevice;
     struct dev *d = dev_for(device);
     if (!d) return NULL;
     return d->gdpa(device, name);
 }
 
-EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidDeckVramCap_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
+EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidHostVramCap_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
     if (v->loaderLayerInterfaceVersion > 2) v->loaderLayerInterfaceVersion = 2;
-    v->pfnGetInstanceProcAddr = DroidDeckVramCap_GetInstanceProcAddr;
-    v->pfnGetDeviceProcAddr = DroidDeckVramCap_GetDeviceProcAddr;
+    v->pfnGetInstanceProcAddr = DroidHostVramCap_GetInstanceProcAddr;
+    v->pfnGetDeviceProcAddr = DroidHostVramCap_GetDeviceProcAddr;
     v->pfnGetPhysicalDeviceProcAddr = NULL;
     return VK_SUCCESS;
 }

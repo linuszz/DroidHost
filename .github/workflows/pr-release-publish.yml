@@ -256,7 +256,7 @@ jobs:
             digest=$({ gh api "repos/Droid-Deck/DroidDeck-Components/releases/tags/$tag" 2>/dev/null || echo '{}'; } |
               jq -r --arg n "$name.tar.zst" '.assets // [] | .[] | select(.name == $n) | .digest // empty')
             if [ "$digest" = "sha256:$sha" ]; then
-              echo "$name: served from DroidDeck-Components $tag"
+              echo "$name: served from DroidHost-Components $tag"
             else
               cp "$file" "pr-packs/$tag.tar.zst"
               echo "$name: attached to the PR release as $tag.tar.zst"
@@ -283,11 +283,11 @@ jobs:
       - uses: actions/create-github-app-token@v2
         id: ci-token
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidDeck-CI
-      - name: Publish to DroidDeck-CI
+          repositories: DroidHost-CI
+      - name: Publish to DroidHost-CI
         id: publish
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}
@@ -307,7 +307,7 @@ jobs:
           Commit: $HEAD_SHA
           Base: $BASE_SHA
           VersionCode: $VERSION_CODE
-          Each apk installs over a DroidDeck release and keeps its data. \`standard\` is the normal app; the others are the same app under another package name, installed beside it.
+          Each apk installs over a DroidHost release and keeps its data. \`standard\` is the normal app; the others are the same app under another package name, installed beside it.
 
           SHA-256:
           \`\`\`
@@ -332,7 +332,7 @@ jobs:
           published=$(gh release view "$tag" -R "$repo" --json tagName,assets)
           jq -e --arg tag "$tag" '.tagName == $tag and (.assets | length) > 0' <<<"$published" >/dev/null
           release="$GITHUB_SERVER_URL/$repo/releases/tag/$tag"
-          apk=$(cd signed && ls DroidDeck-*.apk | awk 'length(a) == 0 || length($0) < length(a) { a = $0 } END { print a }')
+          apk=$(cd signed && ls DroidHost-*.apk | awk 'length(a) == 0 || length($0) < length(a) { a = $0 } END { print a }')
           echo "release=$release" >> "$GITHUB_OUTPUT"
           echo "apk=$GITHUB_SERVER_URL/$repo/releases/download/$tag/$apk" >> "$GITHUB_OUTPUT"
 
@@ -385,7 +385,7 @@ jobs:
 
           [Download the standard APK]($APK) · [All variants and checksums]($RELEASE)
 
-          It is also available in **DroidDeck → Updates → Test builds → PR #$PR_NUMBER**.
+          It is also available in **DroidHost → Updates → Test builds → PR #$PR_NUMBER**.
 
           $NEXT
           EOF

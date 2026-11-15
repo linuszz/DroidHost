@@ -166,10 +166,10 @@ class AgentTest(unittest.TestCase):
     def vr_helper(self, body):
         helper = self.dir / "droiddeck-steamvr"
         helper.write_text("#!/bin/sh\n" + body)
-        old = os.environ.get("DROIDDECK_VR_HELPER")
-        os.environ["DROIDDECK_VR_HELPER"] = str(helper)
-        self.addCleanup(lambda: os.environ.pop("DROIDDECK_VR_HELPER") if old is None
-                        else os.environ.__setitem__("DROIDDECK_VR_HELPER", old))
+        old = os.environ.get("DROIDHOST_VR_HELPER")
+        os.environ["DROIDHOST_VR_HELPER"] = str(helper)
+        self.addCleanup(lambda: os.environ.pop("DROIDHOST_VR_HELPER") if old is None
+                        else os.environ.__setitem__("DROIDHOST_VR_HELPER", old))
         return helper
 
     def test_vr_status_is_parsed(self):
@@ -189,8 +189,8 @@ class AgentTest(unittest.TestCase):
         self.assertEqual("INVALID_REQUEST", answer["error"]["code"])
 
     def test_vr_without_a_helper_is_unavailable(self):
-        os.environ["DROIDDECK_VR_HELPER"] = str(self.dir / "missing")
-        self.addCleanup(os.environ.pop, "DROIDDECK_VR_HELPER")
+        os.environ["DROIDHOST_VR_HELPER"] = str(self.dir / "missing")
+        self.addCleanup(os.environ.pop, "DROIDHOST_VR_HELPER")
         answer = self.ask({"kind": "vr", "action": "status"})
         self.assertEqual("UNAVAILABLE", answer["error"]["code"])
 

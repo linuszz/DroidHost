@@ -19,7 +19,7 @@ settings (`gpu/Cardboard.kt` has the keys).
 ## How the picture is made
 
 ```
-game / Steam -> gamescope -> DroidDeck compositor -> effects -> frame generation
+game / Steam -> gamescope -> DroidHost compositor -> effects -> frame generation
              -> Cardboard pass (cardboard.frag) -> 1:1 blit -> panel
 ```
 
@@ -56,7 +56,7 @@ Valve's ARM64 SteamVR, the build the Steam Frame runs, comes from Valve's public
 server (`deckard-steamvr`, pinned by version and SHA-256 in `droiddeck-steamvr`; the same hash
 [steam-frame-nixos](https://github.com/y0usaf/steam-frame-nixos) pins). `droiddeck-steamvr install`
 unpacks it to `/opt/steamvr`. The drawer's **Install** button runs that (571 MB). **Start** then
-switches the picture to side-by-side and runs SteamVR with three DroidDeck pieces (`tools/vr`):
+switches the picture to side-by-side and runs SteamVR with three DroidHost pieces (`tools/vr`):
 
 1. **`driver_droiddeck.so`**, an OpenVR driver with one HMD:
    - pose: the shared head pose file (3DoF, standing height);
@@ -70,13 +70,13 @@ switches the picture to side-by-side and runs SteamVR with three DroidDeck piece
      Linux. SteamVR renders each eye into textures the driver allocates through its IPC resource
      manager (dmabufs);
    - `presenter.cpp` imports those eye textures into a Vulkan device of its own and blits them side
-     by side into a fullscreen window on DroidDeck's own compositor (`wayland-0`, the app_id
+     by side into a fullscreen window on DroidHost's own compositor (`wayland-0`, the app_id
      `droiddeck-cardboard-vr` keeps it above gamescope's window), sized to the Cardboard panel so
      nothing scales it down. SteamVR hands the textures over with no fence the driver can wait on, so
      the presenter gives the compositor's GPU work a few milliseconds first, as ALVR does.
-     `DROIDDECK_VR_PRESENT=x11` uses the older path instead: an X11 window on gamescope's Xwayland marked
+     `DROIDHOST_VR_PRESENT=x11` uses the older path instead: an X11 window on gamescope's Xwayland marked
      `STEAM_OVERLAY` (the external overlay slot is mangoapp's), at the session's resolution;
-2. **`VK_LAYER_DROIDDECK_vr`**, a Vulkan layer, enabled explicitly in SteamVR's processes and implicit
+2. **`VK_LAYER_DROIDHOST_vr`**, a Vulkan layer, enabled explicitly in SteamVR's processes and implicit
    for the rest of the session (Steam's own web helper shares its in-VR overlay with SteamVR too, and
    crashes without it until Steam quits). Implicitly it does nothing in an ordinary session:
    - the display stand-in below happens only while SteamVR runs (`droiddeck-steamvr`'s `active`
@@ -114,7 +114,7 @@ switches the picture to side-by-side and runs SteamVR with three DroidDeck piece
    - Steam's web helper has the semaphore bridge whenever SteamVR is installed: its GPU process
      outlives SteamVR runs, and one started without the layer crashed when SteamVR showed Steam's
      overlays, until Steam quit;
-   - `DROIDDECK_VR_CRASHTRACE=1` (or a `crashtrace` file beside the `active` marker, for processes like
+   - `DROIDHOST_VR_CRASHTRACE=1` (or a `crashtrace` file beside the `active` marker, for processes like
      Steam whose environment is not ours) prints a backtrace on a fatal signal. `vrcompositor`'s
      launcher drops `LD_PRELOAD`, but the layer is loaded there. It only takes signals nobody handles
      yet: Wine and FEX handle `SIGSEGV` as part of running a Proton game, and a replaced handler
@@ -144,11 +144,11 @@ Two more fixes outside `tools/vr` were needed for the dashboard (Steam's library
   `test_sysv_preload.py` covers it.
 - `vrwebhelper` gets the same tracer treatment as Steam's `steamwebhelper` (`tracer.c`).
 
-Verified on the AYN Thor (SD 8 Gen 2, Turnip): SteamVR 2.17.10 starts with the DroidDeck HMD active,
+Verified on the AYN Thor (SD 8 Gen 2, Turnip): SteamVR 2.17.10 starts with the DroidHost HMD active,
 the compositor runs driver-direct at about 60 fps, the dashboard (Steam's library in VR, with the
 controller's laser) shows cleanly in both eyes at the panel's resolution while Steam keeps running, and
 a pose written to the shared file turns SteamVR's view. Started from the drawer button through the agent.
-Once a headset (VITURE, RayNeo or XREAL glasses) is connected and under DroidDeck's control, the
+Once a headset (VITURE, RayNeo or XREAL glasses) is connected and under DroidHost's control, the
 Steam page shows **Play SteamVR** at the top left, with a **Settings** badge that drops that headset's
 settings from the top; before that neither appears. Play SteamVR starts Steam and then SteamVR
 (installing it first if needed) once the glasses show a picture, and SteamVR stops when the glasses
@@ -178,9 +178,9 @@ the previous standby point, and user-confirmed updating images and correct head 
 screens. The rendering regression tests cover mirrored/dedicated parity and phone fallback.
 
 A separate freeze occurred after swapping Pro 2 for GT Max and restarting SteamVR in the same
-DroidDeck process (2026-10-14, session 52): GT Max board `0x41` kept streaming poses and the HMD
+DroidHost process (2026-10-14, session 52): GT Max board `0x41` kept streaming poses and the HMD
 stayed active, but `vrcompositor` reported `vkerror=-4` (`VK_ERROR_DEVICE_LOST`) from 17:18:53.
-Restarting the Steam session alone reproduced it (sessions 53/54). Restarting DroidDeck itself
+Restarting the Steam session alone reproduced it (sessions 53/54). Restarting DroidHost itself
 cleared it; session 55 continued rendering with live GT Max tracking for over a minute without
 new device-loss errors. This is a recovery workaround, not a confirmed permanent fix; retained
 graphics state across restarts is a hypothesis. Frame counters alone do not prove recovery:
@@ -277,7 +277,7 @@ strong to the left and weak to the right. A lone Joy-Con plays the stronger of t
 
 The device's camera can watch the player so each Joy-Con hand sits where the real hand is, including
 lifting, lowering, reaching and moving sideways. With no controller connected it tracks bare hands
-instead (below). It needs Android 12 or later. The first time a headset connects, DroidDeck asks whether to use the camera. On a device
+instead (below). It needs Android 12 or later. The first time a headset connects, DroidHost asks whether to use the camera. On a device
 with cameras on both sides it offers the back one (usually sharper and wider) or the front one; with
 cameras on one side only it uses those without asking. Android's camera permission is requested
 right after. **Headset sheet > Head tracking > Hand tracking** turns it on or off, switches the
@@ -424,7 +424,7 @@ and `HandCameraPromptTest` cover the app side.
 
 ### Device-loss recovery
 
-During a SteamVR session, DroidDeck reads new `vrcompositor.txt` output every two seconds and detects
+During a SteamVR session, DroidHost reads new `vrcompositor.txt` output every two seconds and detects
 `VK_ERROR_DEVICE_LOST` or `vkerror=-4`. Existing errors at session start, ordinary acquire timeouts,
 and unrelated failures do not trigger recovery. Reads are bounded to the newest 128 KiB and handle
 log replacement, truncation, and partial lines.
@@ -432,7 +432,7 @@ log replacement, truncation, and partial lines.
 A detected fault shows an eight-second cancellable countdown while the session is foreground.
 Touches outside the prompt do not dismiss it; the user can explicitly choose Keep open.
 Recovery stops the guest, gives teardown and diagnostic collection up to 15 seconds, then uses a
-private `:vr_recovery` activity to kill only DroidDeck's main process and reopen SteamVR. That process
+private `:vr_recovery` activity to kill only DroidHost's main process and reopen SteamVR. That process
 does not initialize the glasses SDK or guest runtime. It recreates the native graphics context; an
 Activity recreation or SteamVR-only restart does not. Running games close and unsaved progress cannot
 be restored. A persisted ten-minute cooldown disables another automatic attempt, while still
@@ -449,8 +449,8 @@ Recovery now clears only `driver_droiddeck.blocked_by_safe_mode`, atomically aft
 process and before launching the new session. It preserves global safe-mode preferences and other
 drivers' blocks. A running server or resumed sensor stream alone is not proof of successful recovery.
 The follow-up marked test in session 63 exercised the manual retry during the cooldown. Recovery
-logged the driver unblock, restarted into session 64, and SteamVR recognized the DroidDeck HMD.
-Fresh compositor output and a 3840x1080 `DroidDeck Cardboard VR` presenter appeared, with subsequent
+logged the driver unblock, restarted into session 64, and SteamVR recognized the DroidHost HMD.
+Fresh compositor output and a 3840x1080 `DroidHost Cardboard VR` presenter appeared, with subsequent
 display intervals at 56–59 fps. The user confirmed the GT Max VR view and tracking work after this
 recovery. The 19 SteamVR unit tests and APK runtime-input verification passed.
 The glasses/SteamVR suite includes stale/rotated/split log handling, countdown,
@@ -458,7 +458,7 @@ cancellation, foreground-only behavior, and cooldown checks.
 
 Stereo also requires a physical side-by-side display mode. On the tested Astra 2
 firmware the Pro XR command succeeds but DisplayPort falls back to 640×480;
-direct-connection stereo remains unresolved. DroidDeck remembers such a fallback for that glasses
+direct-connection stereo remains unresolved. DroidHost remembers such a fallback for that glasses
 model and stops asking for 3D on its own; **Retry** in the glasses settings tries again. See the
 [Astra/VITURE investigation](development/astra-viture-stereo.md) for measured
 results, app recovery behavior, and the unverified powered-adapter design.
@@ -495,9 +495,9 @@ results, app recovery behavior, and the unverified powered-adapter design.
 - **Timing**: no reprojection. The presenter blits the frame submitted last once `vrcompositor`'s GPU
   work for it is done: the layer fences that process's submits and counts issued and finished ones in
   `present-sync` beside the `active` marker, and the presenter sleeps on the count (a futex). Without
-  the file it falls back to a guard delay after the frame arrived (`DROIDDECK_VR_PRESENT_GUARD_MS`,
+  the file it falls back to a guard delay after the frame arrived (`DROIDHOST_VR_PRESENT_GUARD_MS`,
   4 ms). It hands its own picture to Wayland only once its blit is done, because KGSL does not order
-  the DroidDeck compositor's copy after it. The chain is SteamVR → presenter → DroidDeck compositor →
+  the DroidHost compositor's copy after it. The chain is SteamVR → presenter → DroidHost compositor →
   lens pass.
 - **Cross-process GPU sync** is a poll away from exact (see the semaphore note above); binary
   semaphores are not bridged.
@@ -521,7 +521,7 @@ results, app recovery behavior, and the unverified powered-adapter design.
 
   SteamVR opens its game menu over a newly started game; `vrcmd --hidedashboard` (in
   `/opt/steamvr/bin/linuxarm64`) closes it.
-- **Quest 3**: unrelated to this; on the Quest DroidDeck stays a 2D panel (`docs/quest.md`).
+- **Quest 3**: unrelated to this; on the Quest DroidHost stays a 2D panel (`docs/quest.md`).
 
 ## Building and testing
 

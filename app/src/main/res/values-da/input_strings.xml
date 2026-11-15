@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Venstre museknap</string>
     <string name="input_mouse_right">Højre museknap</string>
     <string name="input_mouse_middle">Midterste museknap</string>
-    <string name="input_command_menu">Åbn DroidDeck-menuen</string>
+    <string name="input_command_menu">Åbn DroidHost-menuen</string>
     <string name="input_command_keyboard">Vis tastatur</string>
     <string name="input_command_steam">Åbn Steam-menuen</string>
     <string name="input_command_qam">Åbn Steams hurtigadgang</string>

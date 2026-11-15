@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#define DROIDDECK_PRODUCER_SERVER
+#define DROIDHOST_PRODUCER_SERVER
 #include "../src/producer_lease.h"
 #include <assert.h>
 #include <stdatomic.h>
@@ -84,7 +84,7 @@ int main(void) {
     atomic_store(&slow, 0);
     int abandoned = socket(AF_UNIX, SOCK_SEQPACKET, 0);
     assert(connect(abandoned, (struct sockaddr *)&address, sizeof(address)) == 0);
-    struct droiddeck_producer_message request = {DROIDDECK_PRODUCER_MAGIC, DROIDDECK_PRODUCER_ACQUIRE, 0};
+    struct droiddeck_producer_message request = {DROIDHOST_PRODUCER_MAGIC, DROIDHOST_PRODUCER_ACQUIRE, 0};
     atomic_store(&slow, 1);
     int before = atomic_load(&completed);
     assert(send(abandoned, &request, sizeof(request), MSG_NOSIGNAL) == sizeof(request));

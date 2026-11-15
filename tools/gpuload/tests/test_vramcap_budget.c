@@ -104,7 +104,7 @@ int main(void) {
     VkInstance got_instance;
     assert(CreateInstance(&ici, NULL, &got_instance) == VK_SUCCESS && got_instance == instance);
     VkPhysicalDeviceMemoryProperties p;
-    PFN_vkGetPhysicalDeviceMemoryProperties get = (void *)DroidDeckVramCap_GetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties");
+    PFN_vkGetPhysicalDeviceMemoryProperties get = (void *)DroidHostVramCap_GetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties");
     assert(get == memory_properties);
     get(physical, &p);
     assert(p.memoryHeaps[0].size == (8ULL << 30) && p.memoryHeaps[1].size == (4ULL << 30));
@@ -116,7 +116,7 @@ int main(void) {
         VkPhysicalDeviceMemoryBudgetPropertiesEXT b = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT};
         VkPhysicalDeviceIDProperties id = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES, .pNext = &b};
         VkPhysicalDeviceMemoryProperties2 p2 = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2, .pNext = &id};
-        PFN_vkGetPhysicalDeviceMemoryProperties2 get2 = (void *)DroidDeckVramCap_GetInstanceProcAddr(instance, names[i]);
+        PFN_vkGetPhysicalDeviceMemoryProperties2 get2 = (void *)DroidHostVramCap_GetInstanceProcAddr(instance, names[i]);
         get2(physical, &p2);
         assert(p2.memoryProperties.memoryHeaps[0].size == (8ULL << 30));
         assert(b.heapBudget[0] == g_cap && b.heapBudget[1] == (3ULL << 30));
@@ -131,8 +131,8 @@ int main(void) {
     VkDeviceCreateInfo dci = {.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, .pNext = &dc};
     VkDevice got_device;
     assert(CreateDevice(physical, &dci, NULL, &got_device) == VK_SUCCESS && got_device == device);
-    PFN_vkAllocateMemory next_allocate = (void *)DroidDeckVramCap_GetDeviceProcAddr(device, "vkAllocateMemory");
-    PFN_vkFreeMemory next_free = (void *)DroidDeckVramCap_GetDeviceProcAddr(device, "vkFreeMemory");
+    PFN_vkAllocateMemory next_allocate = (void *)DroidHostVramCap_GetDeviceProcAddr(device, "vkAllocateMemory");
+    PFN_vkFreeMemory next_free = (void *)DroidHostVramCap_GetDeviceProcAddr(device, "vkFreeMemory");
     assert(next_allocate == allocate && next_free == release);
     VkMemoryAllocateInfo ai = {.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, .allocationSize = 3ULL << 30};
     VkDeviceMemory blocks[2];
@@ -142,9 +142,9 @@ int main(void) {
     assert(frees == 2);
 
     g_cap = 0;
-    assert(DroidDeckVramCap_GetInstanceProcAddr(instance, names[0]) == (PFN_vkVoidFunction)memory_properties2);
-    assert(DroidDeckVramCap_GetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties") == (PFN_vkVoidFunction)memory_properties);
-    PFN_vkDestroyDevice destroy = (void *)DroidDeckVramCap_GetInstanceProcAddr(instance, "vkDestroyDevice");
+    assert(DroidHostVramCap_GetInstanceProcAddr(instance, names[0]) == (PFN_vkVoidFunction)memory_properties2);
+    assert(DroidHostVramCap_GetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties") == (PFN_vkVoidFunction)memory_properties);
+    PFN_vkDestroyDevice destroy = (void *)DroidHostVramCap_GetInstanceProcAddr(instance, "vkDestroyDevice");
     assert(destroy == DestroyDevice);
     destroy(device, NULL);
     DestroyInstance(instance, NULL);

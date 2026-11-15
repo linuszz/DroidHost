@@ -2,14 +2,14 @@
 #define HEADPOSE_SHM_H
 #include <stdint.h>
 
-#define DROIDDECK_HEADPOSE_MAGIC 0x50484444u
-#define DROIDDECK_HEADPOSE_VERSION 1u
-#define DROIDDECK_HEADPOSE_FILE "droiddeck-headpose"
+#define DROIDHOST_HEADPOSE_MAGIC 0x50484444u
+#define DROIDHOST_HEADPOSE_VERSION 1u
+#define DROIDHOST_HEADPOSE_FILE "droiddeck-headpose"
 
 enum {
-    DROIDDECK_HEADPOSE_LIVE = 1u << 0,
-    DROIDDECK_HEADPOSE_ENABLED = 1u << 1,
-    DROIDDECK_HEADPOSE_MONO = 1u << 2,
+    DROIDHOST_HEADPOSE_LIVE = 1u << 0,
+    DROIDHOST_HEADPOSE_ENABLED = 1u << 1,
+    DROIDHOST_HEADPOSE_MONO = 1u << 2,
 };
 
 struct droiddeck_headpose {

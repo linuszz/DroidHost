@@ -39,7 +39,7 @@ class AptRememberTest(unittest.TestCase):
 
     def run_remember(self):
         env = dict(os.environ, PATH="%s:%s" % (self.top / "bin", os.environ["PATH"]))
-        env.pop("DROIDDECK_APT_RESTORING", None)
+        env.pop("DROIDHOST_APT_RESTORING", None)
         subprocess.run(["bash", str(self.script)], env=env, check=True, timeout=30)
 
     def test_user_sources_and_keys_outside_etc_apt_are_kept(self):

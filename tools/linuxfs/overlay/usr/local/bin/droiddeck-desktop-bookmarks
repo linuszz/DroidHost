@@ -15,7 +15,7 @@ LIBRARY = Path("/mnt/droiddeck-sd")
 ADDED = Path("/mnt/droiddeck-lib")
 URI = "file:///mnt/droiddeck-sd"
 KDE_OWNER = "http://www.kde.org"
-MARK = "DroidDeckSteamLibrary"
+MARK = "DroidHostSteamLibrary"
 ICON_NS = "http://www.freedesktop.org/standards/desktop-bookmarks"
 ET.register_namespace("bookmark", ICON_NS)
 

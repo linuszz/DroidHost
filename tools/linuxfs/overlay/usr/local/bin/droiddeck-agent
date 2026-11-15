@@ -1016,7 +1016,7 @@ def steamvr(req):
     action = req.get("action", "status")
     if action not in VR_ACTIONS:
         raise AgentError("INVALID_REQUEST", "vr action must be one of " + ", ".join(VR_ACTIONS))
-    helper = os.environ.get("DROIDDECK_VR_HELPER", VR_HELPER)
+    helper = os.environ.get("DROIDHOST_VR_HELPER", VR_HELPER)
     if not os.path.isfile(helper):
         raise AgentError("UNAVAILABLE", "this runtime has no " + helper)
     if action == "install":
@@ -1225,7 +1225,7 @@ def main(argv):
             print("droiddeck-agent: shortcut overview was not ready: %s" % error, file=sys.stderr)
             return 1
         if not prepared["supported"]:
-            print("droiddeck-agent: id is not a DroidDeck shortcut CGameID")
+            print("droiddeck-agent: id is not a DroidHost shortcut CGameID")
             return 3
         print("droiddeck-agent: Steam overview is ready for shortcut app %d" % prepared["appId"])
         return 0

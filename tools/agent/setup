@@ -1,7 +1,7 @@
 #!/bin/bash
-# Sets up the on-device agent inside DroidDeck's Linux userland: Claude Code, git and gh, loopback
+# Sets up the on-device agent inside DroidHost's Linux userland: Claude Code, git and gh, loopback
 # adb for droiddeckctl, and the toolchain dd-lab-build uses to build Lab builds on the device.
-# Run it from the DroidDeck terminal, inside a checkout of the DroidDeck repository.
+# Run it from the DroidHost terminal, inside a checkout of the DroidHost repository.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 export DEBIAN_FRONTEND=noninteractive
@@ -16,7 +16,7 @@ command -v claude >/dev/null || [ -x "$HOME/.local/bin/claude" ] ||
 
 mkdir -p "$HOME/.local/bin"
 for tool in dd-agent dd-lab-build dd-gh-login android-open; do install -m755 "$here/$tool" "$HOME/.local/bin/$tool"; done
-# DroidDeck passes the live loopback adb port; a fixed one here would go stale whenever wireless debugging is toggled.
+# DroidHost passes the live loopback adb port; a fixed one here would go stale whenever wireless debugging is toggled.
 sed -i 's|ADB_SERIAL=127.0.0.1:5555 |ADB_SERIAL="${ADB_SERIAL:-127.0.0.1:5555}" |' "$HOME/.bashrc" 2>/dev/null || true
 grep -q 'droiddeck-agent-path' "$HOME/.bashrc" 2>/dev/null ||
   printf '\n# droiddeck-agent-path\nexport PATH="$HOME/.local/bin:$PATH" ADB_SERIAL="${ADB_SERIAL:-127.0.0.1:5555}" BROWSER="$HOME/.local/bin/android-open"\n' >> "$HOME/.bashrc"

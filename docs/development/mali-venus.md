@@ -1,8 +1,8 @@
-# DroidDeck on Mali (Pixel 9 Pro) through Venus
+# DroidHost on Mali (Pixel 9 Pro) through Venus
 
 Venus implementation notes and historical prototype measurements from a Pixel 9 Pro
 (Tensor G4, Mali-G715, Android 17). These October prototype results do not validate
-the current DroidDeck integration.
+the current DroidHost integration.
 
 ## Status (2026-10-08, night)
 
@@ -137,7 +137,7 @@ Files:
 
 When it is active:
 - Only in Wine processes (`WINEPREFIX` set), and only for features the GPU lacks.
-- `DROIDDECK_MALI_COMPAT=1` forces it on, `0` off. `DROIDDECK_MALI_COMPAT_DISABLE=1` keeps the loader from loading it.
+- `DROIDHOST_MALI_COMPAT=1` forces it on, `0` off. `DROIDHOST_MALI_COMPAT_DISABLE=1` keeps the loader from loading it.
 - Wine's own `explorer.exe` uses Zink, so it gets the layer too.
 - It logs one line per device: `droiddeck-mali-compat: emulating …`.
 
@@ -232,7 +232,7 @@ local development build; exported session logs work with standard builds.
 
 Install a compatibly signed APK with `adb install -r /path/to/build.apk`. Start a
 Steam session with Mali (Venus) selected in Setup. Check the exported session
-folder under `/sdcard/Download/DroidDeck/`:
+folder under `/sdcard/Download/DroidHost/`:
 
 - `session.log`: gamescope, Steam and game output.
 - `venus.log`: vtest and render server output.
@@ -242,7 +242,7 @@ folder under `/sdcard/Download/DroidDeck/`:
 
 Use `tools/droiddeckctl` for diagnostics on standard builds. The
 `tools/venus/guest-vulkaninfo.sh` helper requires a configured development build.
-Stop the session through DroidDeck to collect the final Steam logs.
+Stop the session through DroidHost to collect the final Steam logs.
 
 Validate Steam UI rendering and a game on real Mali hardware, then check Adreno
 regressions. Historical prototype results do not replace testing a new APK.

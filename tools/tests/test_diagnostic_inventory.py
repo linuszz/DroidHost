@@ -56,12 +56,12 @@ class DiagnosticInventoryTest(unittest.TestCase):
                 "/usr/lib/libvulkan.so.1",
             ])
             write_process(proc, 101, 100, 11, "steam", "/secret/account/steam -login private-token", [
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libVkLayer_hybris_compat.so",
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libvulkan-private-account.so",
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libdrm_accountSecret.so",
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libxcb-sessionSecret.so",
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libvkd3d-userSecret.so",
-                "/data/user/0/com.droiddeck.launcher/files/components/system-vulkan/abc/libdrm_amdgpu.so.1.0.0",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libVkLayer_hybris_compat.so",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libvulkan-private-account.so",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libdrm_accountSecret.so",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libxcb-sessionSecret.so",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libvkd3d-userSecret.so",
+                "/data/user/0/com.droidhost.launcher/files/components/system-vulkan/abc/libdrm_amdgpu.so.1.0.0",
                 "/home/private-user/not-graphics-secret.so",
                 "/home/private-user/libvulkan-private-user.so",
             ])
@@ -76,7 +76,7 @@ class DiagnosticInventoryTest(unittest.TestCase):
             output = io.StringIO()
             MODULE["main"](
                 ["--once", "--root-pid", "100", "--proc-root", directory],
-                {"DROIDDECK_ENHANCED_DIAGNOSTICS": "1"}, output,
+                {"DROIDHOST_ENHANCED_DIAGNOSTICS": "1"}, output,
             )
             payloads = rows(output.getvalue())
             self.assertEqual(payloads[0]["event"], "provider")
@@ -217,7 +217,7 @@ class DiagnosticInventoryTest(unittest.TestCase):
                 MODULE["main"](
                     ["--watch", "--root-pid", "100", "--proc-root", directory,
                      "--interval-ms", "250", "--duration-ms", "520", "--max-records", "4"],
-                    {"DROIDDECK_ENHANCED_DIAGNOSTICS": "1"}, output,
+                    {"DROIDHOST_ENHANCED_DIAGNOSTICS": "1"}, output,
                 )
                 payloads = rows(output.getvalue())
                 self.assertEqual(payloads[0]["event"], "provider")

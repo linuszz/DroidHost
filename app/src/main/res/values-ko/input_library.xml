@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">컨트롤러 입력을 Steam Input 또는 게임으로 보냅니다.</string>
     <string name="input_disabled_hint">이 요소는 컨트롤러, 마우스, 키보드 입력을 보내지 않습니다.</string>
     <string name="input_mouse_click">마우스 클릭</string>
-    <string name="input_command">DroidDeck 동작</string>
+    <string name="input_command">DroidHost 동작</string>
     <string name="input_action">동작</string>
     <string name="input_scroll_speed">스크롤 속도: %1$d 단계/초</string>
     <string name="input_new_profile">+ 새 프로필</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">마우스 터치패드 제스처</string>
     <string name="input_mouse_gestures_hint">마우스 포인터에 할당된 경우: 탭하여 클릭, 길게 눌러 드래그, 두 손가락으로 스크롤합니다.</string>
     <string name="input_quick_override_hint">%1$s에는 빠른 메뉴 재정의가 있습니다. 자동을 선택하면 기본 프로필과 저장된 세 부분을 모두 사용합니다.</string>
-    <string name="input_route_local">DroidDeck 입력</string>
-    <string name="input_axis_action_hint" formatted="false">스틱을 어느 방향으로든 움직이는 동안 유지됩니다: 55% 초과 시 누름, 35% 미만 시 해제. 방향 키로 각 방향을 따로 지정합니다. DroidDeck 명령은 기울기마다 한 번 실행됩니다. 스틱 클릭은 따로 설정합니다.</string>
-    <string name="input_contact_action_hint">터치패드를 만지는 동안 유지되고 손을 떼면 해제됩니다. DroidDeck 명령은 터치마다 한 번 실행됩니다. 터치패드 클릭은 따로 설정합니다.</string>
-    <string name="input_trigger_action_hint" formatted="false">트리거가 55%를 넘으면 유지되고 35% 미만이면 해제됩니다. DroidDeck 명령은 누를 때마다 한 번 실행됩니다.</string>
+    <string name="input_route_local">DroidHost 입력</string>
+    <string name="input_axis_action_hint" formatted="false">스틱을 어느 방향으로든 움직이는 동안 유지됩니다: 55% 초과 시 누름, 35% 미만 시 해제. 방향 키로 각 방향을 따로 지정합니다. DroidHost 명령은 기울기마다 한 번 실행됩니다. 스틱 클릭은 따로 설정합니다.</string>
+    <string name="input_contact_action_hint">터치패드를 만지는 동안 유지되고 손을 떼면 해제됩니다. DroidHost 명령은 터치마다 한 번 실행됩니다. 터치패드 클릭은 따로 설정합니다.</string>
+    <string name="input_trigger_action_hint" formatted="false">트리거가 55%를 넘으면 유지되고 35% 미만이면 해제됩니다. DroidHost 명령은 누를 때마다 한 번 실행됩니다.</string>
     <string name="input_scroll_axis">스크롤 방향</string>
     <string name="input_vertical">세로</string>
     <string name="input_horizontal">가로</string>
     <string name="input_scroll_horizontal">가로로 스크롤</string>
     <string name="input_measurements">측정값</string>
-    <string name="input_measure_instructions">기록을 켜고 실행 중인 세션에서 컨트롤을 사용한 뒤 돌아와 결과를 읽으세요. DroidDeck 전달 시간만 측정하며 표시 지연은 포함하지 않습니다. 앱 프로세스가 종료되면 기록이 끝납니다.</string>
+    <string name="input_measure_instructions">기록을 켜고 실행 중인 세션에서 컨트롤을 사용한 뒤 돌아와 결과를 읽으세요. DroidHost 전달 시간만 측정하며 표시 지연은 포함하지 않습니다. 앱 프로세스가 종료되면 기록이 끝납니다.</string>
     <string name="input_layout_count">컨트롤 %1$d개</string>
     <string name="input_other_layouts">다른 저장된 레이아웃 (%1$d) ▾</string>
     <string name="input_hide_other_layouts">다른 저장된 레이아웃 숨기기 (%1$d) ▴</string>

@@ -9,7 +9,7 @@ import sys
 import time
 
 
-PREFIX = "DROIDDECK_PROCESS_TRACE "
+PREFIX = "DROIDHOST_PROCESS_TRACE "
 SCHEMA = 1
 DEFAULT_INTERVAL_MS = 5_000
 DEFAULT_DURATION_MS = 86_400_000
@@ -36,7 +36,7 @@ KNOWN_GRAPHICS_SONAMES = {
     "libdrm_intel.so", "libdrm_nouveau.so", "libdrm_radeon.so", "libxcb.so", "libxcb-dri2.so",
     "libxcb-dri3.so", "libxcb-glx.so", "libxcb-present.so", "libxcb-randr.so", "libxcb-render.so",
     "libxcb-shm.so", "libxcb-sync.so", "libxcb-xfixes.so", "libhybris-vulkan-icd.so",
-    "libVkLayer_hybris_compat.so", "libVkLayer_DROIDDECK_placed_memory.so",
+    "libVkLayer_hybris_compat.so", "libVkLayer_DROIDHOST_placed_memory.so",
     "libVkLayer_KHRONOS_validation.so", "libVkLayer_FROG_gamescope_wsi_aarch64.so",
     "libVkLayer_MESA_device_select.so", "libVkLayer_MESA_overlay.so", "libvkd3d.so",
     "libvkd3d-shader.so", "libvkd3d-utils.so",
@@ -402,7 +402,7 @@ def parse_args(argv):
 
 def main(argv=None, environ=None, output=sys.stdout):
     environ = os.environ if environ is None else environ
-    if environ.get("DROIDDECK_ENHANCED_DIAGNOSTICS") != "1":
+    if environ.get("DROIDHOST_ENHANCED_DIAGNOSTICS") != "1":
         return 0
     args = parse_args(sys.argv[1:] if argv is None else argv)
     collector = Collector(args.proc_root, args.root_pid)

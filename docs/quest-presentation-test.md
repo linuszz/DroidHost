@@ -1,7 +1,7 @@
 # Quest presentation candidate Test 2 — 2026-10-13
 
 Base: `main` at `a394dfd31b2102e20dd99c6f51b4873bbdedab05`.
-Reference APK: `DroidDeck-PR669-A6xx-Test2(1).apk`, SHA-256
+Reference APK: `DroidHost-PR669-A6xx-Test2(1).apk`, SHA-256
 `95ffb5ea6ae61d6a92c4ce9ad46f329d77a0f113ebbaabc6da30d6c8bd951154`.
 Its embedded source revision is `d3f3439bbc45ca67de86d0093356a449c2c74600`.
 
@@ -96,12 +96,12 @@ The test APK uses the verified official CI APK for this exact base commit,
 with only `lib/arm64-v8a/libdroiddeckwayland.so` rebuilt and replaced, an added
 `assets/quest-presentation-test.json` provenance record, and a new APK signature.
 DEX, other native libraries and runtime assets stay unchanged. The manifest is
-repackaged with the repository's variant helper as `com.droiddeck.questdisplaytest`
+repackaged with the repository's variant helper as `com.droidhost.questdisplaytest`
 so it can install beside the normal app and the supplied APK, whose signing key
 is different. Provider authorities and the signature permission are renamed too.
 It uses separate app data and needs its own initial setup. It is not a complete
 Gradle rebuild. The displayed version is `0.4.0-questdisplay-test2`. It is signed
-using the repository's public AOSP test key. The launcher label remains DroidDeck;
+using the repository's public AOSP test key. The launcher label remains DroidHost;
 check the version in app info to distinguish the test installation.
 
 Test 2 retains Test 1's package, version code and signing certificate. Install it
@@ -110,12 +110,12 @@ session logs are retained. The original main application remains separate.
 
 ## Headset test
 
-Fully close DroidDeck before starting. Keep the same driver and resolution
+Fully close DroidHost before starting. Keep the same driver and resolution
 settings that produced the problem; turn off frame generation and Cardboard.
 
 1. Cold launch Desktop. Check the desktop, windows and black borders.
 2. Switch Desktop to Steam without restarting the app.
-3. Close Steam and return to the DroidDeck menu.
+3. Close Steam and return to the DroidHost menu.
 4. Fully close the app, then launch Steam first; inspect the top/bottom borders.
 5. Switch to Desktop and repeat both transitions several times.
 6. Resize the Quest panel and suspend/resume the app once.

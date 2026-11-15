@@ -257,7 +257,7 @@ int set_display(Session& s, int standard) {
 }
 }
 
-#define JNI_METHOD(name) Java_com_droiddeck_launcher_glasses_VitureSdk_##name
+#define JNI_METHOD(name) Java_com_droidhost_launcher_glasses_VitureSdk_##name
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(nativeAvailable)(JNIEnv*, jobject) {
     __android_log_print(ANDROID_LOG_INFO, "VitureSdk", "SDK %s", GetVersionString());
     return JNI_TRUE;

@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
-    source_path = root / 'app/src/main/java/com/droiddeck/launcher/glasses/GlassesMenuSurface.kt'
+    source_path = root / 'app/src/main/java/com/droidhost/launcher/glasses/GlassesMenuSurface.kt'
     source = source_path.read_text()
     shaders = {name: re.search(r'private const val '+name+r' = """(.*?)"""', source, re.S).group(1).encode()
                for name in ('VERTEX', 'FRAGMENT')}

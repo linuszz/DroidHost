@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Hantar input pengawal ke Steam Input atau permainan.</string>
     <string name="input_disabled_hint">Elemen ini tidak menghantar input pengawal, tetikus atau papan kekunci.</string>
     <string name="input_mouse_click">Klik tetikus</string>
-    <string name="input_command">Tindakan DroidDeck</string>
+    <string name="input_command">Tindakan DroidHost</string>
     <string name="input_action">Tindakan</string>
     <string name="input_scroll_speed">Kelajuan tatal: %1$d langkah/s</string>
     <string name="input_new_profile">+ Profil baharu</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Gerak isyarat pad sentuh tetikus</string>
     <string name="input_mouse_gestures_hint">Apabila ditetapkan pada penuding tetikus: ketik untuk klik, tahan untuk seret, dan tatal dengan dua jari.</string>
     <string name="input_quick_override_hint">%1$s mempunyai penggantian menu pantas. Pilih Auto di sana untuk menggunakan profil lalainya dan ketiga-tiga bahagian tersimpan.</string>
-    <string name="input_route_local">Input DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Ditetapkan semasa kayu digerakkan ke mana-mana arah: tekan melebihi 55%, lepas di bawah 35%. Gunakan Kekunci arah untuk menetapkan setiap arah secara berasingan. Perintah DroidDeck berjalan sekali setiap pesongan. Klik kayu ditetapkan secara berasingan.</string>
-    <string name="input_contact_action_hint">Ditetapkan semasa menyentuh pad sentuh; dilepaskan apabila jari diangkat. Perintah DroidDeck berjalan sekali setiap sentuhan. Klik pad sentuh ditetapkan secara berasingan.</string>
-    <string name="input_trigger_action_hint" formatted="false">Ditetapkan apabila pencetus melepasi 55%; dilepaskan di bawah 35%. Perintah DroidDeck berjalan sekali setiap tekanan.</string>
+    <string name="input_route_local">Input DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Ditetapkan semasa kayu digerakkan ke mana-mana arah: tekan melebihi 55%, lepas di bawah 35%. Gunakan Kekunci arah untuk menetapkan setiap arah secara berasingan. Perintah DroidHost berjalan sekali setiap pesongan. Klik kayu ditetapkan secara berasingan.</string>
+    <string name="input_contact_action_hint">Ditetapkan semasa menyentuh pad sentuh; dilepaskan apabila jari diangkat. Perintah DroidHost berjalan sekali setiap sentuhan. Klik pad sentuh ditetapkan secara berasingan.</string>
+    <string name="input_trigger_action_hint" formatted="false">Ditetapkan apabila pencetus melepasi 55%; dilepaskan di bawah 35%. Perintah DroidHost berjalan sekali setiap tekanan.</string>
     <string name="input_scroll_axis">Arah tatal</string>
     <string name="input_vertical">Menegak</string>
     <string name="input_horizontal">Mendatar</string>
     <string name="input_scroll_horizontal">Tatal mendatar</string>
     <string name="input_measurements">Ukuran</string>
-    <string name="input_measure_instructions">Dayakan rakaman, gunakan kawalan dalam sesi yang berjalan, kemudian kembali dan baca keputusan. Hanya mengukur masa penghantaran DroidDeck, bukan kependaman skrin. Rakaman berakhir apabila proses apl ditutup.</string>
+    <string name="input_measure_instructions">Dayakan rakaman, gunakan kawalan dalam sesi yang berjalan, kemudian kembali dan baca keputusan. Hanya mengukur masa penghantaran DroidHost, bukan kependaman skrin. Rakaman berakhir apabila proses apl ditutup.</string>
     <string name="input_layout_count">%1$d kawalan</string>
     <string name="input_other_layouts">Susun atur tersimpan lain (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Sembunyikan susun atur tersimpan lain (%1$d) ▴</string>

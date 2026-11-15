@@ -38,10 +38,10 @@ jobs:
       - uses: actions/create-github-app-token@v2
         id: components-token
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidDeck-Components
+          repositories: DroidHost-Components
 
       - name: Publish
         env:
@@ -62,7 +62,7 @@ jobs:
             tag="pack-$name-${sha:0:16}"
             digest=$(published_digest "$tag" "$name.tar.zst")
             if [ -z "$digest" ]; then
-              notes="DroidDeck add-on pack \`$name\`, built by [Build APK run $BUILD_RUN]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN) from \`$commit\` with tools/packs/build.sh and published by [run $GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID).
+              notes="DroidHost add-on pack \`$name\`, built by [Build APK run $BUILD_RUN]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN) from \`$commit\` with tools/packs/build.sh and published by [run $GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID).
 
           Size: $(stat -c %s "$file") bytes. SHA-256: $sha. APKs built in the same run pin this digest."
               gh release create "$tag" -R "$REPO" --title "$tag" --notes "$notes" --latest=false "$file" \

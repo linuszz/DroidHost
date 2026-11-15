@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Linkermuisknop</string>
     <string name="input_mouse_right">Rechtermuisknop</string>
     <string name="input_mouse_middle">Middelste muisknop</string>
-    <string name="input_command_menu">DroidDeck-menu openen</string>
+    <string name="input_command_menu">DroidHost-menu openen</string>
     <string name="input_command_keyboard">Toetsenbord tonen</string>
     <string name="input_command_steam">Steam-menu openen</string>
     <string name="input_command_qam">Steam-sneltoegang openen</string>

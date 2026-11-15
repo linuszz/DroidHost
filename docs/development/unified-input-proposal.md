@@ -36,7 +36,7 @@ The model separates three concerns:
   separate binding preset associated with that layout. Two desktop profiles can
   share their physical bindings and layout while using different touch actions.
 
-A binding selects native controller output, a DroidDeck action, or disabled.
+A binding selects native controller output, a DroidHost action, or disabled.
 Native output continues through the existing game/Steam path, optionally with a
 compatible gamepad remap. A local action consumes that control so, for example,
 R3 assigned to Ctrl+F does not also press the guest's R3 button.

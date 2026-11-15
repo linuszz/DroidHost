@@ -1,4 +1,4 @@
-# proroot: what it does and what DroidDeck can take from it
+# proroot: what it does and what DroidHost can take from it
 
 Static analysis of [coderredlab/proroot](https://github.com/coderredlab/proroot) v1.2.8
 (`c01039ab`, 2026-06-17). The repository holds only five arm64 binaries and a README. The licence is
@@ -61,9 +61,9 @@ handles the same constraint with `libproot-loader.so`.
    emulates SysV shm (`emu_shm*`), `set*id`/`get*id` under `-0`, and `brk`
    (`emulate_guest_brk`, over a reserved mapping).
 
-## Compared with DroidDeck
+## Compared with DroidHost
 
-| | DroidDeck (proot + 0001–0018 + `libblfastpath.so`) | proroot |
+| | DroidHost (proot + 0001–0018 + `libblfastpath.so`) | proroot |
 |---|---|---|
 | exec, `PT_INTERP`, `/proc/self/exe` | proot's loader under ptrace, 0.4–0.8 ms per exec | Its own loaders, with no tracer; also needs its own ld.so with a glibc offset table |
 | path calls through libc wrappers | fast path, about 0.6–1.9 µs | runtime hooks |
@@ -78,7 +78,7 @@ proroot is not a model for replacing proot. It has no tracer to fall back on, so
 site or an unexpected glibc build silently breaks isolation or correctness. Its own linker depends
 on glibc internals for each version. Proton, Wine, FEX and Steam's self-updating ELFs are a much
 wider surface than the Node, Python and Chromium workloads proroot was tested on. Its value for
-DroidDeck is as a fast path *in front of* proot.
+DroidHost is as a fast path *in front of* proot.
 
 ## What is worth taking
 
@@ -116,7 +116,7 @@ DroidDeck is as a fast path *in front of* proot.
    per-build-id site table, written once in `/tmp` by the fast path, would make it free.
 
 Not worth taking: the cleanroom ld.so and its glibc offset table; the userland exec loader (proot
-already does this); the fake DRM/GBM/libseat device (DroidDeck has its own compositor path);
+already does this); the fake DRM/GBM/libseat device (DroidHost has its own compositor path);
 netlink and SysV shm (`netif.c` and `sysv.c` already cover these); and the long-socket aliasing
 (the fast path covers it).
 

@@ -18,10 +18,10 @@ count=0
 count=$((count + 1))
 echo "$count $attempt" > "$state/tries"
 [ "$count" -ge 3 ] && echo "$attempt" > "$state/attempted"
-export DROIDDECK_PACMAN_RESTORING=1
+export DROIDHOST_PACMAN_RESTORING=1
 mkdir -p "${log%/*}"
-notify() { notify-send -a DroidDeck -i system-software-update "$@" 2>/dev/null; }
-notify "Restoring your packages" "Reinstalling software you added with pacman after a DroidDeck update."
+notify() { notify-send -a DroidHost -i system-software-update "$@" 2>/dev/null; }
+notify "Restoring your packages" "Reinstalling software you added with pacman after a DroidHost update."
 export LD_PRELOAD="/usr/lib/droiddeck/libdroiddeck-root.so${LD_PRELOAD:+:$LD_PRELOAD}"
 {
   date

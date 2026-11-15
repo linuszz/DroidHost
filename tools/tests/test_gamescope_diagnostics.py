@@ -50,10 +50,10 @@ class GamescopeDiagnosticsTest(unittest.TestCase):
         ):
             self.assertIn(f"Event::{event}", text)
         header = added_file(PATCH, "src/droiddeck_frame_trace.hpp")
-        self.assertIn('std::getenv( "DROIDDECK_ENHANCED_DIAGNOSTICS" )', header)
-        self.assertIn("DROIDDECK_FRAME_TRACE_FAST_INTERVAL_MS 2000", header)
-        self.assertIn("DROIDDECK_FRAME_TRACE_SLOW_INTERVAL_MS 15000", header)
-        self.assertIn("DROIDDECK_FRAME_TRACE_DURATION_MS 86400000", header)
+        self.assertIn('std::getenv( "DROIDHOST_ENHANCED_DIAGNOSTICS" )', header)
+        self.assertIn("DROIDHOST_FRAME_TRACE_FAST_INTERVAL_MS 2000", header)
+        self.assertIn("DROIDHOST_FRAME_TRACE_SLOW_INTERVAL_MS 15000", header)
+        self.assertIn("DROIDHOST_FRAME_TRACE_DURATION_MS 86400000", header)
         self.assertNotRegex(header, re.compile(r"title|pixel|address|argv", re.I))
 
     def test_collector_is_default_off_bounded_and_thread_safe(self):
@@ -101,10 +101,10 @@ int main() {
             program = work / "trace"
             built = subprocess.run([
                 compiler, "-std=c++20", "-Wall", "-Wextra", "-Werror", "-pthread",
-                "-DDROIDDECK_FRAME_TRACE_FAST_INTERVAL_MS=50",
-                "-DDROIDDECK_FRAME_TRACE_SLOW_INTERVAL_MS=60",
-                "-DDROIDDECK_FRAME_TRACE_FAST_DURATION_MS=100",
-                "-DDROIDDECK_FRAME_TRACE_DURATION_MS=300",
+                "-DDROIDHOST_FRAME_TRACE_FAST_INTERVAL_MS=50",
+                "-DDROIDHOST_FRAME_TRACE_SLOW_INTERVAL_MS=60",
+                "-DDROIDHOST_FRAME_TRACE_FAST_DURATION_MS=100",
+                "-DDROIDHOST_FRAME_TRACE_DURATION_MS=300",
                 str(work / "trace.cpp"), "-o", str(program),
             ], capture_output=True, text=True)
             self.assertEqual(0, built.returncode, built.stdout + built.stderr)
@@ -112,7 +112,7 @@ int main() {
             self.assertEqual(0, quiet.returncode, quiet.stdout + quiet.stderr)
             self.assertEqual("", quiet.stderr)
             env = os.environ.copy()
-            env["DROIDDECK_ENHANCED_DIAGNOSTICS"] = "1"
+            env["DROIDHOST_ENHANCED_DIAGNOSTICS"] = "1"
             traced = subprocess.run([str(program)], env=env, capture_output=True, text=True, timeout=10)
             self.assertEqual(0, traced.returncode, traced.stdout + traced.stderr)
             self.assertEqual(1, traced.stderr.count("schema=1"))

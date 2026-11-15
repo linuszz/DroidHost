@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_CLOCK_DOMAIN_H
-#define DROIDDECK_CLOCK_DOMAIN_H
+#ifndef DROIDHOST_CLOCK_DOMAIN_H
+#define DROIDHOST_CLOCK_DOMAIN_H
 
 #include <stdint.h>
 

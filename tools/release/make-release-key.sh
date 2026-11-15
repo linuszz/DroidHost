@@ -4,7 +4,7 @@ set -euo pipefail
 REPO=Droid-Deck/DroidDeck
 ENVIRONMENTS=(signing-main release)
 ALIAS=droiddeck
-OUT=${DROIDDECK_KEY_DIR:-$HOME/droiddeck-release-key}
+OUT=${DROIDHOST_KEY_DIR:-$HOME/droiddeck-release-key}
 here=$(cd "$(dirname "$0")" && pwd)
 repo=$(cd "$here/../.." && pwd)
 
@@ -28,7 +28,7 @@ export KS_PW
 printf '%s\n' "$KS_PW" > "$OUT/password.txt"
 
 keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias "$ALIAS" \
-  -keyalg RSA -keysize 4096 -validity 10950 -dname "CN=DroidDeck, O=The412Banner" \
+  -keyalg RSA -keysize 4096 -validity 10950 -dname "CN=DroidHost, O=The412Banner" \
   -storepass:env KS_PW -keypass:env KS_PW >/dev/null 2>&1 || die "keytool could not make the key"
 listing=$(keytool -list -v -keystore "$KS" -storepass:env KS_PW -alias "$ALIAS")
 SHA=$(awk '/SHA256:/ { print $2 }' <<<"$listing" | head -n1 | tr -d ':' | tr 'A-F' 'a-f')
@@ -44,7 +44,7 @@ unset KS_PW
 printf '%s\n' "$SHA" > "$repo/keystore/release-signer.sha256"
 cat <<EOF
 
-DroidDeck's signing key is made and in GitHub.
+DroidHost's signing key is made and in GitHub.
 
   Key:       $KS
   Password:  $OUT/password.txt

@@ -19,7 +19,7 @@ while [ $# -gt 0 ]; do
   case $1 in
     --) shift; break ;;
     -h|--help) usage; exit 0 ;;
-    -V|--version) echo "DroidDeck sudo: runs commands as root inside the DroidDeck desktop"; exit 0 ;;
+    -V|--version) echo "DroidHost sudo: runs commands as root inside the DroidHost desktop"; exit 0 ;;
     -l|--list) echo "User $(id -un 2>/dev/null) may run the following commands on $(uname -n):"; echo "    (ALL : ALL) ALL"; exit 0 ;;
     -v|--validate|-K|--remove-timestamp) exit 0 ;;
     -k|--reset-timestamp) shift; [ $# -eq 0 ] && exit 0 ;;
@@ -59,7 +59,7 @@ if [ "$edit" = 1 ]; then
 fi
 
 if [ ! -r "$lib" ]; then
-  echo "$me: $lib is missing; reinstall the desktop from DroidDeck's Desktop page" >&2
+  echo "$me: $lib is missing; reinstall the desktop from DroidHost's Desktop page" >&2
   exit 1
 fi
 case ":${LD_PRELOAD:-}:" in

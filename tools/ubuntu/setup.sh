@@ -2,10 +2,10 @@
 set -euo pipefail
 umask 022
 here=$(cd "$(dirname "$0")" && pwd)
-debs=${1:?directory with the DroidDeck-built .deb files}
+debs=${1:?directory with the DroidHost-built .deb files}
 runtime_id=${2:?runtime id}
 stage=${3:?runtime or desktop}
-export DEBIAN_FRONTEND=noninteractive DROIDDECK_APT_RESTORING=1 LANG=C.UTF-8 LC_ALL=C.UTF-8
+export DEBIAN_FRONTEND=noninteractive DROIDHOST_APT_RESTORING=1 LANG=C.UTF-8 LC_ALL=C.UTF-8
 repo=/var/lib/droiddeck/apt
 
 install_held() {
@@ -52,13 +52,13 @@ build_package() {
 Package: $name
 Version: 1.0+${runtime_id//-/.}
 Architecture: all
-Maintainer: DroidDeck <maxjividen@gmail.com>
+Maintainer: DroidHost <maxjividen@gmail.com>
 Protected: yes
 Priority: required
 Depends: $depends
 Section: admin
 Description: $summary
- DroidDeck needs these files and packages inside its Ubuntu runtime.
+ DroidHost needs these files and packages inside its Ubuntu runtime.
  Removing them would break it, so apt refuses to.
 EOF
   dpkg-deb --root-owner-group -b "$pkg" "/tmp/$name.deb"
@@ -129,7 +129,7 @@ if [ "$stage" = runtime ]; then
 
   grep -v '^$' "$here/packages-runtime.txt" | xargs apt-get install -y --no-install-recommends
   install_held
-  build_package droiddeck-runtime "$here/overlay-runtime" "$here/protected-runtime.txt" "DroidDeck's Ubuntu runtime"
+  build_package droiddeck-runtime "$here/overlay-runtime" "$here/protected-runtime.txt" "DroidHost's Ubuntu runtime"
 
   update-alternatives --install /usr/bin/sudo sudo /usr/local/bin/sudo 1000
   update-alternatives --set sudo /usr/local/bin/sudo
@@ -145,9 +145,9 @@ if [ "$stage" = runtime ]; then
   echo "$runtime_id" > /usr/share/droiddeck/apt/runtime-id
 
   echo "LANG=C.UTF-8" > /etc/default/locale
-  printf 'DroidDeck\n' > /etc/hostname
+  printf 'DroidHost\n' > /etc/hostname
   . /etc/os-release
-  printf 'NAME="%s"\nVERSION="%s"\nID=%s\nID_LIKE=debian\nPRETTY_NAME="%s"\nVERSION_ID="%s"\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\nHOME_URL="https://github.com/Droid-Deck/DroidDeck"\nSUPPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nBUG_REPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nLOGO=distributor-logo-steamdeck\nVARIANT="DroidDeck"\nVARIANT_ID=droiddeck\n' \
+  printf 'NAME="%s"\nVERSION="%s"\nID=%s\nID_LIKE=debian\nPRETTY_NAME="%s"\nVERSION_ID="%s"\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\nHOME_URL="https://github.com/Droid-Deck/DroidDeck"\nSUPPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nBUG_REPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nLOGO=distributor-logo-steamdeck\nVARIANT="DroidHost"\nVARIANT_ID=droiddeck\n' \
     "$NAME" "$VERSION" "$ID" "$PRETTY_NAME" "$VERSION_ID" "$VERSION_CODENAME" "$UBUNTU_CODENAME" > /etc/os-release.droiddeck
   dpkg-divert --package droiddeck-runtime --rename --divert /usr/lib/os-release.distrib --add /usr/lib/os-release
   mv /etc/os-release.droiddeck /usr/lib/os-release
@@ -177,7 +177,7 @@ apt-get update
 
 grep -v '^$' "$here/packages-desktop.txt" | xargs apt-get install -y firefox
 install_held
-build_package droiddeck-desktop "$here/overlay-desktop" "$here/protected-desktop.txt" "DroidDeck's Plasma desktop"
+build_package droiddeck-desktop "$here/overlay-desktop" "$here/protected-desktop.txt" "DroidHost's Plasma desktop"
 
 divert_to /usr/bin/pkexec /usr/local/bin/pkexec droiddeck-desktop
 divert_to /usr/lib/snapd/snap-confine /usr/local/bin/droiddeck-snap-confine droiddeck-desktop

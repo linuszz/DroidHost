@@ -31,7 +31,7 @@ class SteamExitStatusTest(unittest.TestCase):
             child.chmod(0o755)
             env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ['PATH'],
                        XDG_RUNTIME_DIR=str(root))
-            env['DROIDDECK_ENHANCED_DIAGNOSTICS'] = '1' if diagnostics else '0'
+            env['DROIDHOST_ENHANCED_DIAGNOSTICS'] = '1' if diagnostics else '0'
             result = subprocess.run(['bash', '-c', function.group() + '\nrun_gamescope "$@"',
                                      'session', str(child), str(child_status),
                                      str(report_value) if report_value is not None else ''], env=env,
@@ -78,7 +78,7 @@ class SteamExitStatusTest(unittest.TestCase):
     def test_diagnostics_are_disabled_by_default(self):
         result = self.run_session(0, output=True)
         self.assertEqual(result.returncode, 0)
-        self.assertNotIn('DROIDDECK_DIAGNOSTICS', result.stdout)
+        self.assertNotIn('DROIDHOST_DIAGNOSTICS', result.stdout)
 
 
 if __name__ == '__main__':

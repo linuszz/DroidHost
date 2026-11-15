@@ -202,7 +202,7 @@ unsafe fn handle_ref(handle: jlong) -> Option<&'static Arc<GogRunHandle>> {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeProbe(
+pub extern "system" fn Java_com_droidhost_launcher_stores_gog_GogNative_nativeProbe(
     _env: JNIEnv,
     _class: JClass,
 ) -> jint {
@@ -211,7 +211,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativePr
 
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeStart(
+pub extern "system" fn Java_com_droidhost_launcher_stores_gog_GogNative_nativeStart(
     mut env: JNIEnv,
     _class: JClass,
     kind: jint,
@@ -279,7 +279,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeSt
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeCancel(
+pub extern "system" fn Java_com_droidhost_launcher_stores_gog_GogNative_nativeCancel(
     _env: JNIEnv,
     _class: JClass,
     handle: jlong,
@@ -290,7 +290,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeCa
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_gog_GogNative_nativeRelease(
+pub extern "system" fn Java_com_droidhost_launcher_stores_gog_GogNative_nativeRelease(
     _env: JNIEnv,
     _class: JClass,
     handle: jlong,

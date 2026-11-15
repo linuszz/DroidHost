@@ -1,4 +1,4 @@
-"""Build DroidDeck's ARM64 VR components in Docker and attest their inputs."""
+"""Build DroidHost's ARM64 VR components in Docker and attest their inputs."""
 import argparse
 import hashlib
 import json
@@ -24,8 +24,8 @@ LIBRARIES = {'droiddeck/bin/linuxarm64/driver_droiddeck.so', 'layer/libVkLayer_d
 CONFIGS = {
     'droiddeck/driver.vrdrivermanifest': 'tools/vr/driver_droiddeck/driver.vrdrivermanifest',
     'droiddeck/resources/settings/default.vrsettings': 'tools/vr/driver_droiddeck/resources/settings/default.vrsettings',
-    'layer/VK_LAYER_DROIDDECK_vr.json': 'tools/vr/layer/VK_LAYER_DROIDDECK_vr.json',
-    'layer/VK_LAYER_DROIDDECK_vr_implicit.json': 'tools/vr/layer/VK_LAYER_DROIDDECK_vr_implicit.json',
+    'layer/VK_LAYER_DROIDHOST_vr.json': 'tools/vr/layer/VK_LAYER_DROIDHOST_vr.json',
+    'layer/VK_LAYER_DROIDHOST_vr_implicit.json': 'tools/vr/layer/VK_LAYER_DROIDHOST_vr_implicit.json',
 }
 EXECUTABLES = {'droiddeck/bin/linuxarm64/xr-display-mode'}
 HAND_MODELS = {

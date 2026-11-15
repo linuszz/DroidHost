@@ -40,11 +40,11 @@ reserving the driver's maximum 1.5-second join for a 25-second test limit after
 permission. Android scheduling or system stalls can extend elapsed wall time.
 
 ```powershell
-adb shell am start -n com.droiddeck.viturev2check/.MainActivity --ez auto true --ei seconds 12
+adb shell am start -n com.droidhost.viturev2check/.MainActivity --ez auto true --ei seconds 12
 ```
 
 JSONL logs are under
-`/data/user/0/com.droiddeck.viturev2check/files/checks/driver-check-<wall-ms>.jsonl`.
+`/data/user/0/com.droidhost.viturev2check/files/checks/driver-check-<wall-ms>.jsonl`.
 They include every callback packet with actual length and base64 bytes, the exact
 shared `xyzw` quaternion delivered by production code, tracking/ready events,
 pause-window counts, errors, bad frames, total and capture pose counts, sample

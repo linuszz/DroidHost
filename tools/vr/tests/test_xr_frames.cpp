@@ -4,10 +4,10 @@
 #include <cstdio>
 #include <limits>
 
-static DroidDeckXrFrameHeader Header(uint64_t id = 1) {
-    DroidDeckXrFrameHeader header{};
-    header.magic = DROIDDECK_XR_FRAME_MAGIC; header.version = DROIDDECK_XR_FRAME_VERSION;
-    header.width = 8; header.height = 4; header.bytes = 128; header.color_space = DROIDDECK_XR_COLOR_LINEAR_RGBA8;
+static DroidHostXrFrameHeader Header(uint64_t id = 1) {
+    DroidHostXrFrameHeader header{};
+    header.magic = DROIDHOST_XR_FRAME_MAGIC; header.version = DROIDHOST_XR_FRAME_VERSION;
+    header.width = 8; header.height = 4; header.bytes = 128; header.color_space = DROIDHOST_XR_COLOR_LINEAR_RGBA8;
     header.frame_id = id; header.captured_ns = xr_frame_now();
     for (int eye = 0; eye < 2; eye++) {
         for (int axis = 0; axis < 3; axis++) header.eye_pose[eye][axis][axis] = 1;
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     assert(mkdtemp(directory));
     std::string socketPath = std::string(directory) + "/frames";
     auto valid = Header(); assert(xr_frame_valid(valid));
-    valid.color_space = DROIDDECK_XR_COLOR_SRGB_RGBA8; assert(xr_frame_valid(valid));
+    valid.color_space = DROIDHOST_XR_COLOR_SRGB_RGBA8; assert(xr_frame_valid(valid));
     auto unknownColor = valid; unknownColor.color_space = 3; assert(!xr_frame_valid(unknownColor));
     auto invalid = valid; invalid.version = 3; assert(!xr_frame_valid(invalid));
     invalid = valid; invalid.width = 3; assert(!xr_frame_valid(invalid));
@@ -92,9 +92,9 @@ int main(int argc, char **argv) {
     std::vector<unsigned char> pixels(valid.bytes, 17);
     assert(sender.Send(socketPath, valid, pixels.data()));
     pixels.assign(valid.bytes, 99);
-    DroidDeckXrPixels taken; assert(receiver.Take(&taken));
+    DroidHostXrPixels taken; assert(receiver.Take(&taken));
     assert(taken.header.frame_id == 1 && taken.pixels[0] == 17 && taken.header.eye_pose[0][0][3] == -0.032f);
-    assert(taken.header.color_space == DROIDDECK_XR_COLOR_SRGB_RGBA8);
+    assert(taken.header.color_space == DROIDHOST_XR_COLOR_SRGB_RGBA8);
     assert(!receiver.Take(&taken));
     usleep(350000);
     for (uint64_t id = 2; id <= 100; id++) {

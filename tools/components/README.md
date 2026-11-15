@@ -55,7 +55,7 @@ To refresh after source or compiler changes:
 1. Let a main build compile and test the new inputs.
 2. Run `python tools/components/preloads.py snapshot --run RUN_ID`.
 3. Publish `app/build/component-snapshot/preloads.tar.gz` to
-   DroidDeck-Components as `preloads-<full archive SHA-256>`, without replacing an
+   DroidHost-Components as `preloads-<full archive SHA-256>`, without replacing an
    existing release. Include the manifest and producing run in the release notes.
 4. Review and commit the updated manifest. CI independently checks its origin.
 

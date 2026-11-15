@@ -38,8 +38,8 @@
 #include "compositor_internal.h"
 #include "clock_domain.h"
 
-#define WLOGI(...) __android_log_print(ANDROID_LOG_INFO, "DroidDeckWayland", __VA_ARGS__)
-#define WLOGE(...) __android_log_print(ANDROID_LOG_ERROR, "DroidDeckWayland", __VA_ARGS__)
+#define WLOGI(...) __android_log_print(ANDROID_LOG_INFO, "DroidHostWayland", __VA_ARGS__)
+#define WLOGE(...) __android_log_print(ANDROID_LOG_ERROR, "DroidHostWayland", __VA_ARGS__)
 
 
 #define SESSION_LOG_DIR "/storage/emulated/0/Download/Wayland-logs"
@@ -95,10 +95,10 @@ static void open_session_log(void) {
     setvbuf(f, NULL, _IOLBF, 0);
     strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", &tm);
     fprintf(f,
-            "DroidDeck Wayland session\n"
+            "DroidHost Wayland session\n"
             "=========================\n"
             "Started   %s\n"
-            "Display   Wayland: programs draw through the DroidDeck compositor.\n"
+            "Display   Wayland: programs draw through the DroidHost compositor.\n"
             "          gamescope and the desktop start their own Xwayland for X11 programs.\n"
             "Log       %s\n\n"
             "Time          Area      Event\n"
@@ -1807,11 +1807,11 @@ static void bind_output(struct wl_client *c, void *data, uint32_t ver, uint32_t 
     wl_resource_set_implementation(r, &output_impl, NULL, output_resource_destroy);
     wl_list_insert(&g_outputs, wl_resource_get_link(r));
     wl_output_send_geometry(r, 0, 0, 340, 190, WL_OUTPUT_SUBPIXEL_UNKNOWN,
-                            "DroidDeck", "Wayland", WL_OUTPUT_TRANSFORM_NORMAL);
+                            "DroidHost", "Wayland", WL_OUTPUT_TRANSFORM_NORMAL);
     output_send_mode(r, g_output_announced_refresh_mhz);
     if (ver >= WL_OUTPUT_NAME_SINCE_VERSION) {
-        wl_output_send_name(r, "DroidDeck-1");
-        wl_output_send_description(r, "DroidDeck display");
+        wl_output_send_name(r, "DroidHost-1");
+        wl_output_send_description(r, "DroidHost display");
     }
     if (ver >= 2) {
         wl_output_send_scale(r, 1);
@@ -2308,8 +2308,8 @@ static void render_scene(void) {
         sc_layer_hide();
         rendered = vkp_render_hdr(w, h, dl.d, dl.n, &hs.hf, &how) == 0;
         copy = 1;
-        if (rendered && how == 1) droiddeck_color_frame_shown(hs.color, DROIDDECK_HDR_SWAPCHAIN, 0);
-        else if (rendered && how == 2) droiddeck_color_frame_shown(hs.color, DROIDDECK_HDR_TONEMAPPED, 0);
+        if (rendered && how == 1) droiddeck_color_frame_shown(hs.color, DROIDHOST_HDR_SWAPCHAIN, 0);
+        else if (rendered && how == 2) droiddeck_color_frame_shown(hs.color, DROIDHOST_HDR_TONEMAPPED, 0);
         else if (rendered) hdr_copy = "the HDR composition pass is unavailable on this driver";
     }
     if (hdr_route == 0 && vkp_quest_layer_presentation() && !framegen && !cardboard && !cursor_on &&

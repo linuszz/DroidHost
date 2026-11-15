@@ -8,7 +8,7 @@ SYSTEM_DIR = "/usr/share/applications"
 LOCAL_DIR = "/usr/local/share/applications"
 FLATPAK_DIR = os.path.join(HOME, ".local/share/flatpak/exports/share/applications")
 USER_DIR = os.path.join(HOME, ".local/share/applications")
-MARK = "X-DroidDeck-GPU=1"
+MARK = "X-DroidHost-GPU=1"
 SKIP = re.compile(r"^(steam|droiddeck-game-|droiddeck-steam|steamdeck-)", re.I)
 CHROMIUM_ENV = "env -u WAYLAND_DISPLAY XDG_SESSION_TYPE=x11 ELECTRON_DISABLE_SANDBOX=1 "
 CHROMIUM_FLAGS = " --no-sandbox --ozone-platform=x11"

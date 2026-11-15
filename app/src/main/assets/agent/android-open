@@ -1,9 +1,9 @@
 #!/bin/sh
 # Opens a URL in Android's browser on the display the agent is being used on ($DD_BROWSER_DISPLAY).
-# DroidDeck opens what is left in $DD_AGENT_INBOX/open-url; adb is the fallback when it cannot.
+# DroidHost opens what is left in $DD_AGENT_INBOX/open-url; adb is the fallback when it cannot.
 url=$1
 [ -n "$url" ] || exit 1
-inbox=${DD_AGENT_INBOX:-/data/user/0/com.droiddeck.launcher/files/agent}
+inbox=${DD_AGENT_INBOX:-/data/user/0/com.droidhost.launcher/files/agent}
 rm -f "$inbox/open-url.failed" 2>/dev/null
 if [ -d "$inbox" ] && printf '%s\n' "$url" > "$inbox/open-url.part" && mv -f "$inbox/open-url.part" "$inbox/open-url"; then
   i=0

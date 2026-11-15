@@ -9,7 +9,7 @@ swapchain teardown ignored the result of `vkDeviceWaitIdle`.
 An unsuccessful completion check other than real `VK_ERROR_DEVICE_LOST` now
 puts the compositor in a distinct completion-unknown state. It stops subsequent
 presentation and retains potentially pending image/memory and swapchain
-resources until the DroidDeck app process exits. Device loss continues through
+resources until the DroidHost app process exits. Device loss continues through
 the existing device-loss path. This is deliberate retention rather than an
 automatic recovery; restarting a guest session cannot reset the in-process GPU
 state, so the diagnostic asks for an app restart.
@@ -55,7 +55,7 @@ additionally compiles the **entire production `vk_present.c`**, with fake Vulkan
 dispatch callbacks and stub external modules. The compositor's `take_shm` and
 `take_pixel` callers are inserted verbatim, not rewritten. It needs the Android
 NDK's Vulkan-Headers (`ANDROID_HOME`/`ANDROID_SDK_ROOT`/`NDK`), a host Vulkan
-development package, or `DROIDDECK_VULKAN_INCLUDE`; absent headers are explicitly
+development package, or `DROIDHOST_VULKAN_INCLUDE`; absent headers are explicitly
 reported as a skip. No Android runtime or GPU is required.
 
 The 12 scenarios include first/later OUT_OF_DATE and SURFACE_LOST followed by an
@@ -84,5 +84,5 @@ releases, a mixed DMA-BUF/SHM queue, client destruction, a display-fence callbac
 healthy cleanup and genuine device loss. It checks withheld releases, retained
 FDs/references/AHB ownership, removal of surface listeners and disarmed timers.
 The same harness can test an old source directory via
-`DROIDDECK_DMABUF_TEST_SOURCE`; it does not inject a real driver fault or prove
+`DROIDHOST_DMABUF_TEST_SOURCE`; it does not inject a real driver fault or prove
 long-term device stability.

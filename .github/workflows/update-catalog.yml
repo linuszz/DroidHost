@@ -28,10 +28,10 @@ jobs:
       - uses: actions/create-github-app-token@v2
         id: ci-token
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidDeck-CI
+          repositories: DroidHost-CI
 
       - name: Regenerate catalog.json
         env:

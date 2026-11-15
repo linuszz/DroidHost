@@ -59,14 +59,14 @@ WEBKIT_INPUT_SOURCE = "/usr/local/lib/droiddeck-fex/x86_64/" + WEBKIT_INPUT
 WEBKIT_INPUT_GUEST = "/usr/lib/x86_64-linux-gnu/droiddeck/" + WEBKIT_INPUT
 PLAYING = "epic-playing"
 OPEN = "epic-open"
-STEAM_PRELOAD = "DROIDDECK_STEAM_PRELOAD"
+STEAM_PRELOAD = "DROIDHOST_STEAM_PRELOAD"
 STEAM_ANCESTORS = 32
 READY = ".droiddeck-ready"
 SIDECAR = ".droiddeck-store.json"
 LAUNCHER = ".droiddeck-launch.bat"
 ARGS_FILE = ".droiddeck-epic-args"
-HANDLED = "DROIDDECK_EPIC_HANDLED"
-BROKER_ENV = "DROIDDECK_EPIC_BROKER"
+HANDLED = "DROIDHOST_EPIC_HANDLED"
+BROKER_ENV = "DROIDHOST_EPIC_BROKER"
 APP_ID = "com.epicgames.eglv2"
 DBUS_NAME = APP_ID + ".SingleInstance"
 DBUS_PATH = "/" + APP_ID.replace(".", "/") + "/SingleInstance"
@@ -108,7 +108,7 @@ CLIENT_ENV = {
     "JSC_useFTLJIT": "0",
 }
 HIDDEN_ENV = {
-    "DROIDDECK_EPIC_HIDDEN": "1",
+    "DROIDHOST_EPIC_HIDDEN": "1",
     "EGL_DISABLE_STORE_PREWARM": "1",
 }
 KEPT_ENV = ("HOME", "USER", "LOGNAME", "LANG", "LANGUAGE", "LC_ALL", "LC_MESSAGES", "TZ", "XDG_RUNTIME_DIR", "BL_LAUNCH_DIR")
@@ -544,7 +544,7 @@ def forget_sign_in():
     remove(AUTH_FILE)
     remove(WEB_COOKIES)
     remove(SIGNED_OUT)
-    say("DroidDeck's Epic store was signed out; the launcher starts signed out")
+    say("DroidHost's Epic store was signed out; the launcher starts signed out")
     return True
 
 
@@ -666,7 +666,7 @@ def sync_installations():
         for value in [head] + entries:
             f.write(json.dumps(value, separators=(",", ":")) + "\n")
     os.replace(tmp, INSTALLATIONS)
-    say("updated %d DroidDeck Epic installs in the launcher" % changed)
+    say("updated %d DroidHost Epic installs in the launcher" % changed)
     return True
 
 
@@ -1195,7 +1195,7 @@ def play_in_steam(request):
 def run_game(request, session_env, running=None):
     exe = native_path(request.get("exe") or "")
     args = request.get("args") or []
-    env = {k: v for k, v in session_env.items() if not k.startswith(("FEX_", "DROIDDECK_EPIC", "EGL_", "WEBKIT_"))}
+    env = {k: v for k, v in session_env.items() if not k.startswith(("FEX_", "DROIDHOST_EPIC", "EGL_", "WEBKIT_"))}
     preload = env.pop(STEAM_PRELOAD, "")
     if preload:
         env["LD_PRELOAD"] = preload
@@ -1357,7 +1357,7 @@ class Session:
         self.client = self.spawn(self.command, self.env, os.path.join(LOGS, "client-%s.log" % self.mode), group=True)
 
     def restart_signed_out(self):
-        say("DroidDeck's Epic store was signed out; restarting the launcher signed out")
+        say("DroidHost's Epic store was signed out; restarting the launcher signed out")
         self.end_client()
         forget_sign_in()
         self.carried = False
@@ -1403,7 +1403,7 @@ class Session:
         channel = launch_dir()
         if channel:
             post(channel, {"op": "epic-signed-out"})
-            say("the launcher was signed out; signing DroidDeck's Epic store out too")
+            say("the launcher was signed out; signing DroidHost's Epic store out too")
 
     def watch(self):
         started = time.monotonic()
@@ -1417,7 +1417,7 @@ class Session:
                 return 0
             if broker.game is None and os.path.exists(SIGNED_OUT):
                 if self.mode != "visible":
-                    say("DroidDeck's Epic store was signed out; closing")
+                    say("DroidHost's Epic store was signed out; closing")
                     return 0
                 self.restart_signed_out()
                 continue
@@ -1776,7 +1776,7 @@ def handoff_ready():
     reply = ask_app({"op": "epic-client-handoff"}, HANDOFF_WAIT)
     if isinstance(reply, dict) and reply.get("ok"):
         return True
-    say("no DroidDeck Epic account to sign the launcher in with (%s)" % ((reply or {}).get("reason") or "no answer"))
+    say("no DroidHost Epic account to sign the launcher in with (%s)" % ((reply or {}).get("reason") or "no answer"))
     return False
 
 
@@ -1784,7 +1784,7 @@ def carry_sign_in():
     remove(AUTO_SIGN_IN)
     if signed_in() or not handoff_ready():
         return False
-    say("signing the launcher in with DroidDeck's Epic account")
+    say("signing the launcher in with DroidHost's Epic account")
     return True
 
 

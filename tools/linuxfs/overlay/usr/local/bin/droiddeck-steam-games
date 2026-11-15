@@ -267,8 +267,8 @@ def watch(steam_root, listing):
                     next_probe = now + min(300, 30 * 2 ** failures)
                 else:
                     failures = 0
-                    line = next(line for line in result.stdout.splitlines() if line.startswith("DROIDDECK_OWNERSHIP="))
-                    snapshot = json.loads(line.removeprefix("DROIDDECK_OWNERSHIP="))
+                    line = next(line for line in result.stdout.splitlines() if line.startswith("DROIDHOST_OWNERSHIP="))
+                    snapshot = json.loads(line.removeprefix("DROIDHOST_OWNERSHIP="))
                     if not snapshot["account"].isdigit() or int(snapshot["account"]) <= 0:
                         raise ValueError("invalid Steam account")
                     snapshot["candidates"] = candidates
@@ -410,7 +410,7 @@ def libraries(steam_root):
 
 def ours(manifest, appid):
     try:
-        return re.search(rf'"installdir"\s*"DroidDeck-{appid}"', manifest.read_text(errors="replace")) is not None
+        return re.search(rf'"installdir"\s*"DroidHost-{appid}"', manifest.read_text(errors="replace")) is not None
     except OSError:
         return False
 
@@ -421,12 +421,12 @@ def unpark(steamapps):
         live = steamapps / manifest.name
         if os.path.lexists(live):
             manifest.unlink(missing_ok=True)
-        elif (steamapps / "common" / f"DroidDeck-{appid}").is_dir():
+        elif (steamapps / "common" / f"DroidHost-{appid}").is_dir():
             os.replace(manifest, live)
 
 
 def seeded(steamapps, game, appid):
-    target = steamapps / "common" / f"DroidDeck-{appid}"
+    target = steamapps / "common" / f"DroidHost-{appid}"
     manifest = steamapps / f"appmanifest_{appid}.acf"
     try:
         return (target.is_symlink() and target.is_dir() and manifest.is_file() and ours(manifest, appid)
@@ -436,8 +436,8 @@ def seeded(steamapps, game, appid):
 
 
 def park(steamapps):
-    for target in sorted((steamapps / "common").glob("DroidDeck-*")):
-        appid = target.name.removeprefix("DroidDeck-")
+    for target in sorted((steamapps / "common").glob("DroidHost-*")):
+        appid = target.name.removeprefix("DroidHost-")
         manifest = steamapps / f"appmanifest_{appid}.acf"
         if appid.isdigit() and target.is_symlink() and not target.exists() and manifest.is_file() and ours(manifest, appid):
             (steamapps / PARKED).mkdir(exist_ok=True)
@@ -448,7 +448,7 @@ def park(steamapps):
 def seed_install(steam_root, game, appid):
     steamapps = Path(steam_root) / "steamapps"
     common = steamapps / "common"
-    name = f"DroidDeck-{appid}"
+    name = f"DroidHost-{appid}"
     target = common / name
     source = Path(game["folder"])
     title = game["name"].replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ").replace("\r", " ")
@@ -509,8 +509,8 @@ def seed_install(steam_root, game, appid):
 def release(steam_root, game, stale, reason):
     steamapps = Path(steam_root) / "steamapps"
     sources = {game.get("folder", ""), legacy_path(game.get("folder", ""))}
-    for target in sorted((steamapps / "common").glob("DroidDeck-*")):
-        appid = target.name.removeprefix("DroidDeck-")
+    for target in sorted((steamapps / "common").glob("DroidHost-*")):
+        appid = target.name.removeprefix("DroidHost-")
         if not (appid.isdigit() and target.is_symlink() and os.readlink(target) in sources and stale(int(appid))):
             continue
         for manifest in (steamapps / f"appmanifest_{appid}.acf", steamapps / PARKED / f"appmanifest_{appid}.acf"):
@@ -635,7 +635,7 @@ if __name__ == "__main__":
         sys.exit(2)
     try:
         if sys.argv[1] == "probe":
-            print("DROIDDECK_OWNERSHIP=" + json.dumps(probe(sys.argv[2], [int(value) for value in sys.argv[3:]])), flush=True)
+            print("DROIDHOST_OWNERSHIP=" + json.dumps(probe(sys.argv[2], [int(value) for value in sys.argv[3:]])), flush=True)
         elif sys.argv[1] == "watch":
             watch(sys.argv[2], sys.argv[3])
         else:

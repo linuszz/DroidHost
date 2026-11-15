@@ -36,7 +36,7 @@ class ClassifyTest(unittest.TestCase):
         self.assertEqual(blocked, {})
 
     def test_everything_else_fails_closed(self):
-        changes = {'app/src/main/java/com/droiddeck/launcher/Foo.kt': 'M', 'tools/proot/build.sh': 'M',
+        changes = {'app/src/main/java/com/droidhost/launcher/Foo.kt': 'M', 'tools/proot/build.sh': 'M',
                    'tools/linuxfs/overlay/usr/local/bin/droiddeck-new': 'A'}
         self.assertEqual(set(self.classify(changes)[2]), set(changes))
         self.assertEqual(set(self.classify({self.agent: 'D'})[2]), {self.agent})
@@ -135,23 +135,23 @@ class DonorTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory) / 'main-x'
             folder.mkdir()
-            apk = folder / 'DroidDeck-main-x.apk'
+            apk = folder / 'DroidHost-main-x.apk'
             sums = folder / 'SHA256SUMS.txt'
             apk.write_bytes(b'apk')
-            sums.write_text('0' * 64 + '  DroidDeck-main-x.apk\n')
+            sums.write_text('0' * 64 + '  DroidHost-main-x.apk\n')
             with mock.patch.object(deploy_fast, 'CACHE', Path(directory)):
                 with self.assertRaises(deploy_fast.Refused):
                     deploy_fast.fetch_donor('main-x')
                 self.assertFalse(apk.exists())
                 apk.write_bytes(b'apk')
-                sums.write_text(hashlib.sha256(b'apk').hexdigest() + '  DroidDeck-main-x.apk\n')
+                sums.write_text(hashlib.sha256(b'apk').hexdigest() + '  DroidHost-main-x.apk\n')
                 self.assertEqual(deploy_fast.fetch_donor('main-x'), apk)
 
     def test_a_cached_apk_without_checksums_is_downloaded_again(self):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory) / 'main-x'
             folder.mkdir()
-            apk = folder / 'DroidDeck-main-x.apk'
+            apk = folder / 'DroidHost-main-x.apk'
             apk.write_bytes(b'truncated')
             calls = []
             sums = hashlib.sha256(b'apk').hexdigest() + '  ' + apk.name + '\n'
@@ -171,7 +171,7 @@ class DonorTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory) / 'main-x'
             folder.mkdir()
-            apk = folder / 'DroidDeck-main-x.apk'
+            apk = folder / 'DroidHost-main-x.apk'
             apk.write_bytes(b'partial')
             failed = mock.Mock(returncode=1, stderr='boom')
             with mock.patch.object(deploy_fast, 'CACHE', Path(directory)):
@@ -215,7 +215,7 @@ class SignTest(unittest.TestCase):
             common = (str(base / 'main/.git') + '\n').encode()
             with mock.patch.object(deploy_fast, 'ROOT', base / 'checkout'), \
                     mock.patch.object(deploy_fast, 'git', return_value=common), \
-                    mock.patch.dict(deploy_fast.os.environ, {'DROIDDECK_SIGNING_ENV': str(override)}):
+                    mock.patch.dict(deploy_fast.os.environ, {'DROIDHOST_SIGNING_ENV': str(override)}):
                 self.assertIsNone(deploy_fast.signing_env())
                 shared.write_text('x')
                 self.assertEqual(deploy_fast.signing_env(), shared)

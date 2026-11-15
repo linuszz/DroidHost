@@ -1,6 +1,6 @@
 # Android clipboard text
 
-Copy text in an Android app, return to DroidDeck, and paste into Steam with Ctrl+V.
+Copy text in an Android app, return to DroidHost, and paste into Steam with Ctrl+V.
 The session's PC keyboard supports this through its sticky Ctrl key and V.
 
 Android clipboard reads follow window focus, including the secondary-display presentation.
@@ -34,11 +34,11 @@ Local screenshots, field values, build log, and check results: `/tmp/droiddeck-c
 
 Typed the supplied launch command into a temporary native Android EditText editor
 using Android keyboard events, selected all, and copied with Android's standard
-Ctrl+C action. Returned to the running DroidDeck Steam session and pasted into
+Ctrl+C action. Returned to the running DroidHost Steam session and pasted into
 The Sims Legacy Collection's Launch Options. Steam's persisted value matched the
 complete 126-byte command exactly. No clipboard-setting API was used by the editor.
 
-Repeated with `DroidDeck Thor clipboard test 2026-10-02`, using Steam's on-screen
+Repeated with `DroidHost Thor clipboard test 2026-10-02`, using Steam's on-screen
 keyboard Paste button. The whole value is visible in these unedited Thor screenshots:
 
 ![Text selected and copied in the Android editor](android-clipboard/android-copy.png)

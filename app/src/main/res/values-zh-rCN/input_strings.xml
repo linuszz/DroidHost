@@ -18,7 +18,7 @@
     <string name="input_mouse_left">鼠标左键</string>
     <string name="input_mouse_right">鼠标右键</string>
     <string name="input_mouse_middle">鼠标中键</string>
-    <string name="input_command_menu">打开 DroidDeck 菜单</string>
+    <string name="input_command_menu">打开 DroidHost 菜单</string>
     <string name="input_command_keyboard">显示键盘</string>
     <string name="input_command_steam">打开 Steam 菜单</string>
     <string name="input_command_qam">打开 Steam 快捷菜单</string>

@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">إرسال إدخال وحدة التحكم إلى Steam Input أو اللعبة.</string>
     <string name="input_disabled_hint">هذا العنصر لا يرسل إدخال وحدة تحكم أو فأرة أو لوحة مفاتيح.</string>
     <string name="input_mouse_click">نقرة الفأرة</string>
-    <string name="input_command">إجراء DroidDeck</string>
+    <string name="input_command">إجراء DroidHost</string>
     <string name="input_action">إجراء</string>
     <string name="input_scroll_speed">سرعة التمرير: %1$d خطوة/ث</string>
     <string name="input_new_profile">+ ملف تعريف جديد</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">إيماءات لوحة لمس الفأرة</string>
     <string name="input_mouse_gestures_hint">عند تعيينها لمؤشر الفأرة: اضغط للنقر، واستمر للتمرير بالسحب، ومرّر بإصبعين.</string>
     <string name="input_quick_override_hint">لدى %1$s تجاوز للقائمة السريعة. اختر تلقائي هناك لاستخدام ملف التعريف الافتراضي والأجزاء الثلاثة المحفوظة.</string>
-    <string name="input_route_local">إدخال DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">يُحتجز أثناء تحريك العصا في أي اتجاه: يُضغط فوق 55% ويُحرّر تحت 35%. استخدم مفاتيح الاتجاه لتعيين كل اتجاه على حدة. تُنفَّذ أوامر DroidDeck مرة واحدة لكل انحراف. يُضبط النقر على العصا على حدة.</string>
-    <string name="input_contact_action_hint">يُحتجز أثناء لمس لوحة اللمس؛ ويُحرّر عند رفع إصبعك. تُنفَّذ أوامر DroidDeck مرة واحدة لكل لمسة. يُضبط النقر على اللوحة على حدة.</string>
-    <string name="input_trigger_action_hint" formatted="false">يُحتجز عندما يتجاوز الزناد 55%؛ ويُحرّر تحت 35%. تُنفَّذ أوامر DroidDeck مرة واحدة لكل ضغطة.</string>
+    <string name="input_route_local">إدخال DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">يُحتجز أثناء تحريك العصا في أي اتجاه: يُضغط فوق 55% ويُحرّر تحت 35%. استخدم مفاتيح الاتجاه لتعيين كل اتجاه على حدة. تُنفَّذ أوامر DroidHost مرة واحدة لكل انحراف. يُضبط النقر على العصا على حدة.</string>
+    <string name="input_contact_action_hint">يُحتجز أثناء لمس لوحة اللمس؛ ويُحرّر عند رفع إصبعك. تُنفَّذ أوامر DroidHost مرة واحدة لكل لمسة. يُضبط النقر على اللوحة على حدة.</string>
+    <string name="input_trigger_action_hint" formatted="false">يُحتجز عندما يتجاوز الزناد 55%؛ ويُحرّر تحت 35%. تُنفَّذ أوامر DroidHost مرة واحدة لكل ضغطة.</string>
     <string name="input_scroll_axis">اتجاه التمرير</string>
     <string name="input_vertical">رأسي</string>
     <string name="input_horizontal">أفقي</string>
     <string name="input_scroll_horizontal">تمرير أفقي</string>
     <string name="input_measurements">القياسات</string>
-    <string name="input_measure_instructions">فعّل التسجيل، واستخدم عناصر التحكم في جلسة قيد التشغيل، ثم عد واقرأ النتائج. يقيس زمن إرسال DroidDeck فقط، وليس زمن استجابة الشاشة. ينتهي التسجيل عند إغلاق عملية التطبيق.</string>
+    <string name="input_measure_instructions">فعّل التسجيل، واستخدم عناصر التحكم في جلسة قيد التشغيل، ثم عد واقرأ النتائج. يقيس زمن إرسال DroidHost فقط، وليس زمن استجابة الشاشة. ينتهي التسجيل عند إغلاق عملية التطبيق.</string>
     <string name="input_layout_count">%1$d عناصر تحكم</string>
     <string name="input_other_layouts">تخطيطات محفوظة أخرى (%1$d) ▾</string>
     <string name="input_hide_other_layouts">إخفاء التخطيطات المحفوظة الأخرى (%1$d) ▴</string>

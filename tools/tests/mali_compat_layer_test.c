@@ -466,8 +466,8 @@ int main(int argc, char **argv)
     test_spirv(argc > 1 ? argv[1] : NULL);
 
     setenv("WINEPREFIX", "/nonexistent", 1);
-    unsetenv("DROIDDECK_MALI_COMPAT");
-    unsetenv("DROIDDECK_MALI_COMPAT_TRACE");
+    unsetenv("DROIDHOST_MALI_COMPAT");
+    unsetenv("DROIDHOST_MALI_COMPAT_TRACE");
     VkNegotiateLayerInterface negotiate = {LAYER_NEGOTIATE_INTERFACE_STRUCT, NULL, 2, NULL, NULL, NULL};
     assert(vkNegotiateLoaderLayerInterfaceVersion(&negotiate) == VK_SUCCESS);
     layer_gipa = negotiate.pfnGetInstanceProcAddr;

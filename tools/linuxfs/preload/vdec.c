@@ -673,7 +673,7 @@ static int vd_ioctl(struct vdec *v, unsigned long req, void *arg) {
         struct v4l2_capability *c = arg;
         memset(c, 0, sizeof *c);
         strcpy((char *)c->driver, "droiddeck_vdec");
-        strcpy((char *)c->card, "DroidDeck video decoder");
+        strcpy((char *)c->card, "DroidHost video decoder");
         strcpy((char *)c->bus_info, "platform:droiddeck-vdec");
         c->version = 0x00060000;
         c->device_caps = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;

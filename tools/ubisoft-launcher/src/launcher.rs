@@ -188,7 +188,7 @@ impl Config {
         Msg::new().msg(1, body.bytes(23, b"")).0
     }
 
-    /// `Rsp.userRsp.getCredentialsRsp`: the account without its password, which DroidDeck never holds.
+    /// `Rsp.userRsp.getCredentialsRsp`: the account without its password, which DroidHost never holds.
     pub fn credentials(&self, request_id: u64) -> Vec<u8> {
         let rsp = Msg::new().uint(1, request_id).text(2, &self.username).text(3, "").text(4, &self.user_id).text(5, &self.email);
         Msg::new().msg(8, Msg::new().msg(1, rsp)).0

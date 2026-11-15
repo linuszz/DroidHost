@@ -24,7 +24,7 @@ static const char *type_name(VkPhysicalDeviceType type) {
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_droiddeck_launcher_gpu_VulkanInfo_nativeQuery(JNIEnv *env, jclass clazz) {
+Java_com_droidhost_launcher_gpu_VulkanInfo_nativeQuery(JNIEnv *env, jclass clazz) {
     static char out[4096];
     size_t used = 0;
     out[0] = 0;
@@ -38,7 +38,7 @@ Java_com_droiddeck_launcher_gpu_VulkanInfo_nativeQuery(JNIEnv *env, jclass clazz
     if (instanceVersion) instanceVersion(&loader);
     LINE("loader=%u.%u.%u\n", VK_API_VERSION_MAJOR(loader), VK_API_VERSION_MINOR(loader), VK_API_VERSION_PATCH(loader));
 
-    VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pApplicationName = "DroidDeck device info",
+    VkApplicationInfo app = { .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO, .pApplicationName = "DroidHost device info",
                               .apiVersion = loader >= VK_API_VERSION_1_1 ? VK_API_VERSION_1_1 : VK_API_VERSION_1_0 };
     VkInstanceCreateInfo info = { .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, .pApplicationInfo = &app };
     VkInstance instance = VK_NULL_HANDLE;

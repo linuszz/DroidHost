@@ -98,7 +98,7 @@ class FastPathBindNamesTest(unittest.TestCase):
         cls.binds = [
             (t / "lib", "/mnt/droiddeck-sd"),
             (t / "lib", "/mnt/bannerlator-sd"),
-            (t / "lib", "/mnt/DroidDeck-SD"),
+            (t / "lib", "/mnt/DroidHost-SD"),
             (t / "lib/common", "/opt/common"),
             (t / "fonts", "/usr/share/fonts/android"),
             (t / "a", "/opt/g"),

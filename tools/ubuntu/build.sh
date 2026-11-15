@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
-debs=$(realpath "${1:?directory with the DroidDeck-built .deb files}")
+debs=$(realpath "${1:?directory with the DroidHost-built .deb files}")
 out=$(realpath -m "${2:?out dir}")
 runtime_id=${3:?runtime id, e.g. ubuntu-r1}
 [ "$(uname -m)" = aarch64 ] || { echo 'the Ubuntu runtime needs a native arm64 runner' >&2; exit 1; }

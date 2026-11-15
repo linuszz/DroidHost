@@ -8,7 +8,7 @@ FONTS = Path(__file__).resolve().parents[1] / "linuxfs/overlay/usr/local/bin/dro
 SESSION = Path(__file__).resolve().parents[1] / "linuxfs/overlay/usr/local/bin/droiddeck-session"
 
 
-class DroidDeckFontsTest(unittest.TestCase):
+class DroidHostFontsTest(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

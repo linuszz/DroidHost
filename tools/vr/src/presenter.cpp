@@ -194,7 +194,7 @@ public:
 
 private:
     static bool FrameChannelRequested() {
-        const char *mode = getenv("DROIDDECK_VR_PRESENT");
+        const char *mode = getenv("DROIDHOST_VR_PRESENT");
         return mode && !strcmp(mode, "questframes");
     }
 
@@ -217,7 +217,7 @@ private:
 
 
     void Run() {
-        const char *mode = getenv("DROIDDECK_VR_PRESENT");
+        const char *mode = getenv("DROIDHOST_VR_PRESENT");
         frameChannel_ = FrameChannelRequested();
         if (!frameChannel_) wayland_ = !(mode && !strcmp(mode, "x11")) && InitWayland();
         if (!frameChannel_ && !wayland_ && !InitWindow()) {
@@ -228,7 +228,7 @@ private:
             Log("presenter: unavailable, frames are not shown");
             Fail(); return;
         }
-        if (const char *g = getenv("DROIDDECK_VR_PRESENT_GUARD_MS")) guard_ = std::chrono::microseconds((long)(atof(g) * 1000));
+        if (const char *g = getenv("DROIDHOST_VR_PRESENT_GUARD_MS")) guard_ = std::chrono::microseconds((long)(atof(g) * 1000));
         uint64_t shown = 0, waited = 0, late = 0;
         std::chrono::steady_clock::duration longest{};
         auto lastLog = std::chrono::steady_clock::now();
@@ -310,7 +310,7 @@ private:
 
     bool PanelSize(uint32_t *w, uint32_t *h) {
         if (!pose_) {
-            int fd = open("/run/droiddeck/" DROIDDECK_HEADPOSE_FILE, O_RDONLY | O_CLOEXEC);
+            int fd = open("/run/droiddeck/" DROIDHOST_HEADPOSE_FILE, O_RDONLY | O_CLOEXEC);
             if (fd < 0) return false;
             void *m = mmap(nullptr, sizeof(droiddeck_headpose), PROT_READ, MAP_SHARED, fd, 0);
             close(fd);
@@ -323,7 +323,7 @@ private:
             const uint32_t ew = pose_->eye_w, eh = pose_->eye_h;
             __atomic_thread_fence(__ATOMIC_ACQUIRE);
             if (__atomic_load_n(&pose_->seq, __ATOMIC_RELAXED) != a) continue;
-            if (!ew || !eh || pose_->magic != DROIDDECK_HEADPOSE_MAGIC) return false;
+            if (!ew || !eh || pose_->magic != DROIDHOST_HEADPOSE_MAGIC) return false;
             *w = ew * 2;
             *h = eh;
             return true;
@@ -358,10 +358,10 @@ private:
         if (syncTried_.time_since_epoch().count() && now - syncTried_ < std::chrono::seconds(1)) return nullptr;
         syncTried_ = now;
         const char *rt = getenv("XDG_RUNTIME_DIR");
-        std::string path = std::string(rt && *rt ? rt : "/run/droiddeck") + "/droiddeck-steamvr/" DROIDDECK_PRESENT_SYNC_NAME;
+        std::string path = std::string(rt && *rt ? rt : "/run/droiddeck") + "/droiddeck-steamvr/" DROIDHOST_PRESENT_SYNC_NAME;
         int fd = open(path.c_str(), O_RDONLY | O_CLOEXEC);
         if (fd < 0) return nullptr;
-        void *m = mmap(nullptr, DROIDDECK_PRESENT_SYNC_SIZE, PROT_READ, MAP_SHARED, fd, 0);
+        void *m = mmap(nullptr, DROIDHOST_PRESENT_SYNC_SIZE, PROT_READ, MAP_SHARED, fd, 0);
         close(fd);
         if (m == MAP_FAILED) return nullptr;
         sync_ = (const droiddeck_present_sync *)m;
@@ -413,7 +413,7 @@ private:
     static void OnToplevelClose(void *, struct xdg_toplevel *) {}
 
     bool InitWayland() {
-        const char *name = getenv("DROIDDECK_VR_WAYLAND_DISPLAY");
+        const char *name = getenv("DROIDHOST_VR_WAYLAND_DISPLAY");
         if (!name || !*name) name = "wayland-0";
         wl_ = wl_display_connect(name);
         if (!wl_) { Log("presenter: no Wayland display %s; using the X11 overlay", name); return false; }
@@ -431,7 +431,7 @@ private:
         toplevel_ = xdg_surface_get_toplevel(xdgSurf_);
         static const struct xdg_toplevel_listener tlListener = {OnToplevelConfigure, OnToplevelClose, nullptr, nullptr};
         xdg_toplevel_add_listener(toplevel_, &tlListener, this);
-        xdg_toplevel_set_title(toplevel_, "DroidDeck Cardboard VR");
+        xdg_toplevel_set_title(toplevel_, "DroidHost Cardboard VR");
         xdg_toplevel_set_app_id(toplevel_, "droiddeck-cardboard-vr");
         xdg_toplevel_set_fullscreen(toplevel_, nullptr);
         wl_surface_commit(wlSurf_);
@@ -439,7 +439,7 @@ private:
         width_ = height_ = 0;
         if (!PanelSize(&width_, &height_)) width_ = height_ = 0;
         XrTrackingFile xrFile;
-        DroidDeckXrTracking tracking;
+        DroidHostXrTracking tracking;
         if (xrFile.Read(&tracking) && XrTrackingFile::Fresh(tracking)) {
             width_ = tracking.eyes[0].width * 2; height_ = tracking.eyes[0].height;
         }
@@ -451,7 +451,7 @@ private:
 
     bool InitWindow() {
         if (!x_.Load()) { Log("presenter: no libX11"); return false; }
-        const char *name = getenv("DROIDDECK_VR_DISPLAY");
+        const char *name = getenv("DROIDHOST_VR_DISPLAY");
         if (!name || !*name) name = ":0";
         dpy_ = x_.OpenDisplay(name);
         if (!dpy_) { Log("presenter: cannot open X display %s", name); return false; }
@@ -459,8 +459,8 @@ private:
         width_ = (uint32_t)x_.DisplayWidth(dpy_, scr);
         height_ = (uint32_t)x_.DisplayHeight(dpy_, scr);
         win_ = x_.CreateSimpleWindow(dpy_, x_.DefaultRootWindow(dpy_), 0, 0, width_, height_, 0, 0, 0);
-        x_.StoreName(dpy_, win_, "DroidDeck Cardboard VR");
-        const char *atom = getenv("DROIDDECK_VR_OVERLAY_ATOM");
+        x_.StoreName(dpy_, win_, "DroidHost Cardboard VR");
+        const char *atom = getenv("DROIDHOST_VR_OVERLAY_ATOM");
         if (!atom || !*atom) atom = "STEAM_OVERLAY";
         unsigned long cardinal = 6;
         unsigned long one = 1;
@@ -668,7 +668,7 @@ private:
         readbackBuffer_ = VK_NULL_HANDLE; captureWidth_ = captureHeight_ = 0;
     }
 
-    bool PrepareCapture(const DroidDeckXrFrameHeader &header) {
+    bool PrepareCapture(const DroidHostXrFrameHeader &header) {
         if (captureWidth_ == header.width && captureHeight_ == header.height) return true;
         DestroyCapture();
         auto fail = [this](VkResult result) { Log("presenter: capture allocation failed %d", result); DestroyCapture(); return false; };
@@ -783,7 +783,7 @@ private:
         if (vk_.MapMemory(dev_, readbackMemory_, 0, VK_WHOLE_SIZE, 0, &mapping) != VK_SUCCESS) return false;
         VkMappedMemoryRange range{VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE}; range.memory = readbackMemory_; range.size = VK_WHOLE_SIZE;
         result = vk_.InvalidateMappedMemoryRanges(dev_, 1, &range);
-        bool sent = result == VK_SUCCESS && sender_.Send("/run/droiddeck/" DROIDDECK_XR_FRAME_SOCKET,
+        bool sent = result == VK_SUCCESS && sender_.Send("/run/droiddeck/" DROIDHOST_XR_FRAME_SOCKET,
                                                        frame.render, static_cast<unsigned char *>(mapping));
         vk_.UnmapMemory(dev_, readbackMemory_);
         return sent;

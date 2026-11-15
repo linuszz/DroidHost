@@ -354,7 +354,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--cache-dir", type=Path, default=Path(os.environ.get(
-        "DROIDDECK_BUILD_CACHE", str(Path.home() / ".cache/droiddeck-build"))))
+        "DROIDHOST_BUILD_CACHE", str(Path.home() / ".cache/droiddeck-build"))))
     args = parser.parse_args()
     if args.verify:
         verify()

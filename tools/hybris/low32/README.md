@@ -73,8 +73,8 @@ Set only the target game's overrides, after identifying the render device's
 
 ```text
 LD_PRELOAD=/absolute/guest/path/libdroiddeck-low32.so
-DROIDDECK_LOW32_MODE=low32
-DROIDDECK_LOW32_RDEV=<verified decimal st_rdev>
+DROIDHOST_LOW32_MODE=low32
+DROIDHOST_LOW32_RDEV=<verified decimal st_rdev>
 ```
 
 Preserve any existing target-game preload rather than replacing it. The tested

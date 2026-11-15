@@ -54,7 +54,7 @@ fi
 
 dir=${BL_LAUNCH_DIR:-}
 if [ -z "$dir" ] || [ ! -d "$dir" ]; then
-  echo "droiddeck-steam-launch: not inside a DroidDeck session (BL_LAUNCH_DIR unset)" >&2
+  echo "droiddeck-steam-launch: not inside a DroidHost session (BL_LAUNCH_DIR unset)" >&2
   exit 69
 fi
 printf 'ui=%s\nurl=%s\n' "$ui" "$url" > "$dir/steam-launch.tmp" && mv -f "$dir/steam-launch.tmp" "$dir/steam-launch"

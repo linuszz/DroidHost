@@ -39,7 +39,7 @@ Download the original attachments separately:
 | Android | [AdrenoTools-A850-experimental.zip](https://github.com/user-attachments/files/33319268/AdrenoTools-A850-experimental.zip) | `0cf849d068c875f6c469380ca1f74da1f757575bce53d4ef9c1f6d38677cbe8b` |
 | Linux | [A850-experimental.zip](https://github.com/user-attachments/files/33319267/A850-experimental.zip) | `40fc59506620001531b9bdd1c9152e104c6fb1f4c07773c4743b9d70deb87eec` |
 
-Prepare a bundle accepted by DroidDeck's existing DriverBundle importer:
+Prepare a bundle accepted by DroidHost's existing DriverBundle importer:
 
 ```sh
 mkdir -p build/a850-experimental
@@ -70,7 +70,7 @@ including `device.txt`, `session.log`, the exact chip ID and Android version.
 
 ```sh
 python3 -m unittest discover -s tools/tests -p test_a850_driver_bundle.py -v
-./gradlew -PskipRust=true :app:testDebugUnitTest --tests 'com.droiddeck.launcher.gpu.*'
+./gradlew -PskipRust=true :app:testDebugUnitTest --tests 'com.droidhost.launcher.gpu.*'
 ```
 
 The tests cover detection priority, chip-ID rejection, SoC normalization,

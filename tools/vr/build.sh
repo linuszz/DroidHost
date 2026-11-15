@@ -77,7 +77,7 @@ compile() {
             -o build/vr/out/droiddeck/bin/linuxarm64/driver_droiddeck.so tools/vr/src/driver_droiddeck.cpp tools/vr/src/presenter.cpp \
             build/vr/xdg-shell-protocol.o -Lbuild/vr/stub -lwayland-client -ldl
         aarch64-linux-gnu-gcc -std=c11 -c -fPIC -O2 -Wall -Wextra -Wno-unused-parameter -fvisibility=hidden -pthread \
-            -DDROIDDECK_WSI_CAPTURE -Ibuild/vr/include -o build/vr/vk_layer.o tools/vr/src/vk_layer_droiddeck_vr.c
+            -DDROIDHOST_WSI_CAPTURE -Ibuild/vr/include -o build/vr/vk_layer.o tools/vr/src/vk_layer_droiddeck_vr.c
         aarch64-linux-gnu-g++ -std=c++17 -shared -fPIC -O2 -Wall -Wextra -Wno-missing-field-initializers -fvisibility=hidden -pthread \
             -static-libstdc++ -static-libgcc -Wl,-z,defs -Wl,-z,nodelete -Ibuild/vr/include \
             -o build/vr/out/layer/libVkLayer_droiddeck_vr.so build/vr/vk_layer.o tools/vr/src/wsi_capture.cpp -ldl
@@ -88,14 +88,14 @@ compile() {
     if [ "$native" = 1 ]; then
         (cd "$repo" && "${cmd[@]}")
     else
-        docker run --rm --platform "${DROIDDECK_DOCKER_PLATFORM:-linux/amd64}" --user "$(id -u):$(id -g)" -v "$repo:/src" -w /src \
-            "${DROIDDECK_BUILD_IMAGE:-droiddeck-local-cross:24.04-v3}" "${cmd[@]}"
+        docker run --rm --platform "${DROIDHOST_DOCKER_PLATFORM:-linux/amd64}" --user "$(id -u):$(id -g)" -v "$repo:/src" -w /src \
+            "${DROIDHOST_BUILD_IMAGE:-droiddeck-local-cross:24.04-v3}" "${cmd[@]}"
     fi
 }
 compile
 
 cp -R "$here/driver_droiddeck/." "$work/out/droiddeck/"
-cp "$here/layer/VK_LAYER_DROIDDECK_vr.json" "$here/layer/VK_LAYER_DROIDDECK_vr_implicit.json" "$work/out/layer/"
+cp "$here/layer/VK_LAYER_DROIDHOST_vr.json" "$here/layer/VK_LAYER_DROIDHOST_vr_implicit.json" "$work/out/layer/"
 rm -rf "$out/droiddeck" "$out/layer"
 mkdir -p "$out"
 cp -R "$work/out/droiddeck" "$work/out/layer" "$out/"

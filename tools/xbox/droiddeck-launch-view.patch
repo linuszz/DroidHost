@@ -40,7 +40,7 @@
 +            "exe": stub_path,
 +            "playfab": playfab_auth_header(client, tokens).await,
 +        });
-+        println!("DROIDDECK_LAUNCH_V1 {}", ready);
++        println!("DROIDHOST_LAUNCH_V1 {}", ready);
 +        let _ = std::io::stdout().flush();
 +        let mut release = String::new();
 +        let _ = std::io::stdin().read_line(&mut release);

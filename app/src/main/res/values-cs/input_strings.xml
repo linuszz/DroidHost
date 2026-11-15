@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Levé tlačítko myši</string>
     <string name="input_mouse_right">Pravé tlačítko myši</string>
     <string name="input_mouse_middle">Prostřední tlačítko myši</string>
-    <string name="input_command_menu">Otevřít nabídku DroidDeck</string>
+    <string name="input_command_menu">Otevřít nabídku DroidHost</string>
     <string name="input_command_keyboard">Zobrazit klávesnici</string>
     <string name="input_command_steam">Otevřít nabídku Steam</string>
     <string name="input_command_qam">Otevřít rychlý přístup Steam</string>

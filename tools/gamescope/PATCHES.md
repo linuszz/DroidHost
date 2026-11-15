@@ -65,7 +65,7 @@ library list, before anything is published.
   so 30 fps at 120 Hz still merges), and are painted on their own after that.
 
 The non-Adreno test branch's own patches are numbered 0920-0935 (0120-0135 until main took
-0121-0125), so they apply after DroidDeck's. Applied in either order the tree is the same.
+0121-0125), so they apply after DroidHost's. Applied in either order the tree is the same.
 
 The system PowerVR driver uses the existing SDL/Wayland swapchain backend. Its additional patches are:
 
@@ -132,7 +132,7 @@ app's Wayland-hosted gamescope never reaches, or need a newer gamescope than the
   (0933's "no usable modifier"); the bridge makes such images without the handle type and exports
   them through a dma-heap.
 
-The shared DroidDeck patch also includes `0116-release-cursor-shm-buffers.patch`: pointer cursor
+The shared DroidHost patch also includes `0116-release-cursor-shm-buffers.patch`: pointer cursor
 surfaces have no X11/xdg window association, so routing their commits through `g_PendingCommits`
 retained every old SHM buffer until the surface was destroyed. It ignores cursor-role commits before
 taking the buffer lock; X11 cursor images still follow the existing MouseCursor path. Window commits
@@ -160,7 +160,7 @@ high frame rates that is thousands of round trips a second: on an AYANEO Pocket 
 running AIO Graphics Test uncapped, Xwayland used 24-32% of a core and the game's
 present thread sat about half idle.
 
-The patch can keep the result for `DROIDDECK_WSI_BYPASS_CHECK_MS` milliseconds. Unset
+The patch can keep the result for `DROIDHOST_WSI_BYPASS_CHECK_MS` milliseconds. Unset
 or 0 keeps the per-present check; the app sets 100. With 100, a window resize or a flip/obscure change is seen up to 100 ms
 later than before; surface creation and capability queries still check every time.
 
@@ -224,7 +224,7 @@ upstream does.
 
 The rate comes from the feedback of a frame gamescope presents, so with nothing moving
 on screen no feedback arrived and the old rate stayed. With following on, gamescope
-presents once when the host's `wl_output` mode changes (DroidDeck's compositor sends
+presents once when the host's `wl_output` mode changes (DroidHost's compositor sends
 the new mode) and keeps presenting while a new rate is pending (since p16).
 
 ## 0121 Xwayland: skip the X tree walk for a repeated window override
@@ -265,12 +265,12 @@ loop handles it in the same pass, after the import (FIFO commits still wait for 
 `commit_ready_check` convar (default on, `gamescopectl commit_ready_check 0`) turns it off; the
 `xwm` log counts fences ready at import and waited for, every 10 s.
 
-## 0125 steamcompmgr: share mangoapp's frame times with DroidDeck's HUD
+## 0125 steamcompmgr: share mangoapp's frame times with DroidHost's HUD
 
-DroidDeck's in-app HUD shows the same frame rate and frame times as Steam's performance overlay.
-DroidDeck's mangoapp (Valve's 20260902.1 build) reads the field at byte 16 of gamescope's messages as
+DroidHost's in-app HUD shows the same frame rate and frame times as Steam's performance overlay.
+DroidHost's mangoapp (Valve's 20260902.1 build) reads the field at byte 16 of gamescope's messages as
 its frame time; gamescope 3.16.29 puts `app_frametime_ns` there, the time between signalled commits of
-the connector's windows (`mangoapp_nudge_app_frame`). With `DROIDDECK_HUD_FRAMES` set (droiddeck-session
+the connector's windows (`mangoapp_nudge_app_frame`). With `DROIDHOST_HUD_FRAMES` set (droiddeck-session
 sets `/run/droiddeck-hud/frames`), gamescope maps that file and writes the same commits of connector 0,
 whether or not a mangoapp runs, plus the focused pid, output size, refresh, Steam focus and engine name.
 The layout is in the comment above `droiddeck_hud_frames_map`; the app reads it in `hudframes.c`.
@@ -343,7 +343,7 @@ game window's size, or a maximised one when that size does not fit the desktop w
 
 A game that hides the system cursor, draws its own and grabs the pointer to its window (Stardew Valley, Balatro) gets a lock
 from Xwayland, which emulates the game's warps with a cursor position hint. Upstream kept any hinted lock relative and 0128
-added every other constraint, so gamescope held the host's pointer lock and DroidDeck turned every direct touch swipe into
+added every other constraint, so gamescope held the host's pointer lock and DroidHost turned every direct touch swipe into
 camera motion: dragging in those games only moved their cursor. Without relative mode such a lock still follows gamescope's
 relative motion and touches still place the pointer. gamescope now compares the motion it sends (seat movement, or relative
 motion while the seat is locked) with how the X pointer moves. A hinted constraint starts relative, as upstream, also when its hint arrives with the game's first warp, and is released

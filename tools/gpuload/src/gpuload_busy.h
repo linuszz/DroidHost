@@ -1,7 +1,7 @@
-// Busy-time bookkeeping shared by VK_LAYER_DROIDDECK_gpu_load and DroidDeck's compositor, kept free of Vulkan so it
+// Busy-time bookkeeping shared by VK_LAYER_DROIDHOST_gpu_load and DroidHost's compositor, kept free of Vulkan so it
 // can be tested on its own.
-#ifndef DROIDDECK_GPULOAD_BUSY_H
-#define DROIDDECK_GPULOAD_BUSY_H
+#ifndef DROIDHOST_GPULOAD_BUSY_H
+#define DROIDHOST_GPULOAD_BUSY_H
 
 #include <stdint.h>
 

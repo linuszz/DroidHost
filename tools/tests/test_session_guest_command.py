@@ -6,7 +6,7 @@ import unittest
 
 
 SERVICE = Path(__file__).resolve().parents[2] / (
-    "app/src/main/java/com/droiddeck/launcher/session/SessionService.kt")
+    "app/src/main/java/com/droidhost/launcher/session/SessionService.kt")
 
 VARIANTS = Path(__file__).resolve().parents[1] / "release/variants.txt"
 PACKAGES = [line.split()[1] for line in VARIANTS.read_text().splitlines()
@@ -30,7 +30,7 @@ def guest_prefix(package):
             raise AssertionError("Launch prefix changed; update its regression harness: " + line)
         value = json.loads(match[1])
         if match[2]:
-            if match[2] != "com.droiddeck.launcher.runtime.BwrapSpawner.socket(this)":
+            if match[2] != "com.droidhost.launcher.runtime.BwrapSpawner.socket(this)":
                 raise AssertionError("Unexpected dynamic launch-prefix argument: " + line)
             value += package + ".bwrap"
         prefix.append(value)
@@ -49,9 +49,9 @@ class SessionGuestCommandTest(unittest.TestCase):
             with self.subTest(package=package):
                 result = subprocess.run(
                     guest_prefix(package), capture_output=True, text=True, check=True,
-                    timeout=5, env={"DROIDDECK_BWRAP_SOCKET": "wrong.bwrap", "STALE_HOST": "1"})
+                    timeout=5, env={"DROIDHOST_BWRAP_SOCKET": "wrong.bwrap", "STALE_HOST": "1"})
                 self.assertEqual(
-                    ["DROIDDECK_BWRAP_SOCKET=" + package + ".bwrap"],
+                    ["DROIDHOST_BWRAP_SOCKET=" + package + ".bwrap"],
                     result.stdout.splitlines())
 
 

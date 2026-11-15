@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Ліва кнопка миші</string>
     <string name="input_mouse_right">Права кнопка миші</string>
     <string name="input_mouse_middle">Середня кнопка миші</string>
-    <string name="input_command_menu">Відкрити меню DroidDeck</string>
+    <string name="input_command_menu">Відкрити меню DroidHost</string>
     <string name="input_command_keyboard">Показати клавіатуру</string>
     <string name="input_command_steam">Відкрити меню Steam</string>
     <string name="input_command_qam">Відкрити швидкий доступ Steam</string>

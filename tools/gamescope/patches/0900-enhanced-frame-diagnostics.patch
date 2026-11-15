@@ -42,17 +42,17 @@ index 0000000..2c57f65
 +#include <cstdlib>
 +#include <cstring>
 +
-+#ifndef DROIDDECK_FRAME_TRACE_FAST_INTERVAL_MS
-+#define DROIDDECK_FRAME_TRACE_FAST_INTERVAL_MS 2000
++#ifndef DROIDHOST_FRAME_TRACE_FAST_INTERVAL_MS
++#define DROIDHOST_FRAME_TRACE_FAST_INTERVAL_MS 2000
 +#endif
-+#ifndef DROIDDECK_FRAME_TRACE_SLOW_INTERVAL_MS
-+#define DROIDDECK_FRAME_TRACE_SLOW_INTERVAL_MS 15000
++#ifndef DROIDHOST_FRAME_TRACE_SLOW_INTERVAL_MS
++#define DROIDHOST_FRAME_TRACE_SLOW_INTERVAL_MS 15000
 +#endif
-+#ifndef DROIDDECK_FRAME_TRACE_FAST_DURATION_MS
-+#define DROIDDECK_FRAME_TRACE_FAST_DURATION_MS 120000
++#ifndef DROIDHOST_FRAME_TRACE_FAST_DURATION_MS
++#define DROIDHOST_FRAME_TRACE_FAST_DURATION_MS 120000
 +#endif
-+#ifndef DROIDDECK_FRAME_TRACE_DURATION_MS
-+#define DROIDDECK_FRAME_TRACE_DURATION_MS 86400000
++#ifndef DROIDHOST_FRAME_TRACE_DURATION_MS
++#define DROIDHOST_FRAME_TRACE_DURATION_MS 86400000
 +#endif
 +
 +namespace droiddeck::frame_trace
@@ -107,7 +107,7 @@ index 0000000..2c57f65
 +		m_startedAt = std::chrono::steady_clock::now();
 +		m_nextSummaryMs = kFastIntervalMs;
 +		std::fprintf( stderr,
-+			"DROIDDECK_FRAME_TRACE schema=1 fast_interval_ms=%ld slow_interval_ms=%ld "
++			"DROIDHOST_FRAME_TRACE schema=1 fast_interval_ms=%ld slow_interval_ms=%ld "
 +			"fast_duration_ms=%ld duration_ms=%ld\n",
 +			kFastIntervalMs, kSlowIntervalMs, kFastDurationMs, kDurationMs );
 +		PrintSummary( 0 );
@@ -142,14 +142,14 @@ index 0000000..2c57f65
 +	}
 +
 +private:
-+	static constexpr int64_t kFastIntervalMs = DROIDDECK_FRAME_TRACE_FAST_INTERVAL_MS;
-+	static constexpr int64_t kSlowIntervalMs = DROIDDECK_FRAME_TRACE_SLOW_INTERVAL_MS;
-+	static constexpr int64_t kFastDurationMs = DROIDDECK_FRAME_TRACE_FAST_DURATION_MS;
-+	static constexpr int64_t kDurationMs = DROIDDECK_FRAME_TRACE_DURATION_MS;
++	static constexpr int64_t kFastIntervalMs = DROIDHOST_FRAME_TRACE_FAST_INTERVAL_MS;
++	static constexpr int64_t kSlowIntervalMs = DROIDHOST_FRAME_TRACE_SLOW_INTERVAL_MS;
++	static constexpr int64_t kFastDurationMs = DROIDHOST_FRAME_TRACE_FAST_DURATION_MS;
++	static constexpr int64_t kDurationMs = DROIDHOST_FRAME_TRACE_DURATION_MS;
 +
 +	static bool EnabledByEnvironment()
 +	{
-+		const char *value = std::getenv( "DROIDDECK_ENHANCED_DIAGNOSTICS" );
++		const char *value = std::getenv( "DROIDHOST_ENHANCED_DIAGNOSTICS" );
 +		return value != nullptr && std::strcmp( value, "1" ) == 0;
 +	}
 +
@@ -167,7 +167,7 @@ index 0000000..2c57f65
 +	void PrintSummary( int64_t elapsed ) const
 +	{
 +		std::fprintf( stderr,
-+			"DROIDDECK_FRAME_TRACE t_ms=%ld x11_damage=%lu x11_damage_current=%lu x11_damage_other=%lu "
++			"DROIDHOST_FRAME_TRACE t_ms=%ld x11_damage=%lu x11_damage_current=%lu x11_damage_other=%lu "
 +			"surface_commit=%lu surface_buffer=%lu surface_no_buffer=%lu dequeued=%lu dequeued_current=%lu "
 +			"dequeued_other=%lu import_ok=%lu import_ok_current=%lu import_ok_other=%lu import_failed=%lu "
 +			"import_failed_current=%lu import_failed_other=%lu fence_ready=%lu fence_waited=%lu commit_done=%lu "

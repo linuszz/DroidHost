@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="steamvr_recovery_title">Grafica SteamVR s-a oprit</string>
-    <string name="steamvr_recovery_countdown">DroidDeck va reporni în %1$d s pentru a reseta grafica și a redeschide SteamVR. Jocul care rulează se va închide; progresul nesalvat nu poate fi recuperat.</string>
+    <string name="steamvr_recovery_countdown">DroidHost va reporni în %1$d s pentru a reseta grafica și a redeschide SteamVR. Jocul care rulează se va închide; progresul nesalvat nu poate fi recuperat.</string>
     <string name="steamvr_recovery_repeated">Eroarea grafică a revenit după o repornire recentă. Recuperarea automată este pusă pe pauză pentru a evita o buclă. Repornirea va închide jocul; progresul nesalvat nu poate fi recuperat.</string>
     <string name="steamvr_recovery_restart">Repornește acum</string>
     <string name="steamvr_recovery_cancel">Lasă deschis</string>
     <string name="steamvr_recovery_restarting">Se resetează grafica și se redeschide SteamVR…</string>
-    <string name="steamvr_recovery_failed">DroidDeck nu a putut reporni automat. Închide complet aplicația, apoi redeschide-o.</string>
-    <string name="app_name">DroidDeck</string>
+    <string name="steamvr_recovery_failed">DroidHost nu a putut reporni automat. Închide complet aplicația, apoi redeschide-o.</string>
+    <string name="app_name">DroidHost</string>
     <string-array name="loading_hints">
         <item>Prima rulare descarcă Steam. Poate dura câteva minute.</item>
         <item>În mod implicit, la părăsirea aplicației, Steam este pus pe pauză; continuă de unde ai rămas când te întorci.</item>
@@ -145,7 +145,7 @@
     <string name="user_apps_remove_confirm">Apasă din nou pentru a elimina</string>
     <string name="user_apps_stop_session">Oprește sesiunea pentru a elimina</string>
     <string name="user_apps_script_linked">Rulează %1$s din folderul său, conectat în sesiune acolo unde se află. Eliminarea aplicației nu afectează acel folder.</string>
-    <string name="user_apps_script_copied">Rulează %1$s dintr-o copie a folderului său din DroidDeck. Eliminarea aplicației șterge copia, nu originalul.</string>
+    <string name="user_apps_script_copied">Rulează %1$s dintr-o copie a folderului său din DroidHost. Eliminarea aplicației șterge copia, nu originalul.</string>
     <string name="user_apps_runtime_required">Instalează mai întâi mediul de execuție Linux</string>
     <string name="user_apps_file_gone">Fișierul nu mai există</string>
     <string name="user_apps_no_space">Spațiu liber insuficient: copierea folderului necesită %1$s</string>
@@ -180,8 +180,8 @@
     <string name="app_fex_off">Dezactivat</string>
     <string name="app_fex_hint">FEX rulează programe Linux x86 pe acest dispozitiv ARM64. Automat îl folosește atunci când programul este compilat pentru x86.</string>
     <string name="app_fex_x86">%1$s prin FEX</string>
-    <string name="app_fex_not_ready">Acest program este compilat pentru PC-uri %1$s și rulează prin FEX, care nu este încă configurat. Deschide Steam o dată, fiind autentificat: DroidDeck îl pune să descarce FEX și Steam Linux Runtime de care are nevoie, apoi acesta se deschide.</string>
-    <string name="session_proot_missing">Proot-ul DroidDeck nu a putut fi descărcat. Verifică conexiunea și încearcă din nou. Sesiunea nu a fost pornită, deoarece proot-ul de rezervă este prea lent pentru jocuri.</string>
+    <string name="app_fex_not_ready">Acest program este compilat pentru PC-uri %1$s și rulează prin FEX, care nu este încă configurat. Deschide Steam o dată, fiind autentificat: DroidHost îl pune să descarce FEX și Steam Linux Runtime de care are nevoie, apoi acesta se deschide.</string>
+    <string name="session_proot_missing">Proot-ul DroidHost nu a putut fi descărcat. Verifică conexiunea și încearcă din nou. Sesiunea nu a fost pornită, deoarece proot-ul de rezervă este prea lent pentru jocuri.</string>
     <string name="session_powervr_missing">Mediul grafic PowerVR nu a putut fi descărcat. Verifică conexiunea și încearcă din nou.</string>
     <string name="session_directaudio_missing">DirectAudio nu a putut fi descărcat, așa că sunetul jocurilor folosește calea mai lentă în această sesiune.</string>
     <string name="session_end_program">Acest program</string>
@@ -221,13 +221,13 @@
     <string name="edit_app_save">Salvează</string>
     <string name="add_app_checking_folder">Se verifică folderul…</string>
     <string name="add_app_folder_linked">Folderul său este conectat în sesiune: %1$s</string>
-    <string name="add_app_folder_copied">Folderul său conține programe Linux, pe care stocarea partajată nu le poate rula, așa că este copiat în DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Folderul său conține programe Linux, pe care stocarea partajată nu le poate rula, așa că este copiat în DroidHost (%1$s).</string>
     <string name="add_app_confirm">Adaugă</string>
     <string name="add_app_cancel">Anulează</string>
     <string name="add_app_runtime_required">Instalează mai întâi mediul de execuție Linux din Configurare.</string>
     <string name="add_app_busy">Așteaptă până se termină %1$s.</string>
     <string name="steam_compat_label">Compatibil</string>
-    <string name="proton_compatible_note">Versiunile marcate „%1$s” din meniul Compatibilitate al Steam au remedierile de prefix ale DroidDeck și pornesc jocuri aici. Cea implicită este Proton Experimental ARM64 (%1$s), sau Proton 11.0 ARM64 (%1$s) după ce acea versiune mai nouă este instalată. Intrările Proton proprii ale Valve, fără marcaj, nu pot porni un joc pe acest dispozitiv.</string>
+    <string name="proton_compatible_note">Versiunile marcate „%1$s” din meniul Compatibilitate al Steam au remedierile de prefix ale DroidHost și pornesc jocuri aici. Cea implicită este Proton Experimental ARM64 (%1$s), sau Proton 11.0 ARM64 (%1$s) după ce acea versiune mai nouă este instalată. Intrările Proton proprii ale Valve, fără marcaj, nu pot porni un joc pe acest dispozitiv.</string>
     <string name="proton_installed_compatible">Instalat %1$s · %2$s</string>
     <string name="common_cancel">Anulează</string>
     <string name="common_auto">Automat</string>
@@ -293,7 +293,7 @@
     <string name="back_double_tap_window">Interval pentru atingere dublă</string>
     <string name="back_tap_ms">%1$d ms</string>
     <string name="brightness_permission_title">Permite controlul luminozității</string>
-    <string name="brightness_permission_text">Configurează controlul luminozității în DroidDeck.</string>
+    <string name="brightness_permission_text">Configurează controlul luminozității în DroidHost.</string>
     <string name="back_menu_then_qam">Meniu → QAM</string>
     <string name="back_qam_then_menu">QAM → Meniu</string>
     <string name="mode_session">Sesiune</string>
@@ -307,7 +307,7 @@
     <string name="mode_suspend_note">Automat pune pe pauză în fundal și reia atunci când este afișată. Manual așteaptă Reluare. Niciodată continuă să ruleze.</string>
     <string name="mode_startup">Pornire</string>
     <string name="mode_startup_session">Deschide la pornire</string>
-    <string name="mode_startup_session_hint">Pornește această sesiune când se lansează DroidDeck.</string>
+    <string name="mode_startup_session_hint">Pornește această sesiune când se lansează DroidHost.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Se verifică versiunile…</string>
     <string name="mode_decky_ready">Pregătit pentru instalarea %1$s.</string>
@@ -330,8 +330,8 @@
     <string name="mode_client">Client</string>
     <string name="mode_mangoapp">Suprapunere de performanță</string>
     <string name="mode_mangoapp_hint">Dezactivează dacă jocurile se blochează sau ecranul devine negru în modul Deck. Se aplică la sesiunea următoare.</string>
-    <string name="mode_return_after_game">Revino la DroidDeck după un joc</string>
-    <string name="mode_return_after_game_hint">Când un joc pornit din DroidDeck sau din alt launcher se închide, Steam iese curat (salvările în cloud se termină întâi) și revii acolo. Dezactivat: rămâi în Steam.</string>
+    <string name="mode_return_after_game">Revino la DroidHost după un joc</string>
+    <string name="mode_return_after_game_hint">Când un joc pornit din DroidHost sau din alt launcher se închide, Steam iese curat (salvările în cloud se termină întâi) și revii acolo. Dezactivat: rămâi în Steam.</string>
     <string name="mode_shader_precache">Pre-cache pentru shadere</string>
     <string name="mode_shader_precache_hint">Steam descarcă shadere precompilate pentru jocurile tale și le procesează în fundal, ca jocurile să aibă mai puține sacadări. Dezactivat economisește date, spațiu și baterie; jocurile își compilează shaderele în timpul jocului. Aceeași setare ca Descărcări > Pre-cache pentru shadere din Steam. Se aplică la sesiunea următoare.</string>
     <string name="mode_steam_repair">Repară clientul Steam</string>
@@ -415,7 +415,7 @@
     <string name="mode_wifi_open_settings">Deschide setările</string>
     <string name="mode_wifi_continue">Continuă</string>
     <string name="mode_wifi_explain_title">Activezi descoperirea Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android necesită permisiunea de localizare pentru a citi numele rețelelor Wi-Fi și a descoperi rețelele din apropiere. DroidDeck folosește acest acces pentru a arăta acele rețele în Steam. Nu îți urmărim locația. Accesul la internet funcționează și fără această permisiune.</string>
+    <string name="mode_wifi_explain_text">Android necesită permisiunea de localizare pentru a citi numele rețelelor Wi-Fi și a descoperi rețelele din apropiere. DroidHost folosește acest acces pentru a arăta acele rețele în Steam. Nu îți urmărim locația. Accesul la internet funcționează și fără această permisiune.</string>
     <string name="mode_storage">Stocarea jocurilor</string>
     <string name="mode_storage_auto">Automat - cardul SD când este prezent, plus folderele tale Games</string>
     <string name="mode_storage_auto_none">Automat - folderele tale Games, plus cardul SD când este prezent (niciunul acum)</string>
@@ -435,7 +435,7 @@
     <string name="libraries_found_hint">Găsit pe acest dispozitiv · %1$s · %2$s</string>
     <string name="libraries_add_found">Adaugă</string>
     <string name="libraries_access_title">Găsește biblioteci în stocarea internă</string>
-    <string name="libraries_access_hint">Permite accesul la toate fișierele ca DroidDeck să poată vedea bibliotecile Steam păstrate de alte aplicații în stocarea internă</string>
+    <string name="libraries_access_hint">Permite accesul la toate fișierele ca DroidHost să poată vedea bibliotecile Steam păstrate de alte aplicații în stocarea internă</string>
     <string name="libraries_access_allow">Permite</string>
     <string name="libraries_used_inner">S-a adăugat %1$s, biblioteca Steam din dosarul ales</string>
     <string name="mode_storage_note">Jocurile care transmit fișiere de pe SD sau din stocarea partajată pot avea sacadări.</string>
@@ -554,7 +554,7 @@
     <string name="comp_nightlies_count">Pe versiunile nightly · %1$d</string>
     <string name="comp_channel_stable">Stabilă</string>
     <string name="comp_channel_nightly">Nightly</string>
-    <string name="comp_refresh_to_list">Reîmprospătează pentru a lista pachetele din Nightlies și DroidDeck.</string>
+    <string name="comp_refresh_to_list">Reîmprospătează pentru a lista pachetele din Nightlies și DroidHost.</string>
     <string name="comp_nothing_new">Nimic nou de la ultima verificare.</string>
     <string name="comp_import_wcp">Importă .wcp</string>
     <string name="comp_restore_original">Restaurează originalul acestui Proton</string>
@@ -566,7 +566,7 @@
     <string name="comp_tag_new">Nou</string>
     <string name="comp_tag_stored">Salvat</string>
     <string name="comp_mode_title">Cum se aleg versiunile</string>
-    <string name="comp_mode_auto_detail">Cea mai nouă versiune DroidDeck, mereu actualizată</string>
+    <string name="comp_mode_auto_detail">Cea mai nouă versiune DroidHost, mereu actualizată</string>
     <string name="comp_mode_manual_detail">Alege și instalează singur versiunile</string>
     <string name="comp_auto_title">Auto menține %1$s actualizat</string>
     <string name="comp_auto_hint">Versiunile noi se instalează în fundal. Dacă un joc care mergea se închide în câteva secunde de două ori, Auto revine la versiunea care funcționa.</string>
@@ -732,7 +732,7 @@
     <string name="hud_temp_red_battery">Baterie roșie de la</string>
     <string name="hud_group_more">Mai mult</string>
     <string name="hud_export">Diagnosticare HUD</string>
-    <string name="hud_export_hint">Salvează în Downloads/DroidDeck un raport despre fiecare senzor citit de HUD.</string>
+    <string name="hud_export_hint">Salvează în Downloads/DroidHost un raport despre fiecare senzor citit de HUD.</string>
     <string name="hud_export_button">Salvează</string>
     <string name="hud_export_done">Salvat în %1$s</string>
     <string name="hud_export_failed">Raportul HUD nu a putut fi salvat.</string>
@@ -919,7 +919,7 @@
     <string name="setup_language_system">Cea implicită a sistemului (%1$s)</string>
     <string name="setup_language_system_short">Cea implicită a sistemului</string>
     <string name="setup_app_scale">Scala aplicației</string>
-    <string name="setup_app_scale_hint">Textul și comenzile DroidDeck</string>
+    <string name="setup_app_scale_hint">Textul și comenzile DroidHost</string>
     <string name="setup_app_scale_default">%1$d%% (Implicit)</string>
     <string name="setup_theme">Temă</string>
     <string name="setup_theme_hint">Aspectul launcherului</string>
@@ -927,11 +927,11 @@
     <string name="setup_launcher_icon_dark">Întunecată</string>
     <string name="setup_launcher_icon_light">Luminoasă</string>
     <string name="setup_home">Folosește ca ecran Acasă</string>
-    <string name="setup_home_on">DroidDeck poate fi aplicația Acasă</string>
-    <string name="setup_home_off">DroidDeck nu este niciodată oferit ca aplicație Acasă</string>
+    <string name="setup_home_on">DroidHost poate fi aplicația Acasă</string>
+    <string name="setup_home_off">DroidHost nu este niciodată oferit ca aplicație Acasă</string>
     <string name="setup_home_page">Butonul Acasă deschide</string>
-    <string name="setup_home_page_hint">Pagina afișată când DroidDeck este aplicația de pornire și apeși butonul Acasă</string>
-    <string name="setup_home_game_space_first">În Adaugă jocuri, setează DroidDeck pe Include</string>
+    <string name="setup_home_page_hint">Pagina afișată când DroidHost este aplicația de pornire și apeși butonul Acasă</string>
+    <string name="setup_home_game_space_first">În Adaugă jocuri, setează DroidHost pe Include</string>
     <string name="setup_orientation">Orientare</string>
     <string name="setup_launcher_orientation">Orientarea launcherului</string>
     <string name="setup_launcher_orientation_auto">Urmează rotirea dispozitivului</string>
@@ -959,7 +959,7 @@
     <string name="setup_default_home">Aplicația Acasă implicită</string>
     <string name="setup_choose_home">Alege o aplicație Acasă</string>
     <string name="setup_hide_home_from_recents">Ascunde aplicația de pornire din lista aplicațiilor recente cât timp este inactivă</string>
-    <string name="setup_hide_home_from_recents_hint">Se aplică doar când DroidDeck este aplicația implicită de pornire și nu rulează nicio sesiune.</string>
+    <string name="setup_hide_home_from_recents_hint">Se aplică doar când DroidHost este aplicația implicită de pornire și nu rulează nicio sesiune.</string>
     <string name="setup_choose">Alege</string>
     <string name="setup_linux_apps">Aplicații Linux (beta)</string>
     <string name="setup_tool_files">Fișiere</string>
@@ -1029,16 +1029,16 @@
     <string name="store_website">Site web</string>
     <string name="store_verified">Verificat</string>
     <string name="upd_title">Actualizări</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">DroidHost %1$s · %2$s</string>
     <string name="upd_checked">Verificat %1$s</string>
     <string name="upd_not_checked">Neverificat încă</string>
-    <string name="upd_perm_title">Permite DroidDeck să se actualizeze singur</string>
+    <string name="upd_perm_title">Permite DroidHost să se actualizeze singur</string>
     <string name="upd_perm_text">Pe ecranul următor, activează Permite din această sursă, apoi revino. Actualizarea continuă de la sine.</string>
     <string name="upd_open_settings">Deschide setările</string>
     <string name="upd_not_now">Nu acum</string>
     <string name="upd_signed_status">Semnătură diferită</string>
     <string name="upd_signed_headline">Nu se poate actualiza pe loc</string>
-    <string name="upd_signed_detail">Această copie nu este semnată cu cheia de lansare a DroidDeck, așa că actualizările nu se pot instala peste ea. Dezinstaleaz-o pentru a comuta.</string>
+    <string name="upd_signed_detail">Această copie nu este semnată cu cheia de lansare a DroidHost, așa că actualizările nu se pot instala peste ea. Dezinstaleaz-o pentru a comuta.</string>
     <string name="upd_available">Actualizare disponibilă</string>
     <string name="upd_blocked_status">Nu se poate instala</string>
     <string name="upd_switch">Pregătit pentru comutare</string>
@@ -1060,7 +1060,7 @@
     <string name="upd_stop_session">Oprește sesiunea în curs pentru a actualiza.</string>
     <string name="upd_less">Mai puțin</string>
     <string name="upd_more">Mai mult</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">DroidHost %1$s</string>
     <string name="upd_new_preview">Versiune nouă Preview</string>
     <string name="upd_new_test">Versiune de test PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -1100,7 +1100,7 @@
     <string name="upd_lab">Versiune experimentală</string>
     <string name="lab_builds">Versiuni experimentale</string>
     <string name="lab_in_use">În utilizare</string>
-    <string name="lab_paused_row">În pauză după ce Android a reoptimizat DroidDeck</string>
+    <string name="lab_paused_row">În pauză după ce Android a reoptimizat DroidHost</string>
     <string name="lab_not_loaded">Nu s-a încărcat: %1$s</string>
     <string name="lab_waiting">În așteptarea unei reporniri</string>
     <string name="lab_kept">Păstrată</string>
@@ -1114,17 +1114,17 @@
     <string name="lab_delete_confirm">Șterge acum</string>
     <string name="lab_restart_failed">Repornirea nu a putut fi pregătită: %1$s. Asociază depanarea wireless în Configurare și încearcă din nou.</string>
     <string name="lab_installed_title">Versiune experimentală instalată</string>
-    <string name="lab_installed_text">DroidDeck a repornit pe %1$s</string>
+    <string name="lab_installed_text">DroidHost a repornit pe %1$s</string>
     <string name="lab_paused_title">Compilarea Lab suspendată</string>
-    <string name="lab_paused_text">Android a reoptimizat DroidDeck, așa că %1$s nu s-a încărcat. Deschide Actualizări pentru a reporni pe ea.</string>
+    <string name="lab_paused_text">Android a reoptimizat DroidHost, așa că %1$s nu s-a încărcat. Deschide Actualizări pentru a reporni pe ea.</string>
     <string name="lab_off_title">Compilarea Lab dezactivată</string>
-    <string name="lab_off_other_install">A fost construită pentru o altă versiune de DroidDeck. Este păstrată în Actualizări.</string>
-    <string name="lab_off_did_not_start">DroidDeck nu a pornit pe ea de două ori</string>
+    <string name="lab_off_other_install">A fost construită pentru o altă versiune de DroidHost. Este păstrată în Actualizări.</string>
+    <string name="lab_off_did_not_start">DroidHost nu a pornit pe ea de două ori</string>
     <string name="rail_agent">Agent</string>
     <string name="agent_channel_name">Agent</string>
     <string name="agent_working">Agentul lucrează</string>
     <string name="agent_missing">Instalează Claude Code în spațiul utilizatorului Linux pentru a folosi agentul.</string>
-    <string name="agent_hint">Întreabă despre un joc, o blocare sau o modificare a DroidDeck</string>
+    <string name="agent_hint">Întreabă despre un joc, o blocare sau o modificare a DroidHost</string>
     <string name="agent_send">Trimite</string>
     <string name="agent_new">Conversație nouă</string>
     <string name="agent_stop">Oprește</string>
@@ -1133,20 +1133,20 @@
     <string name="agent_storage_confirm">Elimină acum</string>
     <string name="agent_storage_claude">Claude Code</string>
     <string name="agent_storage_codex">Codex</string>
-    <string name="agent_storage_source">Codul sursă DroidDeck</string>
+    <string name="agent_storage_source">Codul sursă DroidHost</string>
     <string name="agent_storage_caches">Cache-uri de descărcare</string>
     <string name="agent_storage_source_warning">Modificările netrimise se pierd</string>
     <string name="agent_storage_caches_warning">Compilările le vor descărca din nou</string>
     <string name="agent_storage_reinstall_warning">Configurarea îl poate instala din nou; datele de autentificare se păstrează</string>
-    <string name="agent_resumed">DroidDeck a repornit pe compilarea ta Lab. Continuă de unde ai rămas.</string>
-    <string name="agent_empty">Întreabă-l de ce un joc nu pornește, cere-i să explice un jurnal sau să modifice DroidDeck și să încerce modificarea pe acest dispozitiv.</string>
+    <string name="agent_resumed">DroidHost a repornit pe compilarea ta Lab. Continuă de unde ai rămas.</string>
+    <string name="agent_empty">Întreabă-l de ce un joc nu pornește, cere-i să explice un jurnal sau să modifice DroidHost și să încerce modificarea pe acest dispozitiv.</string>
     <string name="agent_failed">A eșuat: %1$s</string>
     <string name="agent_exited">%1$s s-a încheiat (ieșire %2$d)</string>
     <string name="agent_stopped">Oprit</string>
     <string name="agent_no_reply">S-a încheiat fără răspuns</string>
     <string name="agent_retry">Reîncearcă</string>
     <string name="agent_setting_up">Se configurează agentul</string>
-    <string name="agent_rebuild_lab">Reconstruiește compilarea mea Lab %1$s pentru versiunea instalată de DroidDeck și repornește pe ea.</string>
+    <string name="agent_rebuild_lab">Reconstruiește compilarea mea Lab %1$s pentru versiunea instalată de DroidHost și repornește pe ea.</string>
     <string name="agent_tokens">%1$s intrare · %2$s ieșire</string>
     <string name="agent_thinking">Se gândește</string>
     <string name="agent_thought">Gând</string>
@@ -1208,7 +1208,7 @@
     <string name="agent_lab_stage_starting">Se pornește</string>
     <string name="agent_lab_stage_building">%1$d%%</string>
     <string name="agent_lab_stage_packaging">Se împachetează</string>
-    <string name="agent_lab_stage_restarting">Se repornește DroidDeck pe acesta</string>
+    <string name="agent_lab_stage_restarting">Se repornește DroidHost pe acesta</string>
     <string name="agent_lab_stage_ready">Gata</string>
     <string name="agent_lab_stage_failed">Eșec: %1$s</string>
     <string name="agent_setup_title">Configurează agentul</string>
@@ -1216,7 +1216,7 @@
     <string name="agent_setup_retry">Reîncearcă</string>
     <string name="agent_setup_done">Începe conversația</string>
     <string name="agent_step_connection">Conexiunea dispozitivului</string>
-    <string name="agent_step_connection_hint">Depanare wireless, pentru ca agentul să vadă și să controleze DroidDeck</string>
+    <string name="agent_step_connection_hint">Depanare wireless, pentru ca agentul să vadă și să controleze DroidHost</string>
     <string name="agent_step_install">Instalează %1$s</string>
     <string name="agent_step_install_hint">În mediul Linux, cu git, gh și adb</string>
     <string name="agent_step_sign_in">Conectare la %1$s</string>
@@ -1239,7 +1239,7 @@
     <string name="agent_action_install">Instalează</string>
     <string name="agent_action_sign_in">Conectați-vă</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Nu este compilată pentru această copie de DroidDeck</string>
+    <string name="upd_not_built">Nu este compilată pentru această copie de DroidHost</string>
     <string name="upd_updated">Actualizat %1$s</string>
     <string name="upd_test_name">testul PR #%1$d</string>
     <string name="upd_while_ago">cu un timp în urmă</string>
@@ -1265,13 +1265,13 @@
     <string name="gate_fix_for_me">Repară pentru mine</string>
     <string name="gate_toggle_steps">Activează „Dezactivează restricțiile pentru procese secundare”, apoi revino. Lasă Opțiunile pentru dezvoltatori activate, altfel comutatorul se dezactivează din nou.</string>
     <string name="gate_open_dev">Deschide Opțiunile pentru dezvoltatori</string>
-    <string name="gate_no_toggle">Această versiune de Android nu are un comutator pentru asta, așa că DroidDeck o schimbă prin Depanarea wireless. Durează circa un minut, fără a avea nevoie de un computer.</string>
+    <string name="gate_no_toggle">Această versiune de Android nu are un comutator pentru asta, așa că DroidHost o schimbă prin Depanarea wireless. Durează circa un minut, fără a avea nevoie de un computer.</string>
     <string name="gate_needs_wifi">Depanarea wireless are nevoie de Wi-Fi. Orice rețea funcționează; nu are nevoie de internet.</string>
-    <string name="gate_needs_notifications">Codul de asociere apare într-o notificare. Permite notificările pentru DroidDeck, sau folosește Alte moduri.</string>
+    <string name="gate_needs_notifications">Codul de asociere apare într-o notificare. Permite notificările pentru DroidHost, sau folosește Alte moduri.</string>
     <string name="gate_allow_notifications">Permite notificările</string>
     <string name="gate_step1">Deschide Setări → Opțiuni pentru dezvoltatori → Depanare wireless și activează-o</string>
     <string name="gate_step2">Apasă „Asociază dispozitivul cu un cod de asociere”</string>
-    <string name="gate_step3">Introdu codul în notificarea DroidDeck</string>
+    <string name="gate_step3">Introdu codul în notificarea DroidHost</string>
     <string name="pairguide_build_number">În Despre telefon, atinge Numărul versiunii de 7 ori</string>
     <string name="pairguide_wireless">Activează Depanarea wireless</string>
     <string name="pairguide_pair">Deschide Depanare wireless, apoi atinge „Asociază dispozitivul cu un cod de asociere”</string>
@@ -1380,7 +1380,7 @@
     <string name="desktop_removing">Se elimină desktopul</string>
     <string name="desktop_removed">Desktop eliminat</string>
     <string name="desktop_cleaning_legacy">Se elimină fișierele LXQt vechi</string>
-    <string name="desktop_removal_unknown">Actualizează DroidDeck înainte de a elimina această versiune de desktop.</string>
+    <string name="desktop_removal_unknown">Actualizează DroidHost înainte de a elimina această versiune de desktop.</string>
     <string name="content_linux_desktop">Desktop Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox și emulatoarele tale</string>
     <string name="games_empty">Jocurile pe care le instalezi în Steam apar aici după sesiune.</string>
@@ -1426,8 +1426,8 @@
     <string name="gpu_hide_other">Ascunde driverele pentru alte GPU-uri</string>
     <string name="gpu_show_other">Arată driverele pentru alte GPU-uri</string>
     <string name="gpu_ubwc_title">Compatibilitate UBWC</string>
-    <string name="gpu_ubwc_hint">Încearcă Activat sau Dezactivat dacă Steam sau Android afișează dungi ori pâlpâiri. Se aplică ambelor drivere după repornirea DroidDeck.</string>
-    <string name="gpu_ubwc_restart">Repornește DroidDeck pentru a aplica.</string>
+    <string name="gpu_ubwc_hint">Încearcă Activat sau Dezactivat dacă Steam sau Android afișează dungi ori pâlpâiri. Se aplică ambelor drivere după repornirea DroidHost.</string>
+    <string name="gpu_ubwc_restart">Repornește DroidHost pentru a aplica.</string>
     <string name="gpu_set_with_display">Setat împreună cu driverul de afișaj: %1$s include ambele.</string>
     <string name="gpu_set_with_runtime">Setat împreună cu driverul mediului de execuție: %1$s include ambele.</string>
     <string name="gpu_runtime_hint">Folosit de jocuri și de desktop.</string>
@@ -1435,7 +1435,7 @@
     <string name="gpu_auto_by_gpu">Automat - ales în funcție de GPU</string>
     <string name="gpu_manage">Descarcă, importă sau șterge…</string>
     <string name="gpu_in_use_caps">ÎN UZ</string>
-    <string name="gpu_builtin">Driverele integrate în DroidDeck</string>
+    <string name="gpu_builtin">Driverele integrate în DroidHost</string>
     <string name="gpu_matched_pair">Driverele mediului de execuție și de afișaj setate împreună ca pereche asortată.</string>
     <string name="gpu_recommended_for">Recomandat pentru acest GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Reîmprospătează pentru a căuta drivere pentru acest GPU.</string>
@@ -1544,7 +1544,7 @@
     <string name="unfolded_controls_with_controller_hint">Afișează aceste comenzi tactile și cât timp un controller este conectat.</string>
     <string name="pip_suspended">Suspendat</string>
     <string name="pip_not_ready">Imaginea în imagine este disponibilă odată ce sesiunea este pregătită.</string>
-    <string name="pip_permission">Permite imaginea în imagine pentru DroidDeck în setările Android.</string>
+    <string name="pip_permission">Permite imaginea în imagine pentru DroidHost în setările Android.</string>
     <string name="pip_unavailable">Android nu a putut deschide imaginea în imagine.</string>
     <string name="game_more">Mai multe</string>
     <string name="game_edit_art">Editează grafica</string>
@@ -1557,7 +1557,7 @@
     <string name="game_link_copied">Link de lansare copiat</string>
     <string name="game_shortcut_unsupported">Acest launcher nu poate adăuga comenzi rapide. Folosește Copiază linkul de lansare în schimb.</string>
     <string name="game_link_invalid">Link de lansare a jocului invalid.</string>
-    <string name="game_link_missing">Acest joc nu mai este în biblioteca ta DroidDeck.</string>
+    <string name="game_link_missing">Acest joc nu mai este în biblioteca ta DroidHost.</string>
     <string name="game_link_session_busy">Oprește sesiunea curentă înainte de a lansa un joc Steam.</string>
     <string name="game_link_failed">Jocul nu a putut fi trimis către Steam. Încearcă să îl lansezi din nou.</string>
     <string name="setup_retry_removal">Reîncearcă eliminarea</string>
@@ -1586,9 +1586,9 @@
         <item quantity="other">S-au importat %1$d de fișiere din %2$s în %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">S-a importat %1$d fișier din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidDeck/Saves/backups</item>
-        <item quantity="few">S-au importat %1$d fișiere din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">S-au importat %1$d de fișiere din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">S-a importat %1$d fișier din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidHost/Saves/backups</item>
+        <item quantity="few">S-au importat %1$d fișiere din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidHost/Saves/backups</item>
+        <item quantity="other">S-au importat %1$d de fișiere din %2$s în %3$s. Salvările vechi au fost copiate de rezervă în Download/DroidHost/Saves/backups</item>
     </plurals>
     <string name="main_addons_close_session">Închide mai întâi sesiunea, ca jocul să nu folosească suplimentele în timpul importului</string>
     <string name="main_addons_importing">Se importă suplimente în %1$s</string>
@@ -1663,7 +1663,7 @@
 
     <string name="upd_unknown_apps_failed">Setarea Android „Instalează aplicații necunoscute” nu a putut fi deschisă</string>
     <string name="upd_couldnt_check">Nu s-a putut verifica: %1$s</string>
-    <string name="upd_no_download">Această versiune nu are o descărcare pentru această copie de DroidDeck</string>
+    <string name="upd_no_download">Această versiune nu are o descărcare pentru această copie de DroidHost</string>
     <string name="upd_stop_first">Oprește mai întâi sesiunea în curs, apoi actualizează</string>
     <string name="upd_stage_downloading">Se descarcă</string>
     <string name="upd_stage_installing">Se instalează</string>
@@ -1692,22 +1692,22 @@
     <string name="drivers_recommended_unpublished">Driverele recomandate nu sunt publicate acum</string>
     <string name="drivers_downloading_pair">Se descarcă %1$s %2$s…</string>
     <string name="drivers_updated_to">Actualizat la %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Actualizat la %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidDeck.</string>
+    <string name="drivers_updated_to_restart">Actualizat la %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidHost.</string>
     <string name="drivers_auto_waits_for_session">Actualizările de drivere așteaptă oprirea sesiunii.</string>
     <string name="drivers_auto_waits_for_network">%1$s %2$s se va descărca după ce ieși din datele mobile și din modul de economisire a bateriei.</string>
     <string name="drivers_skipping_bad">%1$s %2$s nu a pornit o sesiune aici, așa că Automat rămâne la driverele care au funcționat.</string>
     <string name="drivers_rolled_back">%1$s nu a pornit sesiunea de două ori, așa că Automat a revenit la driverele care funcționau.</string>
     <string name="drivers_switched_to">Comutat la %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Comutat la %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidDeck.</string>
+    <string name="drivers_switched_to_restart">Comutat la %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidHost.</string>
     <string name="drivers_using">Se folosește %1$s %2$s.</string>
-    <string name="drivers_using_restart">Se folosește %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidDeck.</string>
+    <string name="drivers_using_restart">Se folosește %1$s %2$s. Driverul de afișaj se aplică după repornirea DroidHost.</string>
     <string name="drivers_using_quest">Se folosesc driverul de afișare livrat cu Quest și mediul de execuție implicit.</string>
-    <string name="drivers_using_quest_restart">Se folosesc driverul de afișare livrat cu Quest și mediul de execuție implicit. Driverul de afișare se aplică după repornirea DroidDeck.</string>
+    <string name="drivers_using_quest_restart">Se folosesc driverul de afișare livrat cu Quest și mediul de execuție implicit. Driverul de afișare se aplică după repornirea DroidHost.</string>
     <string name="drivers_not_a_driver">Nu este o arhivă de driver: nici driver AdrenoTools, nici Turnip -Linux, nici pachet Android + Linux</string>
     <string name="drivers_import_failed">Importul a eșuat: %1$s</string>
     <string name="drivers_imported_unnamed">Driver importat</string>
     <string name="drivers_using_bundle">Se folosește %1$s ca driver pentru mediul de execuție și pentru afișaj, deopotrivă.</string>
-    <string name="drivers_using_bundle_restart">Se folosește %1$s ca driver pentru mediul de execuție și pentru afișaj, deopotrivă. Driverul de afișaj se aplică după repornirea DroidDeck.</string>
+    <string name="drivers_using_bundle_restart">Se folosește %1$s ca driver pentru mediul de execuție și pentru afișaj, deopotrivă. Driverul de afișaj se aplică după repornirea DroidHost.</string>
     <string name="drivers_deleted_bundle">Șters %1$s (ambele drivere)</string>
     <string name="drivers_deleted">Șters %1$s</string>
     <string name="drivers_release_status">Cele mai recente: %1$s · verificat %2$s</string>
@@ -1727,7 +1727,7 @@
         <item quantity="few">acum %1$d zile</item>
         <item quantity="other">acum %1$d de zile</item>
     </plurals>
-    <string name="drivers_checking_sources">Se verifică Banners-Turnip, WinNative și DroidDeck…</string>
+    <string name="drivers_checking_sources">Se verifică Banners-Turnip, WinNative și DroidHost…</string>
     <string name="drivers_check_failed">verificare eșuată</string>
     <string name="drivers_installed_pick_either">Instalat %1$s - alege-l în orice listă pentru a seta ambele drivere</string>
     <string name="drivers_installed_pick">Instalat %1$s - alege-l în meniu</string>
@@ -1959,7 +1959,7 @@
     <string name="fm_decline">Refuză</string>
     <string name="fm_drive_not_readable">%1$s este montat, dar nu poate fi citit acum</string>
     <string name="fm_drive_access_title">Permite accesul la %1$s</string>
-    <string name="fm_drive_access_text">Android permite DroidDeck să vadă această unitate, dar nu să o citească. Activează Acces la toate fișierele pentru DroidDeck, apoi revino.</string>
+    <string name="fm_drive_access_text">Android permite DroidHost să vadă această unitate, dar nu să o citească. Activează Acces la toate fișierele pentru DroidHost, apoi revino.</string>
     <string name="fm_list_view">Vizualizare listă</string>
     <string name="fm_grid_view">Vizualizare grilă</string>
     <string name="fm_search">Căutare</string>
@@ -2105,7 +2105,7 @@
     <string name="bottom_telemetry_send_close">Închide %1$s pentru a schimba asta.</string>
     <string name="bottom_telemetry_send_failed">Nu s-au putut modifica setările pentru %1$s.</string>
     <string name="bottom_telemetry_send_menu">%1$s: activează %2$s în setările jocului, cu IP-ul 127.0.0.1 și portul %3$d.</string>
-    <string name="bottom_shots_where">Salvate în Pictures/DroidDeck. Capturile de ecran Steam apar și ele aici.</string>
+    <string name="bottom_shots_where">Salvate în Pictures/DroidHost. Capturile de ecran Steam apar și ele aici.</string>
     <string name="bottom_shots_take">Fă o captură de ecran</string>
     <string name="bottom_shots_saved">Captură de ecran salvată.</string>
     <string name="bottom_shots_failed">Nu s-a putut face o captură de ecran.</string>
@@ -2113,12 +2113,12 @@
     <string name="bottom_page_chat">Chat și voce</string>
     <string name="bottom_chat_why">Citește și răspunde aici la chatul Steam, în timp ce jocul continuă să ruleze pe ecranul principal. Folosește contul cu care este conectat Steam.</string>
     <string name="bottom_chat_not_signed_in">Steam nu are încă o conectare web de partajat, așa că conectează-te aici o dată.</string>
-    <string name="bottom_chat_stopped">Android a închis pagina de chat cât timp DroidDeck era în fundal. Se redeschide când revii în DroidDeck.</string>
+    <string name="bottom_chat_stopped">Android a închis pagina de chat cât timp DroidHost era în fundal. Se redeschide când revii în DroidHost.</string>
     <string name="bottom_chat_open">Deschide Steam Chat</string>
     <string name="bottom_chat_close">Închide chatul</string>
     <string name="bottom_chat_mic_on">Microfon pornit</string>
     <string name="bottom_chat_mic_off">Microfon oprit</string>
-    <string name="bottom_chat_mic_unavailable">Microfonul este oprit pentru acest joc. Pentru a vorbi, activează Microfon în setările Steam din DroidDeck (Sunet) și pornește din nou jocul.</string>
+    <string name="bottom_chat_mic_unavailable">Microfonul este oprit pentru acest joc. Pentru a vorbi, activează Microfon în setările Steam din DroidHost (Sunet) și pornește din nou jocul.</string>
     <string name="bottom_chat_volume">Volum %1$d%%</string>
     <string name="bottom_page_telemetry">Statistici în joc</string>
     <string name="bottom_hud_group">HUD pe ecranul de jos</string>
@@ -2173,7 +2173,7 @@
     <string name="flatpakmgr_not_ready">Configurează mai întâi Flatpak</string>
     <string name="flatpakmgr_starting">Se pornește</string>
     <string name="flatpakmgr_exit_status">Flatpak s-a închis cu starea %1$d</string>
-    <string name="flatpakmgr_wrong_arch">%1$s este construită pentru %2$s, pe care DroidDeck nu o poate rula. Aici aplicațiile Flatpak au nevoie de o versiune pentru ARM64 sau x86_64.</string>
+    <string name="flatpakmgr_wrong_arch">%1$s este construită pentru %2$s, pe care DroidHost nu o poate rula. Aici aplicațiile Flatpak au nevoie de o versiune pentru ARM64 sau x86_64.</string>
     <string name="flatpakmgr_installing">Se instalează %1$s</string>
     <string name="flatpakmgr_updating">Se actualizează %1$s</string>
     <string name="flatpakmgr_removing">Se elimină %1$s</string>
@@ -2256,7 +2256,7 @@
     <string name="adbfix_no_pairing">Nicio asociere de Depanare wireless nu este salvată</string>
     <string name="adbfix_enter_address">Introdu adresa IP și portul curente ale Depanării wireless</string>
 
-    <string name="adbpair_timed_out">Timpul a expirat în așteptarea ferestrei de asociere. Încearcă din nou din DroidDeck.</string>
+    <string name="adbpair_timed_out">Timpul a expirat în așteptarea ferestrei de asociere. Încearcă din nou din DroidHost.</string>
     <string name="adbpair_discovery_failed_code">Fereastra de asociere nu a putut fi căutată (%1$d). Verifică dacă Wi-Fi-ul este activat.</string>
     <string name="adbpair_discovery_failed">Fereastra de asociere nu a putut fi căutată: %1$s</string>
     <string name="adbpair_six_digits">Introdu toate cele 6 cifre ale codului</string>
@@ -2279,20 +2279,20 @@
     <string name="adbpair_enter_code">Introdu codul</string>
     <string name="adbpair_title_working">Se configurează Steam</string>
     <string name="adbpair_title_done">Steam este pregătit</string>
-    <string name="adbpair_done_text">Apasă pentru a reveni la DroidDeck. Poți dezactiva acum Depanarea wireless.</string>
+    <string name="adbpair_done_text">Apasă pentru a reveni la DroidHost. Poți dezactiva acum Depanarea wireless.</string>
     <string name="adbpair_title_failed">Configurarea Depanării wireless s-a oprit</string>
 
     <string name="selfinst_download_failed">Descărcarea a eșuat</string>
     <string name="selfinst_size_mismatch">Dimensiunea descărcării nu s-a potrivit cu APK-ul publicat și a fost abandonată - încearcă din nou</string>
     <string name="selfinst_checksum_mismatch">Descărcarea nu s-a potrivit cu suma sa de control și a fost abandonată - încearcă din nou</string>
     <string name="selfinst_wrong_package">Actualizarea este pentru pachetul Android %1$s, nu %2$s</string>
-    <string name="selfinst_metadata_signer">Metadatele actualizării nu numesc cheia de semnare de lansare a DroidDeck</string>
+    <string name="selfinst_metadata_signer">Metadatele actualizării nu numesc cheia de semnare de lansare a DroidHost</string>
     <string name="selfinst_unreadable">Android nu a putut citi APK-ul descărcat</string>
     <string name="selfinst_apk_wrong_package">APK-ul descărcat este pentru %1$s, nu %2$s</string>
     <string name="selfinst_version_mismatch">APK-ul descărcat spune versionCode %1$d, nu cel publicat %2$d</string>
     <string name="selfinst_downgrade">Android nu va instala versionCode %1$d peste cel instalat %2$d</string>
     <string name="selfinst_no_signing">APK-ul descărcat nu are informații de semnare</string>
-    <string name="selfinst_wrong_signer">APK-ul descărcat nu este semnat cu cheia de lansare a DroidDeck</string>
+    <string name="selfinst_wrong_signer">APK-ul descărcat nu este semnat cu cheia de lansare a DroidHost</string>
     <string name="appupd_http">Catalogul de actualizări a răspuns cu HTTP %1$d</string>
 
     <string name="loadstate_starting">Se pornește sesiunea…</string>
@@ -2339,7 +2339,7 @@
     <string name="cmgr_original_kept">Originalul versiunii instalate este păstrat: este calea de revenire.</string>
     <string name="cmgr_not_stored">Nesalvat</string>
     <string name="cmgr_deleted_original">S-a șters originalul %1$s al %2$s.</string>
-    <string name="cmgr_nightlies_only">Descărcările vin doar din versiunile Nightlies și DroidDeck</string>
+    <string name="cmgr_nightlies_only">Descărcările vin doar din versiunile Nightlies și DroidHost</string>
     <string name="cmgr_nightly_replaced">Descărcarea a eșuat: această versiune nightly poate fi fost înlocuită cu una mai nouă. Reîmprospătează lista și încearcă din nou.</string>
     <string name="cmgr_list_predates_checksums">Această listă de pachete e anterioară sumelor de control - reîmprospătează-o și încearcă din nou</string>
     <string name="cmgr_checksum_mismatch">Sumă de control incorectă</string>
@@ -2382,7 +2382,7 @@
     <string name="drivers_powervr_builtin">Driverul PowerVR de sistem este selectat pentru runtime și afișaj.</string>
     <string name="drivers_mali_bridge_auto">Niciun driver open-source nu suportă încă acest Mali: puntea Mali este activată.</string>
     <string name="upd_block_non_adreno_test">Aceasta este versiunea de test non-Snapdragon: versiunile oficiale de aici rulează doar pe Adreno, așa că nu sunt instalate peste ea. Versiunile de test noi se află pe github.com/The412Banner/droiddeck-nonadreno-drivers.</string>
-    <string name="session_killed_for_memory">Ultima sesiune s-a încheiat deoarece Android a închis DroidDeck pentru a elibera memorie, nu din cauza unei opriri neașteptate. Închide alte aplicații sau reduce setările de textură ale jocului, apoi încearcă din nou.</string>
+    <string name="session_killed_for_memory">Ultima sesiune s-a încheiat deoarece Android a închis DroidHost pentru a elibera memorie, nu din cauza unei opriri neașteptate. Închide alte aplicații sau reduce setările de textură ale jocului, apoi încearcă din nou.</string>
     <string name="drivers_route_venus">Mali (Venus)</string>
     <string name="drivers_route_bridge">puntea Mali</string>
     <string name="drivers_mali_no_pair_auto">Niciun driver open-source nu suportă încă acest Mali: se folosește %1$s, pe driverul propriu al telefonului.</string>
@@ -2440,10 +2440,10 @@
     <string name="phantom_instructions_not_applicable">Această versiune de Android nu folosește această limită.</string>
     <string name="phantom_fix_toggle">Activează „Dezactivează restricțiile pentru procese secundare” în Opțiunile pentru dezvoltatori, și lasă Opțiunile pentru dezvoltatori activate după aceea.</string>
     <string name="phantom_fix_no_toggle">Această versiune de Android nu are un comutator pentru asta. Folosește Depanarea wireless pentru a o schimba de pe acest dispozitiv.</string>
-    <string name="upd_block_no_apk">Această versiune nu are o descărcare pentru această copie de DroidDeck.</string>
+    <string name="upd_block_no_apk">Această versiune nu are o descărcare pentru această copie de DroidHost.</string>
     <string name="upd_block_version_code">Android nu o va instala peste această versiune pentru că versionCode %1$d este sub cel instalat %2$d.</string>
     <string name="upd_fail_downgrade">Android nu va instala o versiune mai veche peste una mai nouă. Rămâi pe această versiune până când canalul ajunge din urmă.</string>
-    <string name="upd_fail_signature">Această copie de DroidDeck este semnată diferit (o versiune locală?), așa că Android nu o va actualiza pe loc.</string>
+    <string name="upd_fail_signature">Această copie de DroidHost este semnată diferit (o versiune locală?), așa că Android nu o va actualiza pe loc.</string>
     <string name="upd_fail_storage">Nu este suficient spațiu liber pentru actualizare.</string>
     <string name="upd_fail_aborted">Actualizarea a fost anulată.</string>
     <string name="upd_fail_with_message">Actualizarea nu s-a instalat: %1$s</string>
@@ -2468,7 +2468,7 @@
     <string name="gstore_volume_free">%1$s · %2$s liber</string>
     <string name="mode_storage_auto_short">Automat</string>
     <string name="appupd_catalog_rejected">Catalogul de actualizări nu a trecut verificările (%1$s)</string>
-    <string name="main_adb_clip_label">Setarea proceselor-copil DroidDeck</string>
+    <string name="main_adb_clip_label">Setarea proceselor-copil DroidHost</string>
     <string name="setup_signed_in_offline_unnamed">Autentificat · mod offline</string>
     <string name="setup_signed_in_unnamed">Autentificat</string>
     <string name="driver_tag_bundled">INCLUS</string>
@@ -2872,7 +2872,7 @@
     <string name="gpu_display_next">Desenează ecranul. Se aplică de la sesiunea următoare.</string>
     <string name="gpu_previous_driver">driverul anterior</string>
     <string name="gpu_restart_banner">Repornește pentru a schimba driverul de afișare.</string>
-    <string name="gpu_restart_blocked">Oprește sesiunea curentă și repornește DroidDeck pentru a schimba driverul de afișare.</string>
+    <string name="gpu_restart_blocked">Oprește sesiunea curentă și repornește DroidHost pentru a schimba driverul de afișare.</string>
     <string name="gpu_restart_now">Repornește acum</string>
     <string name="gpu_restart_later">Mai târziu</string>
     <string name="gpu_auto_title">Automat a ales această pereche pentru %1$s</string>
@@ -2958,7 +2958,7 @@
     <string name="touch_speed_normal">Normală</string>
     <string name="touch_speed_fast">Rapidă</string>
     <string name="touch_edit_layout">Editează aranjamentul</string>
-    <string name="touch_droiddeck_menu">Meniul DroidDeck</string>
+    <string name="touch_droiddeck_menu">Meniul DroidHost</string>
     <string name="touch_drag_hint">Trage elementele de control pe ecran</string>
     <string name="touch_arrange">Aranjează</string>
     <string name="touch_discard">Renunță</string>
@@ -3026,7 +3026,7 @@
     <string name="glasses_driver_missing">Această versiune nu include driverul pentru acești ochelari.</string>
     <string name="glasses_connection_failed">Nu s-a putut realiza conexiunea cu ochelarii. Reconectează cablul sau apasă Permite pentru a reîncerca.</string>
     <string name="glasses_allow">Permite</string>
-    <string name="glasses_allow_hint">Permite-i lui DroidDeck să seteze rata de reîmprospătare, modul 3D, luminozitatea, volumul și întunecarea ochelarilor și să le citească urmărirea capului.</string>
+    <string name="glasses_allow_hint">Permite-i lui DroidHost să seteze rata de reîmprospătare, modul 3D, luminozitatea, volumul și întunecarea ochelarilor și să le citească urmărirea capului.</string>
     <string name="glasses_asking">Se așteaptă permisiunea ta în solicitarea Android…</string>
     <string name="glasses_denied">Controlul a fost refuzat. Permite-l pentru a schimba setările ochelarilor.</string>
     <string name="glasses_no_control">Acești ochelari afișează jocul, dar setările lor nu pot fi schimbate de aici.</string>
@@ -3206,7 +3206,7 @@
     <string name="storage_internal">Stocare internă</string>
     <string name="storage_used_of">%1$s din %2$s folosiți</string>
     <string name="storage_free">%1$s liberi</string>
-    <string name="storage_droiddeck_uses">DroidDeck folosește %1$s. Măsurat pe %2$s.</string>
+    <string name="storage_droiddeck_uses">DroidHost folosește %1$s. Măsurat pe %2$s.</string>
     <string name="storage_rescanning">se rescannează…</string>
     <string name="storage_other_apps">Alte aplicații Android</string>
     <string name="storage_safe_now">Se poate elibera acum</string>
@@ -3240,7 +3240,7 @@
     <string name="storage_desktop_hint">Aplicații și medii de execuție Flatpak</string>
     <string name="storage_system">Sistemul Linux și clientul Steam</string>
     <string name="storage_system_hint">Necesar pentru ca orice să ruleze</string>
-    <string name="storage_app_data">Datele DroidDeck</string>
+    <string name="storage_app_data">Datele DroidHost</string>
     <string name="storage_app_data_hint">Jurnalele sesiunilor vechi %1$s · cache · drivere</string>
     <string name="storage_legend_games">Jocuri</string>
     <string name="storage_legend_data">Datele jocurilor</string>
@@ -3248,7 +3248,7 @@
     <string name="storage_legend_stores">Alte magazine</string>
     <string name="storage_legend_desktop">Aplicații desktop</string>
     <string name="storage_legend_system">Sistemul Linux</string>
-    <string name="storage_legend_app">DroidDeck</string>
+    <string name="storage_legend_app">DroidHost</string>
     <string name="storage_clean_up_title">Curăță</string>
     <string name="storage_clean_up_lede">Nimic de aici nu atinge jocurile instalate sau descărcările în curs.</string>
     <string name="storage_nothing_to_clean">Nimic de curățat acum.</string>
@@ -3298,8 +3298,8 @@
     <string name="storage_tool_fex">Rulează jocuri Linux x86</string>
     <string name="storage_tool_steam">Unealtă Steam</string>
     <string name="storage_tool_anticheat">Steam descarcă această componentă pentru jocurile care includ anti-cheat, chiar și când este dezactivat. Eliminarea ei blochează instalarea acestora la 0%</string>
-    <string name="storage_tool_old_runtime">DroidDeck rulează jocuri fără acest mediu de execuție</string>
-    <string name="storage_tool_x86_proton">Proton x86, pe care DroidDeck nu îl poate rula</string>
+    <string name="storage_tool_old_runtime">DroidHost rulează jocuri fără acest mediu de execuție</string>
+    <string name="storage_tool_x86_proton">Proton x86, pe care DroidHost nu îl poate rula</string>
     <string name="storage_tool_custom_default">Implicit pentru toate jocurile</string>
     <string name="storage_tool_custom_unused">Niciun joc nu îl folosește</string>
     <string name="storage_tool_custom_unknown">Setările Steam nu pot fi citite, așa că acesta e păstrat</string>
@@ -3340,8 +3340,8 @@
         <item quantity="other">%d de jocuri</item>
         <item quantity="few">%d jocuri</item>
     </plurals>
-    <string name="storage_tool_default_proton">Protonul implicit al DroidDeck</string>
-    <string name="storage_tool_proton">Opțiunea Proton 11 a DroidDeck</string>
+    <string name="storage_tool_default_proton">Protonul implicit al DroidHost</string>
+    <string name="storage_tool_proton">Opțiunea Proton 11 a DroidHost</string>
     <plurals name="storage_tool_custom_games">
         <item quantity="one">folosit de %d joc</item>
         <item quantity="other">folosit de %d de jocuri</item>
@@ -3414,7 +3414,7 @@
     </plurals>
     <string name="boot_movie">Videoclip de pornire</string>
     <string name="boot_movie_video">Videoclip</string>
-    <string name="boot_movie_droiddeck">DroidDeck · %1$d fps</string>
+    <string name="boot_movie_droiddeck">DroidHost · %1$d fps</string>
     <string name="boot_movie_note">60 fps arată mai fluid, dar folosește mai mult procesorul cât pornește Steam. Un videoclip ales în setările Steam apare și aici.</string>
     <string name="boot_movie_sound">Sunet</string>
     <string name="boot_movie_skip">Omite filmul de pornire</string>
@@ -3428,24 +3428,24 @@
     <string name="boot_movie_imported_silent">%1$s este acum videoclipul de pornire, fără sunet</string>
     <string name="boot_movie_too_long">Videoclipurile care trebuie convertite pot avea cel mult %1$d secunde</string>
     <string name="boot_movie_converting">Se convertește %1$d%%</string>
-    <string name="boot_movie_converting_started">Se convertește %1$s pentru Steam. Lasă DroidDeck deschis.</string>
+    <string name="boot_movie_converting_started">Se convertește %1$s pentru Steam. Lasă DroidHost deschis.</string>
     <string name="boot_movie_unsupported">Acest dispozitiv nu poate decoda videoclipul.</string>
     <string name="boot_movie_import_failed">Videoclipul nu a putut fi importat</string>
     <string name="boot_movie_remove_confirm">Elimini %1$s?</string>
-    <string name="boot_movie_remove_confirm_body">Videoclipul va fi șters din DroidDeck și din folderul de videoclipuri Steam.</string>
+    <string name="boot_movie_remove_confirm_body">Videoclipul va fi șters din DroidHost și din folderul de videoclipuri Steam.</string>
     <string name="boot_movie_tab_installed">Instalate</string>
     <string name="boot_movie_tab_import">Importă</string>
     <string name="boot_movie_tab_repo">SteamDeckRepo</string>
     <string name="boot_movie_tab_sound">Sunet</string>
     <string name="boot_movie_installed">Videoclipuri instalate</string>
     <string name="boot_movie_browse">Răsfoiește</string>
-    <string name="boot_movie_source_droiddeck">DroidDeck</string>
+    <string name="boot_movie_source_droiddeck">DroidHost</string>
     <string name="boot_movie_source_import">Importat</string>
     <string name="boot_movie_source_repo">SteamDeckRepo</string>
     <string name="boot_movie_source_steam">Steam</string>
     <string name="boot_movie_source_pointshop">Magazin de puncte</string>
     <string name="boot_movie_report">Raport despre filmele de pornire</string>
-    <string name="boot_movie_report_hint">Salvează într-un fișier text ce știu DroidDeck și Steam despre filmele de pornire, pentru a-l atașa la un raport de eroare.</string>
+    <string name="boot_movie_report_hint">Salvează într-un fișier text ce știu DroidHost și Steam despre filmele de pornire, pentru a-l atașa la un raport de eroare.</string>
     <string name="boot_movie_report_save">Salvează</string>
     <string name="boot_movie_report_saved">Salvat în %1$s</string>
     <string name="boot_movie_report_failed">Raportul nu a putut fi salvat.</string>
@@ -3481,7 +3481,7 @@
     <string name="glasses_joycons_hint">Folosește camerele ochelarilor inteligenți pentru a poziționa controlerele Joy-Con asociate. Rotirea și comenzile de butoane provin de la controlerele Joy-Con. Poziția este estimată atunci când încheieturile mâinilor sunt ascunse. Înlocuiește controlerele acționate cu mâinile goale și întrerupe urmărirea camerei telefonului. Îndreaptă controlerele Joy-Con înainte atunci când conectezi sau resetezi centrul de urmărire.</string>
     <string name="glasses_joycons_requires_position">Activează mai întâi urmărirea pozițională. Necesită controlere Joy-Con cu funcție de mișcare pe Android 12 sau o versiune ulterioară. Dezactivat în mod implicit.</string>
     <string name="setup_tab_glasses">Ochelari inteligenți</string>
-    <string name="setup_glasses_scope">Setările de afișare și urmărire a capului sunt partajate între meniurile, jocurile și sesiunile desktop DroidDeck.</string>
+    <string name="setup_glasses_scope">Setările de afișare și urmărire a capului sunt partajate între meniurile, jocurile și sesiunile desktop DroidHost.</string>
     <string name="setup_glasses_connect">Conectează ochelarii inteligenți pentru a modifica setările de afișare și urmărire. Setările salvate sunt păstrate atunci când te deconectezi.</string>
     <string name="glasses_vr">VR</string>
     <string name="glasses_display_mode">Mod de afișare</string>
@@ -3500,7 +3500,7 @@
     <string name="glasses_refresh_30_hint">Activează Joc pe ochelari pentru a selecta modul nativ de 30 Hz al afișajului.</string>
     <string name="glasses_3dof">Ecran virtual 3DoF</string>
     <string name="glasses_3dof_hint">Ancorează jocurile 2D în fața ta, astfel încât să poți privi în jur. Activează Joc pe ochelari fără a comuta la 3D.</string>
-    <string name="glasses_screen_app_wide">Lățimea și distanța actualizează imediat ecranul virtual urmărit pentru meniurile, jocurile și sesiunile desktop DroidDeck.</string>
+    <string name="glasses_screen_app_wide">Lățimea și distanța actualizează imediat ecranul virtual urmărit pentru meniurile, jocurile și sesiunile desktop DroidHost.</string>
     <string name="glasses_head_tracking_spatial_vr_hint">Urmărirea pozițională include rotirea capului în SteamVR. Pentru urmărirea doar prin rotație, dezactivează urmărirea pozițională.</string>
     <string name="glasses_head_tracking_spatial_hint">Controlează mișcarea capului pe ecranul virtual. Urmărirea pozițională include rotirea capului în SteamVR.</string>
     <string name="glasses_quick_actions">Acțiuni rapide</string>
@@ -3596,8 +3596,8 @@
     <string name="spatial_timing_values">%1$.1f Hz • vârsta imaginii %2$.1f ms • procesare %3$.1f ms</string>
     <string name="spatial_input_values">Limita de intrare %1$.1f Hz • %2$.0f%% a imaginilor camerei. Urmărirea capului continuă la frecvența maximă.</string>
     <string name="spatial_frame_counts">%1$d procesate • %2$d eliminate • %3$d omise de limita de intrare</string>
-    <string name="spatial_print_job">DroidDeck ChArUco 30 mm</string>
-    <string name="spatial_print_title">DroidDeck - calibrare Luma Ultra</string>
+    <string name="spatial_print_job">DroidHost ChArUco 30 mm</string>
+    <string name="spatial_print_title">DroidHost - calibrare Luma Ultra</string>
     <string name="spatial_print_scale" formatted="false">Imprimă la 100%/Dimensiune reală. Fiecare pătrat: 30 mm (1,181 inchi).</string>
     <string name="spatial_print_stationary">Păstrează ținta de calibrare plată și staționară; mută ochelarii inteligenți între capturi.</string>
     <string name="spatial_print_check">Verificare scară: 100 mm (3,937 inchi) între repere</string>
@@ -3682,7 +3682,7 @@
     <string name="setup_tab_sync">Syncthing</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Sincronizează cu Syncthing</string>
-    <string name="sync_enable_hint">Bazată pe Syncthing-Fork, aceasta este o implementare Syncthing care îți permite să sincronizezi fișierele din sistemul de fișiere intern al DroidDeck cu alte instanțe Syncthing. Este doar pentru fișierele pe care le păstrezi în sistemul de fișiere intern al DroidDeck.</string>
+    <string name="sync_enable_hint">Bazată pe Syncthing-Fork, aceasta este o implementare Syncthing care îți permite să sincronizezi fișierele din sistemul de fișiere intern al DroidHost cu alte instanțe Syncthing. Este doar pentru fișierele pe care le păstrezi în sistemul de fișiere intern al DroidHost.</string>
     <string name="sync_missing">Această versiune nu include Syncthing.</string>
     <string name="sync_starting">Se pornește Syncthing</string>
     <string name="sync_status_starting">Se pornește</string>
@@ -3712,7 +3712,7 @@
     <string name="sync_waiting">Te așteaptă</string>
     <string name="sync_pending_device">%1$s vrea să se conecteze</string>
     <string name="sync_pending_folder">%1$s vrea să partajeze „%2$s”</string>
-    <string name="sync_pending_folder_hint">Acceptă pentru a alege unde este salvat în DroidDeck.</string>
+    <string name="sync_pending_folder_hint">Acceptă pentru a alege unde este salvat în DroidHost.</string>
     <string name="sync_review">Verifică în interfața web</string>
     <string name="sync_folders">Foldere</string>
     <string name="sync_no_folders">Niciun folder încă.</string>
@@ -3724,7 +3724,7 @@
     <string name="sync_folder_out_of_sync">Nesincronizat</string>
     <string name="sync_folder_errors">Fișiere care nu s-au putut sincroniza: %1$d</string>
     <string name="sync_folder_blocked">Blocat</string>
-    <string name="sync_folder_blocked_hint">Acest folder se află în afara spațiului de stocare DroidDeck, așa că DroidDeck l-a întrerupt. Pentru a sincroniza foldere din afara DroidDeck, folosește aplicația Syncthing-Fork.</string>
+    <string name="sync_folder_blocked_hint">Acest folder se află în afara spațiului de stocare DroidHost, așa că DroidHost l-a întrerupt. Pentru a sincroniza foldere din afara DroidHost, folosește aplicația Syncthing-Fork.</string>
     <string name="sync_remove_folder">Elimină din Syncthing</string>
     <string name="sync_remove_folder_hint">Eliminarea nu șterge niciun fișier.</string>
     <string name="sync_devices">Dispozitive</string>
@@ -3752,12 +3752,12 @@
     <string name="sync_api_key">Cheie API</string>
     <string name="sync_regenerate">Regenerează</string>
     <string name="sync_reset">Resetează Syncthing</string>
-    <string name="sync_reset_hint">ID de dispozitiv nou, folderele și dispozitivele sunt eliminate. Fișierele din spațiul de stocare DroidDeck sunt păstrate.</string>
+    <string name="sync_reset_hint">ID de dispozitiv nou, folderele și dispozitivele sunt eliminate. Fișierele din spațiul de stocare DroidHost sunt păstrate.</string>
     <string name="sync_reset_button">Resetează</string>
     <string name="sync_reset_confirm_title">Resetezi Syncthing?</string>
     <string name="sync_running_group">Rulare</string>
     <string name="sync_run">Rulează</string>
-    <string name="sync_run_open">Cât timp DroidDeck este deschis</string>
+    <string name="sync_run_open">Cât timp DroidHost este deschis</string>
     <string name="sync_run_background">În fundal</string>
     <string name="sync_wifi_only">Doar prin Wi-Fi</string>
     <string name="sync_pause_games">Întrerupe în timpul jocurilor</string>
@@ -3769,7 +3769,7 @@
     <string name="sync_accept">Acceptă</string>
     <string name="sync_accept_title">Salvează „%1$s” în</string>
     <string name="sync_add_folder">Adaugă folder</string>
-    <string name="sync_add_folder_hint">Sincronizează un folder din spațiul de stocare DroidDeck</string>
+    <string name="sync_add_folder_hint">Sincronizează un folder din spațiul de stocare DroidHost</string>
     <string name="sync_choose">Alege</string>
     <string name="sync_add">Adaugă</string>
     <string name="sync_add_failed">Folderul nu a putut fi adăugat.</string>
@@ -3779,10 +3779,10 @@
     <string name="sync_new_folder">Folder nou</string>
     <string name="sync_location_home">Directorul home al containerului</string>
     <string name="sync_location_sync">Folderul Sync</string>
-    <string name="sync_location_shared">Stocarea partajată DroidDeck</string>
-    <string name="sync_location_card">DroidDeck pe %1$s</string>
-    <string name="sync_location_app">Datele aplicației DroidDeck</string>
-    <string name="sync_web_path_locked">Folderele noi sunt salvate în folderul Sync al DroidDeck. Pentru a sincroniza alt folder DroidDeck, folosește Adaugă folder din fila Syncthing.</string>
+    <string name="sync_location_shared">Stocarea partajată DroidHost</string>
+    <string name="sync_location_card">DroidHost pe %1$s</string>
+    <string name="sync_location_app">Datele aplicației DroidHost</string>
+    <string name="sync_web_path_locked">Folderele noi sunt salvate în folderul Sync al DroidHost. Pentru a sincroniza alt folder DroidHost, folosește Adaugă folder din fila Syncthing.</string>
     <string name="sync_web_title">Syncthing</string>
     <string name="sync_web_reload">Reîncarcă</string>
     <string name="sync_not_running">Syncthing nu rulează.</string>
@@ -3792,22 +3792,22 @@
     <string name="session_end_gpu_unsupported">Această sesiune nu poate porni deoarece acest GPU nu are un driver Vulkan Linux compatibil în configurația actuală. Driverele Adreno Turnip nu pot activa suportul pentru GPU-uri MediaTek/Mali.</string>
     <string name="setup_group_memory">Memorie</string>
     <string name="setup_clear_cached">Închide aplicațiile din cache înainte de o sesiune</string>
-    <string name="setup_clear_cached_hint">La pornirea unei sesiuni, DroidDeck închide aplicațiile pe care Android le ține în fundal, ca jocul să aibă mai multă memorie. Depanarea wireless trebuie să fie activată.</string>
-    <string name="setup_clear_cached_unpaired">DroidDeck trebuie asociat prin Depanarea wireless (Asociază, mai jos).</string>
+    <string name="setup_clear_cached_hint">La pornirea unei sesiuni, DroidHost închide aplicațiile pe care Android le ține în fundal, ca jocul să aibă mai multă memorie. Depanarea wireless trebuie să fie activată.</string>
+    <string name="setup_clear_cached_unpaired">DroidHost trebuie asociat prin Depanarea wireless (Asociază, mai jos).</string>
     <string name="setup_memory_hud">Indicator de memorie</string>
-    <string name="setup_memory_hud_hint">Memoria și swap-ul folosite, pe ecranul sesiunii. Avansat le împarte între joc, DroidDeck, Android și GPU.</string>
+    <string name="setup_memory_hud_hint">Memoria și swap-ul folosite, pe ecranul sesiunii. Avansat le împarte între joc, DroidHost, Android și GPU.</string>
     <string name="setup_memory_hud_simple">Simplu</string>
     <string name="setup_memory_hud_advanced">Avansat</string>
     <string name="memory_hud_simple">RAM %1$s/%2$s GB · swap %3$s/%4$s GB</string>
-    <string name="memory_hud_split">joc %1$s · DroidDeck %2$s · Android %3$s GB</string>
+    <string name="memory_hud_split">joc %1$s · DroidHost %2$s · Android %3$s GB</string>
     <string name="memory_hud_gpu">GPU %1$s GB</string>
     <string name="setup_bg_limit">Aplicații în fundal în timpul unei sesiuni</string>
-    <string name="setup_bg_limit_hint">Cât timp rulează o sesiune, Android păstrează în cache cel mult atâtea aplicații și le închide pe celelalte, ca jocul să primească memoria lor. DroidDeck readuce limita la valoarea anterioară când se termină sesiunea. Depanarea wireless trebuie să fie activată.</string>
+    <string name="setup_bg_limit_hint">Cât timp rulează o sesiune, Android păstrează în cache cel mult atâtea aplicații și le închide pe celelalte, ca jocul să primească memoria lor. DroidHost readuce limita la valoarea anterioară când se termină sesiunea. Depanarea wireless trebuie să fie activată.</string>
     <string name="setup_bg_limit_4">Cel mult 4</string>
     <string name="setup_bg_limit_1">Cel mult 1</string>
     <string name="setup_bg_limit_0">Niciuna</string>
     <string name="setup_adb_pair">Depanare wireless</string>
-    <string name="setup_adb_pair_hint">Asociază DroidDeck cu Depanarea wireless din Android pentru opțiunile de mai sus. Limita proceselor-copil rămâne dezactivată.</string>
+    <string name="setup_adb_pair_hint">Asociază DroidHost cu Depanarea wireless din Android pentru opțiunile de mai sus. Limita proceselor-copil rămâne dezactivată.</string>
     <string name="setup_adb_pair_button">Asociază</string>
     <string name="epic_client_missing">Neinstalat</string>
     <string name="epic_client_open">Deschide</string>
@@ -3865,7 +3865,7 @@
     <string name="integration_app_info">Informații despre aplicație</string>
     <string name="integration_wifi">Nume Wi-Fi</string>
     <string name="integration_brightness">Luminozitate</string>
-    <string name="integration_home">DroidDeck ca Acasă</string>
+    <string name="integration_home">DroidHost ca Acasă</string>
     <string name="integration_shortcuts">Taste de sistem</string>
     <string name="integration_wifi_hint">Afișează rețelele în Steam · necesită acces la locație, fără urmărire</string>
     <string name="integration_wifi_on">Rețelele apar în Steam</string>
@@ -3876,8 +3876,8 @@
     <string name="integration_shortcuts_hint">Alt+Tab, tasta Win și butonul Acasă rămân în sesiune</string>
     <string name="integration_shortcuts_maybe_restricted">Inactiv în Android? Informații despre aplicație → ⋮ → Permite setările restricționate</string>
     <string name="integration_shortcuts_restricted">Blocat de Android · Informații despre aplicație → ⋮ → Permite setările restricționate</string>
-    <string name="integration_shortcuts_service">Taste de sistem DroidDeck</string>
-    <string name="integration_shortcuts_service_description">Păstrează Alt+Tab, tasta Win și butonul Acasă într-o sesiune DroidDeck activă în loc de Android.</string>
+    <string name="integration_shortcuts_service">Taste de sistem DroidHost</string>
+    <string name="integration_shortcuts_service_description">Păstrează Alt+Tab, tasta Win și butonul Acasă într-o sesiune DroidHost activă în loc de Android.</string>
     <string name="integration_brightness_needed">Activează Luminozitate în Configurare → Integrare Steam</string>
     <string name="setup_gpu_bridge_off">Punte Mali: oprită</string>
     <string name="setup_gpu_bridge_unusable">%1$s nu poate folosi puntea Mali (are nevoie de un GPU Mali fără o rută prin driverul de sistem), deci acest comutator nu are niciun efect aici.</string>
@@ -3956,7 +3956,7 @@
         <item quantity="other">%d de aplicații</item>
     </plurals>
     <string name="desktop_restore_title">Se restaurează software-ul</string>
-    <string name="desktop_restore_body">Se reinstalează aplicațiile adăugate de tine după o actualizare DroidDeck.</string>
+    <string name="desktop_restore_body">Se reinstalează aplicațiile adăugate de tine după o actualizare DroidHost.</string>
     <string name="desktop_restore_done_title">Software restaurat</string>
     <string name="desktop_restore_done_body">Aplicațiile adăugate de tine sunt instalate din nou.</string>
     <string name="desktop_restore_failed_title">O parte din software nu a putut fi restaurată</string>

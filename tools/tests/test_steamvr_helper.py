@@ -43,18 +43,18 @@ class SteamVrHelperTest(unittest.TestCase):
         self.executable(self.commands / 'setsid', 'exec "$@"')
         self.executable(self.driver / 'xr-display-mode', 'echo 3360x1760@120')
         self.executable(self.steamvr / 'bin/linuxarm64/vrstartup',
-                        'echo "display=${DROIDDECK_VR_DISPLAY_MODE:-unset}"')
+                        'echo "display=${DROIDHOST_VR_DISPLAY_MODE:-unset}"')
         (self.driver / 'driver_droiddeck.so').touch()
         layer = self.root / 'driver/layer'
         layer.mkdir()
         shutil.copyfile(self.scheduling, layer / self.scheduling.name)
         self.environment = dict(os.environ)
-        self.environment.pop('DROIDDECK_VR_DISPLAY_MODE', None)
-        self.environment.pop('DROIDDECK_VR_PRESENT', None)
-        self.environment.pop('DROIDDECK_VR_PRODUCER_LEASE', None)
+        self.environment.pop('DROIDHOST_VR_DISPLAY_MODE', None)
+        self.environment.pop('DROIDHOST_VR_PRESENT', None)
+        self.environment.pop('DROIDHOST_VR_PRODUCER_LEASE', None)
         self.environment.update(HOME=str(self.home), XDG_RUNTIME_DIR=str(self.runtime),
-                                STEAMVR=str(self.steamvr), DROIDDECK_VR_DIR=str(self.root / 'driver'),
-                                DROIDDECK_VR_SETTINGS_HELPER=str(SOURCE.with_name('droiddeck-steamvr-settings')),
+                                STEAMVR=str(self.steamvr), DROIDHOST_VR_DIR=str(self.root / 'driver'),
+                                DROIDHOST_VR_SETTINGS_HELPER=str(SOURCE.with_name('droiddeck-steamvr-settings')),
                                 PATH=str(self.commands) + os.pathsep + os.environ['PATH'])
 
     def executable(self, destination, body):
@@ -82,7 +82,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertTrue(log.is_file())
 
     def test_explicit_display_override_is_preserved(self):
-        self.environment['DROIDDECK_VR_DISPLAY_MODE'] = '1920x1080@90'
+        self.environment['DROIDHOST_VR_DISPLAY_MODE'] = '1920x1080@90'
         self.assertEqual(self.start().read_text().strip(), 'display=1920x1080@90')
 
     def test_stale_or_missing_tracking_keeps_the_default(self):
@@ -95,8 +95,8 @@ class SteamVrHelperTest(unittest.TestCase):
 
     def lease_log(self):
         self.executable(self.steamvr / 'bin/linuxarm64/vrstartup',
-                        'printf "display=%s present=%s lease=%s\\n" "${DROIDDECK_VR_DISPLAY_MODE:-unset}" '
-                        '"${DROIDDECK_VR_PRESENT:-unset}" "${DROIDDECK_VR_PRODUCER_LEASE:-unset}"')
+                        'printf "display=%s present=%s lease=%s\\n" "${DROIDHOST_VR_DISPLAY_MODE:-unset}" '
+                        '"${DROIDHOST_VR_PRESENT:-unset}" "${DROIDHOST_VR_PRODUCER_LEASE:-unset}"')
         return self.start().read_text().strip()
 
     def test_quest_receiver_uses_normal_compositor_and_excludes_unsupported_frame_backend(self):
@@ -113,7 +113,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertEqual(Path(str(cvp) + '.droiddeck-disabled').read_bytes(), b'frame-only backend')
 
     def test_quest_settings_preserve_other_preferences_and_start_is_idempotent(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questwsi'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questwsi'
         path = self.home / '.local/share/Steam/config/steamvr.vrsettings'
         path.parent.mkdir(parents=True)
         path.write_text(json.dumps({'steamvr': {'somePreference': 42}, 'dashboard': {'somePreference': True}}))
@@ -124,7 +124,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertEqual(settings['dashboard'], {'somePreference': True})
 
     def test_quest_refuses_to_overwrite_malformed_settings(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questwsi'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questwsi'
         path = self.home / '.local/share/Steam/config/steamvr.vrsettings'
         path.parent.mkdir(parents=True)
         path.write_text('invalid json')
@@ -134,7 +134,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertEqual(path.read_text(), 'invalid json')
 
     def test_quest_stop_restores_only_overridden_preferences(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questwsi'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questwsi'
         path = self.home / '.local/share/Steam/config/steamvr.vrsettings'
         path.parent.mkdir(parents=True)
         path.write_text(json.dumps({'steamvr': {'motionSmoothing': True, 'somePreference': 42}}))
@@ -173,7 +173,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertFalse(backup.exists())
 
     def test_quest_update_preserves_previous_cvp_backup(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questwsi'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questwsi'
         cvp = self.steamvr / 'drivers/cv/bin/linuxarm64/libArcturusPerception.so'
         cvp.parent.mkdir(parents=True)
         cvp.write_bytes(b'updated library')
@@ -185,7 +185,7 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertEqual([p.read_bytes() for p in cvp.parent.glob('*.droiddeck-disabled.*')], [b'updated library'])
 
     def test_start_failure_after_overrides_restores_preferences(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questwsi'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questwsi'
         path = self.home / '.local/share/Steam/config/steamvr.vrsettings'
         path.parent.mkdir(parents=True)
         original = {'steamvr': {'enableLinuxVulkanAsync': False, 'motionSmoothing': True}}
@@ -200,11 +200,11 @@ class SteamVrHelperTest(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text()), original)
 
     def test_explicit_quest_presenter_enables_the_lease(self):
-        self.environment['DROIDDECK_VR_PRESENT'] = 'questframes'
+        self.environment['DROIDHOST_VR_PRESENT'] = 'questframes'
         self.assertIn('present=questframes lease=1', self.lease_log())
 
     def test_explicit_diagnostic_override_is_preserved(self):
-        self.environment.update(DROIDDECK_VR_PRESENT='questframes', DROIDDECK_VR_PRODUCER_LEASE='0')
+        self.environment.update(DROIDHOST_VR_PRESENT='questframes', DROIDHOST_VR_PRODUCER_LEASE='0')
         self.assertIn('present=questframes lease=0', self.lease_log())
 
     def test_flat_presenter_does_not_enable_the_producer_lease(self):

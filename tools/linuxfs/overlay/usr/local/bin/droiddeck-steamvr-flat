@@ -1,6 +1,6 @@
 #!/bin/sh
 [ "${1:-}" = waitforexitandrun ] || exit 1
-[ -z "${DROIDDECK_STEAMVR_PANEL:-}" ] || exit 1
+[ -z "${DROIDHOST_STEAMVR_PANEL:-}" ] || exit 1
 app=${SteamAppId:-}
 [ "$app" = 0 ] && app=${SteamGameId:-}
 case $app in '' | 0 | *[!0-9]*) exit 1 ;; esac

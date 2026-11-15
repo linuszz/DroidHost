@@ -1,0 +1,159 @@
+package com.droidhost.launcher.core
+
+import android.os.Process
+import android.util.Log
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.concurrent.atomic.AtomicInteger
+
+object SessionLogCapture {
+    private const val TAG = "SessionLogCapture"
+
+    private var pid = -1
+    private var writer: BufferedWriter? = null
+    private var target: File? = null
+    private var syncer: Thread? = null
+
+    @Synchronized
+    fun start(target: File) {
+        stop()
+        try {
+            val out = target.bufferedWriter()
+            out.write("The app's own log for this session (logcat, this process only).\n")
+            out.write("Lines the app wrote before the session folder existed are in logcat only.\n\n")
+            out.flush()
+            writer = out
+            this.target = target
+            pid = HostProcess.start(
+                "/system/bin/logcat -v threadtime -T 1 --pid=" + Process.myPid(),
+                null, target.parentFile, null,
+            ) { line ->
+                synchronized(this) {
+                    try {
+                        writer?.apply { write(line); newLine(); flush() }
+                    } catch (e: Exception) {
+                    }
+                }
+            }
+            if (pid == -1) {
+                out.write("logcat could not be started; this ROM may not hand an app its own entries.\n")
+                out.flush()
+            }
+            target.parentFile?.let { syncer = startSyncing(it) }
+            Log.i(TAG, "app log -> $target (logcat pid $pid)")
+        } catch (e: Exception) {
+            Log.w(TAG, "could not start the app log", e)
+        }
+    }
+
+    @Synchronized
+    fun stopFor(dir: File) {
+        val t = target ?: return
+        if (t.parentFile?.absolutePath == dir.absolutePath) stop()
+    }
+
+    private fun startSyncing(dir: File): Thread = Thread({
+        while (true) {
+            try { Thread.sleep(2000) } catch (e: InterruptedException) { break }
+            dir.listFiles()?.forEach { runCatching { FileOutputStream(it, true).use { s -> s.fd.sync() } } }
+        }
+    }, "session-log-sync").apply { isDaemon = true; start() }
+
+    @Synchronized
+    fun stop() {
+        syncer?.interrupt()
+        syncer = null
+        target = null
+        if (pid != -1) {
+            try {
+                Process.killProcess(pid)
+            } catch (e: Exception) {
+                Log.w(TAG, "logcat would not stop", e)
+            }
+            pid = -1
+        }
+        try {
+            writer?.close()
+        } catch (e: Exception) {
+        }
+        writer = null
+    }
+
+    fun dumpCrashBuffer(target: File) {
+        try {
+            val lines = StringBuilder()
+            val done = java.util.concurrent.CountDownLatch(1)
+            val pid = HostProcess.start(
+                "/system/bin/logcat -b crash -d -v threadtime -t 400", null, target.parentFile,
+                { done.countDown() },
+            ) { line -> synchronized(lines) { lines.append(line).append('\n') } }
+            val finished = pid != -1 && done.await(10, java.util.concurrent.TimeUnit.SECONDS)
+            val body = synchronized(lines) { lines.toString() }
+            target.writeText(
+                "Android's crash buffer, as it stood when this session ended.\n" +
+                    "Not only this app: anything on the device that crashed is in here, which is the\n" +
+                    "point - a session killed by the system leaves its trace here and nowhere else.\n\n" +
+                    when {
+                        body.isNotEmpty() -> body
+                        pid == -1 -> "(logcat could not be started at all)\n"
+                        !finished -> "(logcat did not finish within 10 s; nothing captured)\n"
+                        else -> "(the crash buffer is empty - nothing on the device has crashed recently)\n"
+                    }
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "could not dump the crash buffer", e)
+        }
+    }
+
+    fun dumpMemoryPressure(target: File) {
+        var temporary: File? = null
+        try {
+            val staged = File.createTempFile(target.name, ".part", target.parentFile).also { temporary = it }
+            val lines = StringBuilder()
+            val done = java.util.concurrent.CountDownLatch(1)
+            val outputDone = java.util.concurrent.CountDownLatch(1)
+            val exitStatus = AtomicInteger(Int.MIN_VALUE)
+            val pid = HostProcess.start(
+                "/system/bin/logcat -b events -d -v threadtime -t 800", null, target.parentFile,
+                { status -> exitStatus.set(status); done.countDown() },
+                { line -> synchronized(lines) { lines.append(line).append('\n') } },
+                null,
+                outputDone::countDown,
+            )
+            val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
+            val finished = if (pid == -1) false else {
+                val exitTime = deadline - System.nanoTime()
+                exitTime > 0 && done.await(exitTime, java.util.concurrent.TimeUnit.NANOSECONDS) &&
+                    (deadline - System.nanoTime()).let { it > 0 && outputDone.await(it, java.util.concurrent.TimeUnit.NANOSECONDS) }
+            }
+            val body = synchronized(lines) { lines.toString() }
+            val status = exitStatus.get()
+            val pressure = runCatching { File("/proc/pressure/memory").readText() }.getOrDefault("unavailable\n")
+            val meminfo = runCatching { File("/proc/meminfo").readText() }.getOrDefault("unavailable\n")
+            val gpu = runCatching { File("/sys/class/kgsl/kgsl/page_alloc").readText() }.getOrDefault("unavailable\n")
+            staged.writeText(
+                "Android memory events:\n" +
+                    when {
+                        pid == -1 -> "(logcat could not be started at all)\n"
+                        status != Int.MIN_VALUE && status != 0 -> "(logcat failed with exit status $status; no Android memory events were captured)\n" +
+                            if (body.isEmpty()) "" else "\nlogcat command output:\n$body"
+                        !finished -> if (body.isEmpty()) "(logcat did not finish within 10 s; nothing captured)\n"
+                        else body + "(logcat did not finish within 10 s; later events may be missing)\n"
+                        body.isNotEmpty() -> body
+                        else -> "(no readable events were returned)\n"
+                    } +
+                    "\n/proc/pressure/memory:\n$pressure\n/proc/meminfo:\n$meminfo\n/sys/class/kgsl/kgsl/page_alloc:\n$gpu"
+            )
+            Files.move(
+                staged.toPath(), target.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE,
+            )
+        } catch (e: Exception) {
+            temporary?.delete()
+            Log.w(TAG, "could not dump memory pressure diagnostics", e)
+        }
+    }
+}

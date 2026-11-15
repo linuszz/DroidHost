@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">Изпращане на входа от контролера към Steam Input или играта.</string>
     <string name="input_disabled_hint">Този елемент не изпраща вход от контролер, мишка или клавиатура.</string>
     <string name="input_mouse_click">Щракване с мишка</string>
-    <string name="input_command">Действие на DroidDeck</string>
+    <string name="input_command">Действие на DroidHost</string>
     <string name="input_action">Действие</string>
     <string name="input_scroll_speed">Скорост на превъртане: %1$d стъпки/с</string>
     <string name="input_new_profile">+ Нов профил</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Жестове на тъчпада на мишката</string>
     <string name="input_mouse_gestures_hint">Когато е зададено на показалеца на мишката: докоснете за щракване, задръжте за плъзгане и превъртайте с два пръста.</string>
     <string name="input_quick_override_hint">%1$s има замяна на бързото меню. Изберете Автоматично, за да използвате профила по подразбиране и трите запазени части.</string>
-    <string name="input_route_local">Вход на DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Задържа се, докато стикът е отместен в която и да е посока: натиска при над 55%, отпуска под 35%. Използвайте Клавиши за посока, за да зададете всяка посока отделно. Командите на DroidDeck се изпълняват веднъж на отклонение. Щракването на стика се настройва отделно.</string>
-    <string name="input_contact_action_hint">Задържа се, докато докосвате тъчпада; отпуска се при вдигане на пръста. Командите на DroidDeck се изпълняват веднъж на докосване. Щракването на тъчпада се настройва отделно.</string>
-    <string name="input_trigger_action_hint" formatted="false">Задържа се, когато спусъкът премине 55%; отпуска се под 35%. Командите на DroidDeck се изпълняват веднъж на натискане.</string>
+    <string name="input_route_local">Вход на DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Задържа се, докато стикът е отместен в която и да е посока: натиска при над 55%, отпуска под 35%. Използвайте Клавиши за посока, за да зададете всяка посока отделно. Командите на DroidHost се изпълняват веднъж на отклонение. Щракването на стика се настройва отделно.</string>
+    <string name="input_contact_action_hint">Задържа се, докато докосвате тъчпада; отпуска се при вдигане на пръста. Командите на DroidHost се изпълняват веднъж на докосване. Щракването на тъчпада се настройва отделно.</string>
+    <string name="input_trigger_action_hint" formatted="false">Задържа се, когато спусъкът премине 55%; отпуска се под 35%. Командите на DroidHost се изпълняват веднъж на натискане.</string>
     <string name="input_scroll_axis">Посока на превъртане</string>
     <string name="input_vertical">Вертикално</string>
     <string name="input_horizontal">Хоризонтално</string>
     <string name="input_scroll_horizontal">Хоризонтално превъртане</string>
     <string name="input_measurements">Измервания</string>
-    <string name="input_measure_instructions">Включете записа, използвайте управлението в активна сесия, след което се върнете и прочетете резултатите. Измерва само времето за изпращане на DroidDeck, не закъснението на екрана. Записът приключва при затваряне на процеса на приложението.</string>
+    <string name="input_measure_instructions">Включете записа, използвайте управлението в активна сесия, след което се върнете и прочетете резултатите. Измерва само времето за изпращане на DroidHost, не закъснението на екрана. Записът приключва при затваряне на процеса на приложението.</string>
     <string name="input_layout_count">%1$d контрола</string>
     <string name="input_other_layouts">Други запазени оформления (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Скриване на други запазени оформления (%1$d) ▴</string>

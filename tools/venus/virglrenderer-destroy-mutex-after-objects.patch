@@ -1,6 +1,6 @@
 venus: destroy a device's object mutex after the objects that lock it
 
-From BattleTempest's DroidDeck-Pixel (kevinbryant551-ux/DroidDeck-Pixel, GPL-3.0),
+From BattleTempest's DroidHost-Pixel (kevinbryant551-ux/DroidHost-Pixel, GPL-3.0),
 tools/venus/patches/0103-destroy-object-mutex-after-objects.patch. Bionic aborts on locking a
 destroyed mutex ("pthread_mutex_lock called on a destroyed mutex", seen on a Tab S9 FE G68
 and a Pixel 9a), so a client that exited holding objects took the render worker down.

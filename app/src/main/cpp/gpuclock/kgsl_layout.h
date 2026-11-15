@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_KGSL_LAYOUT_H
-#define DROIDDECK_KGSL_LAYOUT_H
+#ifndef DROIDHOST_KGSL_LAYOUT_H
+#define DROIDHOST_KGSL_LAYOUT_H
 #include <stddef.h>
 
 // Register layout per GPU generation. A counter kgsl places outside the range the kernel's CP protection lets

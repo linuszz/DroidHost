@@ -20,9 +20,9 @@
 #define MOD_QCOM_COMPRESSED 0x0500000000000001ULL
 
 struct droiddeck_dma_buf_sync_file { uint32_t flags; int32_t fd; };
-#define DROIDDECK_DMA_BUF_SYNC_READ 1u
-#define DROIDDECK_DMA_BUF_IOCTL_EXPORT_SYNC_FILE _IOWR('b', 2, struct droiddeck_dma_buf_sync_file)
-#define DROIDDECK_DMA_BUF_IOCTL_IMPORT_SYNC_FILE _IOW('b', 3, struct droiddeck_dma_buf_sync_file)
+#define DROIDHOST_DMA_BUF_SYNC_READ 1u
+#define DROIDHOST_DMA_BUF_IOCTL_EXPORT_SYNC_FILE _IOWR('b', 2, struct droiddeck_dma_buf_sync_file)
+#define DROIDHOST_DMA_BUF_IOCTL_IMPORT_SYNC_FILE _IOW('b', 3, struct droiddeck_dma_buf_sync_file)
 
 extern volatile int g_zero_copy;
 
@@ -129,9 +129,9 @@ static void handle_released(uint64_t id, int fd) {
     if (!ab) { if (fd >= 0) close(fd); return; }
     ab->on_layer = 0;
     if (fd >= 0) {
-        struct droiddeck_dma_buf_sync_file imp = {.flags = DROIDDECK_DMA_BUF_SYNC_READ, .fd = fd};
+        struct droiddeck_dma_buf_sync_file imp = {.flags = DROIDHOST_DMA_BUF_SYNC_READ, .fd = fd};
         int dmabuf_fd = droiddeck_dmabuf_fd(ab->b);
-        if (dmabuf_fd >= 0 && ioctl(dmabuf_fd, DROIDDECK_DMA_BUF_IOCTL_IMPORT_SYNC_FILE, &imp) == 0) {
+        if (dmabuf_fd >= 0 && ioctl(dmabuf_fd, DROIDHOST_DMA_BUF_IOCTL_IMPORT_SYNC_FILE, &imp) == 0) {
             close(fd);
         } else {
             if (!g_import_failed_logged) {
@@ -192,8 +192,8 @@ int ahb_swapchain_present(struct dmabuf_buffer *b, struct surface *s, int scene_
     if (!ab) return -1;
     int dmabuf_fd = droiddeck_dmabuf_fd(b);
     int acquire = -1;
-    struct droiddeck_dma_buf_sync_file exp = {.flags = DROIDDECK_DMA_BUF_SYNC_READ, .fd = -1};
-    if (dmabuf_fd >= 0 && ioctl(dmabuf_fd, DROIDDECK_DMA_BUF_IOCTL_EXPORT_SYNC_FILE, &exp) == 0 && exp.fd >= 0) {
+    struct droiddeck_dma_buf_sync_file exp = {.flags = DROIDHOST_DMA_BUF_SYNC_READ, .fd = -1};
+    if (dmabuf_fd >= 0 && ioctl(dmabuf_fd, DROIDHOST_DMA_BUF_IOCTL_EXPORT_SYNC_FILE, &exp) == 0 && exp.fd >= 0) {
         acquire = exp.fd;
     } else if (dmabuf_fd >= 0) {
         if (!g_export_failed_logged) {

@@ -34,7 +34,7 @@ class PackDownloadsTest(unittest.TestCase):
                         'with open(os.environ["CURL_LOG"],"a") as f: f.write(json.dumps(args)+"\\n")\n'
                         'shutil.copyfile(os.environ["REMOTE"],args[args.index("-o")+1])\n')
         tool.chmod(0o755)
-        self.env = dict(os.environ, DROIDDECK_PACK_CACHE=str(self.cache), CURL_LOG=str(self.log),
+        self.env = dict(os.environ, DROIDHOST_PACK_CACHE=str(self.cache), CURL_LOG=str(self.log),
                         REMOTE=str(self.remote), PATH=str(tool.parent) + os.pathsep + os.environ['PATH'])
 
     def fetch(self, checksum=None, url='https://example.test/pinned', env=None):

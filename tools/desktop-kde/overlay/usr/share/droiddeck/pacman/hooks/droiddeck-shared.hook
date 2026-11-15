@@ -4,7 +4,7 @@ Type = Package
 Target = *
 
 [Action]
-Description = Checking for files other DroidDeck software needs...
+Description = Checking for files other DroidHost software needs...
 When = PreTransaction
 Exec = /usr/share/droiddeck/pacman/shared
 NeedsTargets

@@ -11,17 +11,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-#define DROIDDECK_PRODUCER_SERVER
+#define DROIDHOST_PRODUCER_SERVER
 #include "producer_lease.h"
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
 #include "wsi_capture.h"
 #endif
 
-#define LAYER_NAME "VK_LAYER_DROIDDECK_vr"
+#define LAYER_NAME "VK_LAYER_DROIDHOST_vr"
 #define EXPORT __attribute__((visibility("default")))
 
 static void say(const char *fmt, const char *arg) {
-    if (getenv("DROIDDECK_VR_LAYER_QUIET")) return;
+    if (getenv("DROIDHOST_VR_LAYER_QUIET")) return;
     fprintf(stderr, "[droiddeck-vr-layer] ");
     fprintf(stderr, fmt, arg);
     fputc('\n', stderr);
@@ -65,7 +65,7 @@ static void crash_handler(int sig, siginfo_t *si, void *uc_) {
 static void crash_trace_install(void) {
     static int done;
     if (done++) return;
-    if (!getenv("DROIDDECK_VR_CRASHTRACE")) {
+    if (!getenv("DROIDHOST_VR_CRASHTRACE")) {
         const char *rt = getenv("XDG_RUNTIME_DIR");
         char path[512];
         snprintf(path, sizeof(path), "%s/droiddeck-steamvr/crashtrace", rt && *rt ? rt : "/run/droiddeck");
@@ -106,8 +106,8 @@ struct dev {
 
 static int steamvr_running(void) {
     const char *layers = getenv("VK_INSTANCE_LAYERS");
-    if (layers && strstr(layers, "VK_LAYER_DROIDDECK_vr")) return 1;
-    if (getenv("DROIDDECK_VR_LAYER_FORCE")) return 1;
+    if (layers && strstr(layers, "VK_LAYER_DROIDHOST_vr")) return 1;
+    if (getenv("DROIDHOST_VR_LAYER_FORCE")) return 1;
     const char *rt = getenv("XDG_RUNTIME_DIR");
     char path[512];
     snprintf(path, sizeof(path), "%s/droiddeck-steamvr/active", rt && *rt ? rt : "/run/droiddeck");
@@ -202,7 +202,7 @@ static VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo *ci, const 
     pthread_mutex_lock(&g_lock);
     for (int i = 0; i < MAX_OBJS; i++) {
         if (!g_inst[i].handle) {
-            const char *lease_mode = getenv("DROIDDECK_VR_PRODUCER_LEASE");
+            const char *lease_mode = getenv("DROIDHOST_VR_PRODUCER_LEASE");
             int producer = lease_mode && !strcmp(lease_mode, "1") && !strcmp(program_invocation_short_name, "vrcompositor") &&
                            (!ci->pApplicationInfo || !ci->pApplicationInfo->pApplicationName ||
                             strcmp(ci->pApplicationInfo->pApplicationName, "droiddeck-vr-presenter"));
@@ -249,8 +249,8 @@ static VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice pd, const VkDeviceCreat
         if (display && !strcmp(ci->ppEnabledExtensionNames[i], "VK_EXT_display_control")) { say("taking %s off the device", ci->ppEnabledExtensionNames[i]); continue; }
         names[n++] = ci->ppEnabledExtensionNames[i];
     }
-#ifdef DROIDDECK_WSI_CAPTURE
-    const char *present_mode = getenv("DROIDDECK_VR_PRESENT");
+#ifdef DROIDHOST_WSI_CAPTURE
+    const char *present_mode = getenv("DROIDHOST_VR_PRESENT");
     if (present_mode && !strcmp(present_mode, "questwsi") && !strcmp(program_invocation_short_name, "vrcompositor")) {
         PFN_vkEnumerateDeviceExtensionProperties enumerate = (PFN_vkEnumerateDeviceExtensionProperties)
             next_gipa(in ? in->handle : VK_NULL_HANDLE, "vkEnumerateDeviceExtensionProperties");
@@ -283,7 +283,7 @@ static VkResult VKAPI_CALL CreateDevice(VkPhysicalDevice pd, const VkDeviceCreat
         }
     }
     pthread_mutex_unlock(&g_lock);
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
     if (in) droiddeck_wsi_device(*out, pd, in->handle, in->gipa, next_gdpa, &mine);
 #endif
     free(names);
@@ -297,7 +297,7 @@ static void producer_destroy_device(struct dev *device, const VkAllocationCallba
 static void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallbacks *alloc) {
     struct dev *d = dev_for(device);
     if (!d) return;
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
     droiddeck_wsi_destroy(device);
 #endif
     if (d->producer) producer_destroy_device(d, alloc);
@@ -325,7 +325,7 @@ static int g_mode_fixed;
 static void mode_init(void) {
     static int done;
     if (done++) return;
-    const char *m = getenv("DROIDDECK_VR_DISPLAY_MODE");
+    const char *m = getenv("DROIDHOST_VR_DISPLAY_MODE");
     unsigned w, h, hz;
     if (m && sscanf(m, "%ux%u@%u", &w, &h, &hz) == 3 && w && h && hz) { g_mode_w = w; g_mode_h = h; g_mode_mhz = hz * 1000; g_mode_fixed = 1; }
 }
@@ -344,7 +344,7 @@ static const struct droiddeck_headpose *pose_map(void) {
     uint64_t t = now_ns(), last = atomic_load(&g_pose_tried);
     if (last && t - last < 1000000000ull) return NULL;
     atomic_store(&g_pose_tried, t);
-    int fd = open("/run/droiddeck/" DROIDDECK_HEADPOSE_FILE, O_RDONLY | O_CLOEXEC);
+    int fd = open("/run/droiddeck/" DROIDHOST_HEADPOSE_FILE, O_RDONLY | O_CLOEXEC);
     if (fd < 0) return NULL;
     void *m = mmap(NULL, sizeof(struct droiddeck_headpose), PROT_READ, MAP_SHARED, fd, 0);
     close(fd);
@@ -361,7 +361,7 @@ static uint32_t mode_mhz(void) {
     mode_init();
     if (g_mode_fixed) return g_mode_mhz;
     const struct droiddeck_headpose *p = pose_map();
-    if (!p || __atomic_load_n(&p->magic, __ATOMIC_RELAXED) != DROIDDECK_HEADPOSE_MAGIC) return g_mode_mhz;
+    if (!p || __atomic_load_n(&p->magic, __ATOMIC_RELAXED) != DROIDHOST_HEADPOSE_MAGIC) return g_mode_mhz;
     uint32_t bits = __atomic_load_n((const uint32_t *)&p->display_hz, __ATOMIC_RELAXED);
     float hz;
     memcpy(&hz, &bits, sizeof(hz));
@@ -391,7 +391,7 @@ static VkDisplayPropertiesKHR display_props(void) {
     mode_init();
     VkDisplayPropertiesKHR p = {0};
     p.display = FAKE_DISPLAY;
-    p.displayName = "DroidDeck Cardboard";
+    p.displayName = "DroidHost Cardboard";
     p.physicalDimensions = (VkExtent2D){120, 68};
     p.physicalResolution = (VkExtent2D){g_mode_w, g_mode_h};
     p.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -531,8 +531,8 @@ static VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice d, const VkSwapchainCreat
                                               VkSwapchainKHR *out) {
     PFN_vkCreateSwapchainKHR next = NEXT(d, CreateSwapchainKHR);
     VkSwapchainCreateInfoKHR sized = *ci;
-#ifdef DROIDDECK_WSI_CAPTURE
-    const char *capture_mode = getenv("DROIDDECK_VR_PRESENT");
+#ifdef DROIDHOST_WSI_CAPTURE
+    const char *capture_mode = getenv("DROIDHOST_VR_PRESENT");
     const int capture = capture_mode && !strcmp(capture_mode, "questwsi")
         && !strcmp(program_invocation_short_name, "vrcompositor") && ci->surface == g_hmd_surface;
     if (capture)
@@ -544,7 +544,7 @@ static VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice d, const VkSwapchainCreat
     ci = &sized;
     VkResult r = next(d, ci, a, out);
     if (r == VK_SUCCESS) {
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
         if (capture) droiddeck_wsi_swapchain(d, *out, ci);
 #endif
         return r;
@@ -564,7 +564,7 @@ static VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice d, const VkSwapchainCreat
     if (r != VK_SUCCESS) {
         mine.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
         mine.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
         if (capture) mine.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 #endif
         mine.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -572,14 +572,14 @@ static VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice d, const VkSwapchainCreat
         r = next(d, &mine, a, out);
     }
     say("headless swapchain: %s", r == VK_SUCCESS ? "ok" : "still refused");
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
     if (r == VK_SUCCESS && capture) droiddeck_wsi_swapchain(d, *out, &mine);
 #endif
     return r;
 }
 
 static void VKAPI_CALL DestroySwapchainKHR(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks *allocator) {
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
     droiddeck_wsi_forget(device, swapchain);
 #endif
     NEXT(device, DestroySwapchainKHR)(device, swapchain, allocator);
@@ -1085,18 +1085,18 @@ static void sync_init(void) {
     if (strcmp(program_invocation_short_name, "vrcompositor")) return;
     const char *rt = getenv("XDG_RUNTIME_DIR");
     char path[512];
-    snprintf(path, sizeof(path), "%s/droiddeck-steamvr/%s", rt && *rt ? rt : "/run/droiddeck", DROIDDECK_PRESENT_SYNC_NAME);
+    snprintf(path, sizeof(path), "%s/droiddeck-steamvr/%s", rt && *rt ? rt : "/run/droiddeck", DROIDHOST_PRESENT_SYNC_NAME);
     int fd = open(path, O_RDWR | O_CREAT | O_CLOEXEC, 0600);
     if (fd < 0) return;
-    void *m = ftruncate(fd, DROIDDECK_PRESENT_SYNC_SIZE) == 0
-        ? mmap(NULL, DROIDDECK_PRESENT_SYNC_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0) : MAP_FAILED;
+    void *m = ftruncate(fd, DROIDHOST_PRESENT_SYNC_SIZE) == 0
+        ? mmap(NULL, DROIDHOST_PRESENT_SYNC_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0) : MAP_FAILED;
     close(fd);
     if (m == MAP_FAILED) return;
     struct droiddeck_present_sync *s = m;
     __atomic_store_n(&s->done, __atomic_load_n(&s->issued, __ATOMIC_ACQUIRE), __ATOMIC_RELEASE);
     sync_wake(s);
     pthread_t t;
-    if (pthread_create(&t, NULL, completer, s) != 0) { munmap(m, DROIDDECK_PRESENT_SYNC_SIZE); return; }
+    if (pthread_create(&t, NULL, completer, s) != 0) { munmap(m, DROIDHOST_PRESENT_SYNC_SIZE); return; }
     pthread_detach(t);
     g_sync = s;
     say("%s", "frames go to the presenter once their GPU work is done");
@@ -1275,7 +1275,7 @@ static VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInfoKHR
     struct dev *device = dev_for(queue);
     PFN_vkQueuePresentKHR next = (PFN_vkQueuePresentKHR)device->gdpa(device->handle, "vkQueuePresentKHR");
     if (device->producer) { pthread_mutex_lock(&g_submission_lock); producer_record(device, queue); }
-#ifdef DROIDDECK_WSI_CAPTURE
+#ifdef DROIDHOST_WSI_CAPTURE
     VkResult result = droiddeck_wsi_present(device->handle, queue, info, next);
 #else
     VkResult result = next(queue, info);
@@ -1427,15 +1427,15 @@ static PFN_vkVoidFunction display_hook(const char *name) {
     return NULL;
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVr_GetDeviceProcAddr(VkDevice device, const char *name);
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVr_GetDeviceProcAddr(VkDevice device, const char *name);
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVr_GetInstanceProcAddr(VkInstance instance, const char *name) {
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVr_GetInstanceProcAddr(VkInstance instance, const char *name) {
     HOOK(CreateInstance)
     HOOK(DestroyInstance)
     HOOK(CreateDevice)
     HOOK(DestroyDevice)
-    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVr_GetInstanceProcAddr;
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVr_GetDeviceProcAddr;
+    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidHostVr_GetInstanceProcAddr;
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostVr_GetDeviceProcAddr;
     if (!instance) return NULL;
     struct inst *in = inst_for(instance);
     if (in && !in->active) return in->gipa(instance, name);
@@ -1451,9 +1451,9 @@ EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVr_GetInstanceProcAddr(
     return in ? in->gipa(instance, name) : NULL;
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVr_GetDeviceProcAddr(VkDevice device, const char *name) {
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostVr_GetDeviceProcAddr(VkDevice device, const char *name) {
     HOOK(DestroyDevice)
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckVr_GetDeviceProcAddr;
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostVr_GetDeviceProcAddr;
     struct dev *d = dev_for(device);
     if (d && !d->active) return d->gdpa(device, name);
     if (d && d->display) {
@@ -1467,10 +1467,10 @@ EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckVr_GetDeviceProcAddr(Vk
     return d ? d->gdpa(device, name) : NULL;
 }
 
-EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidDeckVr_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
+EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidHostVr_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
     if (v->loaderLayerInterfaceVersion > 2) v->loaderLayerInterfaceVersion = 2;
-    v->pfnGetInstanceProcAddr = DroidDeckVr_GetInstanceProcAddr;
-    v->pfnGetDeviceProcAddr = DroidDeckVr_GetDeviceProcAddr;
+    v->pfnGetInstanceProcAddr = DroidHostVr_GetInstanceProcAddr;
+    v->pfnGetDeviceProcAddr = DroidHostVr_GetDeviceProcAddr;
     v->pfnGetPhysicalDeviceProcAddr = NULL;
     return VK_SUCCESS;
 }

@@ -112,7 +112,7 @@
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
             <meta-data android:name="android.app.lib_name" android:value="droiddeckxr" />
             <intent-filter>
-                <action android:name="com.droiddeck.launcher.XR" />
+                <action android:name="com.droidhost.launcher.XR" />
                 <category android:name="com.oculus.intent.category.VR" />
                 <category android:name="org.khronos.openxr.intent.category.IMMERSIVE_HMD" />
             </intent-filter>
@@ -159,7 +159,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.droiddeck.launcher.LAUNCH_GAME" />
+                <action android:name="com.droidhost.launcher.LAUNCH_GAME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.CAR_LAUNCHER" />
             </intent-filter>

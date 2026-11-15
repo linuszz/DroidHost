@@ -226,7 +226,7 @@ static int fab_uri(const char *uri)
 
 static int hidden_launcher(void)
 {
-    const char *hidden = g_getenv ? g_getenv("DROIDDECK_EPIC_HIDDEN") : 0;
+    const char *hidden = g_getenv ? g_getenv("DROIDHOST_EPIC_HIDDEN") : 0;
     return hidden && hidden[0] == '1' && !hidden[1];
 }
 

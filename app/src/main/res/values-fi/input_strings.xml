@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Hiiren vasen painike</string>
     <string name="input_mouse_right">Hiiren oikea painike</string>
     <string name="input_mouse_middle">Hiiren keskimmäinen painike</string>
-    <string name="input_command_menu">Avaa DroidDeck-valikko</string>
+    <string name="input_command_menu">Avaa DroidHost-valikko</string>
     <string name="input_command_keyboard">Näytä näppäimistö</string>
     <string name="input_command_steam">Avaa Steam-valikko</string>
     <string name="input_command_qam">Avaa Steamin pikakäyttö</string>

@@ -9,10 +9,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-TOOLS = Path(os.environ.get("DROIDDECK_MSITOOLS", "/usr/local/lib/droiddeck-msitools"))
-MSIINFO = os.environ.get("DROIDDECK_MSIINFO", str(TOOLS / "msiinfo"))
-CABEXTRACT = os.environ.get("DROIDDECK_CABEXTRACT", str(TOOLS / "cabextract"))
-SEVENZIP = os.environ.get("DROIDDECK_7Z", str(TOOLS / "7z"))
+TOOLS = Path(os.environ.get("DROIDHOST_MSITOOLS", "/usr/local/lib/droiddeck-msitools"))
+MSIINFO = os.environ.get("DROIDHOST_MSIINFO", str(TOOLS / "msiinfo"))
+CABEXTRACT = os.environ.get("DROIDHOST_CABEXTRACT", str(TOOLS / "cabextract"))
+SEVENZIP = os.environ.get("DROIDHOST_7Z", str(TOOLS / "7z"))
 MSI_MAGIC = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
 BURN_MAGIC = 0x00F14300
 SKIP_PLATFORMS = ("arm64", "arm")

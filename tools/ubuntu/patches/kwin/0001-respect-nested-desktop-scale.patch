@@ -22,7 +22,7 @@ index 557156e..1f88013 100644
 -        const QPointF absolutePos = output->position() + relativeToSurface
 -            + (subsurface ? subsurface->position() : QPoint());
 +        const QPointF hostPosition = relativeToSurface + (subsurface ? subsurface->position() : QPoint());
-+        const QPointF absolutePos = qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")
++        const QPointF absolutePos = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
 +            ? output->mapToOutput(hostPosition)
 +            : output->position() + hostPosition;
          Q_EMIT pointerMotionAbsolute(absolutePos, std::chrono::milliseconds(time), this);
@@ -37,7 +37,7 @@ index 557156e..1f88013 100644
 +        const auto output = pointer && pointer->m_pointer
 +            ? m_seat->backend()->findOutput(pointer->m_pointer->enteredSurface()) : nullptr;
 +        const auto toOutput = [output](const QSizeF &hostDelta) {
-+            return output && qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")
++            return output && qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
 +                ? output->mapToOutput(sizeToPoint(hostDelta)) - output->mapToOutput(QPointF())
 +                : sizeToPoint(hostDelta);
 +        };
@@ -52,7 +52,7 @@ index 557156e..1f88013 100644
 -        const QPointF position = o->position() + tp->position();
 +        const auto subsurface = m_seat->backend()->findSubSurface(tp->surface());
 +        const QPointF hostPosition = tp->position() + (subsurface ? subsurface->position() : QPoint());
-+        const QPointF position = qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
 +            ? o->mapToOutput(hostPosition)
 +            : o->position() + tp->position();
          Q_EMIT touchDown(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
@@ -63,7 +63,7 @@ index 557156e..1f88013 100644
 -        const QPointF position = o->position() + tp->position();
 +        const auto subsurface = m_seat->backend()->findSubSurface(tp->surface());
 +        const QPointF hostPosition = tp->position() + (subsurface ? subsurface->position() : QPoint());
-+        const QPointF position = qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
 +            ? o->mapToOutput(hostPosition)
 +            : o->position() + tp->position();
          Q_EMIT touchDown(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
@@ -76,7 +76,7 @@ index 557156e..1f88013 100644
 -        const QPointF position = o->position() + tp->position();
 +        const auto subsurface = m_seat->backend()->findSubSurface(tp->surface());
 +        const QPointF hostPosition = tp->position() + (subsurface ? subsurface->position() : QPoint());
-+        const QPointF position = qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
 +            ? o->mapToOutput(hostPosition)
 +            : o->position() + tp->position();
          Q_EMIT touchMotion(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
@@ -130,7 +130,7 @@ index e435266..2bc8ee9 100644
 -    // intentionally ignored, as it would get overwritten
 -    // with the fractional scale protocol anyways
 -    // next.scale = props->scale.value_or(m_state.scale);
-+    if (qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")) {
++    if (qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")) {
 +        next.scale = props->scale.value_or(m_state.scale);
 +        next.scaleSetting = props->scaleSetting.value_or(m_state.scaleSetting);
 +    }
@@ -143,7 +143,7 @@ index e435266..2bc8ee9 100644
  
 +qreal WaylandOutput::presentationScale() const
 +{
-+    return qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE") ? m_pendingScale : scale();
++    return qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE") ? m_pendingScale : scale();
 +}
 +
 +QPointF WaylandOutput::mapToOutput(const QPointF &hostPosition) const
@@ -162,7 +162,7 @@ index e435266..2bc8ee9 100644
          next.modes = {mode};
          next.currentMode = mode;
 -        next.scale = m_pendingScale;
-+        if (!qEnvironmentVariableIsSet("DROIDDECK_NESTED_SCALE")) {
++        if (!qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")) {
 +            next.scale = m_pendingScale;
 +        }
          setState(next);

@@ -65,7 +65,7 @@ def collect_device_metrics(adb, package):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Validate immersive DroidDeck XR on a connected Quest')
+    parser = argparse.ArgumentParser(description='Validate immersive DroidHost XR on a connected Quest')
     parser.add_argument('--adb', default=os.environ.get('ADB', 'adb'))
     parser.add_argument('--serial')
     parser.add_argument('--seconds', type=int, default=20)
@@ -83,7 +83,7 @@ def main():
         return subprocess.run([args.adb, '-s', serial, *command], check=True,
                               capture_output=True, text=True, timeout=15).stdout
 
-    package = 'com.droiddeck.launcher'
+    package = 'com.droidhost.launcher'
     health_path = f'/sdcard/Android/data/{package}/files/xr-health.json'
     adb('shell', 'rm', '-f', health_path)
     adb('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP')
@@ -116,7 +116,7 @@ def main():
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
                 failure = failure or 'Could not restore headset proximity after testing'
     try:
-        log = adb('logcat', '-d', '-s', 'DroidDeckXR:I', 'OpenXR-Loader:W', 'AndroidRuntime:E')
+        log = adb('logcat', '-d', '-s', 'DroidHostXR:I', 'OpenXR-Loader:W', 'AndroidRuntime:E')
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         log = str(error)
     (args.output / 'logcat.txt').write_text(log, encoding='utf-8')

@@ -11,7 +11,7 @@
 static pthread_mutex_t spatial_lock = PTHREAD_MUTEX_INITIALIZER;
 static struct droiddeck_spatialpose *shared;
 
-JNIEXPORT jboolean JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor_nativeSetSpatialFile(
+JNIEXPORT jboolean JNICALL Java_com_droidhost_launcher_wayland_WaylandCompositor_nativeSetSpatialFile(
         JNIEnv *env, jclass clazz, jstring path) {
     (void)clazz;
     pthread_mutex_lock(&spatial_lock);
@@ -26,8 +26,8 @@ JNIEXPORT jboolean JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor
                     if (p != MAP_FAILED) {
                         shared = p;
                         memset(shared, 0, sizeof(*shared));
-                        shared->magic = DROIDDECK_SPATIALPOSE_MAGIC;
-                        shared->version = DROIDDECK_SPATIALPOSE_VERSION;
+                        shared->magic = DROIDHOST_SPATIALPOSE_MAGIC;
+                        shared->version = DROIDHOST_SPATIALPOSE_VERSION;
                         shared->size = sizeof(*shared);
                     }
                 }
@@ -40,12 +40,12 @@ JNIEXPORT jboolean JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor
     return ready;
 }
 
-JNIEXPORT void JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor_nativePublishSpatial(
+JNIEXPORT void JNICALL Java_com_droidhost_launcher_wayland_WaylandCompositor_nativePublishSpatial(
         JNIEnv *env, jclass clazz, jobject buffer) {
     (void)clazz;
     if (!buffer || (*env)->GetDirectBufferCapacity(env, buffer) != sizeof(*shared)) return;
     const struct droiddeck_spatialpose *src = (*env)->GetDirectBufferAddress(env, buffer);
-    if (!src || src->magic != DROIDDECK_SPATIALPOSE_MAGIC || src->version != DROIDDECK_SPATIALPOSE_VERSION ||
+    if (!src || src->magic != DROIDHOST_SPATIALPOSE_MAGIC || src->version != DROIDHOST_SPATIALPOSE_VERSION ||
         src->size != sizeof(*shared)) return;
     pthread_mutex_lock(&spatial_lock);
     if (shared) {

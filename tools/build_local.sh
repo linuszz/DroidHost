@@ -4,12 +4,12 @@ set -euo pipefail
 repo_root=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 if tree_status=$(git -C "${repo_root}" status --porcelain 2>/dev/null); then
     if [[ -n "${tree_status}" ]]; then
-        export DROIDDECK_BUILD_TREE_STATE=dirty
+        export DROIDHOST_BUILD_TREE_STATE=dirty
     else
-        export DROIDDECK_BUILD_TREE_STATE=clean
+        export DROIDHOST_BUILD_TREE_STATE=clean
     fi
 else
-    export DROIDDECK_BUILD_TREE_STATE=unknown
+    export DROIDHOST_BUILD_TREE_STATE=unknown
 fi
 sdk_dir=${ANDROID_HOME:-${ANDROID_SDK_ROOT:-"${HOME}/Library/Android/sdk"}}
 java_dir="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home}"
@@ -25,12 +25,12 @@ java_dir="${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents
 [[ "$java_dir" == */homebrew/* ]] && echo "using homebrew java path: $java_dir"
 [[ "$java_dir" == */mise/* ]] && echo "using mise java path: $java_dir"
 . "${repo_root}/tools/docker_platform.sh"
-image_name=${DROIDDECK_BUILD_IMAGE}
-build_variant=${DROIDDECK_BUILD_VARIANT:-release}
+image_name=${DROIDHOST_BUILD_IMAGE}
+build_variant=${DROIDHOST_BUILD_VARIANT:-release}
 case "$build_variant" in
     debug) gradle_task=assembleDebug ;;
     release) gradle_task=assembleRelease ;;
-    *) echo "DROIDDECK_BUILD_VARIANT must be debug or release" >&2; exit 1 ;;
+    *) echo "DROIDHOST_BUILD_VARIANT must be debug or release" >&2; exit 1 ;;
 esac
 
 if [[ ! -x "${sdk_dir}/platform-tools/adb" ]]; then
@@ -61,13 +61,13 @@ if [[ -f "${repo_root}/tools/gamescope/release.env" \
     exit 1
 fi
 
-ndk_version=${DROIDDECK_NDK_VERSION:-}
+ndk_version=${DROIDHOST_NDK_VERSION:-}
 if [[ -z "${ndk_version}" ]]; then
     ndk_path=$(find "${sdk_dir}/ndk" -mindepth 2 -maxdepth 2 -name source.properties -print | xargs -n1 dirname | sort -V | tail -1)
     ndk_version=${ndk_path##*/}
 fi
 if [[ -z "${ndk_version}" || ! -d "${sdk_dir}/ndk/${ndk_version}" ]]; then
-    echo "No Android NDK found under ${sdk_dir}/ndk; set DROIDDECK_NDK_VERSION." >&2
+    echo "No Android NDK found under ${sdk_dir}/ndk; set DROIDHOST_NDK_VERSION." >&2
     exit 1
 fi
 export ANDROID_HOME="${sdk_dir}"
@@ -88,7 +88,7 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-cache_dir=${DROIDDECK_BUILD_CACHE:-"${HOME}/.cache/droiddeck-build"}
+cache_dir=${DROIDHOST_BUILD_CACHE:-"${HOME}/.cache/droiddeck-build"}
 mkdir -p "${cache_dir}"
 inputs_hash() {
     (cd "${repo_root}" && { printf '%s\n' "$1"; shift; find "$@" -type f ! -name '*.pyc' | LC_ALL=C sort | xargs shasum -a 256; }) \
@@ -188,18 +188,18 @@ fi
 vr_out="${linuxfs_dir}/usr/local/lib/droiddeck-vr"
 vr_key=$(inputs_hash "${image_id} ${ndk_version} ${VK_INCLUDE:-}" tools/vr app/src/main/cpp/waylandcomp/generated/xdg-shell-protocol.c)
 if ! restore_step vr "${vr_key}" "${vr_out}"; then
-    DROIDDECK_BUILD_IMAGE="${image_name}" "${repo_root}/tools/vr/build.sh" "${vr_out}"
+    DROIDHOST_BUILD_IMAGE="${image_name}" "${repo_root}/tools/vr/build.sh" "${vr_out}"
     save_step vr "${vr_key}" "${vr_out}"
 fi
 
 gpuload_out="${linuxfs_dir}/usr/local/lib/droiddeck-gpuload"
 gpuload_key=$(inputs_hash "${image_id} ${ndk_version} ${VK_INCLUDE:-}" tools/gpuload)
 if ! restore_step gpuload "${gpuload_key}" "${gpuload_out}"; then
-    DROIDDECK_BUILD_IMAGE="${image_name}" "${repo_root}/tools/gpuload/build.sh" "${gpuload_out}"
+    DROIDHOST_BUILD_IMAGE="${image_name}" "${repo_root}/tools/gpuload/build.sh" "${gpuload_out}"
     save_step gpuload "${gpuload_key}" "${gpuload_out}"
 fi
 
-github_repo=${DROIDDECK_GITHUB_REPOSITORY:-}
+github_repo=${DROIDHOST_GITHUB_REPOSITORY:-}
 if [[ -z "${github_repo}" ]]; then
     origin_url=$(git -C "${repo_root}" remote get-url origin)
     case "${origin_url}" in
@@ -208,7 +208,7 @@ if [[ -z "${github_repo}" ]]; then
         git@github.com:*) github_repo=${origin_url#git@github.com:} ;;
         *)
             echo "Cannot determine the GitHub repository from origin: ${origin_url}" >&2
-            echo "Set DROIDDECK_GITHUB_REPOSITORY=owner/repo." >&2
+            echo "Set DROIDHOST_GITHUB_REPOSITORY=owner/repo." >&2
             exit 1
             ;;
     esac
@@ -318,8 +318,8 @@ while read -r package_sha256 package_url; do
 done < <(grep -v '^#' "${repo_root}/tools/pipewire/packages.txt")
 "${repo_root}/tools/pipewire/assemble.sh" "${pw_pkgs}" "${linuxfs_dir}/usr/local/lib/droiddeck-pipewire.tzst"
 
-pa_source=${DROIDDECK_PA13_SOURCE_DIR:-"${staging_dir}/pulseaudio-13.0"}
-if [[ -z "${DROIDDECK_PA13_SOURCE_DIR:-}" ]]; then
+pa_source=${DROIDHOST_PA13_SOURCE_DIR:-"${staging_dir}/pulseaudio-13.0"}
+if [[ -z "${DROIDHOST_PA13_SOURCE_DIR:-}" ]]; then
     pa_tarball="${cache_dir}/pulseaudio-13.0.tar.gz"
     if [[ ! -s "${pa_tarball}" ]] || ! tar -tzf "${pa_tarball}" >/dev/null 2>&1; then
         curl -fsSL --retry 5 --retry-all-errors --connect-timeout 20 -o "${pa_tarball}.part" \
@@ -330,7 +330,7 @@ if [[ -z "${DROIDDECK_PA13_SOURCE_DIR:-}" ]]; then
     tar -xzf "${pa_tarball}" -C "${pa_source}" --strip-components=1
 fi
 if [[ ! -f "${pa_source}/src/pulse/version.h.in" ]]; then
-    echo "PulseAudio 13.0 source not found at ${pa_source}; set DROIDDECK_PA13_SOURCE_DIR." >&2
+    echo "PulseAudio 13.0 source not found at ${pa_source}; set DROIDHOST_PA13_SOURCE_DIR." >&2
     exit 1
 fi
 
@@ -393,13 +393,13 @@ mkdir -p "${repo_root}/app/build/prepared-assets"
 mv "${staging_dir}/pulseaudio.tzst" "${repo_root}/app/build/prepared-assets/pulseaudio.tzst"
 
 gradle_rust_arg=""
-if [[ "${DROIDDECK_SKIP_RUST:-0}" == 1 ]]; then
+if [[ "${DROIDHOST_SKIP_RUST:-0}" == 1 ]]; then
     gradle_rust_arg="-PskipRust=true"
 else
     export PATH="${HOME}/.cargo/bin:${PATH}"
     for tool in rustup cargo; do
         if ! command -v "${tool}" >/dev/null 2>&1; then
-            echo "${tool} is required for the store engines (https://rustup.rs); set DROIDDECK_SKIP_RUST=1 to build without them." >&2
+            echo "${tool} is required for the store engines (https://rustup.rs); set DROIDHOST_SKIP_RUST=1 to build without them." >&2
             exit 1
         fi
     done
@@ -422,10 +422,10 @@ fi
 comet_out="${linuxfs_dir}/usr/local/lib/droiddeck-comet"
 comet_key=$(inputs_hash "${image_id}" tools/comet)
 if ! restore_step comet "${comet_key}" "${comet_out}"; then
-    DROIDDECK_BUILD_IMAGE="${image_name}" bash tools/comet/build-local.sh
+    DROIDHOST_BUILD_IMAGE="${image_name}" bash tools/comet/build-local.sh
     save_step comet "${comet_key}" "${comet_out}"
 fi
-if [[ "${DROIDDECK_SKIP_RUST:-0}" != 1 ]]; then
+if [[ "${DROIDHOST_SKIP_RUST:-0}" != 1 ]]; then
     upc_out="${linuxfs_dir}/usr/local/lib/droiddeck-ubisoft"
     upc_key=$(inputs_hash "x86_64-pc-windows-gnu" tools/ubisoft-launcher/src tools/ubisoft-launcher/Cargo.toml tools/ubisoft-launcher/Cargo.lock tools/ubisoft-launcher/build.sh)
     if ! restore_step ubisoft "${upc_key}" "${upc_out}"; then
@@ -465,7 +465,7 @@ done
 readelf_path=$(find "${NDK}/toolchains/llvm/prebuilt" -name llvm-readelf | head -1)
 [[ -x "${readelf_path}" ]] || { echo "NDK llvm-readelf is missing" >&2; exit 1; }
 stores_check=()
-[[ "${DROIDDECK_SKIP_RUST:-0}" != 1 ]] || stores_check+=(--without-stores)
+[[ "${DROIDHOST_SKIP_RUST:-0}" != 1 ]] || stores_check+=(--without-stores)
 python3 tools/release/check_android_libraries.py "${apk}" --readelf "${readelf_path}" "${stores_check[@]}"
 git diff --exit-code -- app/src/main/rust/stores/Cargo.lock
 
@@ -503,7 +503,7 @@ grep -qi 'CN=Android, OU=Android, O=Android' <<<"${signature_output}" || {
     exit 1
 }
 
-signing_env=${DROIDDECK_SIGNING_ENV:-}
+signing_env=${DROIDHOST_SIGNING_ENV:-}
 if [[ -z "${signing_env}" ]]; then
     for candidate in "${repo_root}/.signing.env" \
             "$(dirname "$(git -C "${repo_root}" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo .)")/.signing.env"; do
@@ -511,7 +511,7 @@ if [[ -z "${signing_env}" ]]; then
     done
 fi
 if [[ -n "${signing_env}" ]]; then
-    echo "Signing with DroidDeck's key (${signing_env})"
+    echo "Signing with DroidHost's key (${signing_env})"
     (
         set -a
         cd "$(dirname "${signing_env}")"

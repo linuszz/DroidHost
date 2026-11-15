@@ -31,11 +31,11 @@ class ClientZramFocusTest(unittest.TestCase):
 
             fex = '/s/FEX-Emu/usr/bin/FEX'
             task(5000010, ['/s/steamrtarm64/steam', '-gamepadui'])
-            task(5000011, [fex, '/e/usr/bin/EpicGamesLauncher'], ['HOME=/root', 'DROIDDECK_EPIC_HIDDEN=1'])
-            task(5000012, [fex, './/lib/webkit2gtk-4.1/WebKitWebProcess', '4'], ['DROIDDECK_EPIC_HIDDEN=1', 'LANG=C'])
+            task(5000011, [fex, '/e/usr/bin/EpicGamesLauncher'], ['HOME=/root', 'DROIDHOST_EPIC_HIDDEN=1'])
+            task(5000012, [fex, './/lib/webkit2gtk-4.1/WebKitWebProcess', '4'], ['DROIDHOST_EPIC_HIDDEN=1', 'LANG=C'])
             task(5000013, [fex, '/e/usr/bin/EpicGamesLauncher'], ['HOME=/root'])
-            task(5000014, ['/e/WebKitWebProcess', '4'], ['DROIDDECK_EPIC_HIDDEN=1'])
-            task(5000015, [fex, '/e/usr/bin/EpicGamesLauncher'], ['DROIDDECK_EPIC_HIDDEN=10'])
+            task(5000014, ['/e/WebKitWebProcess', '4'], ['DROIDHOST_EPIC_HIDDEN=1'])
+            task(5000015, [fex, '/e/usr/bin/EpicGamesLauncher'], ['DROIDHOST_EPIC_HIDDEN=10'])
             task(5000016, ['/s/reaper', 'SteamLaunch', 'AppId=413150', '--', 'game'])
             source = function_source('bl_zram_scan').replace('/proc/[0-9]*', tmp + '/[0-9]*')
             result = run_bash(source + '\nbl_zram_scan\necho "${_bl_pids[*]}|${_bl_others[*]}|$_bl_game|$_bl_apps"')

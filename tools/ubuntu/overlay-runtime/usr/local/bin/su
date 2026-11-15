@@ -9,7 +9,7 @@ while [ $# -gt 0 ]; do
     --shell=*) shell=${1#*=}; shift ;;
     -m|-p|--preserve-environment|-P|--pty|-f|--fast) shift ;;
     -h|--help) echo "usage: su [-] [-c command] [-s shell] [root]"; exit 0 ;;
-    -V|--version) echo "DroidDeck su: runs a root shell inside the DroidDeck desktop"; exit 0 ;;
+    -V|--version) echo "DroidHost su: runs a root shell inside the DroidHost desktop"; exit 0 ;;
     --) shift; break ;;
     -*) echo "su: invalid option -- '${1#-}'" >&2; exit 1 ;;
     *) [ "$named" = 1 ] && break; user=$1; named=1; shift ;;

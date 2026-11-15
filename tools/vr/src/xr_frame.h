@@ -2,15 +2,15 @@
 #include <stdint.h>
 #include <cmath>
 
-#define DROIDDECK_XR_FRAME_MAGIC 0x46584444u
-#define DROIDDECK_XR_FRAME_VERSION 1u
-#define DROIDDECK_XR_FRAME_SHARED_VERSION 2u
-#define DROIDDECK_XR_FRAME_SOCKET "droiddeck-xr-frames"
-#define DROIDDECK_XR_FRAME_MAX_BYTES (64u * 1024u * 1024u)
-#define DROIDDECK_XR_COLOR_LINEAR_RGBA8 1u
-#define DROIDDECK_XR_COLOR_SRGB_RGBA8 2u
+#define DROIDHOST_XR_FRAME_MAGIC 0x46584444u
+#define DROIDHOST_XR_FRAME_VERSION 1u
+#define DROIDHOST_XR_FRAME_SHARED_VERSION 2u
+#define DROIDHOST_XR_FRAME_SOCKET "droiddeck-xr-frames"
+#define DROIDHOST_XR_FRAME_MAX_BYTES (64u * 1024u * 1024u)
+#define DROIDHOST_XR_COLOR_LINEAR_RGBA8 1u
+#define DROIDHOST_XR_COLOR_SRGB_RGBA8 2u
 
-struct DroidDeckXrFrameHeader {
+struct DroidHostXrFrameHeader {
     uint32_t magic, version, width, height;
     uint64_t frame_id;
     int64_t captured_ns;
@@ -19,16 +19,16 @@ struct DroidDeckXrFrameHeader {
     float projection[2][4][4];
 };
 
-static_assert(sizeof(DroidDeckXrFrameHeader) == 264, "XR frame protocol layout");
+static_assert(sizeof(DroidHostXrFrameHeader) == 264, "XR frame protocol layout");
 
-inline bool xr_frame_valid(const DroidDeckXrFrameHeader &header) {
+inline bool xr_frame_valid(const DroidHostXrFrameHeader &header) {
     uint64_t bytes = (uint64_t)header.width * header.height * 4;
-    if (header.magic != DROIDDECK_XR_FRAME_MAGIC || (header.version != DROIDDECK_XR_FRAME_VERSION
-        && header.version != DROIDDECK_XR_FRAME_SHARED_VERSION)
+    if (header.magic != DROIDHOST_XR_FRAME_MAGIC || (header.version != DROIDHOST_XR_FRAME_VERSION
+        && header.version != DROIDHOST_XR_FRAME_SHARED_VERSION)
         || !header.frame_id || header.width < 2 || (header.width & 1u) || !header.height
-        || header.width > 8192 || header.height > 4096 || bytes > DROIDDECK_XR_FRAME_MAX_BYTES
-        || header.bytes != bytes || (header.color_space != DROIDDECK_XR_COLOR_LINEAR_RGBA8
-                                    && header.color_space != DROIDDECK_XR_COLOR_SRGB_RGBA8) || header.captured_ns <= 0) return false;
+        || header.width > 8192 || header.height > 4096 || bytes > DROIDHOST_XR_FRAME_MAX_BYTES
+        || header.bytes != bytes || (header.color_space != DROIDHOST_XR_COLOR_LINEAR_RGBA8
+                                    && header.color_space != DROIDHOST_XR_COLOR_SRGB_RGBA8) || header.captured_ns <= 0) return false;
     for (int eye = 0; eye < 2; eye++) {
         for (const auto &row : header.eye_pose[eye]) for (float value : row) if (!std::isfinite(value)) return false;
         for (const auto &row : header.projection[eye]) for (float value : row) if (!std::isfinite(value)) return false;

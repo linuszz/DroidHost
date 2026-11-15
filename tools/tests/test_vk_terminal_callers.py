@@ -18,7 +18,7 @@ SOURCE = ROOT / 'app/src/main/cpp/waylandcomp/src/vk_present.c'
 
 
 def vulkan_include():
-    candidates = [Path(p) for p in [os.environ.get('DROIDDECK_VULKAN_INCLUDE', ''),
+    candidates = [Path(p) for p in [os.environ.get('DROIDHOST_VULKAN_INCLUDE', ''),
                                   '/usr/include', '/usr/local/include'] if p]
     for name in ('ANDROID_HOME', 'ANDROID_SDK_ROOT', 'ANDROID_NDK_HOME', 'NDK'):
         if os.environ.get(name):

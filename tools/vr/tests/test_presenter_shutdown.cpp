@@ -7,7 +7,7 @@
 #include <vector>
 
 int main() {
-    setenv("DROIDDECK_VR_PRESENT", "questframes", 1);
+    setenv("DROIDHOST_VR_PRESENT", "questframes", 1);
     setenv("VK_ICD_FILENAMES", "/droiddeck-test-no-icd.json", 1);
     setenv("VK_DRIVER_FILES", "/droiddeck-test-no-icd.json", 1);
     auto started = std::chrono::steady_clock::now();

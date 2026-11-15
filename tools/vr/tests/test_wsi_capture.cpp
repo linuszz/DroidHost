@@ -16,8 +16,8 @@ static VkResult VKAPI_CALL Present(VkQueue, const VkPresentInfoKHR *info) {
 
 int main() {
     char path[] = "/tmp/droiddeck-wsi-XXXXXX"; int fd = mkstemp(path); assert(fd >= 0);
-    DroidDeckXrTracking tracking{};
-    tracking.magic = DROIDDECK_XR_MAGIC; tracking.version = DROIDDECK_XR_VERSION; tracking.active = 1;
+    DroidHostXrTracking tracking{};
+    tracking.magic = DROIDHOST_XR_MAGIC; tracking.version = DROIDHOST_XR_VERSION; tracking.active = 1;
     tracking.sampled_ns = xr_frame_now(); tracking.period_ns = 11111111;
     for (auto &eye : tracking.eyes) {
         eye.width = eye.height = 4; eye.pose.orientation[3] = 1; eye.pose.flags = 15;

@@ -52,13 +52,13 @@ test key. No Gradle dependency or vendor library is required.
 After installation, launch the default pose capture:
 
 ```powershell
-adb shell am start -n com.droiddeck.viturev2probe/.MainActivity --ez auto true --ei seconds 15
+adb shell am start -n com.droidhost.viturev2probe/.MainActivity --ez auto true --ei seconds 15
 ```
 
 For raw gyro and accelerometer data, pass `--es mode raw`:
 
 ```powershell
-adb shell am start -n com.droiddeck.viturev2probe/.MainActivity --ez auto true --es mode raw --ei seconds 15
+adb shell am start -n com.droidhost.viturev2probe/.MainActivity --ez auto true --es mode raw --ei seconds 15
 ```
 
 `mode` accepts `pose` or `raw` and defaults to `pose`. Automatic launch defaults to
@@ -69,9 +69,9 @@ the USB permission dialog once. The UI provides a Pro 2 capture button using the
 selected mode and a stop button.
 
 Logs are app-private JSONL files under
-`/data/user/0/com.droiddeck.viturev2probe/files/captures/` named
+`/data/user/0/com.droidhost.viturev2probe/files/captures/` named
 `probe-<wall-time-ms>-pid-4865-if-0.jsonl`.
-Use `adb shell run-as com.droiddeck.viturev2probe ls files/captures` to enumerate them
-and `adb exec-out run-as com.droiddeck.viturev2probe cat files/captures/<name>` to read.
+Use `adb shell run-as com.droidhost.viturev2probe ls files/captures` to enumerate them
+and `adb exec-out run-as com.droidhost.viturev2probe cat files/captures/<name>` to read.
 For another launch with new extras, finish the existing activity or force-stop only
 after `session_end` is present so the stream-off cleanup can complete.

@@ -18,7 +18,7 @@
     <string name="input_mouse_left">زر الفأرة الأيسر</string>
     <string name="input_mouse_right">زر الفأرة الأيمن</string>
     <string name="input_mouse_middle">زر الفأرة الأوسط</string>
-    <string name="input_command_menu">فتح قائمة DroidDeck</string>
+    <string name="input_command_menu">فتح قائمة DroidHost</string>
     <string name="input_command_keyboard">إظهار لوحة المفاتيح</string>
     <string name="input_command_steam">فتح قائمة Steam</string>
     <string name="input_command_qam">فتح الوصول السريع في Steam</string>

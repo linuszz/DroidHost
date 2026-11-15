@@ -112,7 +112,7 @@ class SeedRedistsTest(unittest.TestCase):
         return path
 
     def run_seed(self, libraries=""):
-        env = dict(os.environ, DROIDDECK_LIBRARIES=libraries)
+        env = dict(os.environ, DROIDHOST_LIBRARIES=libraries)
         return subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, text=True, check=True)
 
     def test_a_games_own_install_script_is_marked_as_run(self):
@@ -161,7 +161,7 @@ class SeedRedistsTest(unittest.TestCase):
         named = self.tmp / "legacycompat/evaluatorscript_1.vdf"
         named.parent.mkdir(parents=True)
         named.write_text(GAME_SCRIPT.replace("VCRedist2022", "Named"))
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", DROIDDECK_SEED_SCRIPTS=str(named))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", DROIDHOST_SEED_SCRIPTS=str(named))
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, text=True, check=True)
         reg = self.reg.read_text()
         self.assertIn('"Named"=dword:00000001', reg)
@@ -347,7 +347,7 @@ class SeedRedistsTest(unittest.TestCase):
         script = self.tmp / "legacycompat/evaluatorscript_409710.vdf"
         script.parent.mkdir(parents=True)
         script.write_text('"evaluatorscript"\n{\n\t"1"\n' + "\n".join("\t" + line for line in GAME_SCRIPT.replace("VCRedist2022", "x64 14.99.1.0").splitlines()) + "\n}\n")
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", DROIDDECK_SEED_SCRIPTS=str(script))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", DROIDHOST_SEED_SCRIPTS=str(script))
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, text=True, check=True)
         self.assertIn('"x64 14.99.1.0"=dword:00000001', self.reg.read_text())
 
@@ -360,7 +360,7 @@ class SeedRedistsTest(unittest.TestCase):
         log = self.tmp / "awk.log"
         (shim / "awk").write_text('#!/bin/sh\nprintf "%%s\\n" "$*" >> "%s"\nexec %s "$@"\n' % (log, shutil.which("awk")))
         (shim / "awk").chmod(0o755)
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", PATH="%s:%s" % (shim, os.environ["PATH"]))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", PATH="%s:%s" % (shim, os.environ["PATH"]))
         once = self.reg.read_text()
         user = self.user.read_text()
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, text=True, check=True)
@@ -467,7 +467,7 @@ class SeedRedistsTest(unittest.TestCase):
         go = self.tmp / "go"
         (shim / "find").write_text('#!/bin/sh\ncase "$*" in *"installscript*"*) n=0; while [ ! -e "%s" ] && [ $n -lt 600 ]; do sleep 0.1; n=$((n + 1)); done;; esac\nexec %s "$@"\n' % (go, shutil.which("find")))
         (shim / "find").chmod(0o755)
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", DROIDDECK_SEED_LATER="1", PATH="%s:%s" % (shim, os.environ["PATH"]))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", DROIDHOST_SEED_LATER="1", PATH="%s:%s" % (shim, os.environ["PATH"]))
         marker = '"PhysX Version"=dword:00000001'
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         self.assertNotIn(marker, self.reg.read_text())
@@ -489,7 +489,7 @@ class SeedRedistsTest(unittest.TestCase):
         shim.mkdir()
         (shim / "find").write_text('#!/bin/sh\n%s "$@"\n[ ! -e "%s" ]\n' % (shutil.which("find"), broken))
         (shim / "find").chmod(0o755)
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", PATH="%s:%s" % (shim, os.environ["PATH"]))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", PATH="%s:%s" % (shim, os.environ["PATH"]))
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, check=True)
         self.assertNotIn("VCRedist2022", self.reg.read_text())
         broken.unlink()
@@ -502,7 +502,7 @@ class SeedRedistsTest(unittest.TestCase):
         shim.mkdir()
         (shim / "pgrep").write_text("#!/bin/sh\nexit 0\n")
         (shim / "pgrep").chmod(0o755)
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", DROIDDECK_SEED_LATER="1", PATH="%s:%s" % (shim, os.environ["PATH"]))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", DROIDHOST_SEED_LATER="1", PATH="%s:%s" % (shim, os.environ["PATH"]))
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         cache = self.steam / ".droiddeck-game-scripts"
         deadline = time.monotonic() + 30
@@ -511,7 +511,7 @@ class SeedRedistsTest(unittest.TestCase):
         self.assertIn("installscript", cache.read_text().lower())
         time.sleep(1)
         self.assertNotIn("PhysX Version", self.reg.read_text())
-        env.pop("DROIDDECK_SEED_LATER")
+        env.pop("DROIDHOST_SEED_LATER")
         env["PATH"] = os.environ["PATH"]
         subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
         self.assertIn('"PhysX Version"=dword:00000001', self.reg.read_text())
@@ -521,7 +521,7 @@ class SeedRedistsTest(unittest.TestCase):
         script.parent.mkdir(parents=True)
         script.write_text('"evaluatorscript"\n{\n\t"appid"\t\t"%s"\n\t"1"\n' % appid
                           + "\n".join("\t" + line for line in install_script.splitlines()) + "\n}\n")
-        env = dict(os.environ, DROIDDECK_LIBRARIES="", DROIDDECK_SEED_SCRIPTS=str(script))
+        env = dict(os.environ, DROIDHOST_LIBRARIES="", DROIDHOST_SEED_SCRIPTS=str(script))
         return subprocess.run(["bash", str(SCRIPT), str(self.steam)], env=env, capture_output=True, text=True, check=True)
 
     def ubisoft(self):

@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Nút chuột trái</string>
     <string name="input_mouse_right">Nút chuột phải</string>
     <string name="input_mouse_middle">Nút chuột giữa</string>
-    <string name="input_command_menu">Mở menu DroidDeck</string>
+    <string name="input_command_menu">Mở menu DroidHost</string>
     <string name="input_command_keyboard">Hiện bàn phím</string>
     <string name="input_command_steam">Mở menu Steam</string>
     <string name="input_command_qam">Mở truy cập nhanh Steam</string>

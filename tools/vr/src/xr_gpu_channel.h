@@ -2,7 +2,7 @@
 #include "xr_frame_channel.h"
 #include <array>
 
-#define DROIDDECK_XR_GPU_SOCKET "droiddeck-xr-gpu"
+#define DROIDHOST_XR_GPU_SOCKET "droiddeck-xr-gpu"
 constexpr uint32_t XR_GPU_MAGIC = 0x47584444u;
 constexpr uint32_t XR_GPU_VERSION = 1;
 constexpr unsigned XR_GPU_SLOTS = 3;
@@ -13,13 +13,13 @@ struct XrGpuPoolInfo {
     uint32_t magic = XR_GPU_MAGIC, version = XR_GPU_VERSION, width{}, height{};
     uint64_t sizes[XR_GPU_SLOTS]{};
 };
-struct XrGpuFrame { DroidDeckXrFrameHeader header{}; uint32_t slot{}, flags{}; };
+struct XrGpuFrame { DroidHostXrFrameHeader header{}; uint32_t slot{}, flags{}; };
 static_assert(sizeof(XrGpuRequest) == 16 && sizeof(XrGpuPoolInfo) == 40 && sizeof(XrGpuFrame) == 272,
               "XR GPU protocol layout");
 
 inline bool xr_gpu_dimensions(uint32_t width, uint32_t height) {
     return width >= 2 && !(width & 1) && height && width <= 8192 && height <= 4096
-        && uint64_t(width) * height * 4 <= DROIDDECK_XR_FRAME_MAX_BYTES;
+        && uint64_t(width) * height * 4 <= DROIDHOST_XR_FRAME_MAX_BYTES;
 }
 
 enum class XrGpuFrameState { Invalid, Stale, Ready };
@@ -103,7 +103,7 @@ public:
         if (!valid) { for (int &fd : fds) { close(fd); fd = -1; } Close(); }
         return valid;
     }
-    bool Send(const DroidDeckXrFrameHeader &header, uint32_t slot, uint32_t flags = 0) {
+    bool Send(const DroidHostXrFrameHeader &header, uint32_t slot, uint32_t flags = 0) {
         if (socket_ < 0 || slot >= XR_GPU_SLOTS || (flags & ~XR_GPU_BGRA) || !xr_frame_valid(header)) return false;
         XrGpuFrame frame; frame.header = header; frame.slot = slot; frame.flags = flags;
         uint64_t ack{};

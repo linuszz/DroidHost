@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Bal egérgomb</string>
     <string name="input_mouse_right">Jobb egérgomb</string>
     <string name="input_mouse_middle">Középső egérgomb</string>
-    <string name="input_command_menu">DroidDeck menü megnyitása</string>
+    <string name="input_command_menu">DroidHost menü megnyitása</string>
     <string name="input_command_keyboard">Billentyűzet megjelenítése</string>
     <string name="input_command_steam">Steam menü megnyitása</string>
     <string name="input_command_qam">Steam gyorselérés megnyitása</string>

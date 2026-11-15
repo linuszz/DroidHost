@@ -18,7 +18,7 @@ class LabBuildPackageTest(unittest.TestCase):
             inbox.mkdir()
             cache = root / '.cache'
             env = {**os.environ, 'HOME': tmp, 'DD_AGENT': '1',
-                   'DD_AGENT_INBOX': str(inbox), 'DROIDDECK_PACKAGE': 'com.example.target'}
+                   'DD_AGENT_INBOX': str(inbox), 'DROIDHOST_PACKAGE': 'com.example.target'}
             env.pop('DD_LAB_DETACHED', None)
             child = subprocess.Popen(['bash', str(SCRIPT), '--prepare'], env=env,
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -43,16 +43,16 @@ class LabBuildPackageTest(unittest.TestCase):
             bin_dir.mkdir()
             (bin_dir / 'adb').write_text('#!/bin/sh\nexit 0\n')
             (bin_dir / 'python3').write_text(
-                '#!/bin/sh\nprintf "%s" "$DROIDDECK_PACKAGE" > "$HOME/selected-package"\nexit 1\n')
+                '#!/bin/sh\nprintf "%s" "$DROIDHOST_PACKAGE" > "$HOME/selected-package"\nexit 1\n')
             for tool in bin_dir.iterdir():
                 tool.chmod(0o755)
-            env.pop('DROIDDECK_PACKAGE')
+            env.pop('DROIDHOST_PACKAGE')
             env['DD_LAB_DETACHED'] = '1'
             env['PATH'] = str(bin_dir) + os.pathsep + env['PATH']
             result = subprocess.run(['bash', str(SCRIPT), *payload['args']], env=env,
                                     capture_output=True, text=True, timeout=10, cwd=SCRIPT.parents[2])
             self.assertNotEqual(0, result.returncode)
-            self.assertIn('could not read DroidDeck', result.stderr)
+            self.assertIn('could not read DroidHost', result.stderr)
             self.assertEqual('com.example.target', (root / 'selected-package').read_text())
 
     def test_invalid_packages_are_rejected_before_handoff(self):

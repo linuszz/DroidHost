@@ -46,7 +46,7 @@ class LibraryPermsTest(unittest.TestCase):
         return path
 
     def run_script(self):
-        env = dict(os.environ, HOME=str(self.home), DROIDDECK_STORES_ROOT=str(self.stores))
+        env = dict(os.environ, HOME=str(self.home), DROIDHOST_STORES_ROOT=str(self.stores))
         for path in reversed(self.locked):
             if path.is_dir():
                 path.chmod(0o500)

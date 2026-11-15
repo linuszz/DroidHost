@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#ifndef DROIDDECK_PROOT_PROFILE_H
-#define DROIDDECK_PROOT_PROFILE_H
+#ifndef DROIDHOST_PROOT_PROFILE_H
+#define DROIDHOST_PROOT_PROFILE_H
 
 #include <errno.h>
 #include <inttypes.h>

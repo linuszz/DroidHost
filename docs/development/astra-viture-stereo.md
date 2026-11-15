@@ -58,9 +58,9 @@ A VITURE Pro Mobile Dock (`35ca:3011`) was connected between the Astra and Pro X
 Its official read-only P9 version query returned `2.01.03.0.03` with a valid
 checksum. The Astra negotiated 1920×1080/120, but enumerated only the dock's
 USB interfaces, not the glasses' `35ca:101d` control/IMU interfaces. A one-second
-DroidDeck IMU sample returned zero packets.
+DroidHost IMU sample returned zero packets.
 
-DroidDeck treats the glasses as a display behind the dock: no USB permission
+DroidHost treats the glasses as a display behind the dock: no USB permission
 prompt, video at 1080p/120 on the glasses, no Play SteamVR, refresh, 3D or tracking
 settings. The dock alone, without glasses, does not count as glasses.
 
@@ -76,7 +76,7 @@ dock as its DisplayPort sink rather than the glasses.
 confirm 3840×1080/60 video support and exclude phone features requiring
 communication with the glasses. The vendor SDK also treats the dock as a separate
 accessory, not an IMU device. This dock may test the video path, but it does not
-provide DroidDeck's current head-tracking path. Stereo negotiation and mode
+provide DroidHost's current head-tracking path. Stereo negotiation and mode
 retention during an upstream-only reconnect still require a physical test.
 
 ## No-root hardware design to test
@@ -95,7 +95,7 @@ This requires an adapter that preserves glasses power and mode during the
 upstream disconnect, passes 3840×1080/60 video, and forwards USB HID for controls
 and head tracking. [VITURE's Adapter Ultra documentation](https://www.viture.com/academy/adapters/usb-c-xr-charging-adapter-ultra)
 explicitly excludes wired glasses data on Android, so it does not satisfy
-DroidDeck's current USB control/tracking path. Its power and video specifications
+DroidHost's current USB control/tracking path. Its power and video specifications
 also do not promise mode retention across upstream disconnect. This design
 remains **unverified**, not a purchasing recommendation. First verifying stereo
 retention through the adapter on a compatible host would provide a useful control.
@@ -115,8 +115,8 @@ A wide screenshot or `wm size` override alone does not meet those conditions.
 
 ## App safeguards
 
-DroidDeck waits up to 20 seconds for physical stereo confirmation. When the
-attempt ends at a low-resolution fallback, DroidDeck remembers it for that glasses
+DroidHost waits up to 20 seconds for physical stereo confirmation. When the
+attempt ends at a low-resolution fallback, DroidHost remembers it for that glasses
 model on this device, so Play SteamVR stops requesting 3D after a restart; **Retry** in the
 glasses settings clears it. A display that stays missing, such as an unanswered
 cast prompt, fails only that attempt. Automatic retries do not loop.
@@ -126,5 +126,5 @@ this firmware can still require a cable reconnect. Output timing follows
 the active glasses display rather than the tablet's requested refresh rate.
 
 Keep hardware experiments separate from game loads. End the session, force-stop
-DroidDeck, and reopen its home screen after each game test. Read current HAL
+DroidHost, and reopen its home screen after each game test. Read current HAL
 temperatures rather than cached thermal-service samples.

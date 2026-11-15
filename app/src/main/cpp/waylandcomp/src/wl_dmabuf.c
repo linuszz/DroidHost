@@ -140,7 +140,7 @@ static void dmabuf_build_formats(void) {
         if (pos >= (int)sizeof(line)) pos = (int)sizeof(line) - 1;
     }
     droiddeck_log("dmabuf", "formats: %s%s", line,
-               !g_ubwc ? " (DROIDDECK_WAYLAND_UBWC=0: qcom_compressed not advertised)" : "");
+               !g_ubwc ? " (DROIDHOST_WAYLAND_UBWC=0: qcom_compressed not advertised)" : "");
     if (g_ubwc && !compressed)
         droiddeck_log("dmabuf", "the compositor's driver (%s) reports no importable qcom_compressed layout: "
                    "game swapchains stay linear", vkp_gpu_name());
@@ -220,7 +220,7 @@ static void dmabuf_build_feedback(void) {
     if (!g_main_device)
         droiddeck_log("dmabuf", "%s: OpenGL games need Wayland layer versionCode 9 or newer, "
                    "which runs OpenGL on the GPU without a DRM node; older layers show a black window",
-                   g_no_render_node ? "no DRM device named (forced by DROIDDECK_WAYLAND_NO_RENDER_NODE=1)"
+                   g_no_render_node ? "no DRM device named (forced by DROIDHOST_WAYLAND_NO_RENDER_NODE=1)"
                                     : "this device gives apps no display (DRM) device (/dev/dri)");
 }
 

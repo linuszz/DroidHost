@@ -5,15 +5,15 @@ not Xbox console emulation or UWP/APPX packages.
 
 ## Testing on Thor
 
-1. Open DroidDeck, select Stores, then Xbox and Sign in. Use the Microsoft account
+1. Open DroidHost, select Stores, then Xbox and Sign in. Use the Microsoft account
    that owns the game or has PC Game Pass access. An isolated Microsoft sign-in
-   window opens; complete its verification and return to DroidDeck. On later
+   window opens; complete its verification and return to DroidHost. On later
    starts, the saved account should restore without another sign-in prompt;
    initial account loading uses a neutral progress indicator.
 2. Refresh the Xbox library. Check a known owned PC game and, if applicable, a
    Game Pass game. Subscription access is labeled PC Game Pass and does not
    become permanent ownership. Console-only and unsupported package types are
-   filtered out. After the first successful sync, closing/reopening DroidDeck
+   filtered out. After the first successful sync, closing/reopening DroidHost
    should restore the saved library without waiting for Microsoft. Metadata is
    scoped to account and market; on later starts, snapshots older than 15 minutes
    refresh quietly in the background. Refresh checks immediately.
@@ -29,7 +29,7 @@ not Xbox console emulation or UWP/APPX packages.
    download queue. If an offer contains several PC base packages, choose the
    intended game. A package plan is not a license: Microsoft licensing must
    succeed before files can be installed.
-4. Pause during transfer, resume, then repeat after closing/reopening DroidDeck.
+4. Pause during transfer, resume, then repeat after closing/reopening DroidHost.
    It should retain partial files, refresh authenticated URLs and resume only
    verified checkpoints. An error or cancelled process must never create an
    installed/Play entry. Cancel removes a new installation's partial files.
@@ -39,7 +39,7 @@ not Xbox console emulation or UWP/APPX packages.
    A launch taking over 20 seconds should not produce a duplicate Steam launch
    or a "Game already running" dialog while licensing is still preparing it.
    Steam/session startup uses the selected ARM64 Proton. Launch the installed
-   Xbox game from either DroidDeck or Steam; both paths should prepare the same
+   Xbox game from either DroidHost or Steam; both paths should prepare the same
    account-bound game service and licensed view while keeping account credentials
    inside the Android-owned backend.
    During preparation, opening the Xbox detail/content UI must remain responsive.
@@ -70,7 +70,7 @@ not Xbox console emulation or UWP/APPX packages.
 10. Sign out from Xbox. Installed files should remain, account library data should
    clear, and Play/download licensing should require sign-in again.
 
-Do not uninstall DroidDeck or clear application data to troubleshoot this build.
+Do not uninstall DroidHost or clear application data to troubleshoot this build.
 The signed APK is installed in place to retain existing Steam and store data.
 
 ## Evidence and limits

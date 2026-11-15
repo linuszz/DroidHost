@@ -9,10 +9,15 @@ def localBuildOptionsFile = rootProject.layout.projectDirectory.file('local.prop
 if (localBuildOptionsFile.asFile.exists()) {
     localBuildOptions.load(new StringReader(providers.fileContents(localBuildOptionsFile).asText.get()))
 }
+def localOption = { String key, String fallback = null ->
+    def value = localBuildOptions.getProperty("droidhost.${key}")
+    if (value == null) value = localBuildOptions.getProperty("droiddeck.${key}")
+    value == null ? fallback : value
+}
 def pythonExecutable = project.findProperty('pythonExecutable')
-    ?: localBuildOptions.getProperty('droiddeck.python', 'python3')
-def vitureSdkDir = project.hasProperty('vitureSdkDir') ? project.property('vitureSdkDir') : localBuildOptions.getProperty('droiddeck.vitureSdk', '')
-def uvcDir = project.hasProperty('uvcDir') ? project.property('uvcDir') : localBuildOptions.getProperty('droiddeck.uvcDir', '')
+    ?: localOption('python', 'python3')
+def vitureSdkDir = project.hasProperty('vitureSdkDir') ? project.property('vitureSdkDir') : localOption('vitureSdk', '')
+def uvcDir = project.hasProperty('uvcDir') ? project.property('uvcDir') : localOption('uvcDir', '')
 if (uvcDir) {
     ['arm64-v8a/libusb.so', 'arm64-v8a/libuvc.a', 'include/libusb.h', 'include/libuvc/libuvc.h',
      'licenses/libusb-COPYING', 'licenses/libuvc-LICENSE.txt'].each { required ->
@@ -42,7 +47,7 @@ def gitValue = { List<String> arguments ->
     }
 }
 
-def buildLabel = providers.environmentVariable('DROIDDECK_BUILD_LABEL').getOrNull()
+def buildLabel = providers.environmentVariable('DROIDHOST_BUILD_LABEL').getOrNull()
 if (buildLabel == null || buildLabel.trim().isEmpty()) {
     def eventName = providers.environmentVariable('GITHUB_EVENT_NAME').getOrNull()
     def eventPath = providers.environmentVariable('GITHUB_EVENT_PATH').getOrNull()
@@ -66,7 +71,7 @@ if (buildLabel == null || buildLabel.trim().isEmpty()) {
     }
 }
 def buildOrigin = providers.environmentVariable('GITHUB_ACTIONS').getOrNull() == 'true' ? 'remote' : 'local'
-def treeState = providers.environmentVariable('DROIDDECK_BUILD_TREE_STATE').getOrNull()
+def treeState = providers.environmentVariable('DROIDHOST_BUILD_TREE_STATE').getOrNull()
 if (!(treeState in ['clean', 'dirty'])) {
     def status = gitValue(['status', '--porcelain'])
     treeState = status == null ? 'unknown' : (status.isEmpty() ? 'clean' : 'dirty')
@@ -74,10 +79,10 @@ if (!(treeState in ['clean', 'dirty'])) {
 buildLabel = "${buildOrigin} ${treeState} · ${buildLabel}"
 def escapedBuildLabel = buildLabel.replace('\\', '\\\\').replace('"', '\\"')
 
-def sourceCommit = providers.environmentVariable('DROIDDECK_SOURCE_COMMIT').getOrNull()
+def sourceCommit = providers.environmentVariable('DROIDHOST_SOURCE_COMMIT').getOrNull()
     ?: providers.environmentVariable('GITHUB_SHA').getOrNull() ?: gitValue(['rev-parse', 'HEAD']) ?: ''
-def prNumber = (providers.environmentVariable('DROIDDECK_PR_NUMBER').getOrNull() ?: '0').with { it.isInteger() ? it : '0' }
-def prTitle = providers.environmentVariable('DROIDDECK_PR_TITLE').getOrNull() ?: ''
+def prNumber = (providers.environmentVariable('DROIDHOST_PR_NUMBER').getOrNull() ?: '0').with { it.isInteger() ? it : '0' }
+def prTitle = providers.environmentVariable('DROIDHOST_PR_TITLE').getOrNull() ?: ''
 def buildBranch = providers.environmentVariable('GITHUB_HEAD_REF').getOrNull()?.trim()
     ?: gitValue(['branch', '--show-current']) ?: ''
 def escapeJava = { String value -> value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ') }
@@ -123,12 +128,12 @@ def variantSuffixes = rootProject.file('tools/release/variants.txt').readLines()
     .join(';')
 
 android {
-    namespace 'com.droiddeck.launcher'
+    namespace 'com.droidhost.launcher'
     compileSdk 34
     ndkVersion project.findProperty('ndkVersion') ?: '27.3.13750724'
 
     defaultConfig {
-        applicationId "com.droiddeck.launcher"
+        applicationId "com.droidhost.launcher"
         minSdkVersion 26
         targetSdkVersion 28
         versionCode 19
@@ -141,7 +146,7 @@ android {
         buildConfigField "boolean", "CI_BUILD", "${ciBuild}"
         buildConfigField "String", "RELEASE_SIGNER", "\"${releaseSigner}\""
         buildConfigField "long", "COMMIT_TIME", "${commitTime}L * 1000L"
-        buildConfigField "String", "UPDATE_CATALOG_BRANCH", "\"${(System.getenv("DROIDDECK_UPDATE_CATALOG_BRANCH") ?: "main").with { it ==~ /[A-Za-z0-9._-]+/ ? it : "main" }}\""
+        buildConfigField "String", "UPDATE_CATALOG_BRANCH", "\"${(System.getenv("DROIDHOST_UPDATE_CATALOG_BRANCH") ?: "main").with { it ==~ /[A-Za-z0-9._-]+/ ? it : "main" }}\""
         buildConfigField "String", "VARIANT_SUFFIXES", "\"${variantSuffixes}\""
         buildConfigField "String", "SGDB_API_KEY", "\"${System.getenv("SGDB_API_KEY") ?: project.findProperty("sgdbApiKey") ?: ""}\""
         buildConfigField "String", "DESKTOP_KDE_TAG", "\"${desktopKde.DESKTOP_KDE_TAG}\""
@@ -159,8 +164,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments '-DANDROID_STL=c++_shared'
-                arguments "-DDROIDDECK_VITURE_SDK_DIR=${vitureSdkDir.toString().replace('\\', '/')}"
-                arguments "-DDROIDDECK_UVC_DIR=${uvcDir.toString().replace('\\', '/')}"
+                arguments "-DDROIDHOST_VITURE_SDK_DIR=${vitureSdkDir.toString().replace('\\', '/')}"
+                arguments "-DDROIDHOST_UVC_DIR=${uvcDir.toString().replace('\\', '/')}"
             }
         }
     }
@@ -189,10 +194,10 @@ android {
         debug {
             minifyEnabled false
             signingConfig signingConfigs.testkey
-            def localSuffix = localBuildOptions.getProperty('droiddeck.debugApplicationIdSuffix')
+            def localSuffix = localOption('debugApplicationIdSuffix')
             if (localSuffix) {
                 applicationIdSuffix localSuffix
-                resValue 'string', 'app_name', 'DroidDeck XR Dev'
+                resValue 'string', 'app_name', 'DroidHost XR Dev'
             }
         }
         release {
@@ -315,7 +320,7 @@ def verifyRuntimeInputs = tasks.register('verifyRuntimeInputs', Exec) {
     mustRunAfter(stageSessionScripts, stageRuntimeAssets)
     workingDir rootProject.projectDir
     def allowStale = (project.findProperty('allowStaleRuntime')
-        ?: localBuildOptions.getProperty('droiddeck.allowStaleRuntime', 'false')).toString().toBoolean()
+        ?: localOption('allowStaleRuntime', 'false')).toString().toBoolean()
     commandLine([pythonExecutable, 'tools/release/runtime_inputs.py', 'verify'] + (allowStale ? ['--allow-stale-sources'] : []))
 }
 tasks.configureEach { task ->
@@ -325,7 +330,7 @@ tasks.configureEach { task ->
 def rustCrateDir = layout.projectDirectory.dir('src/main/rust/stores')
 def rustJniLibsDir = layout.buildDirectory.dir('rustJniLibs')
 def skipRust = (project.findProperty('skipRust')
-    ?: localBuildOptions.getProperty('droiddeck.skipRust', 'false')).toString().toBoolean()
+    ?: localOption('skipRust', 'false')).toString().toBoolean()
 def buildRustStores = tasks.register('buildRustStores', Exec) {
     description = 'Cross-compiles the store download engines (libdroiddeckstores.so) with cargo-ndk.'
     onlyIf { !skipRust }

@@ -296,7 +296,7 @@ export default class Gamepad {
         // Set buttons
         if(gamepad !== undefined){
             for(const button in this._options.gamepad_mapping){
-                // DroidDeck: Android often reports no guide button (index 16); a missing button is "not pressed".
+                // DroidHost: Android often reports no guide button (index 16); a missing button is "not pressed".
                 frame[button] = gamepad.buttons[this._options.gamepad_mapping[button]]?.value ?? 0
             }
 
@@ -384,7 +384,7 @@ export default class Gamepad {
         const rumbleData = {
             startDelay: 0,
             duration: report.durationMs,
-            // DroidDeck: the player's rumble strength setting (0..1).
+            // DroidHost: the player's rumble strength setting (0..1).
             weakMagnitude: report.rightMotorPercent * ((window as any).__ddRumble ?? 1),
             strongMagnitude: report.leftMotorPercent * ((window as any).__ddRumble ?? 1),
 

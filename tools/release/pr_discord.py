@@ -62,7 +62,7 @@ class Discord:
         data = json.dumps(body).encode() if body is not None else None
         request = urllib.request.Request(self.url + suffix, data=data,
                                          headers={"Content-Type": "application/json",
-                                                  "User-Agent": "DroidDeck-PR-builds"}, method=method)
+                                                  "User-Agent": "DroidHost-PR-builds"}, method=method)
         for attempt in range(3):
             try:
                 with urllib.request.urlopen(request, timeout=30) as response:

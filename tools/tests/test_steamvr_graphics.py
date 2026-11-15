@@ -35,7 +35,7 @@ class SteamVrGraphicsTest(unittest.TestCase):
                 path.write_text('#!/bin/sh\n' + script + '\n')
                 path.chmod(0o755)
             env = dict(os.environ, HOME=str(root), XDG_RUNTIME_DIR=str(root / 'run'),
-                       STEAMVR=str(root / 'steamvr'), DROIDDECK_VR_DIR=str(root / 'driver'),
+                       STEAMVR=str(root / 'steamvr'), DROIDHOST_VR_DIR=str(root / 'driver'),
                        PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        TEST_GPU_MODEL=model, TEST_LAUNCH_ENV=str(result), TEST_LAUNCH_PRELOAD=str(preloads))
             env.pop('TU_DEBUG', None)

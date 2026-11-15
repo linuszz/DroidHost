@@ -4,7 +4,7 @@ export MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*'
 
 usage() {
   cat <<'EOF'
-Smoke test of a DroidDeck build on a real device, over plain adb (no python, no root).
+Smoke test of a DroidHost build on a real device, over plain adb (no python, no root).
 
 What it does, in order, and restores afterwards:
   1. prints the device (model, Android, kernel, page size, SoC);
@@ -26,7 +26,7 @@ this covers what that does not: display changes and foldable states.
 EOF
 }
 
-pkg=com.droiddeck.launcher
+pkg=com.droidhost.launcher
 serial=${ANDROID_SERIAL:-}
 apk=
 do_density=1

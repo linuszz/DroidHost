@@ -135,7 +135,7 @@ class ProtonWrapperTest(unittest.TestCase):
                 for name in DLL_NAMES:
                     (payload / name).write_text(f"2.6.2 {architecture}:{name}")
             result = self.run_wrapper(fixture, "waitforexitandrun", "game.exe",
-                                      env={"DROIDDECK_HYBRIS_DXVK": "dxvk-2.6.2"})
+                                      env={"DROIDHOST_HYBRIS_DXVK": "dxvk-2.6.2"})
 
             self.assertEqual(result.returncode, 0, result.stderr)
             record = json.loads(fixture["probe"].read_text())
@@ -150,7 +150,7 @@ class ProtonWrapperTest(unittest.TestCase):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:
                 fixture = self.fixture(Path(tmp))
                 result = self.run_wrapper(fixture, "waitforexitandrun", "game.exe",
-                                          env={"DROIDDECK_HYBRIS_DXVK": name})
+                                          env={"DROIDHOST_HYBRIS_DXVK": name})
 
                 self.assertEqual(result.returncode, 1)
                 self.assertIn("invalid payload name", result.stderr)
@@ -175,7 +175,7 @@ class ProtonWrapperTest(unittest.TestCase):
             result = self.run_wrapper(fixture, check=True)
 
             self.assertEqual(result.returncode, 1, result.stderr)
-            self.assertIn("DroidDeck DXVK profile:", result.stderr)
+            self.assertIn("DroidHost DXVK profile:", result.stderr)
             self.assertFalse(fixture["probe"].exists())
 
     def test_preflight_rejects_each_missing_or_empty_payload_before_proton_runs(self):
@@ -212,7 +212,7 @@ class ProtonWrapperTest(unittest.TestCase):
                     fixture["proton"].write_text(mutate(fixture["proton"].read_text()))
                     result = self.run_wrapper(fixture, "waitforexitandrun", "game.exe")
                     self.assertEqual(result.returncode, 1, result.stderr)
-                    self.assertIn("DroidDeck DXVK profile:", result.stderr)
+                    self.assertIn("DroidHost DXVK profile:", result.stderr)
                     self.assertFalse(fixture["probe"].exists())
 
     def test_proton_exit_status_is_propagated(self):

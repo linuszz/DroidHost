@@ -122,7 +122,7 @@ static int reader_open(struct reader **out) {
 #ifndef KGSL_BUSY_NO_JNI
 #include <jni.h>
 
-JNIEXPORT jlong JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeOpen(JNIEnv *env, jclass cls, jintArray error) {
+JNIEXPORT jlong JNICALL Java_com_droidhost_launcher_session_KgslBusy_nativeOpen(JNIEnv *env, jclass cls, jintArray error) {
     struct reader *r = NULL;
     int e = reader_open(&r);
     if (e && error && (*env)->GetArrayLength(env, error) > 0) {
@@ -132,15 +132,15 @@ JNIEXPORT jlong JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeOpen(
     return e ? 0 : (jlong)(intptr_t)r;
 }
 
-JNIEXPORT jint JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeMode(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT jint JNICALL Java_com_droidhost_launcher_session_KgslBusy_nativeMode(JNIEnv *env, jclass cls, jlong handle) {
     return handle ? ((struct reader *)(intptr_t)handle)->mode : 0;
 }
 
-JNIEXPORT void JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeRun(JNIEnv *env, jclass cls, jlong handle, jboolean on) {
+JNIEXPORT void JNICALL Java_com_droidhost_launcher_session_KgslBusy_nativeRun(JNIEnv *env, jclass cls, jlong handle, jboolean on) {
     if (handle) reader_run((struct reader *)(intptr_t)handle, on ? 1 : 0);
 }
 
-JNIEXPORT jboolean JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeRead(JNIEnv *env, jclass cls, jlong handle, jlongArray out) {
+JNIEXPORT jboolean JNICALL Java_com_droidhost_launcher_session_KgslBusy_nativeRead(JNIEnv *env, jclass cls, jlong handle, jlongArray out) {
     if (!handle || !out || (*env)->GetArrayLength(env, out) < 3) return JNI_FALSE;
     struct reader *r = (struct reader *)(intptr_t)handle;
     jlong v[3] = {(jlong)atomic_load(&r->busy), (jlong)atomic_load(&r->samples), (jlong)atomic_load(&r->moves)};
@@ -148,7 +148,7 @@ JNIEXPORT jboolean JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeRe
     return JNI_TRUE;
 }
 
-JNIEXPORT void JNICALL Java_com_droiddeck_launcher_session_KgslBusy_nativeClose(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT void JNICALL Java_com_droidhost_launcher_session_KgslBusy_nativeClose(JNIEnv *env, jclass cls, jlong handle) {
     reader_close((struct reader *)(intptr_t)handle);
 }
 #endif

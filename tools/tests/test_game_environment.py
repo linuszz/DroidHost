@@ -507,7 +507,7 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
             prefix = root / "42" / "pfx"
             (prefix / MODULE["UBISOFT_LAUNCHER"]).mkdir(parents=True)
             (prefix / "user.reg").write_text("WINE REGISTRY Version 2\n")
-            env = {"DROIDDECK_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": str(prefix.parent)}
+            env = {"DROIDHOST_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": str(prefix.parent)}
             command = ["/selected/proton", "waitforexitandrun", "game.exe"]
             with mock.patch("subprocess.run") as run, mock.patch("os.execvpe") as execute:
                 MODULE["start"](command, env, None)
@@ -534,7 +534,7 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
     def test_other_gpus_and_non_game_calls_keep_the_original_launch(self):
         command = ["/proton", "waitforexitandrun", "game.exe"]
         base = {"STEAM_COMPAT_DATA_PATH": "/compatdata/42", "VK_LAYER_PATH": "original"}
-        selected = dict(base, DROIDDECK_POWERVR_RUNTIME="/not-installed")
+        selected = dict(base, DROIDHOST_POWERVR_RUNTIME="/not-installed")
         cases = [(command, base), (command, dict(selected, STEAM_COMPAT_DATA_PATH="/compatdata/0")),
                  (command, dict(selected, STEAM_COMPAT_DATA_PATH="/compatdata/invalid")),
                  (["/proton", "run", "iscriptevaluator.exe"], selected),
@@ -548,7 +548,7 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
     def test_system_graphics_follow_game_configuration_and_preserve_other_keys(self):
         with tempfile.TemporaryDirectory() as tmp:
             runtime, _ = self.runtime(Path(tmp))
-            base = {"DROIDDECK_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42"}
+            base = {"DROIDHOST_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42"}
             config = {"version": 1, "games": {"42": {
                 "PROTON_USE_WINED3D": "1", "DISABLE_WSI_LAYER": "1",
                 "ENABLE_VK_LAYER_VALVE_steam_fossilize_1": "1", "HYBRIS_BC_TEXTURES": "0",
@@ -574,10 +574,10 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
     def test_xclipse_selection_adds_its_layers_layer_path_and_dxvk_payload(self):
         with tempfile.TemporaryDirectory() as tmp:
             runtime, _ = self.runtime(Path(tmp))
-            env = {"DROIDDECK_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42",
-                   "DROIDDECK_HYBRIS_LAYERS": "VK_LAYER_DROIDDECK_xclipse:VK_LAYER_HYBRIS_compat",
-                   "DROIDDECK_HYBRIS_LAYER_PATH": "/usr/local/lib/droiddeck-xclipse",
-                   "DROIDDECK_HYBRIS_DXVK": "dxvk-2.6.2"}
+            env = {"DROIDHOST_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42",
+                   "DROIDHOST_HYBRIS_LAYERS": "VK_LAYER_DROIDHOST_xclipse:VK_LAYER_HYBRIS_compat",
+                   "DROIDHOST_HYBRIS_LAYER_PATH": "/usr/local/lib/droiddeck-xclipse",
+                   "DROIDHOST_HYBRIS_DXVK": "dxvk-2.6.2"}
             command = ["/proton", "waitforexitandrun", "game.exe"]
             # The selected payload is required like the default one.
             with self.assertRaises(MODULE["SystemGraphicsError"]):
@@ -590,17 +590,17 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
             launch, result = MODULE["system_graphics_launch"](command, env)
             self.assertEqual(launch, [str(runtime / "run-proton.py"), *command])
             self.assertEqual(result["VK_INSTANCE_LAYERS"],
-                             "VK_LAYER_window_system_integration:VK_LAYER_DROIDDECK_xclipse:VK_LAYER_HYBRIS_compat")
+                             "VK_LAYER_window_system_integration:VK_LAYER_DROIDHOST_xclipse:VK_LAYER_HYBRIS_compat")
             self.assertEqual(result["VK_LAYER_PATH"], f"{runtime}/wsi:{runtime}/lib:/usr/local/lib/droiddeck-xclipse")
-            self.assertEqual(result["DROIDDECK_HYBRIS_DXVK"], "dxvk-2.6.2")
+            self.assertEqual(result["DROIDHOST_HYBRIS_DXVK"], "dxvk-2.6.2")
             for name in ("../dxvk", "other", "dxvk/x"):
                 with self.subTest(name=name), self.assertRaises(MODULE["SystemGraphicsError"]):
-                    MODULE["system_graphics_launch"](command, dict(env, DROIDDECK_HYBRIS_DXVK=name))
+                    MODULE["system_graphics_launch"](command, dict(env, DROIDHOST_HYBRIS_DXVK=name))
 
     def test_incomplete_runtime_fails_before_any_proton_exec(self):
         with tempfile.TemporaryDirectory() as tmp:
             runtime, files = self.runtime(Path(tmp))
-            env = {"DROIDDECK_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42"}
+            env = {"DROIDHOST_POWERVR_RUNTIME": str(runtime), "STEAM_COMPAT_DATA_PATH": "/compatdata/42"}
             command = ["/proton", "waitforexitandrun", "game.exe"]
             for name in files:
                 target = runtime / name
@@ -619,13 +619,13 @@ class SystemGraphicsLaunchTest(unittest.TestCase):
             with self.assertRaises(MODULE["SystemGraphicsError"]):
                 MODULE["system_graphics_launch"](command, env)
             with self.assertRaises(MODULE["SystemGraphicsError"]):
-                MODULE["system_graphics_launch"](command, dict(env, DROIDDECK_POWERVR_RUNTIME="relative"))
+                MODULE["system_graphics_launch"](command, dict(env, DROIDHOST_POWERVR_RUNTIME="relative"))
 
     def test_wrapper_receives_the_sync_selected_proton(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             runtime, _ = self.runtime(root)
-            env = {"HOME": tmp, "DROIDDECK_POWERVR_RUNTIME": str(runtime),
+            env = {"HOME": tmp, "DROIDHOST_POWERVR_RUNTIME": str(runtime),
                    "STEAM_COMPAT_DATA_PATH": "/compatdata/42"}
             command = ["/stock/proton", "waitforexitandrun", "game.exe"]
             selected = ["/sync-pack/proton", *command[1:]]
@@ -660,7 +660,7 @@ class GameDebugLoggingTest(unittest.TestCase):
             probe.chmod(0o755)
             base = {**os.environ, "HOME": tmp, "STEAM_COMPAT_DATA_PATH": str(home / "compatdata/42")}
             maintenance = subprocess.run([sys.executable, str(BIN / "droiddeck-game-env"), str(probe), "run"],
-                env={**base, "DROIDDECK_GOG_MAINTENANCE": "1", "FEX_X87REDUCEDPRECISION": "0"}, text=True, capture_output=True, check=True)
+                env={**base, "DROIDHOST_GOG_MAINTENANCE": "1", "FEX_X87REDUCEDPRECISION": "0"}, text=True, capture_output=True, check=True)
             game = subprocess.run([sys.executable, str(BIN / "droiddeck-game-env"), str(probe), "waitforexitandrun"],
                 env={**base, "FEX_X87REDUCEDPRECISION": "1"}, text=True, capture_output=True, check=True)
             self.assertEqual("0", maintenance.stdout.strip())
@@ -942,7 +942,7 @@ class GameEnvironmentTest(unittest.TestCase):
                 MODULE["mark_install_scripts"].__globals__["subprocess"].run = run
             self.assertEqual(len(calls), 1)
             self.assertEqual(calls[0][0][1], str(root))
-            self.assertEqual(calls[0][1]["DROIDDECK_SEED_SCRIPTS"], str(script))
+            self.assertEqual(calls[0][1]["DROIDHOST_SEED_SCRIPTS"], str(script))
 
     SCRIPT = ('"evaluatorscript" { "0" { "appid" "228980" "compat_installscript" { "run process" { '
               '"x64 14.28.29334.0" { "hasrunkey" "HKEY_LOCAL_MACHINE\\\\Software\\\\Valve\\\\Steam\\\\Apps\\\\CommonRedist\\\\vcredist\\\\2019" '
@@ -1029,25 +1029,25 @@ class GameEnvironmentTest(unittest.TestCase):
 
     def test_games_get_their_own_turnip_debug_and_a_game_profile_still_wins(self):
         gpu = MODULE["game_gpu"]
-        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "", "KEEP": "1"}), {"KEEP": "1"})
-        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "sysmem"}), {"TU_DEBUG": "sysmem"})
-        self.assertEqual(gpu({"DROIDDECK_GAME_TU_DEBUG": "nolrz"}), {"TU_DEBUG": "nolrz"})
+        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "", "KEEP": "1"}), {"KEEP": "1"})
+        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "sysmem"}), {"TU_DEBUG": "sysmem"})
+        self.assertEqual(gpu({"DROIDHOST_GAME_TU_DEBUG": "nolrz"}), {"TU_DEBUG": "nolrz"})
         self.assertEqual(gpu({"TU_DEBUG": "sysmem"}), {"TU_DEBUG": "sysmem"})
         config = {"version": 1, "games": {"42": {"TU_DEBUG": "sysmem"}}}
-        env = gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": ""})
+        env = gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": ""})
         self.assertEqual(MODULE["apply_config"](env, config, "42")["TU_DEBUG"], "sysmem")
         self.assertNotIn("TU_DEBUG", MODULE["apply_config"](env, config, "43"))
 
     def test_games_run_with_gl_error_checks_unless_the_user_turns_them_off(self):
         gpu = MODULE["game_gpu"]
-        session = {"MESA_NO_ERROR": "1", "DROIDDECK_GAME_MESA_NO_ERROR": "", "KEEP": "1"}
+        session = {"MESA_NO_ERROR": "1", "DROIDHOST_GAME_MESA_NO_ERROR": "", "KEEP": "1"}
         self.assertEqual(gpu(session), {"KEEP": "1"})
         self.assertEqual(gpu(session, True), {"MESA_NO_ERROR": "1", "KEEP": "1"})
         self.assertEqual(gpu({"MESA_NO_ERROR": "1"}), {"MESA_NO_ERROR": "1"})
-        self.assertEqual(gpu({"MESA_NO_ERROR": "1", "DROIDDECK_GAME_MESA_NO_ERROR": "1"}), {"MESA_NO_ERROR": "1"})
-        both = gpu({"MESA_NO_ERROR": "1", "DROIDDECK_GAME_MESA_NO_ERROR": "", "TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "nolrz"})
+        self.assertEqual(gpu({"MESA_NO_ERROR": "1", "DROIDHOST_GAME_MESA_NO_ERROR": "1"}), {"MESA_NO_ERROR": "1"})
+        both = gpu({"MESA_NO_ERROR": "1", "DROIDHOST_GAME_MESA_NO_ERROR": "", "TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "nolrz"})
         self.assertEqual(both, {"TU_DEBUG": "nolrz"})
-        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "", "MESA_NO_ERROR": "1"}),
+        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "", "MESA_NO_ERROR": "1"}),
                          {"MESA_NO_ERROR": "1"})
         config = {"version": 1, "games": {"42": {"MESA_NO_ERROR": "1"}}}
         env = gpu(session)
@@ -1056,9 +1056,9 @@ class GameEnvironmentTest(unittest.TestCase):
 
     def test_a_chromium_app_keeps_the_sessions_turnip_debug(self):
         gpu = MODULE["game_gpu"]
-        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "", "KEEP": "1"}, True),
+        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "", "KEEP": "1"}, True),
                          {"TU_DEBUG": "sysmem", "KEEP": "1"})
-        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "nolrz"}, True), {"TU_DEBUG": "sysmem"})
+        self.assertEqual(gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "nolrz"}, True), {"TU_DEBUG": "sysmem"})
         self.assertEqual(gpu({"TU_DEBUG": "sysmem"}, True), {"TU_DEBUG": "sysmem"})
 
     def test_chromium_files_are_found_four_levels_deep_and_no_further(self):
@@ -1103,12 +1103,12 @@ class GameEnvironmentTest(unittest.TestCase):
                          "dxgi.maxDeviceMemory = 2048; dxgi.maxSharedMemory = 2048; d3d9.maxAvailableMemory = 2048; dxvk.maxFrameRate = 60")
         for off in ({}, {"BL_VRAM_MB": "0"}, {"BL_VRAM_MB": "lots"}, {"BL_VRAM_MB": "²"}, {"BL_VRAM_MB": "-1"}):
             self.assertNotIn("DXVK_CONFIG", cap(off))
-            self.assertNotIn("DROIDDECK_VRAM_CAP", cap(off))
-            self.assertNotIn("DROIDDECK_VRAM_CAP_MB", cap(off))
+            self.assertNotIn("DROIDHOST_VRAM_CAP", cap(off))
+            self.assertNotIn("DROIDHOST_VRAM_CAP_MB", cap(off))
 
     def test_the_vram_cap_also_turns_on_the_vulkan_layer_that_holds_the_game_to_it(self):
         env = MODULE["vram_cap"]({"BL_VRAM_MB": "3072", "DXVK_CONFIG": "dxgi.maxDeviceMemory = 16384"})
-        self.assertEqual((env["DROIDDECK_VRAM_CAP"], env["DROIDDECK_VRAM_CAP_MB"]), ("1", "3072"))
+        self.assertEqual((env["DROIDHOST_VRAM_CAP"], env["DROIDHOST_VRAM_CAP_MB"]), ("1", "3072"))
 
     def test_a_games_wine_sync_choice_also_reaches_its_setup_runs(self):
         env = {"BL_SYNC": "1", "BL_SYNC_FALLBACK": "1", "BL_FSYNC_FIRST": "0", "OTHER": "kept"}
@@ -1182,7 +1182,7 @@ class GameEnvironmentTest(unittest.TestCase):
             saved = selection.read_bytes()
             script = COMPAT["BL_COMPONENTS_SETUP"] + '\nverb=waitforexitandrun; bl_components "$1"\n'
             env = dict(os.environ, HOME=str(home), STEAM_COMPAT_DATA_PATH="/steam/compatdata/42",
-                       DROIDDECK_POWERVR_RUNTIME="/system_vulkan/runtime")
+                       DROIDHOST_POWERVR_RUNTIME="/system_vulkan/runtime")
 
             subprocess.run(["bash", "-c", script, "test", str(base)], env=env, check=True)
 
@@ -1193,7 +1193,7 @@ class GameEnvironmentTest(unittest.TestCase):
             self.assertEqual(selection.read_bytes(), saved)
 
             # A subsequent manual-driver session still applies the saved per-game DXVK choice.
-            env.pop("DROIDDECK_POWERVR_RUNTIME")
+            env.pop("DROIDHOST_POWERVR_RUNTIME")
             subprocess.run(["bash", "-c", script, "test", str(base)], env=env, check=True)
             self.assertEqual((base / paths["dxvk"]).read_text(), "dxvk-game")
             self.assertFalse(leftover.exists())
@@ -1282,25 +1282,25 @@ class GameEnvironmentTest(unittest.TestCase):
             command = ["proton", "waitforexitandrun", str(game / "start_protected_game.exe"), "-arg"]
             offline = MODULE["offline_without_anticheat"]
             self.assertEqual(offline(command, {}), command)
-            self.assertEqual(offline(command, {"DROIDDECK_ANTICHEAT_OFFLINE": "0"}), command)
-            self.assertEqual(offline(command, {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}),
+            self.assertEqual(offline(command, {"DROIDHOST_ANTICHEAT_OFFLINE": "0"}), command)
+            self.assertEqual(offline(command, {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}),
                              ["proton", "waitforexitandrun", str(game / "eldenring.exe"), "-arg"])
             (game / "EasyAntiCheat/settings.json").write_text('{ "executable" : "../../escape.exe" }')
             (Path(tmp) / "escape.exe").touch()
-            self.assertEqual(offline(command, {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}), command)
+            self.assertEqual(offline(command, {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}), command)
             (game / "EasyAntiCheat/settings.json").write_text('{ "executable" : "missing.exe" }')
-            self.assertEqual(offline(command, {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}), command)
+            self.assertEqual(offline(command, {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}), command)
             (game / "EasyAntiCheat/settings.json").write_text('{ "executable" : "link/escape.exe" }')
             outside = Path(tmp) / "outside"
             outside.mkdir()
             (outside / "escape.exe").touch()
             (game / "link").symlink_to(outside, target_is_directory=True)
-            self.assertEqual(offline(command, {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}), command)
+            self.assertEqual(offline(command, {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}), command)
             (game / "EasyAntiCheat/settings.json").write_text('{ "executable" : "eldenring.exe" }')
             plain = ["proton", "waitforexitandrun", str(game / "eldenring.exe")]
-            self.assertEqual(offline(plain, {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}), plain)
+            self.assertEqual(offline(plain, {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}), plain)
             self.assertEqual(offline(["proton", "run", command[2]],
-                                     {"DROIDDECK_ANTICHEAT_OFFLINE": "1"}),
+                                     {"DROIDHOST_ANTICHEAT_OFFLINE": "1"}),
                              ["proton", "run", command[2]])
 
     def test_easy_anti_cheat_forwarding_through_entrypoint(self):
@@ -1319,10 +1319,10 @@ class GameEnvironmentTest(unittest.TestCase):
             config = home / ".config/droiddeck/game-environment.json"
             config.parent.mkdir(parents=True)
             env = dict(os.environ, HOME=tmp, STEAM_COMPAT_DATA_PATH="/compatdata/42")
-            env.pop("DROIDDECK_ANTICHEAT_OFFLINE", None)
+            env.pop("DROIDHOST_ANTICHEAT_OFFLINE", None)
             for setting, expected in (("1", target), ("0", bootstrapper), (None, bootstrapper)):
                 with self.subTest(setting=setting):
-                    values = {} if setting is None else {"DROIDDECK_ANTICHEAT_OFFLINE": setting}
+                    values = {} if setting is None else {"DROIDHOST_ANTICHEAT_OFFLINE": setting}
                     config.write_text(json.dumps({"version": 1, "games": {"42": values}}))
                     result = subprocess.run([sys.executable, str(BIN / "droiddeck-game-env"),
                                              str(proton), "waitforexitandrun", str(bootstrapper), "-arg"],
@@ -1438,9 +1438,9 @@ class GameEnvironmentTest(unittest.TestCase):
         os_mod = MODULE["os"]
         with mock.patch.dict(MODULE["game_cores"].__globals__, {"online_cores": lambda: {0, 1, 2, 3, 4, 5, 6, 7}}), \
                 mock.patch.object(os_mod, "sched_setaffinity", side_effect=lambda pid, cores: calls.append(set(cores)), create=True):
-            MODULE["game_cores"]({"DROIDDECK_GAME_CORES": "0-2,9"})
-            MODULE["game_cores"]({"DROIDDECK_GAME_CORES": "junk"})
-            MODULE["game_cores"]({"DROIDDECK_GAME_CORES": "12-13"})
+            MODULE["game_cores"]({"DROIDHOST_GAME_CORES": "0-2,9"})
+            MODULE["game_cores"]({"DROIDHOST_GAME_CORES": "junk"})
+            MODULE["game_cores"]({"DROIDHOST_GAME_CORES": "12-13"})
             MODULE["game_cores"]({})
         self.assertEqual(calls, [{0, 1, 2}])
         self.assertEqual(MODULE["parse_cores"]("0,2-7"), {0, 2, 3, 4, 5, 6, 7})
@@ -1450,7 +1450,7 @@ class GameEnvironmentTest(unittest.TestCase):
         online = {"online_cores": lambda: {0, 1, 2, 3, 4, 5, 6, 7}}
         cases = [
             ({"BL_GAME_CPUS": "6,7"}, {6, 7}, "2:6,7", "2:6,7"),
-            ({"DROIDDECK_GAME_CORES": "0-2"}, {0, 1, 2}, "3:0,1,2", "3:0,1,2"),
+            ({"DROIDHOST_GAME_CORES": "0-2"}, {0, 1, 2}, "3:0,1,2", "3:0,1,2"),
             ({"BL_GAME_CPUS": "0-7"}, set(range(8)), None, None),
             ({}, {6, 7}, None, None),
             ({"BL_GAME_CPUS": "6,7", "WINE_CPU_TOPOLOGY": "4:0,1,2,3"}, {6, 7}, "4:0,1,2,3", "4:0,1,2,3"),
@@ -1460,7 +1460,7 @@ class GameEnvironmentTest(unittest.TestCase):
             ({"BL_GAME_CPUS": "9"}, {9}, None, None),
         ]
         for env, affinity, expected, proton in cases:
-            env["DROIDDECK_FASTEST_CORES"] = "0"
+            env["DROIDHOST_FASTEST_CORES"] = "0"
             with mock.patch.dict(MODULE["cpu_topology"].__globals__, online), \
                     mock.patch.object(os_mod, "sched_getaffinity", return_value=affinity, create=True):
                 MODULE["cpu_topology"](env)
@@ -1547,12 +1547,12 @@ class GameEnvironmentTest(unittest.TestCase):
             cases = [
                 ({}, every, pocket_fit, "8:7,2,3,4,5,6,0,1", "8:7,2,3,4,5,6,0,1"),
                 ({"BL_GAME_CPUS": "6,7"}, {6, 7}, pocket_fit, "2:7,6", "2:7,6"),
-                ({"DROIDDECK_GAME_CORES": "0-2"}, {0, 1, 2}, pocket_fit, "3:2,0,1", "3:2,0,1"),
+                ({"DROIDHOST_GAME_CORES": "0-2"}, {0, 1, 2}, pocket_fit, "3:2,0,1", "3:2,0,1"),
                 ({"BL_GAME_CPUS": "0-7"}, every, pocket_fit, "8:7,2,3,4,5,6,0,1", "8:7,2,3,4,5,6,0,1"),
                 ({"WINE_CPU_TOPOLOGY": "2:0,1"}, every, pocket_fit, "2:0,1", "2:0,1"),
                 ({"WINE_CPU_TOPOLOGY": ""}, every, pocket_fit, "", None),
                 ({"PROTON_CPU_TOPOLOGY": "1:0"}, every, pocket_fit, None, "1:0"),
-                ({"DROIDDECK_FASTEST_CORES": "0"}, every, pocket_fit, None, None),
+                ({"DROIDHOST_FASTEST_CORES": "0"}, every, pocket_fit, None, None),
                 ({"SteamGameId": "2229830"}, every, pocket_fit, "1:7", "1:7"),
                 ({"SteamGameId": "11440"}, every, pocket_fit, "4:7,2,3,4", "4:7,2,3,4"),
                 ({"SteamGameId": "19900"}, every, pocket_fit, "8:7,2,3,4,5,6,0,1", "8:7,2,3,4,5,6,0,1"),
@@ -1560,7 +1560,7 @@ class GameEnvironmentTest(unittest.TestCase):
                 ({"SteamGameId": "618970"}, every, pocket_fit, "4:7,2,3,4", "4:7,2,3,4"),
                 ({"SteamGameId": "620"}, every, pocket_fit, "8:7,2,3,4,5,6,0,1", "8:7,2,3,4,5,6,0,1"),
                 ({"SteamGameId": "2229830", "BL_GAME_CPUS": "0,1"}, {0, 1}, pocket_fit, "2:0,1", "2:0,1"),
-                ({"SteamGameId": "2229830", "DROIDDECK_GAME_CORES": "12-13"}, every, pocket_fit, "1:7", "1:7"),
+                ({"SteamGameId": "2229830", "DROIDHOST_GAME_CORES": "12-13"}, every, pocket_fit, "1:7", "1:7"),
                 ({"SteamGameId": "11440", "BL_GAME_CPUS": "0-7"}, every, pocket_fit, "4:7,2,3,4", "4:7,2,3,4"),
                 ({}, every, {core: 100 for core in every}, None, None),
                 ({}, every, None, None, None),
@@ -1754,7 +1754,7 @@ class GameEnvironmentTest(unittest.TestCase):
         pair = apply({"BL_OPEN_DRIVER": "1"}, config, "1")
         self.assertNotIn("VKD3D_FEATURE_LEVEL", pair)
         self.assertNotIn("VKD3D_SHADER_MODEL", pair)
-        self.assertEqual(pair["DROIDDECK_VKD3D_CAPS"], "driver")
+        self.assertEqual(pair["DROIDHOST_VKD3D_CAPS"], "driver")
         own = apply({"BL_OPEN_DRIVER": "1"}, config, "42")
         self.assertEqual(own["VKD3D_SHADER_MODEL"], "6_6")
         self.assertNotIn("VKD3D_FEATURE_LEVEL", own)
@@ -2964,7 +2964,7 @@ class ForceSsbsTest(unittest.TestCase):
             try:
                 env = {"LD_PRELOAD": "/usr/local/lib/libblsession.so"}
                 self.assertEqual(MODULE["force_ssbs"]([str(arm / "proton"), "waitforexitandrun"], env), env)
-                on = dict(env, DROIDDECK_FORCE_SSBS="1")
+                on = dict(env, DROIDHOST_FORCE_SSBS="1")
                 got = MODULE["force_ssbs"]([str(arm / "proton"), "waitforexitandrun"], on)
                 self.assertEqual(got["LD_PRELOAD"], "/usr/local/lib/libblsession.so:" + str(lib))
                 self.assertEqual(MODULE["force_ssbs"]([str(arm / "proton")], got)["LD_PRELOAD"], got["LD_PRELOAD"])

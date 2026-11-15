@@ -24,9 +24,9 @@ contain unrelated sessions and are not needed to interpret those excerpts.
 | Item | Observed configuration |
 |---|---|
 | Device | AYN Thor, Android 13, kernel 5.15.123, 12 GB RAM and 8 GB swap |
-| App | Production-signed `com.droiddeck.launcher`, normal app UID 10195 |
-| Configured SD library | `/storage/FF7F-F56A/Android/data/com.droiddeck.launcher/files/steam` |
-| Native view of the same library | `/mnt/media_rw/FF7F-F56A/Android/data/com.droiddeck.launcher/files/steam` |
+| App | Production-signed `com.droidhost.launcher`, normal app UID 10195 |
+| Configured SD library | `/storage/FF7F-F56A/Android/data/com.droidhost.launcher/files/steam` |
+| Native view of the same library | `/mnt/media_rw/FF7F-F56A/Android/data/com.droidhost.launcher/files/steam` |
 | Guest content aliases | `/mnt/droiddeck-sd` and legacy `/mnt/bannerlator-sd` |
 | SD filesystem | Native exFAT; its Android `/storage` view reports FUSE |
 | Native filesystem magic | `0x2011BAB0`, matching the NDK Linux header |

@@ -4,7 +4,7 @@ url=${1:?URL required}
 expected=${2:?SHA-256 required}
 destination=${3:?destination required}
 [[ "$expected" =~ ^[a-f0-9]{64}$ ]] || { echo 'Invalid download SHA-256' >&2; exit 1; }
-cache=${DROIDDECK_PACK_CACHE:-"$HOME/.cache/droiddeck-pack-inputs"}
+cache=${DROIDHOST_PACK_CACHE:-"$HOME/.cache/droiddeck-pack-inputs"}
 mkdir -p "$cache" "$(dirname "$destination")"
 kept="$cache/$expected"
 verify() {

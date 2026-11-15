@@ -1,7 +1,7 @@
 use std::sync::OnceLock;
 use std::time::Duration;
 
-pub const USER_AGENT_PRODUCT: &str = "DroidDeck";
+pub const USER_AGENT_PRODUCT: &str = "DroidHost";
 
 static APP_VERSION: OnceLock<String> = OnceLock::new();
 
@@ -274,6 +274,6 @@ mod tests {
 
     #[test]
     fn user_agent_names_droiddeck() {
-        assert!(user_agent().starts_with("DroidDeck/"));
+        assert!(user_agent().starts_with("DroidHost/"));
     }
 }

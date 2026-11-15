@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_PA_CONFIG_H
-#define DROIDDECK_PA_CONFIG_H
+#ifndef DROIDHOST_PA_CONFIG_H
+#define DROIDHOST_PA_CONFIG_H
 #define PACKAGE "pulseaudio"
 #define PACKAGE_NAME "pulseaudio"
 #define PACKAGE_VERSION "13.0"

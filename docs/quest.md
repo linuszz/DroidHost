@@ -1,6 +1,6 @@
 # Experimental Quest 2/3/3S support
 
-Quest runs DroidDeck as a 2D panel, with an experimental immersive SteamVR path
+Quest runs DroidHost as a 2D panel, with an experimental immersive SteamVR path
 in the standard app. Quest 2 has a separate experimental Adreno 6xx driver path.
 
 Quest 2 selects `turnip26.3.0-quest2`, a pinned Banners-Turnip A6xx/A7xx build
@@ -19,7 +19,7 @@ in private files and, when available, the app's external files directory. They
 do not require a Steam session. The existing Quest Java crash file now also
 applies to Quest 2; native crashes still require Android logcat.
 
-Install the standard DroidDeck APK on Quest 3/3S. Device detection on the
+Install the standard DroidHost APK on Quest 3/3S. Device detection on the
 first launch selects manual drivers, the bundled
 `turnip25.1.0-quest1` Android driver and the default Linux driver. It enables
 `hdr.steam` to use the existing SurfaceControl presentation workaround from
@@ -34,7 +34,7 @@ Selecting driver Auto also uses the bundled Quest display driver and runtime
 default, without downloading a generic Adreno driver pair. Manual selections
 remain available and are not replaced on startup. Android's Auto-by-GPU fallback
 uses the Quest bundle too; the external `Download/droiddeck-driver` override
-still takes precedence. Fully close and restart DroidDeck after changing the
+still takes precedence. Fully close and restart DroidHost after changing the
 display driver, since the compositor loads it once per app process.
 
 Both the Android driver wrapper and the Linux session preload use
@@ -193,7 +193,7 @@ The manifest declares the supported Quest models using Meta's standard
 `com.oculus.supportedDevices` metadata. Without it, Quest 3 used compatibility
 mode and its refresh-rate API returned an empty capability list. With the
 declaration, the test runtime reported 72/80/90/120 Hz; a fresh normal launch
-used 72 Hz in both OpenXR telemetry and SteamVR's HMD property. DroidDeck leaves
+used 72 Hz in both OpenXR telemetry and SteamVR's HMD property. DroidHost leaves
 the refresh choice to the runtime. No forced refresh override is included.
 
 The OpenVR driver maps OpenXR's asymmetric eye FOV to OpenVR's lower/upper Y
@@ -212,7 +212,7 @@ Thumper launch normally) and wrap it in
 `droiddeck-steamvr-game %command%` to a game's launch options does the same by hand.
 This runs a nested, unmodified Gamescope OpenVR backend for that game. Gamescope
 owns the GPU overlay, placement and input routing; no CPU screen capture or
-PipeWire service is used. The existing DroidDeck Vulkan synchronization layer
+PipeWire service is used. The existing DroidHost Vulkan synchronization layer
 remains enabled. On Quest, a connected XR receiver selects Gamescope's Vulkan
 texture sharing instead of DMA-BUF modifiers. Explicit environment overrides
 are preserved; other devices retain the upstream modifier default.

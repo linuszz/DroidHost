@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_PROOT_STATX_MNT_ID_H
-#define DROIDDECK_PROOT_STATX_MNT_ID_H
+#ifndef DROIDHOST_PROOT_STATX_MNT_ID_H
+#define DROIDHOST_PROOT_STATX_MNT_ID_H
 
 #include <errno.h>
 #include <fcntl.h>

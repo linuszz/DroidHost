@@ -101,7 +101,7 @@ def main():
     with open(SHARED_FILES + ".tmp", "w", encoding="utf-8", errors="surrogateescape") as f:
         f.write("".join(f"{path}\n" for path in sorted(files | set(paths))))
     os.replace(SHARED_FILES + ".tmp", SHARED_FILES)
-    print(f":: Other DroidDeck software already installed {len(paths)} files from {' '.join(names)}.", file=sys.stderr)
+    print(f":: Other DroidHost software already installed {len(paths)} files from {' '.join(names)}.", file=sys.stderr)
     print(":: pacman will take them over and keep these packages installed so that software keeps working.",
           file=sys.stderr)
     for path in paths:
@@ -113,5 +113,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except (OSError, tarfile.TarError) as e:
-        print(f"error: could not check for files other DroidDeck software installed: {e}", file=sys.stderr)
+        print(f"error: could not check for files other DroidHost software installed: {e}", file=sys.stderr)
         sys.exit(1)

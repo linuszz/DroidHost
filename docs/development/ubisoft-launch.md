@@ -1,7 +1,7 @@
 # Ubisoft launch without Ubisoft Connect
 
 A Ubisoft game never holds its own ticket. Its DRM loader opens Ubisoft's API DLL from the Connect
-folder, and that DLL asks the running launcher for the session over local named pipes. DroidDeck
+folder, and that DLL asks the running launcher for the session over local named pipes. DroidHost
 answers those pipes with `droiddeck-upc.exe`, a small Windows program that runs in the game's prefix.
 The game and every Ubisoft DLL stay unmodified, and there is no Connect client, CEF or background
 service. The session the game receives is real: its ticket comes from Ubisoft's ownership service for

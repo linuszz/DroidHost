@@ -224,7 +224,7 @@ fn fresh_install_then_rerun_then_repair() {
         assert!(seen.queries_ok, "the signed query is kept on every URL");
         assert_eq!(seen.manifest_token.as_deref(), Some("token-1"));
         assert_eq!(seen.file_tokens, 0, "file requests carry no token");
-        assert!(seen.agents.iter().all(|a| a.starts_with("droiddeck/") || a.starts_with("DroidDeck/")), "{:?}", seen.agents);
+        assert!(seen.agents.iter().all(|a| a.starts_with("droiddeck/") || a.starts_with("DroidHost/")), "{:?}", seen.agents);
     }
 
     let before = requests(&fx);

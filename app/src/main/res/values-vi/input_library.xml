@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Gửi đầu vào tay cầm tới Steam Input hoặc trò chơi.</string>
     <string name="input_disabled_hint">Phần tử này không gửi đầu vào tay cầm, chuột hay bàn phím.</string>
     <string name="input_mouse_click">Nhấp chuột</string>
-    <string name="input_command">Hành động DroidDeck</string>
+    <string name="input_command">Hành động DroidHost</string>
     <string name="input_action">Hành động</string>
     <string name="input_scroll_speed">Tốc độ cuộn: %1$d bước/giây</string>
     <string name="input_new_profile">+ Hồ sơ mới</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Cử chỉ bàn di chuột</string>
     <string name="input_mouse_gestures_hint">Khi gán cho con trỏ chuột: chạm để nhấp, giữ để kéo và cuộn bằng hai ngón.</string>
     <string name="input_quick_override_hint">%1$s có ghi đè menu nhanh. Chọn Tự động ở đó để dùng hồ sơ mặc định và cả ba phần đã lưu.</string>
-    <string name="input_route_local">Đầu vào DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Giữ khi cần được đẩy theo mọi hướng: nhấn trên 55%, nhả dưới 35%. Dùng Phím hướng để gán từng hướng riêng. Lệnh DroidDeck chạy một lần mỗi lần lệch. Nhấp cần được cấu hình riêng.</string>
-    <string name="input_contact_action_hint">Giữ khi chạm bàn di chuột; nhả khi nhấc ngón tay. Lệnh DroidDeck chạy một lần mỗi lần chạm. Nhấp bàn di chuột được cấu hình riêng.</string>
-    <string name="input_trigger_action_hint" formatted="false">Giữ khi cò vượt 55%; nhả dưới 35%. Lệnh DroidDeck chạy một lần mỗi lần nhấn.</string>
+    <string name="input_route_local">Đầu vào DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Giữ khi cần được đẩy theo mọi hướng: nhấn trên 55%, nhả dưới 35%. Dùng Phím hướng để gán từng hướng riêng. Lệnh DroidHost chạy một lần mỗi lần lệch. Nhấp cần được cấu hình riêng.</string>
+    <string name="input_contact_action_hint">Giữ khi chạm bàn di chuột; nhả khi nhấc ngón tay. Lệnh DroidHost chạy một lần mỗi lần chạm. Nhấp bàn di chuột được cấu hình riêng.</string>
+    <string name="input_trigger_action_hint" formatted="false">Giữ khi cò vượt 55%; nhả dưới 35%. Lệnh DroidHost chạy một lần mỗi lần nhấn.</string>
     <string name="input_scroll_axis">Hướng cuộn</string>
     <string name="input_vertical">Dọc</string>
     <string name="input_horizontal">Ngang</string>
     <string name="input_scroll_horizontal">Cuộn ngang</string>
     <string name="input_measurements">Số đo</string>
-    <string name="input_measure_instructions">Bật ghi, dùng điều khiển trong phiên đang chạy, rồi quay lại đọc kết quả. Chỉ đo thời gian gửi của DroidDeck, không đo độ trễ màn hình. Ghi kết thúc khi tiến trình ứng dụng đóng.</string>
+    <string name="input_measure_instructions">Bật ghi, dùng điều khiển trong phiên đang chạy, rồi quay lại đọc kết quả. Chỉ đo thời gian gửi của DroidHost, không đo độ trễ màn hình. Ghi kết thúc khi tiến trình ứng dụng đóng.</string>
     <string name="input_layout_count">%1$d điều khiển</string>
     <string name="input_other_layouts">Bố cục đã lưu khác (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Ẩn bố cục đã lưu khác (%1$d) ▴</string>

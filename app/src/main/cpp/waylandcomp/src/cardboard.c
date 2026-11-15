@@ -114,8 +114,8 @@ void vkp_cardboard_set_pose_file(const char *path) {
             if (p != MAP_FAILED) {
                 g_shm = p;
                 memset(g_shm, 0, sizeof(*g_shm));
-                g_shm->magic = DROIDDECK_HEADPOSE_MAGIC;
-                g_shm->version = DROIDDECK_HEADPOSE_VERSION;
+                g_shm->magic = DROIDHOST_HEADPOSE_MAGIC;
+                g_shm->version = DROIDHOST_HEADPOSE_VERSION;
                 memcpy(g_shm->rot, g_pose, sizeof(g_shm->rot));
                 shm_publish(g_live);
             }
@@ -136,8 +136,8 @@ static void shm_publish(int live) {
     atomic_thread_fence(memory_order_release);
     memcpy(g_shm->rot, g_pose, sizeof(g_shm->rot));
     g_shm->ipd_m = g_set.ipd_m;
-    g_shm->flags = (live ? DROIDDECK_HEADPOSE_LIVE : 0u) | (g_set.enabled ? DROIDDECK_HEADPOSE_ENABLED : 0u) |
-                   (g_set.mono ? DROIDDECK_HEADPOSE_MONO : 0u);
+    g_shm->flags = (live ? DROIDHOST_HEADPOSE_LIVE : 0u) | (g_set.enabled ? DROIDHOST_HEADPOSE_ENABLED : 0u) |
+                   (g_set.mono ? DROIDHOST_HEADPOSE_MONO : 0u);
     g_shm->display_hz = g_set.display_hz;
     g_shm->render_height = (uint32_t)g_render_height;
     g_shm->time_ns = (int64_t)ts.tv_sec * 1000000000LL + ts.tv_nsec;

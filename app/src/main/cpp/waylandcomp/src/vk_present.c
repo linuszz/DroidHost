@@ -24,7 +24,7 @@
 #include <android/log.h>
 #include <android/hardware_buffer.h>
 
-#define TAG "DroidDeckWayland"
+#define TAG "DroidHostWayland"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 #define LOGE(...) droiddeck_log("error", __VA_ARGS__)
 #define MOD_INVALID VKP_MOD_INVALID
@@ -158,7 +158,7 @@ static void quarantine_pending_work(VkResult result, const char *where) {
     g_dev_state = -3;
     g_base_black = 0;
     LOGE("GPU completion unconfirmed (%d in %s): presenting stopped; pending resources retained; "
-         "restart DroidDeck", (int)result, where);
+         "restart DroidHost", (int)result, where);
 }
 
 static VkResult timed_wait(VkFence fence, uint64_t timeout) {
@@ -1213,7 +1213,7 @@ struct vkp_image *vkp_image_import_dmabuf(int fd, uint32_t drm_format, uint64_t 
         LOGE("%s: vkCreateImage(%s, %dx%d, pitch %u, offset %u) -> %s%s", as_blit_dst ? "layer" : "dmabuf",
              vkp_modifier_name(modifier), w, h, stride, offset, vk_result_name(cr),
              (!as_blit_dst && modifier == VKP_MOD_QCOM_COMPRESSED)
-                 ? ": the game's UBWC layout was refused; DROIDDECK_WAYLAND_UBWC=0 forces linear buffers" : "");
+                 ? ": the game's UBWC layout was refused; DROIDHOST_WAYLAND_UBWC=0 forces linear buffers" : "");
         free(img); return NULL;
     }
 

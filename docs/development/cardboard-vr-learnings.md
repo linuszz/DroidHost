@@ -82,11 +82,11 @@ OpenVR to SteamVR's ARM64 `vrclient.so`, so no x86 SteamVR is involved.
   and Wine rely on, and The Lab crashed in FEX's JIT. It now installs only where nothing handles the
   signal.
 - **mangoapp owns gamescope's single external overlay slot**, so an X11 presenter has to use
-  `STEAM_OVERLAY`. The default presenter is now a Wayland window on DroidDeck's own compositor, kept
+  `STEAM_OVERLAY`. The default presenter is now a Wayland window on DroidHost's own compositor, kept
   on top by app id.
 - **Memory.** Steam, SteamVR and one VR game fit in the Thor's 12 GB. A large game such as The Lab, or
   two games at once, push the device into critical pressure, and the low-memory killer takes
-  DroidDeck itself (`ended-without-teardown.txt` in the session logs, `lowmemorykiller` in logcat).
+  DroidHost itself (`ended-without-teardown.txt` in the session logs, `lowmemorykiller` in logcat).
 - **Adreno 840 forced sysmem.** On the Fold with VITURE Luma Ultra, launching SteamVR from the library
   inherited `TU_DEBUG=sysmem` and produced `vkerror=-4`, triggering recovery. Adding `noubwc` still
   failed; replacing the flags with `noubwc` or an empty value worked. The shared launch helper removes
@@ -127,7 +127,7 @@ OpenVR to SteamVR's ARM64 `vrclient.so`, so no x86 SteamVR is involved.
   - the presenter copied SteamVR's eye texture a fixed 4 ms after `Present`, with no fence. Under
     GPU load `vrcompositor` had not drawn it yet, so the copy got that texture's previous frame. The
     layer now fences `vrcompositor`'s submits and the presenter waits for the frame's count;
-  - DroidDeck's compositor copies a Wayland client's dma-buf without waiting for its implicit fence,
+  - DroidHost's compositor copies a Wayland client's dma-buf without waiting for its implicit fence,
     and KGSL does not order the copy after the client's GPU work. The presenter's blit sat behind the
     game's frame, so the compositor showed the swapchain image's older picture. The presenter now
     waits for its blit before it presents.

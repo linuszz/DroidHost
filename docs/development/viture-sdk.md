@@ -71,7 +71,7 @@ viewing direction when tracking starts or the user recenters, including the
 up/down angle. Direct SteamVR views retain their gravity-aligned recentering.
 
 The settings UI, menu presentation, and session renderer share this mode selection
-through `GlassesRendering`. Setup → Smart glasses configures DroidDeck menus,
+through `GlassesRendering`. Setup → Smart glasses configures DroidHost menus,
 non-Steam launchers, desktop sessions, and games. Tracked menus use the app's own
 glasses presentation while phone controls remain available; see
 [tracked menus](glasses-menu-tracking.md). Regular refresh rate applies to 2D
@@ -109,7 +109,7 @@ the requested Hz is unchanged, and keep both dimensions of the active mode.
 ## Validation
 
 Run `:app:externalNativeBuildDebug` and
-`:app:testDebugUnitTest --tests 'com.droiddeck.launcher.glasses.*'` with the SDK
+`:app:testDebugUnitTest --tests 'com.droidhost.launcher.glasses.*'` with the SDK
 configured. Compile `app/src/test/cpp/viture_display_modes_test.cpp` with the NDK
 C++17 compiler and the SDK include directory to check native/standard mappings
 against the vendor constants. The Kotlin tests cover model capabilities, axis

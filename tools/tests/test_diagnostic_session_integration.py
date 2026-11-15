@@ -22,7 +22,7 @@ class DiagnosticSessionIntegrationTest(unittest.TestCase):
                 helper.write_text('#!/bin/bash\nprintf "%s\\n" "$@" > "$MARKER"\n')
                 helper.chmod(0o755)
             env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ['PATH'],
-                       MARKER=str(marker), DROIDDECK_ENHANCED_DIAGNOSTICS='1' if enabled else '0')
+                       MARKER=str(marker), DROIDHOST_ENHANCED_DIAGNOSTICS='1' if enabled else '0')
             env['BL_INSIDE'] = '1' if inside else ''
             script = match.group() + '\nstart_diagnostic_inventory\n'
             if installed and enabled and not inside:
@@ -42,7 +42,7 @@ class DiagnosticSessionIntegrationTest(unittest.TestCase):
 
     def test_reports_when_the_provider_is_not_installed(self):
         _, output = self.run_inventory(True, installed=False)
-        self.assertIn('DROIDDECK_PROCESS_TRACE', output)
+        self.assertIn('DROIDHOST_PROCESS_TRACE', output)
         self.assertIn('"status":"unavailable"', output)
 
 

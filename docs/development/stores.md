@@ -1,6 +1,6 @@
 # Stores: GOG, Epic Games and Amazon Games in the launcher
 
-How the Stores section (`app/src/main/java/com/droiddeck/launcher/stores/`, `ui/Stores*.kt`) fits
+How the Stores section (`app/src/main/java/com/droidhost/launcher/stores/`, `ui/Stores*.kt`) fits
 the rest of the app, and the on-disk contract that makes a store game an ordinary added game.
 
 ## Library and Stores
@@ -114,7 +114,7 @@ installed record (`StoreInstalls.complete`). Resume, update and repair are the s
   stays for the next run. Success removes the cache and the staging folder (when only its marker is
   left).
 
-The staging folder is recognised by its `owner` marker (`DroidDeck Epic staging v1` + LF). Before
+The staging folder is recognised by its `owner` marker (`DroidHost Epic staging v1` + LF). Before
 the delta pass the run checks that the folder is a real directory at the expected canonical path,
 that the marker matches and that every other entry is a plain `.stage`, `.part` or `.part.list` file
 directly inside it; only then are the `.stage` orphans deleted. Anything unexpected fails the run without deleting. A manifest path
@@ -130,7 +130,7 @@ An Amazon run, in order: download lookup for the entitlement (`GetGameDownload`:
 a signed query, and the version id) → `manifest.proto` from that base (a 4-byte big-endian header
 length, an opaque header, then an xz or LZMA-alone compressed protobuf) → parse (every file of every
 package; paths refused when absolute, with a drive letter, `..`, empty segments, or naming
-DroidDeck's own root files) → leftover `<file>.tmp` siblings removed → the check of files on disk (a
+DroidHost's own root files) → leftover `<file>.tmp` siblings removed → the check of files on disk (a
 file is complete when it has the manifest size and SHA-256; the same test drives the space check and
 the download plan) → space check (`Not enough free space: need …, only … free`; unknown free space
 never blocks) → empty files created locally → every other pending file fetched from

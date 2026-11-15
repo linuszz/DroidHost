@@ -25,7 +25,7 @@ class VkDmabufQuarantineTest(unittest.TestCase):
             raise AssertionError('C compiler required')
         # Optional old-head input allows a genuine negative control using the
         # identical harness, rather than a model of the previous behaviour.
-        source_dir = Path(os.environ.get('DROIDDECK_DMABUF_TEST_SOURCE', SRC))
+        source_dir = Path(os.environ.get('DROIDHOST_DMABUF_TEST_SOURCE', SRC))
         comp = (source_dir / 'compositor.c').read_text()
         ahb = (source_dir / 'ahb_swapchain.c').read_text()
         vk = (source_dir / 'vk_present.c').read_text()

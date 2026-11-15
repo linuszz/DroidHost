@@ -8,9 +8,9 @@ import unittest
 from pathlib import Path
 
 BIN = Path(__file__).resolve().parents[1] / "linuxfs/overlay/usr/local/bin"
-KEYS = ("TU_DEBUG", "DROIDDECK_GAME_TU_DEBUG", "MESA_LOADER_DRIVER_OVERRIDE", "GALLIUM_DRIVER",
-        "LIBGL_KOPPER_DRI2", "VK_ICD_FILENAMES", "VK_DRIVER_FILES", "MESA_NO_ERROR", "DROIDDECK_GAME_MESA_NO_ERROR")
-SESSION = {"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": ""}
+KEYS = ("TU_DEBUG", "DROIDHOST_GAME_TU_DEBUG", "MESA_LOADER_DRIVER_OVERRIDE", "GALLIUM_DRIVER",
+        "LIBGL_KOPPER_DRI2", "VK_ICD_FILENAMES", "VK_DRIVER_FILES", "MESA_NO_ERROR", "DROIDHOST_GAME_MESA_NO_ERROR")
+SESSION = {"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": ""}
 GPU_SESSION = {"MESA_LOADER_DRIVER_OVERRIDE": "zink", "GALLIUM_DRIVER": "zink",
                "LIBGL_KOPPER_DRI2": "true", "VK_ICD_FILENAMES": "/runtime/turnip.json",
                "VK_DRIVER_FILES": "/runtime/turnip.json"}
@@ -55,7 +55,7 @@ class GameGpuLaunchersTest(unittest.TestCase):
 
     def test_the_wrapper_gives_a_program_the_game_setting(self):
         self.assertEqual({key: "unset" for key in KEYS}, self.wrapper())
-        self.assertEqual("gmem", self.wrapper(session={"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "gmem"})["TU_DEBUG"])
+        self.assertEqual("gmem", self.wrapper(session={"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "gmem"})["TU_DEBUG"])
 
     def test_non_flatpak_programs_keep_the_session_gpu_path(self):
         values = self.wrapper(session=GPU_SESSION)
@@ -63,15 +63,15 @@ class GameGpuLaunchersTest(unittest.TestCase):
 
     def test_the_wrapper_keeps_the_session_setting_for_chromium(self):
         values = self.wrapper("--chromium")
-        self.assertEqual(("sysmem", "unset"), (values["TU_DEBUG"], values["DROIDDECK_GAME_TU_DEBUG"]))
+        self.assertEqual(("sysmem", "unset"), (values["TU_DEBUG"], values["DROIDHOST_GAME_TU_DEBUG"]))
         self.assertEqual("unset", self.wrapper("--for", str(self.app / "files"))["TU_DEBUG"])
         self.chromium()
         self.assertEqual("sysmem", self.wrapper("--for", str(self.app / "files"))["TU_DEBUG"])
 
     def test_programs_get_gl_error_checks_back_while_chromium_keeps_the_client_setting(self):
-        session = dict(GPU_SESSION, MESA_NO_ERROR="1", DROIDDECK_GAME_MESA_NO_ERROR="")
+        session = dict(GPU_SESSION, MESA_NO_ERROR="1", DROIDHOST_GAME_MESA_NO_ERROR="")
         values = self.wrapper(session=session)
-        self.assertEqual(("unset", "unset"), (values["MESA_NO_ERROR"], values["DROIDDECK_GAME_MESA_NO_ERROR"]))
+        self.assertEqual(("unset", "unset"), (values["MESA_NO_ERROR"], values["DROIDHOST_GAME_MESA_NO_ERROR"]))
         self.assertEqual(GPU_SESSION, {key: values[key] for key in GPU_SESSION})
         self.assertEqual("1", self.wrapper("--chromium", session=session)["MESA_NO_ERROR"])
         self.assertEqual("unset", self.flatpak(session)["MESA_NO_ERROR"])
@@ -90,12 +90,12 @@ class GameGpuLaunchersTest(unittest.TestCase):
 
     def test_a_flatpak_app_gets_the_game_setting(self):
         self.assertEqual({key: "unset" for key in KEYS}, self.flatpak(session=dict(SESSION, **GPU_SESSION)))
-        self.assertEqual("nolrz", self.flatpak({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "nolrz"})["TU_DEBUG"])
+        self.assertEqual("nolrz", self.flatpak({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "nolrz"})["TU_DEBUG"])
 
     def test_a_chromium_flatpak_keeps_the_session_setting(self):
         self.chromium()
         values = self.flatpak()
-        self.assertEqual(("sysmem", "unset"), (values["TU_DEBUG"], values["DROIDDECK_GAME_TU_DEBUG"]))
+        self.assertEqual(("sysmem", "unset"), (values["TU_DEBUG"], values["DROIDHOST_GAME_TU_DEBUG"]))
 
     def test_a_flatpak_without_the_game_setting_is_unchanged(self):
         self.assertEqual("sysmem", self.flatpak({"TU_DEBUG": "sysmem"})["TU_DEBUG"])
@@ -108,7 +108,7 @@ class GameGpuLaunchersTest(unittest.TestCase):
         gpu = snap_run["game_gpu"]
         snap = self.app / "files"
         self.assertEqual({"KEEP": "1"}, gpu(dict(SESSION, KEEP="1"), str(snap)))
-        self.assertEqual({"TU_DEBUG": "nolrz"}, gpu({"TU_DEBUG": "sysmem", "DROIDDECK_GAME_TU_DEBUG": "nolrz"}, str(snap)))
+        self.assertEqual({"TU_DEBUG": "nolrz"}, gpu({"TU_DEBUG": "sysmem", "DROIDHOST_GAME_TU_DEBUG": "nolrz"}, str(snap)))
         self.chromium()
         self.assertEqual({"TU_DEBUG": "sysmem"}, gpu(dict(SESSION), str(snap)))
 

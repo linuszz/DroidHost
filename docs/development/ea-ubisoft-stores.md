@@ -5,7 +5,7 @@ Research as of 2026-11-07, against `origin/main` at `914b3588e`. Nothing here is
 ## Summary
 
 Both stores can follow the path Battle.net took (#979, then #1602): first the vendor client in its own
-Proton prefix, then more of it done by DroidDeck itself. Unlike Battle.net, both now have open-source
+Proton prefix, then more of it done by DroidHost itself. Unlike Battle.net, both now have open-source
 clients that already handle sign-in, library and downloads without the vendor app. So the second step
 can go further than Battle.net's did.
 
@@ -31,7 +31,7 @@ can go further than Battle.net's did.
   adopt natively downloaded files cleanly, start with the Connect-driven download, as #979 did for
   Battle.net.
 
-## What DroidDeck already has, and how much of it each store reuses
+## What DroidHost already has, and how much of it each store reuses
 
 | Existing piece | Where | EA | Ubisoft |
 |---|---|---|---|
@@ -90,10 +90,10 @@ Genuinely new engineering:
 | Re0xCat `uplay-r1-loader`, `ubiorbitapi-r2-loader` | | | The DRM-DLL replacements (see Risks) |
 | [mubaraknumann/unifideck](https://github.com/mubaraknumann/unifideck) `stores/ubisoft/` | GPL-3.0 | Shipping, active | The full Connect-wrapper archetype in Python: three-prefix model (auth / template / per-game, shared `MachineGuid`), credential capture and fan-out, parsing Connect's binary `configurations` and `ownership` catalogs, leveldb `spaceId ↔ ubisoftConnectGameId`, a manual-install watcher, `uplay://launch/<id>/0`, session capture after exit. `docs/ubisoft-store-spec.md` is a good map of what breaks |
 | Heroic | | | Installs Ubisoft Connect automatically for Ubisoft titles from Epic; no Ubisoft store |
-| DroidDeck #1445 (open), #1449, #2286 / #2295 / #2317 / #2292 / #2050 | | | Our own Ubisoft-under-Proton knowledge: the `Installs` registry key, `UplayLaunch.exe` being a stub, the bundled `UplayInstaller.exe`, legacy installer layouts, SD-card staging, helper processes during the exit watch |
+| DroidHost #1445 (open), #1449, #2286 / #2295 / #2317 / #2292 / #2050 | | | Our own Ubisoft-under-Proton knowledge: the `Installs` registry key, `UplayLaunch.exe` being a stub, the bundled `UplayInstaller.exe`, legacy installer layouts, SD-card staging, helper processes during the exit watch |
 
 Licences: Maxima, Optima, unifideck and Lutris are GPL-3.0, which is compatible with
-DroidDeck (GPL-3.0). ubi-cli-mvp is MIT. Even so, the Epic and Amazon modules were written clean-room,
+DroidHost (GPL-3.0). ubi-cli-mvp is MIT. Even so, the Epic and Amazon modules were written clean-room,
 so do the same here: write the spec from these sources, implement from the spec, and credit them in
 the README the way #1602 does.
 
@@ -112,11 +112,11 @@ Launch: droiddeck-ea (guest) ── registers stub for link2ea:// origin2:// + O
         before/after: cloudsync pull / push through CloudSaves
 ```
 
-- **Where the LSX server runs.** In the Android app. DroidDeck's guest shares
+- **Where the LSX server runs.** In the Android app. DroidHost's guest shares
   the network namespace, so an app-side server on 127.0.0.1:3216 is reachable from Wine. Keeping it
-  in Kotlin or Rust, not a guest daemon, matches how DroidDeck owns other store logic. Check this
+  in Kotlin or Rust, not a guest daemon, matches how DroidHost owns other store logic. Check this
   against proot networking first.
-- **The stub.** A protocol handler for `link2ea://` / `origin2://` that hands the request to DroidDeck.
+- **The stub.** A protocol handler for `link2ea://` / `origin2://` that hands the request to DroidHost.
 - **Steam's EA titles.** Use the same stub and LSX path, keyed by `link2ea://` in the launch config,
   plus entitlement refresh and Steam account linking. #2036's EA app install becomes
   the fallback.
@@ -139,7 +139,7 @@ Register + launch: droiddeck-ubisoft (guest, like droiddeck-battlenet)
 ```
 
 - **One Connect prefix, not one per game.** unifideck uses per-game prefixes because Steam on the
-  Deck gives each shortcut its own. DroidDeck already runs Battle.net games inside Battle.net's prefix,
+  Deck gives each shortcut its own. DroidHost already runs Battle.net games inside Battle.net's prefix,
   which avoids unifideck's whole credential fan-out problem.
 - **Two stages, like Battle.net:**
   1. Connect in its prefix, install by `uplay://install/<id>`, and Downloads shows an indeterminate
@@ -217,7 +217,7 @@ EA step 2 has the best ratio of value to risk and could start first.
 - **DRM circumvention.** Optima's launcherless mode replaces Ubisoft's DRM loader DLLs, answers the
   game's ownership calls itself, and installs a certificate mimicking Ubisoft's so Authenticode checks
   pass. Gating it on real ownership doesn't change that it bypasses Ubisoft's access control. Keep it
-  out of DroidDeck. EA is different: Maxima requests real licences from EA's licence
+  out of DroidHost. EA is different: Maxima requests real licences from EA's licence
   service and speak EA's documented-by-reversing launcher protocol. Nothing is forged.
 - **Terms of service.** Both publishers' terms broadly forbid unofficial clients. No bans are known
   for Linux or alt-launcher users (Maxima, Lutris, unifideck, GameVault). This is the same position as
@@ -233,7 +233,7 @@ EA step 2 has the best ratio of value to risk and could start first.
 
 ## Sources
 
-- DroidDeck: #979, #1602, #1610, #1611, #1662, #2087 (Battle.net); #1449, #2036 (Steam Ubisoft/EA
+- DroidHost: #979, #1602, #1610, #1611, #1662, #2087 (Battle.net); #1449, #2036 (Steam Ubisoft/EA
   installers); #1445, #2050, #2286, #2292, #2295, #2317 (Ubisoft); `docs/development/epic-cleanroom.md`.
 - Maxima: README, `maxima-lib/src/{core/launch.rs, core/endpoints.rs, ooa/mod.rs, core/auth/*, content/*, lsx/*}`, issues #49, #71.
 - Optima: README, `TODO-hardening.md`, `src/install.rs`, `src/launch.rs`.

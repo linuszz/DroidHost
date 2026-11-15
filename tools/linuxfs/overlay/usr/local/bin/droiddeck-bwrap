@@ -13,14 +13,14 @@ SOCKET_FILE = "/etc/droiddeck/bwrap-socket"
 
 
 def socket_name():
-    name = os.environ.get("DROIDDECK_BWRAP_SOCKET", "")
+    name = os.environ.get("DROIDHOST_BWRAP_SOCKET", "")
     if not name:
         try:
             with open(SOCKET_FILE, encoding="utf-8") as f:
                 name = f.read().strip()
         except OSError:
             pass
-    return "\0" + (name or "com.droiddeck.launcher.bwrap")
+    return "\0" + (name or "com.droidhost.launcher.bwrap")
 
 
 SOCKET = socket_name()
@@ -429,7 +429,7 @@ def run_by_app(s):
     try:
         sock.connect(SOCKET)
     except OSError as e:
-        sys.stderr.write("bwrap: DroidDeck is not answering (%s); open DroidDeck and try again\n" % e)
+        sys.stderr.write("bwrap: DroidHost is not answering (%s); open DroidHost and try again\n" % e)
         sys.exit(1)
     send(sock, b"R", json.dumps(request).encode())
     for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
@@ -439,7 +439,7 @@ def run_by_app(s):
     while True:
         head = recv_exact(sock, 5)
         if head is None:
-            sys.stderr.write("bwrap: DroidDeck closed the sandbox\n")
+            sys.stderr.write("bwrap: DroidHost closed the sandbox\n")
             break
         kind, size = head[:1], struct.unpack(">I", head[1:])[0]
         payload = recv_exact(sock, size) if size else b""

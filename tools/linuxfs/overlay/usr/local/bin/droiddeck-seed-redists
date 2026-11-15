@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 steam_root=${1:?steam root}
-LIBRARIES=${DROIDDECK_LIBRARIES-/mnt/droiddeck /mnt/droiddeck-sd}
+LIBRARIES=${DROIDHOST_LIBRARIES-/mnt/droiddeck /mnt/droiddeck-sd}
 
 redist="$steam_root/steamapps/common/Steamworks Shared/_CommonRedist"
 
@@ -91,8 +91,8 @@ while IFS=$'\t' read -r key dir; do
   [ -n "$key" ] || continue
   current[$key]=1
   [ -z "${scanned[$key]:-}" ] || continue
-  if [ -z "$legacy" ] && [ -n "${DROIDDECK_SEED_SCRIPTS:-}${DROIDDECK_SEED_LATER:-}" ]; then
-    [ -z "${DROIDDECK_SEED_LATER:-}" ] || later=1
+  if [ -z "$legacy" ] && [ -n "${DROIDHOST_SEED_SCRIPTS:-}${DROIDHOST_SEED_LATER:-}" ]; then
+    [ -z "${DROIDHOST_SEED_LATER:-}" ] || later=1
     continue
   fi
   [ -d "$dir" ] || continue
@@ -115,7 +115,7 @@ if [ ${#fresh[@]} -gt 0 ]; then
   done
 fi
 if [ -n "$later" ]; then
-  (DROIDDECK_SEED_LATER= DROIDDECK_SEED_SCRIPTS= DROIDDECK_SEED_DEFERRED=1 setsid "$0" "$steam_root" >/dev/null 2>&1 9>&- &)
+  (DROIDHOST_SEED_LATER= DROIDHOST_SEED_SCRIPTS= DROIDHOST_SEED_DEFERRED=1 setsid "$0" "$steam_root" >/dev/null 2>&1 9>&- &)
 fi
 if [ -e "$cache" ]; then
   keys=$(printf '%s\n' "${!current[@]}") awk -F'\t' '
@@ -123,8 +123,8 @@ if [ -e "$cache" ]; then
     NF > 1 && ($1 in want)
   ' "$cache" >"$cache.tmp" && { cmp -s "$cache.tmp" "$cache" && rm -f "$cache.tmp" || mv -f "$cache.tmp" "$cache"; }
 fi
-[ -z "${DROIDDECK_SEED_DEFERRED:-}" ] || ! pgrep -x wineserver >/dev/null 2>&1 || exit 0
-game_scripts() { { cut -s -f2- "$cache" 2>/dev/null; printf '%s\n' "${DROIDDECK_SEED_SCRIPTS:-}"; } | sed '/^$/d' | tr '\n' '\0'; }
+[ -z "${DROIDHOST_SEED_DEFERRED:-}" ] || ! pgrep -x wineserver >/dev/null 2>&1 || exit 0
+game_scripts() { { cut -s -f2- "$cache" 2>/dev/null; printf '%s\n' "${DROIDHOST_SEED_SCRIPTS:-}"; } | sed '/^$/d' | tr '\n' '\0'; }
 game_pairs=$(game_scripts | read_scripts)
 [ -n "$(printf '%s' "$game_pairs" | tr -d '[:space:]')" ] && pairs=$(printf '%s\n%s\n' "$pairs" "$game_pairs" | sort -u | sed '/^$/d')
 declare -A vulkan=()

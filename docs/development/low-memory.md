@@ -130,7 +130,7 @@ checksum and subsequent writes. A separate child checks kernel access to an evic
 The compressed store is retained until the probe ends; this is one eviction/restore cycle,
 without hot/cold selection, concurrent eviction, lifecycle hooks or game integration.
 
-On the Pocket FIT Elite's Android 6.6.82 kernel, tested from DroidDeck's unprivileged guest:
+On the Pocket FIT Elite's Android 6.6.82 kernel, tested from DroidHost's unprivileged guest:
 
 | Measurement | Result |
 | --- | --- |

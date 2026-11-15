@@ -8,14 +8,14 @@ export ANDROID_HOME=${sdk_dir} ANDROID_SDK_ROOT=${sdk_dir}
 export JAVA_HOME=${JAVA_HOME:-/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home}
 out=${1:-"${TMPDIR:-/tmp}/droiddeck-quick-signed.apk"}
 
-signing_env=${DROIDDECK_SIGNING_ENV:-}
+signing_env=${DROIDHOST_SIGNING_ENV:-}
 if [[ -z "${signing_env}" ]]; then
     for candidate in "${repo_root}/.signing.env" \
             "$(dirname "$(git -C "${repo_root}" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo .)")/.signing.env"; do
         [[ -f "${candidate}" ]] && { signing_env=${candidate}; break; }
     done
 fi
-[[ -f "${signing_env}" ]] || { echo "No signing env found; set DROIDDECK_SIGNING_ENV or add .signing.env." >&2; exit 1; }
+[[ -f "${signing_env}" ]] || { echo "No signing env found; set DROIDHOST_SIGNING_ENV or add .signing.env." >&2; exit 1; }
 
 build_tools=
 while IFS= read -r dir; do

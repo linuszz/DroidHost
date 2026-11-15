@@ -33,10 +33,10 @@ if [ -n "${BL_LOG:-}" ] && [ -z "${BL_INSIDE:-}" ]; then
 fi
 
 start_diagnostic_inventory() {
-  [ "${DROIDDECK_ENHANCED_DIAGNOSTICS:-0}" = 1 ] || return 0
+  [ "${DROIDHOST_ENHANCED_DIAGNOSTICS:-0}" = 1 ] || return 0
   [ -z "${BL_INSIDE:-}" ] || return 0
   if ! command -v droiddeck-diagnostic-inventory >/dev/null 2>&1; then
-    printf '%s\n' 'DROIDDECK_PROCESS_TRACE {"schema":1,"event":"provider","status":"unavailable"}'
+    printf '%s\n' 'DROIDHOST_PROCESS_TRACE {"schema":1,"event":"provider","status":"unavailable"}'
     return 0
   fi
   droiddeck-diagnostic-inventory --watch --root-pid "$$" &
@@ -98,7 +98,7 @@ prepare_locale() {
   [ -f "$stamp" ] && read -r have < "$stamp"
   [ "$have" = "$want" ] && [ -f "$dir/locale-archive" ] && [ ! "$dir/locale-archive" -nt "$stamp" ] && return 0
   [ -d "$dir/C.utf8" ] && command -v localedef >/dev/null 2>&1 || return 0
-  DROIDDECK_LINK_RENAME=1 localedef --add-to-archive --replace "$dir/C.utf8" >/dev/null 2>&1 || return 0
+  DROIDHOST_LINK_RENAME=1 localedef --add-to-archive --replace "$dir/C.utf8" >/dev/null 2>&1 || return 0
   rm -f /usr/lib/gconv/gconv-modules.cache /usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache
   command -v iconvconfig >/dev/null 2>&1 && iconvconfig >/dev/null 2>&1
   printf '%s\n' "$want" > "$stamp"
@@ -174,12 +174,12 @@ run_gamescope() (
   compositor_status=$?
   if read -r child_status < "$status_file" && [[ $child_status =~ ^[0-9]{1,3}$ ]] \
      && [ "$child_status" -le 255 ]; then
-    if [ "${DROIDDECK_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
-      printf 'DROIDDECK_DIAGNOSTICS event=session_exit compositor_status=%s steam_status=%s\n' "$compositor_status" "$child_status"
+    if [ "${DROIDHOST_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
+      printf 'DROIDHOST_DIAGNOSTICS event=session_exit compositor_status=%s steam_status=%s\n' "$compositor_status" "$child_status"
     fi
     [ "$child_status" -eq 0 ] || exit "$child_status"
-  elif [ "${DROIDDECK_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
-    printf 'DROIDDECK_DIAGNOSTICS event=session_exit compositor_status=%s steam_status=unavailable\n' "$compositor_status"
+  elif [ "${DROIDHOST_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
+    printf 'DROIDHOST_DIAGNOSTICS event=session_exit compositor_status=%s steam_status=unavailable\n' "$compositor_status"
   fi
   exit "$compositor_status"
 )
@@ -558,7 +558,7 @@ if [ -z "${BL_INSIDE:-}" ]; then
     args+=(--mangoapp)
     echo "== gamescope: mangoapp on ($(command -v mangoapp), config $MANGOHUD_CONFIGFILE)"
   fi
-  mkdir -p /run/droiddeck-hud && export DROIDDECK_HUD_FRAMES=/run/droiddeck-hud/frames
+  mkdir -p /run/droiddeck-hud && export DROIDHOST_HUD_FRAMES=/run/droiddeck-hud/frames
   export BL_INSIDE=1
   rm -f "${XDG_RUNTIME_DIR:-/tmp}"/gamescope-limiter-*
   export GAMESCOPE_LIMITER_FILE="${XDG_RUNTIME_DIR:-/tmp}/droiddeck-gamescope-limiter"
@@ -788,7 +788,7 @@ case $mode in
               steam|steamwebhelper) _bl_pids+=("${_d##*/}") ;;
               *)
                 _lower=${_name,,}
-                if [ "$_fex" = 1 ] && grep -qz '^DROIDDECK_EPIC_HIDDEN=1$' "$_d/environ" 2>/dev/null; then
+                if [ "$_fex" = 1 ] && grep -qz '^DROIDHOST_EPIC_HIDDEN=1$' "$_d/environ" 2>/dev/null; then
                   _bl_pids+=("${_d##*/}")
                 elif [[ $_lower == [a-z]:[\\/]'program files (x86)'[\\/]battle.net[\\/]* ||
                         $_lower == [a-z]:[\\/]programdata[\\/]battle.net[\\/]* ]]; then
@@ -1183,9 +1183,9 @@ case $mode in
        && [ "${BL_STEAM_UI:-}" != desktop ] && [ -x /usr/local/bin/droiddeck-launcher-cores ]; then
       /usr/local/bin/droiddeck-launcher-cores "$BL_LAUNCH_DIR/agent/focus.json" 2>&1 &
     fi
-    if [ "${BL_PACE_CORES:-1}" != 0 ] && [ -n "${DROIDDECK_HUD_FRAMES:-}" ] && [ -z "${BL_DESKTOP:-}" ] \
+    if [ "${BL_PACE_CORES:-1}" != 0 ] && [ -n "${DROIDHOST_HUD_FRAMES:-}" ] && [ -z "${BL_DESKTOP:-}" ] \
        && [ -x /usr/local/bin/droiddeck-pace-cores ]; then
-      /usr/local/bin/droiddeck-pace-cores "$DROIDDECK_HUD_FRAMES" 2>&1 &
+      /usr/local/bin/droiddeck-pace-cores "$DROIDHOST_HUD_FRAMES" 2>&1 &
     fi
 
     if [ "$steam_x64" = 0 ]; then
@@ -1200,7 +1200,7 @@ case $mode in
       step "adding the app's own games to the client's library"
       droiddeck-steam-shortcuts "$steam_root" "$BL_ADDED_GAMES" || true
     fi
-    DROIDDECK_SEED_LATER=1 droiddeck-seed-redists "$steam_root" || true
+    DROIDHOST_SEED_LATER=1 droiddeck-seed-redists "$steam_root" || true
     else
     _bl_x64_tool=$(droiddeck-steam-x64 --default-tool)
     if [ -n "$_bl_x64_tool" ]; then
@@ -1214,7 +1214,7 @@ case $mode in
     if [ -z "${BL_DESKTOP:-}" ] && [ "${BL_STEAM_UI:-}" != desktop ]; then
       droiddeck-steam-ui-scale "$steam_root" "${BL_WIDTH:-1280}" "${BL_HEIGHT:-720}" || true
     fi
-    DROIDDECK_SEED_LATER=1 droiddeck-seed-redists "$steam_root" || true
+    DROIDHOST_SEED_LATER=1 droiddeck-seed-redists "$steam_root" || true
     fi
     if [ -n "${BL_SHADER_PRECACHE:-}" ]; then
       droiddeck-steam-shaders "$BL_SHADER_PRECACHE" "$XDG_DATA_HOME/Steam" \
@@ -1850,7 +1850,7 @@ case $mode in
             compat_restarts=$((compat_restarts + 1))
             printf '%s\n' $_bl_new >> "$compat_restarted"
             if [ "$steam_x64" = 1 ]; then
-              step "newly installed title(s) $(echo $_bl_new) set to an ARM64 Proton (Windows builds) or DroidDeck direct (Linux builds): restarting the Steam client once so it takes effect"
+              step "newly installed title(s) $(echo $_bl_new) set to an ARM64 Proton (Windows builds) or DroidHost direct (Linux builds): restarting the Steam client once so it takes effect"
             else
               step "newly installed title(s) $(echo $_bl_new) set to the ARM64 Proton: restarting the Steam client once so it takes effect"
             fi
@@ -1882,19 +1882,19 @@ case $mode in
       LIBGL_DEBUG=verbose MESA_LOG_LEVEL=debug timeout 20 /usr/local/bin/droiddeck-glprobe 2>&1 | grep -v drirc | head -60 | sed 's/^/== glprobe: /'
       if [ "${PIPESTATUS[0]}" = 1 ]; then
         VK_LOADER_DEBUG=error,warn timeout 20 /usr/local/bin/droiddeck-glprobe 2>&1 | grep -v drirc | head -40 | sed 's/^/== glprobe (loader): /'
-        DROIDDECK_MALI_COMPAT_TRACE=1 MESA_DEBUG=1 MESA_LOG_LEVEL=debug LIBGL_DEBUG=verbose ZINK_DEBUG=mem VN_DEBUG=init,result,log_ctx_info \
+        DROIDHOST_MALI_COMPAT_TRACE=1 MESA_DEBUG=1 MESA_LOG_LEVEL=debug LIBGL_DEBUG=verbose ZINK_DEBUG=mem VN_DEBUG=init,result,log_ctx_info \
           timeout 30 /usr/local/bin/droiddeck-glprobe > "${BL_DEBUG_DIR:-/tmp}/glprobe-trace.txt" 2>&1
         grep -v drirc "${BL_DEBUG_DIR:-/tmp}/glprobe-trace.txt" | head -120 | sed 's/^/== glprobe (trace): /'
         echo "== glprobe (trace): last pre-device query before Zink gave up: $(grep 'droiddeck-mali-compat: trace:' "${BL_DEBUG_DIR:-/tmp}/glprobe-trace.txt" | grep -v 'trace:   extensions:' | tail -1)"
-        command -v vulkaninfo >/dev/null 2>&1 && DROIDDECK_MALI_COMPAT_TRACE=1 timeout 20 vulkaninfo --summary 2>&1 | head -40 | sed 's/^/== glprobe (vulkaninfo): /'
+        command -v vulkaninfo >/dev/null 2>&1 && DROIDHOST_MALI_COMPAT_TRACE=1 timeout 20 vulkaninfo --summary 2>&1 | head -40 | sed 's/^/== glprobe (vulkaninfo): /'
         bl_gl_ok=
-        for bl_variant in "ZINK_DEBUG=" "ZINK_DEBUG= ZINK_DESCRIPTORS=auto" "ZINK_DEBUG= LIBGL_KOPPER_DISABLE=true" "ZINK_DEBUG= DROIDDECK_MALI_COMPAT=0"; do
+        for bl_variant in "ZINK_DEBUG=" "ZINK_DEBUG= ZINK_DESCRIPTORS=auto" "ZINK_DEBUG= LIBGL_KOPPER_DISABLE=true" "ZINK_DEBUG= DROIDHOST_MALI_COMPAT=0"; do
           if env $bl_variant timeout 20 /usr/local/bin/droiddeck-glprobe 2>&1 | grep -v drirc | head -20 | sed "s/^/== glprobe ($bl_variant): /"; [ "${PIPESTATUS[0]}" = 0 ]; then
             bl_gl_ok=$bl_variant
             break
           fi
         done
-        if [ -n "$bl_gl_ok" ] && [ "$bl_gl_ok" != "ZINK_DEBUG= DROIDDECK_MALI_COMPAT=0" ]; then
+        if [ -n "$bl_gl_ok" ] && [ "$bl_gl_ok" != "ZINK_DEBUG= DROIDHOST_MALI_COMPAT=0" ]; then
           for bl_kv in $bl_gl_ok; do
             case $bl_kv in *=) unset "${bl_kv%=}" ;; *) export "$bl_kv" ;; esac
           done
@@ -1944,8 +1944,8 @@ case $mode in
         wait "$desktop_ui_pid" 2>/dev/null || true
       fi
       echo "== steam exited rc=$rc"
-      if [ "${DROIDDECK_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
-        printf 'DROIDDECK_DIAGNOSTICS event=steam_exit shell_status=%s elapsed_seconds=%s\n' "$rc" "$steam_ran"
+      if [ "${DROIDHOST_ENHANCED_DIAGNOSTICS:-0}" = 1 ]; then
+        printf 'DROIDHOST_DIAGNOSTICS event=steam_exit shell_status=%s elapsed_seconds=%s\n' "$rc" "$steam_ran"
       fi
       collect_steam_logs
       if [ -f "$HOME/.config/droiddeck/fex-wanted" ] && [ -x /usr/local/bin/droiddeck-fex ]; then

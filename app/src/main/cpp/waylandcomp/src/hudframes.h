@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_HUDFRAMES_H
-#define DROIDDECK_HUDFRAMES_H
+#ifndef DROIDHOST_HUDFRAMES_H
+#define DROIDHOST_HUDFRAMES_H
 
 #include <stddef.h>
 #include <stdint.h>

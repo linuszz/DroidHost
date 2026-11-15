@@ -89,7 +89,7 @@ x64_map_direct() {
   python3 - "$mode" "$STEAM_X64/config/config.vdf" "$STEAM_X64/appcache/appinfo.vdf" "$X64_HOME/direct-auto.json" \
     "$X64_HOME/direct-sniper" "$libraries" "$(x64_default_tool)" \
     "$REAL_HOME/.bl-compat-pending" ${BL_X64_DIRECT_APPS:-550} \
-    <<'PY' || { [ "$mode" = live ] || step "could not map titles to DroidDeck direct"; }
+    <<'PY' || { [ "$mode" = live ] || step "could not map titles to DroidHost direct"; }
 # Steam does not swap an installed build when the tool changes: a title installed for Windows stays on Proton.
 import json, os, re, struct, sys
 mode, path, appinfo, auto_file, sniper_file, steamapps, proton, pending = sys.argv[1:9]
@@ -292,7 +292,7 @@ if mode == "live":
             new.append(app)
     if new:
         open(pending, "a").write("".join("%s\n" % a for a in new))
-        print("droiddeck-steam-x64: installed while the client runs, for DroidDeck direct at its restart: %s" % " ".join(new))
+        print("droiddeck-steam-x64: installed while the client runs, for DroidHost direct at its restart: %s" % " ".join(new))
     sys.exit(0)
 _, open_, close = block(s, "CompatToolMapping")
 inner = s[open_:close]
@@ -313,7 +313,7 @@ s = s[:open_] + "".join(reversed(added)) + inner + s[close:]
 open(path, "w", encoding="utf-8", errors="surrogateescape").write(s)
 json.dump(mapped, open(auto_file, "w"))
 open(sniper_file, "w").write("".join("%s\n" % a for a in mapped if games[a] != "scout"))
-print("droiddeck-steam-x64: %d Linux title(s) on DroidDeck direct (%d on the newer runtime)%s"
+print("droiddeck-steam-x64: %d Linux title(s) on DroidHost direct (%d on the newer runtime)%s"
       % (len(mapped), sum(games[a] != "scout" for a in mapped),
          "; %d installed as Windows games kept on %s" % (len(windows), proton) if windows else ""))
 PY
@@ -477,7 +477,7 @@ done
     "droiddeck-direct"
     {
       "install_path" "."
-      "display_name" "DroidDeck direct (no container)"
+      "display_name" "DroidHost direct (no container)"
       "from_oslist" "linux"
       "to_oslist" "linux"
     }

@@ -31,24 +31,24 @@ class UpdateCatalogTest(unittest.TestCase):
     def test_variants(self):
         rows = parse_variants("""
 # name package suffix
-standard com.droiddeck.launcher -
+standard com.droidhost.launcher -
 pubg com.tencent.ig -pubg
 """)
         self.assertEqual(
-            [("com.droiddeck.launcher", ""), ("com.tencent.ig", "-pubg")],
+            [("com.droidhost.launcher", ""), ("com.tencent.ig", "-pubg")],
             rows,
         )
 
     def test_standard_asset_does_not_take_a_variant(self):
         assets = [
             {
-                "name": "DroidDeck-main-deadbee-pubg.apk",
+                "name": "DroidHost-main-deadbee-pubg.apk",
                 "size": 10,
                 "digest": "sha256:" + "a" * 64,
                 "browser_download_url": "https://example/pubg",
             },
             {
-                "name": "DroidDeck-main-deadbee.apk",
+                "name": "DroidHost-main-deadbee.apk",
                 "size": 11,
                 "digest": "sha256:" + "b" * 64,
                 "browser_download_url": "https://example/standard",
@@ -56,8 +56,8 @@ pubg com.tencent.ig -pubg
         ]
         standard = asset_for_suffix(assets, "", ["", "-pubg"])
         pubg = asset_for_suffix(assets, "-pubg", ["", "-pubg"])
-        self.assertEqual("DroidDeck-main-deadbee.apk", standard["name"])
-        self.assertEqual("DroidDeck-main-deadbee-pubg.apk", pubg["name"])
+        self.assertEqual("DroidHost-main-deadbee.apk", standard["name"])
+        self.assertEqual("DroidHost-main-deadbee-pubg.apk", pubg["name"])
 
     def test_ci_description(self):
         title, summary = ci_description(
@@ -93,7 +93,7 @@ pubg com.tencent.ig -pubg
         )
 
     def test_preview_history_keeps_only_complete_signed_main_releases(self):
-        variants = [("com.droiddeck.launcher", ""), ("com.example.variant", "-variant")]
+        variants = [("com.droidhost.launcher", ""), ("com.example.variant", "-variant")]
         commit = "a" * 40
         entry = {
             "commit": commit,
@@ -123,7 +123,7 @@ pubg com.tencent.ig -pubg
         ):
             self.assertIsNone(preview_history_entry(invalid_release, entry, variants))
         self.assertIsNone(preview_history_entry(release, {**entry, "commit": "a" * 12}, variants))
-        self.assertIsNone(preview_history_entry(release, {**entry, "apks": {"com.droiddeck.launcher": {}}}, variants))
+        self.assertIsNone(preview_history_entry(release, {**entry, "apks": {"com.droidhost.launcher": {}}}, variants))
         unsigned = {**entry, "apks": {package: {"sha256": "a" * 64} for package, _ in variants}}
         self.assertIsNone(preview_history_entry(release, unsigned, variants))
 
@@ -144,10 +144,10 @@ pubg com.tencent.ig -pubg
             return {"tag_name": tag, "published_at": at, "assets": [{"name": a} for a in assets], **flags}
         releases = [
             release("gamescope-3.16.29-p5", "2026-10-01T18:53:08Z", "gamescope.tzst"),
-            release("0.3.0", "2026-09-30T00:00:00Z", "DroidDeck-0.3.0.apk", prerelease=True),
-            release("0.2.1", "2026-09-29T00:00:00Z", "DroidDeck-0.2.1.apk", draft=True),
-            release("0.2.0", "2026-09-28T03:20:01Z", "DroidDeck-0.2.0-pubg.apk", "DroidDeck-0.2.0.apk"),
-            release("0.1.6", "2026-09-01T00:00:00Z", "DroidDeck-0.1.6.apk"),
+            release("0.3.0", "2026-09-30T00:00:00Z", "DroidHost-0.3.0.apk", prerelease=True),
+            release("0.2.1", "2026-09-29T00:00:00Z", "DroidHost-0.2.1.apk", draft=True),
+            release("0.2.0", "2026-09-28T03:20:01Z", "DroidHost-0.2.0-pubg.apk", "DroidHost-0.2.0.apk"),
+            release("0.1.6", "2026-09-01T00:00:00Z", "DroidHost-0.1.6.apk"),
         ]
         self.assertEqual("0.2.0", stable_app_release(releases)["tag_name"])
         self.assertIsNone(stable_app_release(releases[:1]))

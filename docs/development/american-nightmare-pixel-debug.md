@@ -152,20 +152,20 @@ Routine Heartbeat must not launch games or automatically resume this engineering
 
 ## Submission scope
 
-These opt-in runtime tools are submitted directly against official DroidDeck
+These opt-in runtime tools are submitted directly against official DroidHost
 `main`. The standalone DXVK build recipe, source pin, BC-format prerequisite and
 presentation-semaphore patch/check are imported verbatim from the PowerVR proposal
 <https://github.com/Droid-Deck/DroidDeck/pull/570> at
 `d0f7264ea8e402d30c868779198dc2fd74e7431c`. That proposal's attribution and existing
 source/license provenance are retained. The semaphore correction originated in
-<https://github.com/wallentx/DroidDeck/pull/3>. No Android app changes, managed pack
+<https://github.com/wallentx/DroidHost/pull/3>. No Android app changes, managed pack
 or the experimental fork's development history are imported with those recipes.
 
 The source tools can be reviewed and built independently. Automatic PowerVR
-integration and delivery in DroidDeck require the separately reviewed #570
+integration and delivery in DroidHost require the separately reviewed #570
 foundation and a new managed-runtime release. This submission does not change
 managed-pack manifests/checksums or globally enable any override. The earlier
-fork-only stage <https://github.com/wallentx/DroidDeck/pull/4> is superseded by the
+fork-only stage <https://github.com/wallentx/DroidHost/pull/4> is superseded by the
 official submission; its review history is preserved.
 
 For standalone verification, run

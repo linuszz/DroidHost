@@ -162,14 +162,14 @@ def view_drive(prefix, exe):
 
 def wine(argv, source_env=None):
     source_env = os.environ if source_env is None else source_env
-    with open(source_env['DROIDDECK_XBOX_COMMAND_FILE'], encoding='utf-8') as file:
+    with open(source_env['DROIDHOST_XBOX_COMMAND_FILE'], encoding='utf-8') as file:
         command = json.load(file)
     if len(command) < 3 or command[1] != 'waitforexitandrun' or len(argv) != 1:
         raise ValueError('Invalid Xbox Proton invocation')
     env = dict(source_env)
-    for name in ('DROIDDECK_XBOX_CREDENTIAL_SOCKET', 'DROIDDECK_XBOX_CREDENTIAL_PORT', 'DROIDDECK_XBOX_CREDENTIAL_KEY'):
+    for name in ('DROIDHOST_XBOX_CREDENTIAL_SOCKET', 'DROIDHOST_XBOX_CREDENTIAL_PORT', 'DROIDHOST_XBOX_CREDENTIAL_KEY'):
         env.pop(name, None)
-    env.pop('DROIDDECK_XBOX_COMMAND_FILE', None)
+    env.pop('DROIDHOST_XBOX_COMMAND_FILE', None)
     prefix = Path(source_env['STEAM_COMPAT_DATA_PATH']) / 'pfx'
     prefix.parent.mkdir(parents=True, exist_ok=True)
     if not (prefix / 'system.reg').is_file():
@@ -205,7 +205,7 @@ def renew_lease(ask, channel, product, lease, stopped):
 
 
 def launch(command, env):
-    if len(command) < 3 or command[1] != 'waitforexitandrun' or env.get('DROIDDECK_XBOX_ACTIVE') == '1':
+    if len(command) < 3 or command[1] != 'waitforexitandrun' or env.get('DROIDHOST_XBOX_ACTIVE') == '1':
         return None
     try:
         store = runpy.run_path(str(BIN / 'droiddeck-store-launch'))
@@ -221,7 +221,7 @@ def launch(command, env):
             raise RuntimeError('Xbox Windows runtime is missing; update the Linux runtime')
     launch_dir = env.get('BL_LAUNCH_DIR')
     if not launch_dir:
-        raise RuntimeError('No Xbox account channel; start the game from DroidDeck')
+        raise RuntimeError('No Xbox account channel; start the game from DroidHost')
     reply = store['ask'](Path(launch_dir) / 'stores', {'op': 'xbox-prepare', 'id': sidecar['id']}, timeout=190)
     if not reply or not reply.get('ok'):
         raise RuntimeError('Xbox account service is unavailable; sign in again and retry')
@@ -236,10 +236,10 @@ def launch(command, env):
             context = Path(temporary) / 'command.json'
             context.write_text(json.dumps(command), encoding='utf-8')
             context.chmod(0o600)
-            owned_env = dict(env, DROIDDECK_XBOX_ACTIVE='1', DROIDDECK_XBOX_COMMAND_FILE=str(context),
+            owned_env = dict(env, DROIDHOST_XBOX_ACTIVE='1', DROIDHOST_XBOX_COMMAND_FILE=str(context),
                              XODUS_SOCKET=reply['socket'], XODUS_BRIDGE_PORT=str(port), XODUS_BRIDGE_KEY=key,
                              XODUS_LOG='off', RUST_LOG='off', XODUS_SAVE_SYNC='auto' if sidecar.get('cloud', True) else 'off')
-            for name in ('DROIDDECK_XBOX_CREDENTIAL_SOCKET', 'DROIDDECK_XBOX_CREDENTIAL_PORT', 'DROIDDECK_XBOX_CREDENTIAL_KEY'):
+            for name in ('DROIDHOST_XBOX_CREDENTIAL_SOCKET', 'DROIDHOST_XBOX_CREDENTIAL_PORT', 'DROIDHOST_XBOX_CREDENTIAL_KEY'):
                 owned_env.pop(name, None)
             if reply.get('playfab'):
                 owned_env['XODUS_XSTS_PLAYFAB'] = reply['playfab']

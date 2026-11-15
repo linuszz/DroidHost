@@ -41,7 +41,7 @@ export default class xCloudPlayer {
         this._peerConnection.ontrack = (event) => {
 
             if(event.track.kind === 'video'){
-                // DroidDeck: a plain <video> element (hardware decode); WebGPU is not dependable in Android WebView.
+                // DroidHost: a plain <video> element (hardware decode); WebGPU is not dependable in Android WebView.
                 this._videoComponent = new VideoComponent(this)
                 this._videoComponent.create(event.streams[0])
 

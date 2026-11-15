@@ -21,7 +21,7 @@ EPIC_CODE = ".droiddeck-epic-code"
 EPIC_ARGS = ".droiddeck-epic-args"
 EPIC_CLIENT = "/usr/local/bin/droiddeck-epic"
 EPIC_CLIENT_CURRENT = ".local/share/droiddeck-epic/current.json"
-EPIC_HANDLED = "DROIDDECK_EPIC_HANDLED"
+EPIC_HANDLED = "DROIDHOST_EPIC_HANDLED"
 CLIENT_TIMEOUT = 150.0
 TIMEOUT = 5.0
 STALE_SECONDS = 300
@@ -1529,7 +1529,7 @@ def gog_support_data(folder, compat_data, proton):
 
 
 def main(argv):
-    if os.environ.get("DROIDDECK_GOG_MAINTENANCE") == "1":
+    if os.environ.get("DROIDHOST_GOG_MAINTENANCE") == "1":
         return 0
     if argv and argv[0] == "--exited":
         rest, code = argv[1:], 0

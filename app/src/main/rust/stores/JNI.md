@@ -5,7 +5,7 @@ exports is listed here with the class it binds to, the JNI signature, when it is
 which thread. The GOG engine and the shared fetch core came from Bannerlator's
 `bl-steam-client` crate (method names and signatures match Bannerlator's `BlGogDownload`, only the
 package and class names changed). The Epic module (`src/epic/`) and the Amazon module
-(`src/amazon/`) are DroidDeck's own, each written from a functional spec (see
+(`src/amazon/`) are DroidHost's own, each written from a functional spec (see
 `docs/development/epic-cleanroom.md` and `docs/development/amazon-cleanroom.md`); their JNI
 surfaces below are new.
 
@@ -39,30 +39,30 @@ call and degrade to "store unavailable".
   thread owns its own references (cancel flag, listener `GlobalRef`).
 - `caBundlePath`: a PEM bundle the HTTPS client adds as extra root certificates; `""` = the roots
   rustls ships with (webpki). Bannerlator extracts the system CA store to a file for this; on
-  DroidDeck `""` is the sensible default unless a CDN fails TLS verification.
+  DroidHost `""` is the sensible default unless a CDN fails TLS verification.
 - `maxWorkers` is the ceiling of the adaptive in-flight request window; `processWorkers` is the
   number of sync inflate+hash+write threads. Bannerlator passes its "download threads" preference
   for both (8 by default).
 
-## `com.droiddeck.launcher.stores.StoresNative`
+## `com.droidhost.launcher.stores.StoresNative`
 
 | Method | JNI signature | Symbol |
 |---|---|---|
-| `nativeVersion(): String` | `()Ljava/lang/String;` | `Java_com_droiddeck_launcher_stores_StoresNative_nativeVersion` |
+| `nativeVersion(): String` | `()Ljava/lang/String;` | `Java_com_droidhost_launcher_stores_StoresNative_nativeVersion` |
 
 Returns the crate version from `Cargo.toml` (`"0.1.0"`). Call it from Setup, after
 `System.loadLibrary("droiddeckstores")`, to prove the library loads and binds; show the string
 next to the other component versions. May return `null` only if the JVM cannot allocate a string.
 
 ```kotlin
-package com.droiddeck.launcher.stores
+package com.droidhost.launcher.stores
 
 object StoresNative {
     @JvmStatic external fun nativeVersion(): String
 }
 ```
 
-## `com.droiddeck.launcher.stores.gog.GogNative`
+## `com.droidhost.launcher.stores.gog.GogNative`
 
 GOG gen2 chunk engine (depot manifests → chunk fetch + zlib inflate + MD5) and gen1 (build manifest
 → per-file HTTP Range GET streamed to disk). One `nativeStart` = one download loop (base install,
@@ -72,10 +72,10 @@ after it (marker files, exe resolution, DLC markers, redist orchestration).
 
 | Method | JNI signature | Symbol |
 |---|---|---|
-| `nativeProbe(): Int` | `()I` | `Java_com_droiddeck_launcher_stores_gog_GogNative_nativeProbe` |
-| `nativeStart(...)`: Long | `(I[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;IIZLjava/lang/String;Ljava/lang/Object;)J` (last parameter is the listener; its static type is the app's choice) | `Java_com_droiddeck_launcher_stores_gog_GogNative_nativeStart` |
-| `nativeCancel(handle: Long)` | `(J)V` | `Java_com_droiddeck_launcher_stores_gog_GogNative_nativeCancel` |
-| `nativeRelease(handle: Long)` | `(J)V` | `Java_com_droiddeck_launcher_stores_gog_GogNative_nativeRelease` |
+| `nativeProbe(): Int` | `()I` | `Java_com_droidhost_launcher_stores_gog_GogNative_nativeProbe` |
+| `nativeStart(...)`: Long | `(I[Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;IIZLjava/lang/String;Ljava/lang/Object;)J` (last parameter is the listener; its static type is the app's choice) | `Java_com_droidhost_launcher_stores_gog_GogNative_nativeStart` |
+| `nativeCancel(handle: Long)` | `(J)V` | `Java_com_droidhost_launcher_stores_gog_GogNative_nativeCancel` |
+| `nativeRelease(handle: Long)` | `(J)V` | `Java_com_droidhost_launcher_stores_gog_GogNative_nativeRelease` |
 
 `nativeProbe()` returns `2`; it exists so `isAvailable()` can catch `UnsatisfiedLinkError`
 once at startup instead of mid-download.
@@ -100,7 +100,7 @@ Returns `0` without any callback when: the listener is null, the JavaVM cannot b
 install dir or manifest list is empty, `cdnBases` holds no usable base for gen2, or the worker
 thread cannot be spawned. Otherwise the run is on a thread named `gog-dl` and `onComplete` fires exactly once.
 
-Suggested listener: `com.droiddeck.launcher.stores.gog.GogNative.Listener` (an interface).
+Suggested listener: `com.droidhost.launcher.stores.gog.GogNative.Listener` (an interface).
 
 | Listener method | JNI signature | When |
 |---|---|---|
@@ -122,13 +122,13 @@ network bytes, including failed attempts. `onMaintenance(networkBytes, reusedByt
 appliedBytes)` (`(JJJ)V`) reports the three separate cumulative counters. Existing
 gen1/gen2 first-install progress semantics are unchanged.
 
-## `com.droiddeck.launcher.stores.epic.EpicNative`
+## `com.droidhost.launcher.stores.epic.EpicNative`
 
 Everything Epic runs in the Rust `epic` module: the web-service calls (sign-in, refresh, exchange
 codes, library, catalog, build information, shop shelves, achievements, cloud saves), manifest
 parsing and the install engine. Tokens are passed in per call and never stored or logged by the
 library; the Kotlin facade keeps them in the shared Keystore-sealed account store. Requests send
-`DroidDeck/<versionName>` (`epic/net.rs::USER_AGENT_PRODUCT`; the version comes from
+`DroidHost/<versionName>` (`epic/net.rs::USER_AGENT_PRODUCT`; the version comes from
 `nativeConfigure`), except achievements, which Epic only answers for its launcher agent
 (`epic/net.rs::EPIC_LAUNCHER_USER_AGENT`).
 
@@ -139,11 +139,11 @@ library; the Kotlin facade keeps them in the shared Keystore-sealed account stor
 | `nativeFetch(op: String, request: String): ByteArray?` | `(Ljava/lang/String;Ljava/lang/String;)[B` | `nativeFetch` |
 | `nativeSend(op: String, request: String, body: ByteArray): String?` | `(Ljava/lang/String;Ljava/lang/String;[B)Ljava/lang/String;` | `nativeSend` |
 | `nativeInspect(manifest: ByteArray, request: String): String?` | `([BLjava/lang/String;)Ljava/lang/String;` | `nativeInspect` |
-| `nativeInstall(request: String, listener: InstallListener): Long` | `(Ljava/lang/String;Lcom/droiddeck/launcher/stores/epic/EpicNative$InstallListener;)J` | `nativeInstall` |
+| `nativeInstall(request: String, listener: InstallListener): Long` | `(Ljava/lang/String;Lcom/droidhost/launcher/stores/epic/EpicNative$InstallListener;)J` | `nativeInstall` |
 | `nativeCancel(handle: Long)` | `(J)V` | `nativeCancel` |
 | `nativeRelease(handle: Long)` | `(J)V` | `nativeRelease` |
 
-Full symbols are `Java_com_droiddeck_launcher_stores_epic_EpicNative_<suffix>`. Every call is
+Full symbols are `Java_com_droidhost_launcher_stores_epic_EpicNative_<suffix>`. Every call is
 synchronous on the calling thread (network calls block: call them off the main thread) except
 `nativeInstall`, which returns at once. A Rust panic is caught at the boundary (`null` / 0 result).
 
@@ -206,11 +206,11 @@ completes.
 | `onComplete(success, cancelled, error, result)` | `(ZZLjava/lang/String;Ljava/lang/String;)V` | terminal. `result` (on success) is JSON: `buildVersion`, `launchExe`, `prereqName`, `prereqPath`, `prereqRead`, `deploymentId`, `diskBytes`, `bytesWritten`, `filesWritten`; `error` is `"cancelled"` on cancel |
 
 On-disk protocol: game files are staged in `<gameDir>/.droiddeck-epic-staging/*.stage` (owner
-marker `owner` = `DroidDeck Epic staging v1\n`) and renamed over their destination after size and
+marker `owner` = `DroidHost Epic staging v1\n`) and renamed over their destination after size and
 SHA-1 checks; a paused run keeps each unfinished file there as `*.part` with its written parts in `*.part.list`; reusable chunks live, decompressed, as `<GUID>` (extra copies `<GUID>.<n>`, writes via
 `.part`) in `<gameDir>/.chunks` or the scratch directory.
 
-## `com.droiddeck.launcher.stores.amazon.AmazonNative`
+## `com.droidhost.launcher.stores.amazon.AmazonNative`
 
 Everything Amazon Games runs in the Rust `amazon` module (`src/amazon/`, written from a functional
 spec, see `docs/development/amazon-cleanroom.md`): device sign-in values and registration, token
@@ -223,7 +223,7 @@ User-Agents (all in `amazon/net.rs`): the sign-in WebView and `api.amazon.com` g
 Firefox string (`BROWSER_USER_AGENT`); the distribution service (`gaming.amazon.com`) gets the
 Windows games launcher's `User-Agent: AGSLauncher/1.0.0` plus its non-standard
 `UserAgent: com.amazon.agslauncher.win/3.0.9202.1` header; the CDN (manifest and files) gets
-`DroidDeck/<versionName>` (`USER_AGENT_PRODUCT`; the version comes from `nativeConfigure`).
+`DroidHost/<versionName>` (`USER_AGENT_PRODUCT`; the version comes from `nativeConfigure`).
 
 | Method | JNI signature | Symbol suffix |
 |---|---|---|
@@ -231,11 +231,11 @@ Windows games launcher's `User-Agent: AGSLauncher/1.0.0` plus its non-standard
 | `nativeCall(op: String, request: String): String?` | `(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;` | `nativeCall` |
 | `nativeFetch(op: String, request: String): ByteArray?` | `(Ljava/lang/String;Ljava/lang/String;)[B` | `nativeFetch` |
 | `nativeInspect(manifest: ByteArray, request: String): String?` | `([BLjava/lang/String;)Ljava/lang/String;` | `nativeInspect` |
-| `nativeInstall(request: String, listener: InstallListener): Long` | `(Ljava/lang/String;Lcom/droiddeck/launcher/stores/amazon/AmazonNative$InstallListener;)J` | `nativeInstall` |
+| `nativeInstall(request: String, listener: InstallListener): Long` | `(Ljava/lang/String;Lcom/droidhost/launcher/stores/amazon/AmazonNative$InstallListener;)J` | `nativeInstall` |
 | `nativeCancel(handle: Long)` | `(J)V` | `nativeCancel` |
 | `nativeRelease(handle: Long)` | `(J)V` | `nativeRelease` |
 
-Full symbols are `Java_com_droiddeck_launcher_stores_amazon_AmazonNative_<suffix>`. Every call is
+Full symbols are `Java_com_droidhost_launcher_stores_amazon_AmazonNative_<suffix>`. Every call is
 synchronous on the calling thread (network calls block: call them off the main thread) except
 `nativeInstall`, which returns at once. A Rust panic is caught at the boundary (`null` / 0 result).
 The Amazon module writes nothing to logcat itself; install lines reach the app through `onLog`.
@@ -295,4 +295,4 @@ created when a run starts and removed when it succeeds, which also creates
 Lines go to logcat under `GogNative` and `EpicNative` (the Amazon module logs only through
 `onLog`). Bannerlator used `BL_GOG_DL` for the GOG engine; the fetch core's line grammar
 (`fetch-start`, `fetch-window`, `throughput`, `fetch-end`, `summary`) is unchanged, so its tuning
-notes still read against a DroidDeck log.
+notes still read against a DroidHost log.

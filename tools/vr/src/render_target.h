@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_RENDER_TARGET_H
-#define DROIDDECK_RENDER_TARGET_H
+#ifndef DROIDHOST_RENDER_TARGET_H
+#define DROIDHOST_RENDER_TARGET_H
 
 #include <algorithm>
 #include <cmath>

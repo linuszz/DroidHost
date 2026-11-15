@@ -59,9 +59,9 @@ static const char *tf_name(uint32_t tf) {
 
 static const char *dataspace_name(int32_t ds) {
     switch (ds) {
-    case DROIDDECK_ADATASPACE_BT2020_PQ: return "BT2020_PQ";
-    case DROIDDECK_ADATASPACE_BT2020_HLG: return "BT2020_HLG";
-    case DROIDDECK_ADATASPACE_UNKNOWN: return "UNKNOWN (sRGB)";
+    case DROIDHOST_ADATASPACE_BT2020_PQ: return "BT2020_PQ";
+    case DROIDHOST_ADATASPACE_BT2020_HLG: return "BT2020_HLG";
+    case DROIDHOST_ADATASPACE_UNKNOWN: return "UNKNOWN (sRGB)";
     default: return "other";
     }
 }
@@ -376,21 +376,21 @@ void droiddeck_color_frame_shown(const struct droiddeck_color *c, int path, uint
     int first8 = 0;
     pthread_mutex_lock(&g_mu);
     switch (path) {
-    case DROIDDECK_HDR_ZERO_COPY:
+    case DROIDHOST_HDR_ZERO_COPY:
         if (ahb_format == 0x2b) g_hdr.layer_10bit++;
         g_hdr.win_zc++;
         snprintf(g_hdr.layer_fmt, sizeof(g_hdr.layer_fmt), "%s", droiddeck_ahb_format_name(ahb_format));
         break;
-    case DROIDDECK_HDR_LAYER_COPY:
+    case DROIDHOST_HDR_LAYER_COPY:
         if (!g_hdr.layer_copy8) first8 = 1;
         g_hdr.layer_copy8++; g_hdr.win_copy8++;
         snprintf(g_hdr.layer_fmt, sizeof(g_hdr.layer_fmt), "RGBA8888 layer copy");
         break;
-    case DROIDDECK_HDR_COMPOSED:
+    case DROIDHOST_HDR_COMPOSED:
         g_hdr.composed++; g_hdr.win_composed++;
         snprintf(g_hdr.layer_fmt, sizeof(g_hdr.layer_fmt), "composed %s", droiddeck_ahb_format_name(ahb_format));
         break;
-    case DROIDDECK_HDR_SWAPCHAIN:
+    case DROIDHOST_HDR_SWAPCHAIN:
         g_hdr.swapchain++; g_hdr.win_swapchain++;
         snprintf(g_hdr.layer_fmt, sizeof(g_hdr.layer_fmt), "HDR10 swapchain");
         atomic_store(&g_screen_hr_ns, now_ns());
@@ -406,7 +406,7 @@ void droiddeck_color_frame_shown(const struct droiddeck_color *c, int path, uint
     g_hdr.win_layer++;
     pthread_mutex_unlock(&g_mu);
     atomic_store(&g_last_frame_ns, now_ns());
-    if (path == DROIDDECK_HDR_SWAPCHAIN) {
+    if (path == DROIDHOST_HDR_SWAPCHAIN) {
         static uint32_t ident;
         static int64_t calc_ns;
         const int64_t t = now_ns();
@@ -558,7 +558,7 @@ static _Atomic int g_sdr_white_x100 = 20300;
 void droiddeck_color_set_sdr_white(float nits) {
     if (!(nits >= 10.0f && nits <= 2000.0f)) return;
     atomic_store(&g_sdr_white_x100, (int)(nits * 100.0f + 0.5f));
-    droiddeck_log(TAG, "SDR content inside an HDR picture is placed at %.0f nits (DROIDDECK_WAYLAND_HDR_SDR_NITS)", nits);
+    droiddeck_log(TAG, "SDR content inside an HDR picture is placed at %.0f nits (DROIDHOST_WAYLAND_HDR_SDR_NITS)", nits);
 }
 float droiddeck_color_sdr_white(void) { return atomic_load(&g_sdr_white_x100) / 100.0f; }
 
@@ -708,7 +708,7 @@ static void make_output_description(struct wl_client *c, struct wl_resource *par
     if (!g_next_identity) g_next_identity = 1;
     col->primaries = WP_COLOR_MANAGER_V1_PRIMARIES_BT2020;
     col->tf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ;
-    col->dataspace = DROIDDECK_ADATASPACE_BT2020_PQ;
+    col->dataspace = DROIDHOST_ADATASPACE_BT2020_PQ;
     col->has_st2086 = 1;
     col->red[0] = 0.708f; col->red[1] = 0.292f; col->green[0] = 0.170f; col->green[1] = 0.797f;
     col->blue[0] = 0.131f; col->blue[1] = 0.046f; col->white[0] = 0.3127f; col->white[1] = 0.3290f;
@@ -745,9 +745,9 @@ static void params_create(struct wl_client *client, struct wl_resource *r, uint3
     c->primaries = p->primaries;
     c->tf = p->tf;
     if (p->primaries == WP_COLOR_MANAGER_V1_PRIMARIES_BT2020 && p->tf == WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ)
-        c->dataspace = DROIDDECK_ADATASPACE_BT2020_PQ;
+        c->dataspace = DROIDHOST_ADATASPACE_BT2020_PQ;
     else if (p->primaries == WP_COLOR_MANAGER_V1_PRIMARIES_BT2020 && p->tf == WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG)
-        c->dataspace = DROIDDECK_ADATASPACE_BT2020_HLG;
+        c->dataspace = DROIDHOST_ADATASPACE_BT2020_HLG;
 
     char dropped[160] = "";
     float mlum_min = 0.005f, mlum_max = 10000.0f;
@@ -1149,14 +1149,14 @@ void droiddeck_color_init(struct wl_display *display) {
         snprintf(disp, sizeof(disp), "the app could not read the display's HDR capability");
 
     char asked[128];
-    if (mode == 2) snprintf(asked, sizeof(asked), "DROIDDECK_WAYLAND_HDR=force (%s)", source);
-    else if (strstr(source, "env")) snprintf(asked, sizeof(asked), "DROIDDECK_WAYLAND_HDR=1 (%s)", source);
+    if (mode == 2) snprintf(asked, sizeof(asked), "DROIDHOST_WAYLAND_HDR=force (%s)", source);
+    else if (strstr(source, "env")) snprintf(asked, sizeof(asked), "DROIDHOST_WAYLAND_HDR=1 (%s)", source);
     else snprintf(asked, sizeof(asked), "HDR output is on (%s)", source);
 
     int layer_ok = sc_layer_can_tag_hdr();
     int ahb_ok = ahb_swapchain_advertised();
     char off_why[128];
-    if (strstr(source, "env")) snprintf(off_why, sizeof(off_why), "DROIDDECK_WAYLAND_HDR=0 in the %s overrides the setting", source);
+    if (strstr(source, "env")) snprintf(off_why, sizeof(off_why), "DROIDHOST_WAYLAND_HDR=0 in the %s overrides the setting", source);
     else snprintf(off_why, sizeof(off_why), "the HDR output setting is off");
     if (mode == 0)
         snprintf(why, sizeof(why), "HDR output is off (%s)", off_why);
@@ -1206,7 +1206,7 @@ void droiddeck_color_init(struct wl_display *display) {
                "frames go on the game's own display layer as BT2020_PQ (%s)",
                mode == 2 ? "FORCED OPEN (testing)" : "OPEN", asked, disp, syms);
     if (mode == 2 && !hdr10)
-        droiddeck_log(TAG, "DROIDDECK_WAYLAND_HDR=force on a display without HDR10 - testing only: SurfaceFlinger will tone-map "
+        droiddeck_log(TAG, "DROIDHOST_WAYLAND_HDR=force on a display without HDR10 - testing only: SurfaceFlinger will tone-map "
                    "the game layer for this panel (expect GPU/CLIENT composition for it), nothing looks HDR");
     if (zc_forced)
         droiddeck_log(TAG, "zero-copy presentation turned on for this session: the HDR game's own 10-bit frames go straight "

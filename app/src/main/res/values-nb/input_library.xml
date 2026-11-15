@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Send kontrollerinndata til Steam Input eller spillet.</string>
     <string name="input_disabled_hint">Dette elementet sender ingen inndata fra kontroller, mus eller tastatur.</string>
     <string name="input_mouse_click">Museklikk</string>
-    <string name="input_command">DroidDeck-handling</string>
+    <string name="input_command">DroidHost-handling</string>
     <string name="input_action">Handling</string>
     <string name="input_scroll_speed">Rullehastighet: %1$d trinn/s</string>
     <string name="input_new_profile">+ Ny profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Musestyreflatebevegelser</string>
     <string name="input_mouse_gestures_hint">Når tilordnet musepekeren: trykk for å klikke, hold for å dra, og rull med to fingre.</string>
     <string name="input_quick_override_hint">%1$s har en overstyring av hurtigmenyen. Velg Auto der for å bruke standardprofilen og alle tre lagrede delene.</string>
-    <string name="input_route_local">DroidDeck-inndata</string>
-    <string name="input_axis_action_hint" formatted="false">Holdes mens stikka flyttes i en hvilken som helst retning: trykk over 55 %, slipp under 35 %. Bruk Retningstaster for å tildele hver retning separat. DroidDeck-kommandoer kjøres én gang per utslag. Stikkklikket konfigureres separat.</string>
-    <string name="input_contact_action_hint">Holdes mens du berører styreflaten; slippes når du løfter fingeren. DroidDeck-kommandoer kjøres én gang per berøring. Styreflateklikket konfigureres separat.</string>
-    <string name="input_trigger_action_hint" formatted="false">Holdes når avtrekkeren passerer 55 %; slippes under 35 %. DroidDeck-kommandoer kjøres én gang per trykk.</string>
+    <string name="input_route_local">DroidHost-inndata</string>
+    <string name="input_axis_action_hint" formatted="false">Holdes mens stikka flyttes i en hvilken som helst retning: trykk over 55 %, slipp under 35 %. Bruk Retningstaster for å tildele hver retning separat. DroidHost-kommandoer kjøres én gang per utslag. Stikkklikket konfigureres separat.</string>
+    <string name="input_contact_action_hint">Holdes mens du berører styreflaten; slippes når du løfter fingeren. DroidHost-kommandoer kjøres én gang per berøring. Styreflateklikket konfigureres separat.</string>
+    <string name="input_trigger_action_hint" formatted="false">Holdes når avtrekkeren passerer 55 %; slippes under 35 %. DroidHost-kommandoer kjøres én gang per trykk.</string>
     <string name="input_scroll_axis">Rulleretning</string>
     <string name="input_vertical">Loddrett</string>
     <string name="input_horizontal">Vannrett</string>
     <string name="input_scroll_horizontal">Rull vannrett</string>
     <string name="input_measurements">Målinger</string>
-    <string name="input_measure_instructions">Slå på opptak, bruk kontrollene i en kjørende økt, og kom tilbake og les resultatene. Måler bare DroidDeck-utsendingstiden, ikke skjermforsinkelse. Opptaket avsluttes når appprosessen lukkes.</string>
+    <string name="input_measure_instructions">Slå på opptak, bruk kontrollene i en kjørende økt, og kom tilbake og les resultatene. Måler bare DroidHost-utsendingstiden, ikke skjermforsinkelse. Opptaket avsluttes når appprosessen lukkes.</string>
     <string name="input_layout_count">%1$d kontroller</string>
     <string name="input_other_layouts">Andre lagrede oppsett (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Skjul andre lagrede oppsett (%1$d) ▴</string>

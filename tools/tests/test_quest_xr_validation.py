@@ -57,7 +57,7 @@ class QuestXrValidationTest(unittest.TestCase):
             if command[-1] == 'battery':
                 return 'temperature: 310'
             raise subprocess.CalledProcessError(1, command, stderr='Permission denied')
-        metrics = collect_device_metrics(adb, 'com.droiddeck.launcher')
+        metrics = collect_device_metrics(adb, 'com.droidhost.launcher')
         self.assertEqual(len(commands), 3)
         self.assertTrue(metrics['battery']['available'])
         self.assertFalse(metrics['thermal']['available'])

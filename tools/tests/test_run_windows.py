@@ -20,12 +20,12 @@ class WindowsLauncherTest(unittest.TestCase):
         shutil.copyfile(SCRIPT, self.root / 'tools/run_windows.ps1')
         self.calls = self.root / 'calls.txt'
         (self.root / 'gradlew.bat').write_text(
-            '@echo off\necho gradle JAVA_HOME=%JAVA_HOME%>>"%DROIDDECK_TEST_CALLS%"\n'
-            'exit /b %DROIDDECK_TEST_GRADLE_EXIT%\n')
+            '@echo off\necho gradle JAVA_HOME=%JAVA_HOME%>>"%DROIDHOST_TEST_CALLS%"\n'
+            'exit /b %DROIDHOST_TEST_GRADLE_EXIT%\n')
         (self.root / 'adb.cmd').write_text(
-            '@echo off\necho adb %*>>"%DROIDDECK_TEST_CALLS%"\nexit /b 0\n')
+            '@echo off\necho adb %*>>"%DROIDHOST_TEST_CALLS%"\nexit /b 0\n')
         self.env = dict(os.environ, JAVA_HOME=r'C:\provided-java',
-                        DROIDDECK_TEST_CALLS=str(self.calls), DROIDDECK_TEST_GRADLE_EXIT='0')
+                        DROIDHOST_TEST_CALLS=str(self.calls), DROIDHOST_TEST_GRADLE_EXIT='0')
         self.env['PATH'] = str(self.root) + os.pathsep + self.env.get('PATH', '')
 
     def launch(self):
@@ -41,7 +41,7 @@ class WindowsLauncherTest(unittest.TestCase):
         self.assertEqual(calls[0], r'gradle JAVA_HOME=C:\provided-java')
         self.assertEqual(calls[1], 'adb -s test-phone install -r app/build/outputs/apk/debug/app-debug.apk')
         self.assertEqual(calls[2], 'adb -s test-phone shell am start -W -n '
-                         'com.droiddeck.launcher/com.droiddeck.launcher.MainActivity')
+                         'com.droidhost.launcher/com.droidhost.launcher.MainActivity')
 
     def test_existing_configs_select_java_and_suffixed_package(self):
         (self.root / '.gradle').mkdir()
@@ -51,7 +51,7 @@ class WindowsLauncherTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         calls = self.calls.read_text().splitlines()
         self.assertEqual(calls[0], r'gradle JAVA_HOME=C:\configured-java')
-        self.assertTrue(calls[2].endswith('com.droiddeck.launcher.xr/com.droiddeck.launcher.MainActivity'))
+        self.assertTrue(calls[2].endswith('com.droidhost.launcher.xr/com.droidhost.launcher.MainActivity'))
 
     def test_empty_configs_use_defaults(self):
         (self.root / '.gradle').mkdir()
@@ -61,10 +61,10 @@ class WindowsLauncherTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         calls = self.calls.read_text().splitlines()
         self.assertEqual(calls[0], r'gradle JAVA_HOME=C:\provided-java')
-        self.assertTrue(calls[2].endswith('com.droiddeck.launcher/com.droiddeck.launcher.MainActivity'))
+        self.assertTrue(calls[2].endswith('com.droidhost.launcher/com.droidhost.launcher.MainActivity'))
 
     def test_build_failure_still_stops_before_installation(self):
-        self.env['DROIDDECK_TEST_GRADLE_EXIT'] = '1'
+        self.env['DROIDHOST_TEST_GRADLE_EXIT'] = '1'
         result = self.launch()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Android build failed.', result.stderr)

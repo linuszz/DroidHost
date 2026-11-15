@@ -55,7 +55,7 @@ fn guarded<T>(fallback: T, f: impl FnOnce() -> T) -> T {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeConfigure(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeConfigure(
     mut env: JNIEnv,
     _class: JClass,
     app_version: JString,
@@ -65,7 +65,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeCall(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeCall(
     mut env: JNIEnv,
     _class: JClass,
     op: JString,
@@ -81,7 +81,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeFetch(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeFetch(
     mut env: JNIEnv,
     _class: JClass,
     op: JString,
@@ -99,7 +99,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeSend(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeSend(
     mut env: JNIEnv,
     _class: JClass,
     op: JString,
@@ -117,7 +117,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeInspect(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeInspect(
     mut env: JNIEnv,
     _class: JClass,
     manifest: JByteArray,
@@ -239,7 +239,7 @@ impl Events for Listener {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeInstall(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeInstall(
     mut env: JNIEnv,
     _class: JClass,
     request: JString,
@@ -281,7 +281,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeCancel(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeCancel(
     _env: JNIEnv,
     _class: JClass,
     handle: jlong,
@@ -293,7 +293,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_native
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_epic_EpicNative_nativeRelease(
+pub extern "system" fn Java_com_droidhost_launcher_stores_epic_EpicNative_nativeRelease(
     _env: JNIEnv,
     _class: JClass,
     handle: jlong,

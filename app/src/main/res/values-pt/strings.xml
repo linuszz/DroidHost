@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="steamvr_recovery_title">Os gráficos do SteamVR pararam</string>
-    <string name="steamvr_recovery_countdown">O DroidDeck vai reiniciar em %1$d segundos para redefinir os gráficos e reabrir o SteamVR. O jogo em execução será fechado; o progresso não salvo não poderá ser recuperado.</string>
+    <string name="steamvr_recovery_countdown">O DroidHost vai reiniciar em %1$d segundos para redefinir os gráficos e reabrir o SteamVR. O jogo em execução será fechado; o progresso não salvo não poderá ser recuperado.</string>
     <string name="steamvr_recovery_repeated">A falha gráfica voltou logo após uma reinicialização recente. A recuperação automática foi pausada para evitar um loop. Reiniciar vai fechar o jogo; o progresso não salvo não poderá ser recuperado.</string>
     <string name="steamvr_recovery_restart">Reiniciar agora</string>
     <string name="steamvr_recovery_cancel">Manter aberto</string>
     <string name="steamvr_recovery_restarting">Redefinindo os gráficos e reabrindo o SteamVR…</string>
-    <string name="steamvr_recovery_failed">O DroidDeck não conseguiu reiniciar automaticamente. Feche o app completamente e abra-o de novo.</string>
-    <string name="app_name">DroidDeck</string>
+    <string name="steamvr_recovery_failed">O DroidHost não conseguiu reiniciar automaticamente. Feche o app completamente e abra-o de novo.</string>
+    <string name="app_name">DroidHost</string>
     <string-array name="loading_hints">
         <item>Na primeira execução, a Steam é baixada. Isso pode levar alguns minutos.</item>
         <item>Por padrão, sair do app pausa a Steam; ela continua de onde parou quando você voltar.</item>
@@ -145,7 +145,7 @@
     <string name="user_apps_remove_confirm">Pressione de novo para remover</string>
     <string name="user_apps_stop_session">Encerre a sessão para remover</string>
     <string name="user_apps_script_linked">Executa %1$s a partir da própria pasta, vinculada à sessão no local onde está. Remover o app não mexe nessa pasta.</string>
-    <string name="user_apps_script_copied">Executa %1$s a partir de uma cópia da pasta dele dentro do DroidDeck. Remover o app apaga a cópia, não o original.</string>
+    <string name="user_apps_script_copied">Executa %1$s a partir de uma cópia da pasta dele dentro do DroidHost. Remover o app apaga a cópia, não o original.</string>
     <string name="user_apps_runtime_required">Instale primeiro o runtime do Linux</string>
     <string name="user_apps_file_gone">O arquivo não existe mais</string>
     <string name="user_apps_no_space">Espaço livre insuficiente: copiar a pasta requer %1$s</string>
@@ -180,8 +180,8 @@
     <string name="app_fex_off">Desativado</string>
     <string name="app_fex_hint">O FEX roda programas Linux x86 neste dispositivo ARM64. No Automático, ele é usado quando o programa é feito para x86.</string>
     <string name="app_fex_x86">%1$s pelo FEX</string>
-    <string name="app_fex_not_ready">Este programa é feito para PCs %1$s e roda pelo FEX, que ainda não está configurado. Abra a Steam uma vez com a sessão iniciada: o DroidDeck faz com que ela baixe o FEX e o Steam Linux Runtime necessários, e então isto abre.</string>
-    <string name="session_proot_missing">Não foi possível baixar o proot do DroidDeck. Verifique a conexão e tente novamente. A sessão não foi iniciada, porque o proot alternativo é lento demais para jogar.</string>
+    <string name="app_fex_not_ready">Este programa é feito para PCs %1$s e roda pelo FEX, que ainda não está configurado. Abra a Steam uma vez com a sessão iniciada: o DroidHost faz com que ela baixe o FEX e o Steam Linux Runtime necessários, e então isto abre.</string>
+    <string name="session_proot_missing">Não foi possível baixar o proot do DroidHost. Verifique a conexão e tente novamente. A sessão não foi iniciada, porque o proot alternativo é lento demais para jogar.</string>
     <string name="session_powervr_missing">Não foi possível baixar o ambiente gráfico PowerVR. Verifique a conexão e tente novamente.</string>
     <string name="session_directaudio_missing">Não foi possível baixar o DirectAudio, então o áudio dos jogos usa o caminho mais lento nesta sessão.</string>
     <string name="session_end_program">Este programa</string>
@@ -221,13 +221,13 @@
     <string name="edit_app_save">Salvar</string>
     <string name="add_app_checking_folder">Verificando a pasta…</string>
     <string name="add_app_folder_linked">A pasta dele é vinculada à sessão: %1$s</string>
-    <string name="add_app_folder_copied">A pasta dele contém programas Linux, que o armazenamento compartilhado não consegue executar, então ela é copiada para o DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">A pasta dele contém programas Linux, que o armazenamento compartilhado não consegue executar, então ela é copiada para o DroidHost (%1$s).</string>
     <string name="add_app_confirm">Adicionar</string>
     <string name="add_app_cancel">Cancelar</string>
     <string name="add_app_runtime_required">Instale primeiro o runtime do Linux em Configuração.</string>
     <string name="add_app_busy">Aguarde %1$s terminar.</string>
     <string name="steam_compat_label">Compatível</string>
-    <string name="proton_compatible_note">As versões marcadas como “%1$s” no menu Compatibilidade da Steam têm as correções de prefixo do DroidDeck e iniciam jogos aqui. O padrão é o Proton Experimental ARM64 (%1$s), ou o Proton 11.0 ARM64 (%1$s) quando essa versão mais nova estiver instalada. As entradas do Proton da própria Valve sem a marca não conseguem iniciar jogos neste dispositivo.</string>
+    <string name="proton_compatible_note">As versões marcadas como “%1$s” no menu Compatibilidade da Steam têm as correções de prefixo do DroidHost e iniciam jogos aqui. O padrão é o Proton Experimental ARM64 (%1$s), ou o Proton 11.0 ARM64 (%1$s) quando essa versão mais nova estiver instalada. As entradas do Proton da própria Valve sem a marca não conseguem iniciar jogos neste dispositivo.</string>
     <string name="proton_installed_compatible">%1$s instalado · %2$s</string>
     <string name="common_cancel">Cancelar</string>
     <string name="common_auto">Automático</string>
@@ -293,7 +293,7 @@
     <string name="back_double_tap_window">Intervalo do toque duplo</string>
     <string name="back_tap_ms">%1$d ms</string>
     <string name="brightness_permission_title">Permitir controle de brilho</string>
-    <string name="brightness_permission_text">Configure o controle de brilho no DroidDeck.</string>
+    <string name="brightness_permission_text">Configure o controle de brilho no DroidHost.</string>
     <string name="back_menu_then_qam">Menu → QAM</string>
     <string name="back_qam_then_menu">QAM → Menu</string>
     <string name="mode_session">Sessão</string>
@@ -307,7 +307,7 @@
     <string name="mode_suspend_note">Automático pausa em segundo plano e retoma quando o app reaparece. Manual aguarda Retomar. Nunca continua em execução.</string>
     <string name="mode_startup">Inicialização</string>
     <string name="mode_startup_session">Abrir ao iniciar</string>
-    <string name="mode_startup_session_hint">Inicia esta sessão quando o DroidDeck é aberto.</string>
+    <string name="mode_startup_session_hint">Inicia esta sessão quando o DroidHost é aberto.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Procurando versões…</string>
     <string name="mode_decky_ready">Pronto para instalar %1$s.</string>
@@ -330,8 +330,8 @@
     <string name="mode_client">Cliente</string>
     <string name="mode_mangoapp">Overlay de desempenho</string>
     <string name="mode_mangoapp_hint">Desative se os jogos travarem ou ficarem com a tela preta no modo Deck. Vale a partir da próxima sessão.</string>
-    <string name="mode_return_after_game">Voltar ao DroidDeck após um jogo</string>
-    <string name="mode_return_after_game_hint">Quando um jogo iniciado pelo DroidDeck ou por outro launcher fecha, a Steam sai corretamente (os salvamentos na nuvem terminam antes) e você volta para lá. Desativado: fica na Steam.</string>
+    <string name="mode_return_after_game">Voltar ao DroidHost após um jogo</string>
+    <string name="mode_return_after_game_hint">Quando um jogo iniciado pelo DroidHost ou por outro launcher fecha, a Steam sai corretamente (os salvamentos na nuvem terminam antes) e você volta para lá. Desativado: fica na Steam.</string>
     <string name="mode_shader_precache">Pré-cache de shaders</string>
     <string name="mode_shader_precache_hint">A Steam baixa shaders pré-compilados para seus jogos e os processa em segundo plano, então os jogos travam menos. Desativado economiza dados, armazenamento e bateria; os jogos compilam os shaders enquanto rodam. É a mesma opção de Downloads > Pré-cache de shaders da Steam. Vale a partir da próxima sessão.</string>
     <string name="mode_steam_repair">Reparar o cliente Steam</string>
@@ -415,7 +415,7 @@
     <string name="mode_wifi_open_settings">Abrir configurações</string>
     <string name="mode_wifi_continue">Continuar</string>
     <string name="mode_wifi_explain_title">Ativar a descoberta de Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">O Android exige a permissão de localização para ler nomes de Wi-Fi e descobrir redes próximas. O DroidDeck usa esse acesso para mostrar essas redes na Steam. Não rastreamos sua localização. O acesso à internet funciona sem essa permissão.</string>
+    <string name="mode_wifi_explain_text">O Android exige a permissão de localização para ler nomes de Wi-Fi e descobrir redes próximas. O DroidHost usa esse acesso para mostrar essas redes na Steam. Não rastreamos sua localização. O acesso à internet funciona sem essa permissão.</string>
     <string name="mode_storage">Armazenamento de jogos</string>
     <string name="mode_storage_auto">Automático - o cartão SD, se houver, mais suas pastas Games</string>
     <string name="mode_storage_auto_none">Automático - suas pastas Games, mais o cartão SD, se houver (nenhum agora)</string>
@@ -435,7 +435,7 @@
     <string name="libraries_found_hint">Encontrado neste dispositivo · %1$s · %2$s</string>
     <string name="libraries_add_found">Adicionar</string>
     <string name="libraries_access_title">Encontrar bibliotecas no armazenamento interno</string>
-    <string name="libraries_access_hint">Permita acesso a todos os arquivos para que o DroidDeck veja bibliotecas do Steam que outros apps mantêm no armazenamento interno</string>
+    <string name="libraries_access_hint">Permita acesso a todos os arquivos para que o DroidHost veja bibliotecas do Steam que outros apps mantêm no armazenamento interno</string>
     <string name="libraries_access_allow">Permitir</string>
     <string name="libraries_used_inner">Adicionada %1$s, a biblioteca do Steam dentro da pasta escolhida</string>
     <string name="mode_storage_note">Jogos que carregam recursos do SD ou do armazenamento compartilhado durante o jogo podem ter engasgos.</string>
@@ -554,7 +554,7 @@
     <string name="comp_nightlies_count">Nas Nightlies · %1$d</string>
     <string name="comp_channel_stable">Estável</string>
     <string name="comp_channel_nightly">Nightly</string>
-    <string name="comp_refresh_to_list">Atualize para listar os pacotes nas Nightlies e no DroidDeck.</string>
+    <string name="comp_refresh_to_list">Atualize para listar os pacotes nas Nightlies e no DroidHost.</string>
     <string name="comp_nothing_new">Nada novo desde a última verificação.</string>
     <string name="comp_import_wcp">Importar .wcp</string>
     <string name="comp_restore_original">Restaurar o original deste Proton</string>
@@ -566,7 +566,7 @@
     <string name="comp_tag_new">Novo</string>
     <string name="comp_tag_stored">Armazenado</string>
     <string name="comp_mode_title">Como as versões são escolhidas</string>
-    <string name="comp_mode_auto_detail">Versão mais recente do DroidDeck, sempre atualizada</string>
+    <string name="comp_mode_auto_detail">Versão mais recente do DroidHost, sempre atualizada</string>
     <string name="comp_mode_manual_detail">Escolha e instale as versões você mesmo</string>
     <string name="comp_auto_title">Auto mantém %1$s atualizado</string>
     <string name="comp_auto_hint">Novas versões são instaladas em segundo plano. Se um jogo que funcionava fechar em segundos duas vezes, Auto volta para a versão que funcionava.</string>
@@ -732,7 +732,7 @@
     <string name="hud_temp_red_battery">Bateria em vermelho a partir de</string>
     <string name="hud_group_more">Mais</string>
     <string name="hud_export">Diagnóstico do HUD</string>
-    <string name="hud_export_hint">Salva em Downloads/DroidDeck um relatório de cada sensor que o HUD lê.</string>
+    <string name="hud_export_hint">Salva em Downloads/DroidHost um relatório de cada sensor que o HUD lê.</string>
     <string name="hud_export_button">Salvar</string>
     <string name="hud_export_done">Salvo em %1$s</string>
     <string name="hud_export_failed">Não foi possível salvar o relatório do HUD.</string>
@@ -911,7 +911,7 @@
     <string name="setup_language_system">Padrão do sistema (%1$s)</string>
     <string name="setup_language_system_short">Padrão do sistema</string>
     <string name="setup_app_scale">Escala do app</string>
-    <string name="setup_app_scale_hint">Texto e controles do DroidDeck</string>
+    <string name="setup_app_scale_hint">Texto e controles do DroidHost</string>
     <string name="setup_app_scale_default">%1$d%% (padrão)</string>
     <string name="setup_theme">Tema</string>
     <string name="setup_theme_hint">Aparência do inicializador</string>
@@ -919,11 +919,11 @@
     <string name="setup_launcher_icon_dark">Escuro</string>
     <string name="setup_launcher_icon_light">Claro</string>
     <string name="setup_home">Usar como tela inicial</string>
-    <string name="setup_home_on">O DroidDeck pode ser o app de início</string>
-    <string name="setup_home_off">O DroidDeck nunca é oferecido como app de início</string>
+    <string name="setup_home_on">O DroidHost pode ser o app de início</string>
+    <string name="setup_home_off">O DroidHost nunca é oferecido como app de início</string>
     <string name="setup_home_page">Botão Home abre</string>
-    <string name="setup_home_page_hint">A página exibida quando DroidDeck é o app Home e você pressiona Home</string>
-    <string name="setup_home_game_space_first">Em Adicionar jogos, defina o DroidDeck como Incluir</string>
+    <string name="setup_home_page_hint">A página exibida quando DroidHost é o app Home e você pressiona Home</string>
+    <string name="setup_home_game_space_first">Em Adicionar jogos, defina o DroidHost como Incluir</string>
     <string name="setup_orientation">Orientação</string>
     <string name="setup_launcher_orientation">Orientação do launcher</string>
     <string name="setup_launcher_orientation_auto">Seguir a rotação do dispositivo</string>
@@ -951,7 +951,7 @@
     <string name="setup_default_home">App de início padrão</string>
     <string name="setup_choose_home">Escolher um app de início</string>
     <string name="setup_hide_home_from_recents">Ocultar o launcher dos Recentes enquanto estiver ocioso</string>
-    <string name="setup_hide_home_from_recents_hint">Aplica-se apenas quando DroidDeck é o app Home padrão e nenhuma sessão estiver em execução.</string>
+    <string name="setup_hide_home_from_recents_hint">Aplica-se apenas quando DroidHost é o app Home padrão e nenhuma sessão estiver em execução.</string>
     <string name="setup_choose">Escolher</string>
     <string name="setup_linux_apps">Apps Linux (beta)</string>
     <string name="setup_tool_files">Arquivos</string>
@@ -1021,16 +1021,16 @@
     <string name="store_website">Site</string>
     <string name="store_verified">Verificado</string>
     <string name="upd_title">Atualizações</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">DroidHost %1$s · %2$s</string>
     <string name="upd_checked">Verificado %1$s</string>
     <string name="upd_not_checked">Ainda não verificado</string>
-    <string name="upd_perm_title">Permita que o DroidDeck se atualize</string>
+    <string name="upd_perm_title">Permita que o DroidHost se atualize</string>
     <string name="upd_perm_text">Na próxima tela, ative Permitir desta fonte e volte. A atualização continua sozinha.</string>
     <string name="upd_open_settings">Abrir configurações</string>
     <string name="upd_not_now">Agora não</string>
     <string name="upd_signed_status">Assinatura diferente</string>
     <string name="upd_signed_headline">Não é possível atualizar por cima</string>
-    <string name="upd_signed_detail">Esta cópia não está assinada com a chave de lançamento do DroidDeck, então as atualizações não podem ser instaladas por cima dela. Desinstale-a para trocar.</string>
+    <string name="upd_signed_detail">Esta cópia não está assinada com a chave de lançamento do DroidHost, então as atualizações não podem ser instaladas por cima dela. Desinstale-a para trocar.</string>
     <string name="upd_available">Atualização disponível</string>
     <string name="upd_blocked_status">Não é possível instalar</string>
     <string name="upd_switch">Pronto para trocar</string>
@@ -1052,7 +1052,7 @@
     <string name="upd_stop_session">Encerre a sessão em execução para atualizar.</string>
     <string name="upd_less">Menos</string>
     <string name="upd_more">Mais</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">DroidHost %1$s</string>
     <string name="upd_new_preview">Nova versão Prévia</string>
     <string name="upd_new_test">Versão de teste do PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -1092,7 +1092,7 @@
     <string name="upd_lab">Compilação de laboratório</string>
     <string name="lab_builds">Compilações de laboratório</string>
     <string name="lab_in_use">Em uso</string>
-    <string name="lab_paused_row">Pausada após o Android otimizar o DroidDeck novamente</string>
+    <string name="lab_paused_row">Pausada após o Android otimizar o DroidHost novamente</string>
     <string name="lab_not_loaded">Não carregada: %1$s</string>
     <string name="lab_waiting">Aguardando um reinício</string>
     <string name="lab_kept">Mantida</string>
@@ -1106,17 +1106,17 @@
     <string name="lab_delete_confirm">Excluir agora</string>
     <string name="lab_restart_failed">Não foi possível preparar o reinício: %1$s. Emparelhe a depuração sem fio em Configurações e tente novamente.</string>
     <string name="lab_installed_title">Compilação de laboratório instalada</string>
-    <string name="lab_installed_text">DroidDeck foi reiniciado com %1$s</string>
+    <string name="lab_installed_text">DroidHost foi reiniciado com %1$s</string>
     <string name="lab_paused_title">Build do Lab pausado</string>
-    <string name="lab_paused_text">O Android reotimizou o DroidDeck, então %1$s não foi carregado. Abra Atualizações para reiniciar com ele.</string>
+    <string name="lab_paused_text">O Android reotimizou o DroidHost, então %1$s não foi carregado. Abra Atualizações para reiniciar com ele.</string>
     <string name="lab_off_title">Build do Lab desativado</string>
-    <string name="lab_off_other_install">Ele foi compilado para outra versão do DroidDeck. Está guardado em Atualizações.</string>
-    <string name="lab_off_did_not_start">O DroidDeck não iniciou com ele duas vezes</string>
+    <string name="lab_off_other_install">Ele foi compilado para outra versão do DroidHost. Está guardado em Atualizações.</string>
+    <string name="lab_off_did_not_start">O DroidHost não iniciou com ele duas vezes</string>
     <string name="rail_agent">Agente</string>
     <string name="agent_channel_name">Agente</string>
     <string name="agent_working">O agente está trabalhando</string>
     <string name="agent_missing">Instale o Claude Code no espaço de usuário do Linux para usar o agente.</string>
-    <string name="agent_hint">Pergunte sobre um jogo, um travamento ou uma alteração no DroidDeck</string>
+    <string name="agent_hint">Pergunte sobre um jogo, um travamento ou uma alteração no DroidHost</string>
     <string name="agent_send">Enviar</string>
     <string name="agent_new">Nova conversa</string>
     <string name="agent_stop">Parar</string>
@@ -1125,20 +1125,20 @@
     <string name="agent_storage_confirm">Remover agora</string>
     <string name="agent_storage_claude">Claude Code</string>
     <string name="agent_storage_codex">Codex</string>
-    <string name="agent_storage_source">Código-fonte do DroidDeck</string>
+    <string name="agent_storage_source">Código-fonte do DroidHost</string>
     <string name="agent_storage_caches">Caches de download</string>
     <string name="agent_storage_source_warning">Alterações não enviadas são perdidas</string>
     <string name="agent_storage_caches_warning">Os builds baixam esses arquivos novamente</string>
     <string name="agent_storage_reinstall_warning">A configuração pode instalá-lo novamente; os logins são mantidos</string>
-    <string name="agent_resumed">O DroidDeck reiniciou com seu build do Lab. Continue de onde parou.</string>
-    <string name="agent_empty">Pergunte por que um jogo não inicia, peça para explicar um log ou para alterar o DroidDeck e testar a alteração neste dispositivo.</string>
+    <string name="agent_resumed">O DroidHost reiniciou com seu build do Lab. Continue de onde parou.</string>
+    <string name="agent_empty">Pergunte por que um jogo não inicia, peça para explicar um log ou para alterar o DroidHost e testar a alteração neste dispositivo.</string>
     <string name="agent_failed">Falha: %1$s</string>
     <string name="agent_exited">%1$s terminou (código de saída %2$d)</string>
     <string name="agent_stopped">Interrompido</string>
     <string name="agent_no_reply">Terminou sem resposta</string>
     <string name="agent_retry">Tentar novamente</string>
     <string name="agent_setting_up">Configurando o agente</string>
-    <string name="agent_rebuild_lab">Recompile meu build do Lab %1$s para a versão instalada do DroidDeck e reinicie com ele.</string>
+    <string name="agent_rebuild_lab">Recompile meu build do Lab %1$s para a versão instalada do DroidHost e reinicie com ele.</string>
     <string name="agent_tokens">%1$s de entrada · %2$s de saída</string>
     <string name="agent_thinking">Pensando</string>
     <string name="agent_thought">Pensamento</string>
@@ -1200,7 +1200,7 @@
     <string name="agent_lab_stage_starting">Iniciando</string>
     <string name="agent_lab_stage_building">%1$d%%</string>
     <string name="agent_lab_stage_packaging">Empacotando</string>
-    <string name="agent_lab_stage_restarting">Reiniciando o DroidDeck nele</string>
+    <string name="agent_lab_stage_restarting">Reiniciando o DroidHost nele</string>
     <string name="agent_lab_stage_ready">Concluído</string>
     <string name="agent_lab_stage_failed">Falhou: %1$s</string>
     <string name="agent_setup_title">Configurar o agente</string>
@@ -1208,7 +1208,7 @@
     <string name="agent_setup_retry">Tentar novamente</string>
     <string name="agent_setup_done">Começar a conversar</string>
     <string name="agent_step_connection">Conexão do dispositivo</string>
-    <string name="agent_step_connection_hint">Depuração por Wi-Fi, para que o agente possa ver e controlar o DroidDeck</string>
+    <string name="agent_step_connection_hint">Depuração por Wi-Fi, para que o agente possa ver e controlar o DroidHost</string>
     <string name="agent_step_install">Instalar %1$s</string>
     <string name="agent_step_install_hint">No espaço de usuário do Linux, com git, gh e adb</string>
     <string name="agent_step_sign_in">Entrar em %1$s</string>
@@ -1231,7 +1231,7 @@
     <string name="agent_action_install">Instalar</string>
     <string name="agent_action_sign_in">Entrar</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Não compilada para esta cópia do DroidDeck</string>
+    <string name="upd_not_built">Não compilada para esta cópia do DroidHost</string>
     <string name="upd_updated">Atualizado %1$s</string>
     <string name="upd_test_name">teste do PR #%1$d</string>
     <string name="upd_while_ago">há algum tempo</string>
@@ -1257,13 +1257,13 @@
     <string name="gate_fix_for_me">Corrigir para mim</string>
     <string name="gate_toggle_steps">Ative “Desativar restrições de processos filhos” e volte. Deixe as Opções do desenvolvedor ativadas, ou a chave volta a ser desativada.</string>
     <string name="gate_open_dev">Abrir as Opções do desenvolvedor</string>
-    <string name="gate_no_toggle">Esta versão do Android não tem uma chave para isso, então o DroidDeck faz a mudança pela Depuração por Wi-Fi. Leva cerca de um minuto, sem precisar de computador.</string>
+    <string name="gate_no_toggle">Esta versão do Android não tem uma chave para isso, então o DroidHost faz a mudança pela Depuração por Wi-Fi. Leva cerca de um minuto, sem precisar de computador.</string>
     <string name="gate_needs_wifi">A Depuração por Wi-Fi requer Wi-Fi. Qualquer rede serve; não precisa de internet.</string>
-    <string name="gate_needs_notifications">O código de pareamento é digitado em uma notificação. Permita notificações do DroidDeck ou use Outras formas.</string>
+    <string name="gate_needs_notifications">O código de pareamento é digitado em uma notificação. Permita notificações do DroidHost ou use Outras formas.</string>
     <string name="gate_allow_notifications">Permitir notificações</string>
     <string name="gate_step1">Abra Configurações → Opções do desenvolvedor → Depuração por Wi-Fi e ative</string>
     <string name="gate_step2">Toque em “Parear o dispositivo com um código de pareamento”</string>
-    <string name="gate_step3">Digite o código na notificação do DroidDeck</string>
+    <string name="gate_step3">Digite o código na notificação do DroidHost</string>
     <string name="pairguide_build_number">Em Sobre o telefone, toque em Número da versão 7 vezes</string>
     <string name="pairguide_wireless">Ative a Depuração por Wi-Fi</string>
     <string name="pairguide_pair">Abra a Depuração por Wi-Fi e toque em “Parear o dispositivo com um código de pareamento”</string>
@@ -1372,7 +1372,7 @@
     <string name="desktop_removing">Removendo a área de trabalho</string>
     <string name="desktop_removed">Área de trabalho removida</string>
     <string name="desktop_cleaning_legacy">Removendo arquivos antigos do LXQt</string>
-    <string name="desktop_removal_unknown">Atualize o DroidDeck antes de remover esta versão da área de trabalho.</string>
+    <string name="desktop_removal_unknown">Atualize o DroidHost antes de remover esta versão da área de trabalho.</string>
     <string name="content_linux_desktop">Área de trabalho Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox e seus emuladores</string>
     <string name="games_empty">Os jogos que você instala na Steam aparecem aqui após a sessão.</string>
@@ -1418,8 +1418,8 @@
     <string name="gpu_hide_other">Ocultar drivers de outras GPUs</string>
     <string name="gpu_show_other">Mostrar drivers de outras GPUs</string>
     <string name="gpu_ubwc_title">Compatibilidade com UBWC</string>
-    <string name="gpu_ubwc_hint">Experimente Ativado ou Desativado se a Steam ou o Android mostrarem listras ou cintilação. Vale para os dois drivers após reiniciar o DroidDeck.</string>
-    <string name="gpu_ubwc_restart">Reinicie o DroidDeck para aplicar.</string>
+    <string name="gpu_ubwc_hint">Experimente Ativado ou Desativado se a Steam ou o Android mostrarem listras ou cintilação. Vale para os dois drivers após reiniciar o DroidHost.</string>
+    <string name="gpu_ubwc_restart">Reinicie o DroidHost para aplicar.</string>
     <string name="gpu_set_with_display">Definido junto com o driver de exibição: %1$s contém os dois.</string>
     <string name="gpu_set_with_runtime">Definido junto com o driver do runtime: %1$s contém os dois.</string>
     <string name="gpu_runtime_hint">Usado pelos jogos e pela área de trabalho.</string>
@@ -1427,7 +1427,7 @@
     <string name="gpu_auto_by_gpu">Automático - escolhido pela GPU</string>
     <string name="gpu_manage">Baixar, importar ou excluir…</string>
     <string name="gpu_in_use_caps">EM USO</string>
-    <string name="gpu_builtin">Os drivers integrados ao DroidDeck</string>
+    <string name="gpu_builtin">Os drivers integrados ao DroidHost</string>
     <string name="gpu_matched_pair">Drivers do runtime e de exibição definidos juntos como um par compatível.</string>
     <string name="gpu_recommended_for">Recomendado para esta GPU: %1$s.</string>
     <string name="gpu_refresh_hint">Atualize para procurar drivers para esta GPU.</string>
@@ -1536,7 +1536,7 @@
     <string name="unfolded_controls_with_controller_hint">Também mostra estes controles de toque enquanto um controle estiver conectado.</string>
     <string name="pip_suspended">Suspenso</string>
     <string name="pip_not_ready">O picture-in-picture fica disponível quando a sessão estiver pronta.</string>
-    <string name="pip_permission">Permita o picture-in-picture para o DroidDeck nas configurações do Android.</string>
+    <string name="pip_permission">Permita o picture-in-picture para o DroidHost nas configurações do Android.</string>
     <string name="pip_unavailable">O Android não conseguiu abrir o picture-in-picture.</string>
     <string name="game_more">Mais</string>
     <string name="game_edit_art">Editar artes</string>
@@ -1549,7 +1549,7 @@
     <string name="game_link_copied">Link de inicialização copiado</string>
     <string name="game_shortcut_unsupported">Este launcher não pode adicionar atalhos. Use Copiar link de inicialização.</string>
     <string name="game_link_invalid">Link de inicialização de jogo inválido.</string>
-    <string name="game_link_missing">Este jogo não está mais na sua biblioteca do DroidDeck.</string>
+    <string name="game_link_missing">Este jogo não está mais na sua biblioteca do DroidHost.</string>
     <string name="game_link_session_busy">Pare a sessão atual antes de iniciar um jogo do Steam.</string>
     <string name="game_link_failed">Não foi possível enviar o jogo ao Steam. Tente iniciá-lo novamente.</string>
     <string name="setup_retry_removal">Tentar remover de novo</string>
@@ -1578,9 +1578,9 @@
         <item quantity="other">%1$d arquivos importados de %2$s para %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="one">%1$d arquivo importado de %2$s para %3$s. Backup dos saves antigos em Download/DroidDeck/Saves/backups</item>
-        <item quantity="many">%1$d arquivos importados de %2$s para %3$s. Backup dos saves antigos em Download/DroidDeck/Saves/backups</item>
-        <item quantity="other">%1$d arquivos importados de %2$s para %3$s. Backup dos saves antigos em Download/DroidDeck/Saves/backups</item>
+        <item quantity="one">%1$d arquivo importado de %2$s para %3$s. Backup dos saves antigos em Download/DroidHost/Saves/backups</item>
+        <item quantity="many">%1$d arquivos importados de %2$s para %3$s. Backup dos saves antigos em Download/DroidHost/Saves/backups</item>
+        <item quantity="other">%1$d arquivos importados de %2$s para %3$s. Backup dos saves antigos em Download/DroidHost/Saves/backups</item>
     </plurals>
     <string name="main_addons_close_session">Feche a sessão primeiro, para que o jogo não use os addons durante a importação</string>
     <string name="main_addons_importing">Importando addons para %1$s</string>
@@ -1655,7 +1655,7 @@
 
     <string name="upd_unknown_apps_failed">Não foi possível abrir a configuração “Instalar apps desconhecidos” do Android</string>
     <string name="upd_couldnt_check">Não foi possível verificar: %1$s</string>
-    <string name="upd_no_download">Esta versão não tem download para esta cópia do DroidDeck</string>
+    <string name="upd_no_download">Esta versão não tem download para esta cópia do DroidHost</string>
     <string name="upd_stop_first">Pare a sessão em execução primeiro e depois atualize</string>
     <string name="upd_stage_downloading">Baixando</string>
     <string name="upd_stage_installing">Instalando</string>
@@ -1684,22 +1684,22 @@
     <string name="drivers_recommended_unpublished">Os drivers recomendados não estão publicados no momento</string>
     <string name="drivers_downloading_pair">Baixando %1$s %2$s…</string>
     <string name="drivers_updated_to">Atualizado para %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Atualizado para %1$s %2$s. O driver de vídeo é aplicado depois que o DroidDeck reiniciar.</string>
+    <string name="drivers_updated_to_restart">Atualizado para %1$s %2$s. O driver de vídeo é aplicado depois que o DroidHost reiniciar.</string>
     <string name="drivers_auto_waits_for_session">As atualizações de driver esperam a sessão terminar.</string>
     <string name="drivers_auto_waits_for_network">%1$s %2$s será baixado quando você sair dos dados móveis e da economia de bateria.</string>
     <string name="drivers_skipping_bad">%1$s %2$s não iniciou uma sessão aqui, então o Automático continua nos drivers que funcionaram.</string>
     <string name="drivers_rolled_back">%1$s não iniciou uma sessão duas vezes, então o Automático voltou aos drivers que funcionavam.</string>
     <string name="drivers_switched_to">Alterado para %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Alterado para %1$s %2$s. O driver de vídeo é aplicado depois que o DroidDeck reiniciar.</string>
+    <string name="drivers_switched_to_restart">Alterado para %1$s %2$s. O driver de vídeo é aplicado depois que o DroidHost reiniciar.</string>
     <string name="drivers_using">Usando %1$s %2$s.</string>
-    <string name="drivers_using_restart">Usando %1$s %2$s. O driver de vídeo é aplicado depois que o DroidDeck reiniciar.</string>
+    <string name="drivers_using_restart">Usando %1$s %2$s. O driver de vídeo é aplicado depois que o DroidHost reiniciar.</string>
     <string name="drivers_using_quest">Usando o driver de vídeo Quest incluído e o padrão do runtime.</string>
-    <string name="drivers_using_quest_restart">Usando o driver de vídeo Quest incluído e o padrão do runtime. O driver de vídeo vale depois que o DroidDeck reiniciar.</string>
+    <string name="drivers_using_quest_restart">Usando o driver de vídeo Quest incluído e o padrão do runtime. O driver de vídeo vale depois que o DroidHost reiniciar.</string>
     <string name="drivers_not_a_driver">Não é um zip de driver: não é um driver AdrenoTools, um Turnip -Linux nem um pacote Android + Linux</string>
     <string name="drivers_import_failed">Falha na importação: %1$s</string>
     <string name="drivers_imported_unnamed">Driver importado</string>
     <string name="drivers_using_bundle">Usando %1$s como driver do runtime e de vídeo.</string>
-    <string name="drivers_using_bundle_restart">Usando %1$s como driver do runtime e de vídeo. O driver de vídeo é aplicado depois que o DroidDeck reiniciar.</string>
+    <string name="drivers_using_bundle_restart">Usando %1$s como driver do runtime e de vídeo. O driver de vídeo é aplicado depois que o DroidHost reiniciar.</string>
     <string name="drivers_deleted_bundle">%1$s excluído (os dois drivers)</string>
     <string name="drivers_deleted">%1$s excluído</string>
     <string name="drivers_release_status">Mais recente: %1$s · verificado %2$s</string>
@@ -1719,7 +1719,7 @@
         <item quantity="many">há %1$d dias</item>
         <item quantity="other">há %1$d dias</item>
     </plurals>
-    <string name="drivers_checking_sources">Verificando Banners-Turnip, WinNative e DroidDeck…</string>
+    <string name="drivers_checking_sources">Verificando Banners-Turnip, WinNative e DroidHost…</string>
     <string name="drivers_check_failed">falha na verificação</string>
     <string name="drivers_installed_pick_either">%1$s instalado - escolha-o em qualquer uma das listas para definir os dois drivers</string>
     <string name="drivers_installed_pick">%1$s instalado - escolha-o no menu</string>
@@ -1951,7 +1951,7 @@
     <string name="fm_decline">Recusar</string>
     <string name="fm_drive_not_readable">%1$s está montado, mas não pode ser lido agora</string>
     <string name="fm_drive_access_title">Permitir acesso a %1$s</string>
-    <string name="fm_drive_access_text">O Android deixa o DroidDeck ver esta unidade, mas não ler. Ative o Acesso a todos os arquivos para o DroidDeck e volte.</string>
+    <string name="fm_drive_access_text">O Android deixa o DroidHost ver esta unidade, mas não ler. Ative o Acesso a todos os arquivos para o DroidHost e volte.</string>
     <string name="fm_list_view">Visualização em lista</string>
     <string name="fm_grid_view">Visualização em grade</string>
     <string name="fm_search">Pesquisar</string>
@@ -2097,7 +2097,7 @@
     <string name="bottom_telemetry_send_close">Feche %1$s para alterar isso.</string>
     <string name="bottom_telemetry_send_failed">Não foi possível alterar as configurações de %1$s.</string>
     <string name="bottom_telemetry_send_menu">%1$s: ative %2$s nas configurações do jogo com o IP 127.0.0.1 e a porta %3$d.</string>
-    <string name="bottom_shots_where">Salvas em Pictures/DroidDeck. As capturas de tela da Steam também aparecem aqui.</string>
+    <string name="bottom_shots_where">Salvas em Pictures/DroidHost. As capturas de tela da Steam também aparecem aqui.</string>
     <string name="bottom_shots_take">Fazer captura de tela</string>
     <string name="bottom_shots_saved">Captura de tela salva.</string>
     <string name="bottom_shots_failed">Não foi possível fazer a captura de tela.</string>
@@ -2105,12 +2105,12 @@
     <string name="bottom_page_chat">Chat e voz</string>
     <string name="bottom_chat_why">Leia e responda o chat da Steam aqui enquanto o jogo continua rodando na tela principal. Usa a conta com que a Steam está conectada.</string>
     <string name="bottom_chat_not_signed_in">A Steam ainda não tem um login web para compartilhar, então entre aqui uma vez.</string>
-    <string name="bottom_chat_stopped">O Android fechou a página do chat enquanto o DroidDeck estava em segundo plano. Ela abre de novo quando você voltar ao DroidDeck.</string>
+    <string name="bottom_chat_stopped">O Android fechou a página do chat enquanto o DroidHost estava em segundo plano. Ela abre de novo quando você voltar ao DroidHost.</string>
     <string name="bottom_chat_open">Abrir o Steam Chat</string>
     <string name="bottom_chat_close">Fechar chat</string>
     <string name="bottom_chat_mic_on">Microfone ligado</string>
     <string name="bottom_chat_mic_off">Microfone desligado</string>
-    <string name="bottom_chat_mic_unavailable">O microfone está desligado neste jogo. Para falar, ative Microfone nas configurações da Steam do DroidDeck (Áudio) e inicie o jogo de novo.</string>
+    <string name="bottom_chat_mic_unavailable">O microfone está desligado neste jogo. Para falar, ative Microfone nas configurações da Steam do DroidHost (Áudio) e inicie o jogo de novo.</string>
     <string name="bottom_chat_volume">Volume %1$d%%</string>
     <string name="bottom_page_telemetry">Estatísticas no jogo</string>
     <string name="bottom_hud_group">HUD da tela inferior</string>
@@ -2165,7 +2165,7 @@
     <string name="flatpakmgr_not_ready">Configure o Flatpak primeiro</string>
     <string name="flatpakmgr_starting">Iniciando</string>
     <string name="flatpakmgr_exit_status">O Flatpak terminou com o código %1$d</string>
-    <string name="flatpakmgr_wrong_arch">%1$s foi compilado para %2$s, que o DroidDeck não consegue executar. Aqui os apps Flatpak precisam de uma versão para ARM64 ou x86_64.</string>
+    <string name="flatpakmgr_wrong_arch">%1$s foi compilado para %2$s, que o DroidHost não consegue executar. Aqui os apps Flatpak precisam de uma versão para ARM64 ou x86_64.</string>
     <string name="flatpakmgr_installing">Instalando %1$s</string>
     <string name="flatpakmgr_updating">Atualizando %1$s</string>
     <string name="flatpakmgr_removing">Removendo %1$s</string>
@@ -2248,7 +2248,7 @@
     <string name="adbfix_no_pairing">Nenhum pareamento de depuração por Wi-Fi salvo</string>
     <string name="adbfix_enter_address">Digite o endereço IP e a porta atuais da depuração por Wi-Fi</string>
 
-    <string name="adbpair_timed_out">Tempo esgotado esperando o pop-up de pareamento. Tente novamente pelo DroidDeck.</string>
+    <string name="adbpair_timed_out">Tempo esgotado esperando o pop-up de pareamento. Tente novamente pelo DroidHost.</string>
     <string name="adbpair_discovery_failed_code">Não foi possível procurar o pop-up de pareamento (%1$d). Verifique se o Wi-Fi está ativado.</string>
     <string name="adbpair_discovery_failed">Não foi possível procurar o pop-up de pareamento: %1$s</string>
     <string name="adbpair_six_digits">Digite os 6 dígitos do código</string>
@@ -2271,20 +2271,20 @@
     <string name="adbpair_enter_code">Digitar código</string>
     <string name="adbpair_title_working">Configurando o Steam</string>
     <string name="adbpair_title_done">O Steam está pronto</string>
-    <string name="adbpair_done_text">Toque para voltar ao DroidDeck. Você já pode desativar a depuração por Wi-Fi.</string>
+    <string name="adbpair_done_text">Toque para voltar ao DroidHost. Você já pode desativar a depuração por Wi-Fi.</string>
     <string name="adbpair_title_failed">A configuração da depuração por Wi-Fi parou</string>
 
     <string name="selfinst_download_failed">Falha no download</string>
     <string name="selfinst_size_mismatch">O tamanho do download não corresponde ao APK publicado, e ele foi descartado - tente de novo</string>
     <string name="selfinst_checksum_mismatch">O download não corresponde à soma de verificação e foi descartado - tente de novo</string>
     <string name="selfinst_wrong_package">A atualização é para o pacote Android %1$s, não %2$s</string>
-    <string name="selfinst_metadata_signer">Os metadados da atualização não indicam a chave de assinatura de versões do DroidDeck</string>
+    <string name="selfinst_metadata_signer">Os metadados da atualização não indicam a chave de assinatura de versões do DroidHost</string>
     <string name="selfinst_unreadable">O Android não conseguiu ler o APK baixado</string>
     <string name="selfinst_apk_wrong_package">O APK baixado é para %1$s, não %2$s</string>
     <string name="selfinst_version_mismatch">O APK baixado informa versionCode %1$d, não o %2$d publicado</string>
     <string name="selfinst_downgrade">O Android não instala o versionCode %1$d por cima do %2$d instalado</string>
     <string name="selfinst_no_signing">O APK baixado não tem informações de assinatura</string>
-    <string name="selfinst_wrong_signer">O APK baixado não está assinado com a chave de versões do DroidDeck</string>
+    <string name="selfinst_wrong_signer">O APK baixado não está assinado com a chave de versões do DroidHost</string>
     <string name="appupd_http">O catálogo de atualizações respondeu HTTP %1$d</string>
 
     <string name="loadstate_starting">Iniciando a sessão…</string>
@@ -2331,7 +2331,7 @@
     <string name="cmgr_original_kept">O original da versão instalada é mantido: é o caminho de volta.</string>
     <string name="cmgr_not_stored">Não armazenado</string>
     <string name="cmgr_deleted_original">Original do %1$s de %2$s excluído.</string>
-    <string name="cmgr_nightlies_only">Os downloads vêm só das versões Nightlies e DroidDeck</string>
+    <string name="cmgr_nightlies_only">Os downloads vêm só das versões Nightlies e DroidHost</string>
     <string name="cmgr_nightly_replaced">Falha no download: esta versão nightly pode ter sido substituída por uma mais nova. Atualize a lista e tente de novo.</string>
     <string name="cmgr_list_predates_checksums">Esta lista de pacotes é anterior às somas de verificação - atualize-a e tente de novo</string>
     <string name="cmgr_checksum_mismatch">A soma de verificação não confere</string>
@@ -2374,7 +2374,7 @@
     <string name="drivers_powervr_builtin">O driver PowerVR do sistema está selecionado para o runtime e a tela.</string>
     <string name="drivers_mali_bridge_auto">Nenhum driver de código aberto oferece suporte a esta Mali ainda: a ponte Mali está ativada.</string>
     <string name="upd_block_non_adreno_test">Esta é a versão de teste para aparelhos sem Snapdragon: as versões oficiais daqui só rodam em Adreno, então não são instaladas sobre ela. As novas versões de teste estão em github.com/The412Banner/droiddeck-nonadreno-drivers.</string>
-    <string name="session_killed_for_memory">A última sessão terminou porque o Android fechou o DroidDeck para liberar memória, e não por uma falha. Feche outros apps ou reduza as configurações de textura do jogo e tente novamente.</string>
+    <string name="session_killed_for_memory">A última sessão terminou porque o Android fechou o DroidHost para liberar memória, e não por uma falha. Feche outros apps ou reduza as configurações de textura do jogo e tente novamente.</string>
     <string name="drivers_route_venus">Mali (Venus)</string>
     <string name="drivers_route_bridge">a ponte Mali</string>
     <string name="drivers_mali_no_pair_auto">Nenhum driver de código aberto oferece suporte a esta Mali ainda: %1$s é usado no driver nativo do aparelho.</string>
@@ -2432,10 +2432,10 @@
     <string name="phantom_instructions_not_applicable">Esta versão do Android não usa esse limite.</string>
     <string name="phantom_fix_toggle">Ative “Desativar restrições de processos filhos” nas Opções do desenvolvedor e mantenha as Opções do desenvolvedor ativadas depois.</string>
     <string name="phantom_fix_no_toggle">Esta versão do Android não tem uma chave para isso. Use a depuração por Wi-Fi para alterar pelo próprio dispositivo.</string>
-    <string name="upd_block_no_apk">Esta versão não tem download para esta cópia do DroidDeck.</string>
+    <string name="upd_block_no_apk">Esta versão não tem download para esta cópia do DroidHost.</string>
     <string name="upd_block_version_code">O Android não vai instalá-la por cima desta versão porque o versionCode %1$d é menor que o %2$d instalado.</string>
     <string name="upd_fail_downgrade">O Android não instala uma versão mais antiga por cima de uma mais nova. Fique nesta versão até o canal alcançá-la.</string>
-    <string name="upd_fail_signature">Esta cópia do DroidDeck tem outra assinatura (uma build local?), então o Android não consegue atualizá-la diretamente.</string>
+    <string name="upd_fail_signature">Esta cópia do DroidHost tem outra assinatura (uma build local?), então o Android não consegue atualizá-la diretamente.</string>
     <string name="upd_fail_storage">Não há espaço livre suficiente para a atualização.</string>
     <string name="upd_fail_aborted">A atualização foi cancelada.</string>
     <string name="upd_fail_with_message">A atualização não foi instalada: %1$s</string>
@@ -2460,7 +2460,7 @@
     <string name="gstore_volume_free">%1$s · %2$s livres</string>
     <string name="mode_storage_auto_short">Automático</string>
     <string name="appupd_catalog_rejected">O catálogo de atualizações não passou nas verificações (%1$s)</string>
-    <string name="main_adb_clip_label">Configuração de processos filhos do DroidDeck</string>
+    <string name="main_adb_clip_label">Configuração de processos filhos do DroidHost</string>
     <string name="setup_signed_in_offline_unnamed">Conectado · modo offline</string>
     <string name="setup_signed_in_unnamed">Conectado</string>
     <string name="driver_tag_bundled">INCLUÍDO</string>
@@ -2861,7 +2861,7 @@
     <string name="gpu_display_next">Desenha a tela. Vale a partir da próxima sessão.</string>
     <string name="gpu_previous_driver">o driver anterior</string>
     <string name="gpu_restart_banner">Reinicie para trocar o driver de vídeo.</string>
-    <string name="gpu_restart_blocked">Encerre a sessão atual e reinicie o DroidDeck para trocar o driver de vídeo.</string>
+    <string name="gpu_restart_blocked">Encerre a sessão atual e reinicie o DroidHost para trocar o driver de vídeo.</string>
     <string name="gpu_restart_now">Reiniciar agora</string>
     <string name="gpu_restart_later">Depois</string>
     <string name="gpu_auto_title">O Automático escolheu este par para sua %1$s</string>
@@ -2947,7 +2947,7 @@
     <string name="touch_speed_normal">Normal</string>
     <string name="touch_speed_fast">Rápida</string>
     <string name="touch_edit_layout">Editar layout</string>
-    <string name="touch_droiddeck_menu">Menu do DroidDeck</string>
+    <string name="touch_droiddeck_menu">Menu do DroidHost</string>
     <string name="touch_drag_hint">Arraste os controles para a tela</string>
     <string name="touch_arrange">Organizar</string>
     <string name="touch_discard">Descartar</string>
@@ -3015,7 +3015,7 @@
     <string name="glasses_driver_missing">Esta versão não inclui o driver para estes óculos.</string>
     <string name="glasses_connection_failed">Não foi possível conectar aos óculos. Reconecte o cabo ou toque em Permitir para tentar de novo.</string>
     <string name="glasses_allow">Permitir</string>
-    <string name="glasses_allow_hint">Permite que o DroidDeck ajuste a taxa de atualização, o modo 3D, o brilho, o volume e o escurecimento dos óculos, e leia o rastreamento da cabeça deles.</string>
+    <string name="glasses_allow_hint">Permite que o DroidHost ajuste a taxa de atualização, o modo 3D, o brilho, o volume e o escurecimento dos óculos, e leia o rastreamento da cabeça deles.</string>
     <string name="glasses_asking">Aguardando você permitir na solicitação do Android…</string>
     <string name="glasses_denied">O controle foi recusado. Permita para alterar as configurações dos óculos.</string>
     <string name="glasses_no_control">Estes óculos mostram o jogo, mas as configurações deles não podem ser alteradas por aqui.</string>
@@ -3206,7 +3206,7 @@
     <string name="storage_internal">Armazenamento interno</string>
     <string name="storage_used_of">%1$s de %2$s usados</string>
     <string name="storage_free">%1$s livres</string>
-    <string name="storage_droiddeck_uses">O DroidDeck ocupa %1$s. Medido em %2$s.</string>
+    <string name="storage_droiddeck_uses">O DroidHost ocupa %1$s. Medido em %2$s.</string>
     <string name="storage_rescanning">medindo de novo…</string>
     <string name="storage_other_apps">Outros apps Android</string>
     <string name="storage_safe_now">Dá para liberar agora</string>
@@ -3240,7 +3240,7 @@
     <string name="storage_desktop_hint">Apps e runtimes Flatpak</string>
     <string name="storage_system">Sistema Linux e cliente Steam</string>
     <string name="storage_system_hint">Necessário para rodar qualquer coisa</string>
-    <string name="storage_app_data">Dados do DroidDeck</string>
+    <string name="storage_app_data">Dados do DroidHost</string>
     <string name="storage_app_data_hint">Logs de sessões antigas %1$s · cache · drivers</string>
     <string name="storage_legend_games">Jogos</string>
     <string name="storage_legend_data">Dados dos jogos</string>
@@ -3248,7 +3248,7 @@
     <string name="storage_legend_stores">Outras lojas</string>
     <string name="storage_legend_desktop">Apps de desktop</string>
     <string name="storage_legend_system">Sistema Linux</string>
-    <string name="storage_legend_app">DroidDeck</string>
+    <string name="storage_legend_app">DroidHost</string>
     <string name="storage_clean_up_title">Limpeza</string>
     <string name="storage_clean_up_lede">Aqui nada toca nos jogos instalados nem nos downloads em andamento.</string>
     <string name="storage_nothing_to_clean">Nada para limpar agora.</string>
@@ -3298,8 +3298,8 @@
     <string name="storage_tool_fex">Roda jogos Linux x86</string>
     <string name="storage_tool_steam">Ferramenta da Steam</string>
     <string name="storage_tool_anticheat">O Steam baixa isso para jogos que incluem anti-cheat, mesmo quando ele está desativado. Removê-lo trava a instalação desses jogos em 0%</string>
-    <string name="storage_tool_old_runtime">O DroidDeck roda jogos sem este runtime</string>
-    <string name="storage_tool_x86_proton">Proton x86, que o DroidDeck não consegue rodar</string>
+    <string name="storage_tool_old_runtime">O DroidHost roda jogos sem este runtime</string>
+    <string name="storage_tool_x86_proton">Proton x86, que o DroidHost não consegue rodar</string>
     <string name="storage_tool_custom_default">Padrão para todos os jogos</string>
     <string name="storage_tool_custom_unused">Nenhum jogo usa</string>
     <string name="storage_tool_custom_unknown">As configurações da Steam não são legíveis, então é mantido</string>
@@ -3340,8 +3340,8 @@
         <item quantity="many">%d jogos</item>
         <item quantity="other">%d jogos</item>
     </plurals>
-    <string name="storage_tool_default_proton">Proton padrão do DroidDeck</string>
-    <string name="storage_tool_proton">Opção Proton 11 do DroidDeck</string>
+    <string name="storage_tool_default_proton">Proton padrão do DroidHost</string>
+    <string name="storage_tool_proton">Opção Proton 11 do DroidHost</string>
     <plurals name="storage_tool_custom_games">
         <item quantity="one">Usado por %d jogo</item>
         <item quantity="many">Usado por %d jogos</item>
@@ -3414,7 +3414,7 @@
     </plurals>
     <string name="boot_movie">Vídeo de inicialização</string>
     <string name="boot_movie_video">Vídeo</string>
-    <string name="boot_movie_droiddeck">DroidDeck · %1$d fps</string>
+    <string name="boot_movie_droiddeck">DroidHost · %1$d fps</string>
     <string name="boot_movie_note">60 fps fica mais fluido, mas usa mais CPU enquanto o Steam inicia. Um vídeo escolhido nas configurações do Steam também aparece aqui.</string>
     <string name="boot_movie_sound">Som</string>
     <string name="boot_movie_skip">Pular vídeo de inicialização</string>
@@ -3428,24 +3428,24 @@
     <string name="boot_movie_imported_silent">%1$s agora é o vídeo de inicialização, sem som</string>
     <string name="boot_movie_too_long">Vídeos que precisam de conversão devem ter até %1$d segundos</string>
     <string name="boot_movie_converting">Convertendo %1$d%%</string>
-    <string name="boot_movie_converting_started">Convertendo %1$s para o Steam. Mantenha o DroidDeck aberto.</string>
+    <string name="boot_movie_converting_started">Convertendo %1$s para o Steam. Mantenha o DroidHost aberto.</string>
     <string name="boot_movie_unsupported">Este aparelho não consegue decodificar esse vídeo.</string>
     <string name="boot_movie_import_failed">Não foi possível importar esse vídeo</string>
     <string name="boot_movie_remove_confirm">Remover %1$s?</string>
-    <string name="boot_movie_remove_confirm_body">Isso exclui o vídeo do DroidDeck e da pasta de vídeos do Steam.</string>
+    <string name="boot_movie_remove_confirm_body">Isso exclui o vídeo do DroidHost e da pasta de vídeos do Steam.</string>
     <string name="boot_movie_tab_installed">Instalados</string>
     <string name="boot_movie_tab_import">Importar</string>
     <string name="boot_movie_tab_repo">SteamDeckRepo</string>
     <string name="boot_movie_tab_sound">Som</string>
     <string name="boot_movie_installed">Vídeos instalados</string>
     <string name="boot_movie_browse">Explorar</string>
-    <string name="boot_movie_source_droiddeck">DroidDeck</string>
+    <string name="boot_movie_source_droiddeck">DroidHost</string>
     <string name="boot_movie_source_import">Importado</string>
     <string name="boot_movie_source_repo">SteamDeckRepo</string>
     <string name="boot_movie_source_steam">Steam</string>
     <string name="boot_movie_source_pointshop">Loja de Pontos</string>
     <string name="boot_movie_report">Relatório dos filmes de inicialização</string>
-    <string name="boot_movie_report_hint">Salva em um arquivo de texto o que o DroidDeck e o Steam sabem sobre os filmes de inicialização, para anexar a um relatório de bug.</string>
+    <string name="boot_movie_report_hint">Salva em um arquivo de texto o que o DroidHost e o Steam sabem sobre os filmes de inicialização, para anexar a um relatório de bug.</string>
     <string name="boot_movie_report_save">Salvar</string>
     <string name="boot_movie_report_saved">Salvo em %1$s</string>
     <string name="boot_movie_report_failed">Não foi possível salvar o relatório.</string>
@@ -3481,7 +3481,7 @@
     <string name="glasses_joycons_hint">Use as câmeras dos óculos inteligentes para posicionar seus controles Joy-Con emparelhados. A rotação e os comandos dos botões vêm dos controles Joy-Con. A posição é estimada quando seus pulsos estão escondidos. Substitui os controles operados com as mãos nuas e pausa o rastreamento da câmera do telefone. Aponte os controles Joy-Con para frente ao conectar ou redefinir o centro de rastreamento.</string>
     <string name="glasses_joycons_requires_position">Ative o rastreamento de posição primeiro. Requer controles Joy-Con com sensor de movimento no Android 12 ou posterior. Desativado por padrão.</string>
     <string name="setup_tab_glasses">Óculos inteligentes</string>
-    <string name="setup_glasses_scope">As configurações de exibição e rastreamento de cabeça são compartilhadas entre os menus do DroidDeck, jogos e sessões da área de trabalho.</string>
+    <string name="setup_glasses_scope">As configurações de exibição e rastreamento de cabeça são compartilhadas entre os menus do DroidHost, jogos e sessões da área de trabalho.</string>
     <string name="setup_glasses_connect">Conecte os óculos inteligentes para alterar suas configurações de exibição e rastreamento. Suas configurações salvas são mantidas ao desconectar.</string>
     <string name="glasses_vr">VR</string>
     <string name="glasses_display_mode">Modo de exibição</string>
@@ -3500,7 +3500,7 @@
     <string name="glasses_refresh_30_hint">Ative o recurso \"Jogar em óculos inteligentes\" para selecionar o modo nativo de 30 Hz da tela.</string>
     <string name="glasses_3dof">Tela virtual 3DoF</string>
     <string name="glasses_3dof_hint">Ancore jogos planos à sua frente para que você possa olhar ao redor. Ativa o recurso \"Jogar em óculos inteligentes\" sem alternar para 3D.</string>
-    <string name="glasses_screen_app_wide">A largura e a distância atualizam a tela virtual rastreada para menus, jogos e sessões de desktop do DroidDeck imediatamente.</string>
+    <string name="glasses_screen_app_wide">A largura e a distância atualizam a tela virtual rastreada para menus, jogos e sessões de desktop do DroidHost imediatamente.</string>
     <string name="glasses_head_tracking_spatial_vr_hint">O rastreamento posicional inclui a rotação da cabeça no SteamVR. Para rastreamento somente de rotação, desative o rastreamento posicional.</string>
     <string name="glasses_head_tracking_spatial_hint">Controla o movimento da cabeça na tela virtual. O rastreamento posicional inclui a rotação da cabeça no SteamVR.</string>
     <string name="glasses_quick_actions">Ações rápidas</string>
@@ -3595,8 +3595,8 @@
     <string name="spatial_timing_values">%1$.1f Hz • idade da imagem %2$.1f ms • processamento %3$.1f ms</string>
     <string name="spatial_input_values">Limite de entrada %1$.1f Hz • %2$.0f%% de imagens da câmera. O rastreamento da cabeça continua em sua frequência máxima.</string>
     <string name="spatial_frame_counts">%1$d processado • %2$d descartado • %3$d ignorado pelo limite de entrada</string>
-    <string name="spatial_print_job">DroidDeck ChArUco 30 mm</string>
-    <string name="spatial_print_title">DroidDeck - Calibração Luma Ultra</string>
+    <string name="spatial_print_job">DroidHost ChArUco 30 mm</string>
+    <string name="spatial_print_title">DroidHost - Calibração Luma Ultra</string>
     <string name="spatial_print_scale" formatted="false">Imprimir em 100%/tamanho real. Cada quadrado: 30 mm (1,181 pol.).</string>
     <string name="spatial_print_stationary">Mantenha o alvo de calibração plano e estacionário; mova os óculos inteligentes entre as capturas.</string>
     <string name="spatial_print_check">Verificação de escala: 100 mm (3,937 pol.) entre marcas</string>
@@ -3681,7 +3681,7 @@
     <string name="setup_tab_sync">Syncthing</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Sincronizar com o Syncthing</string>
-    <string name="sync_enable_hint">Baseada no Syncthing-Fork, esta é uma implementação do Syncthing que permite sincronizar arquivos do sistema de arquivos interno do DroidDeck com outras instâncias do Syncthing. Vale apenas para arquivos que você guarda no sistema de arquivos interno do DroidDeck.</string>
+    <string name="sync_enable_hint">Baseada no Syncthing-Fork, esta é uma implementação do Syncthing que permite sincronizar arquivos do sistema de arquivos interno do DroidHost com outras instâncias do Syncthing. Vale apenas para arquivos que você guarda no sistema de arquivos interno do DroidHost.</string>
     <string name="sync_missing">Esta versão não inclui o Syncthing.</string>
     <string name="sync_starting">Iniciando o Syncthing</string>
     <string name="sync_status_starting">Iniciando</string>
@@ -3711,7 +3711,7 @@
     <string name="sync_waiting">Aguardando você</string>
     <string name="sync_pending_device">%1$s quer se conectar</string>
     <string name="sync_pending_folder">%1$s quer compartilhar “%2$s”</string>
-    <string name="sync_pending_folder_hint">Aceite para escolher onde salvar no DroidDeck.</string>
+    <string name="sync_pending_folder_hint">Aceite para escolher onde salvar no DroidHost.</string>
     <string name="sync_review">Revisar na interface web</string>
     <string name="sync_folders">Pastas</string>
     <string name="sync_no_folders">Nenhuma pasta ainda.</string>
@@ -3723,7 +3723,7 @@
     <string name="sync_folder_out_of_sync">Fora de sincronia</string>
     <string name="sync_folder_errors">%1$d arquivos não puderam ser sincronizados</string>
     <string name="sync_folder_blocked">Bloqueada</string>
-    <string name="sync_folder_blocked_hint">Esta pasta está fora do armazenamento do DroidDeck, então o DroidDeck a pausou. Para sincronizar pastas fora do DroidDeck, use o app Syncthing-Fork.</string>
+    <string name="sync_folder_blocked_hint">Esta pasta está fora do armazenamento do DroidHost, então o DroidHost a pausou. Para sincronizar pastas fora do DroidHost, use o app Syncthing-Fork.</string>
     <string name="sync_remove_folder">Remover do Syncthing</string>
     <string name="sync_remove_folder_hint">Remover não apaga nenhum arquivo.</string>
     <string name="sync_devices">Dispositivos</string>
@@ -3751,12 +3751,12 @@
     <string name="sync_api_key">Chave da API</string>
     <string name="sync_regenerate">Gerar novamente</string>
     <string name="sync_reset">Redefinir o Syncthing</string>
-    <string name="sync_reset_hint">Novo ID do dispositivo; pastas e dispositivos removidos. Os arquivos no armazenamento do DroidDeck são mantidos.</string>
+    <string name="sync_reset_hint">Novo ID do dispositivo; pastas e dispositivos removidos. Os arquivos no armazenamento do DroidHost são mantidos.</string>
     <string name="sync_reset_button">Redefinir</string>
     <string name="sync_reset_confirm_title">Redefinir o Syncthing?</string>
     <string name="sync_running_group">Execução</string>
     <string name="sync_run">Executar</string>
-    <string name="sync_run_open">Enquanto o DroidDeck estiver aberto</string>
+    <string name="sync_run_open">Enquanto o DroidHost estiver aberto</string>
     <string name="sync_run_background">Em segundo plano</string>
     <string name="sync_wifi_only">Somente Wi-Fi</string>
     <string name="sync_pause_games">Pausar durante os jogos</string>
@@ -3768,7 +3768,7 @@
     <string name="sync_accept">Aceitar</string>
     <string name="sync_accept_title">Salvar “%1$s” em</string>
     <string name="sync_add_folder">Adicionar pasta</string>
-    <string name="sync_add_folder_hint">Sincronizar uma pasta no armazenamento do DroidDeck</string>
+    <string name="sync_add_folder_hint">Sincronizar uma pasta no armazenamento do DroidHost</string>
     <string name="sync_choose">Escolher</string>
     <string name="sync_add">Adicionar</string>
     <string name="sync_add_failed">Não foi possível adicionar a pasta.</string>
@@ -3778,10 +3778,10 @@
     <string name="sync_new_folder">Nova pasta</string>
     <string name="sync_location_home">Pasta pessoal do contêiner</string>
     <string name="sync_location_sync">Pasta Sync</string>
-    <string name="sync_location_shared">Armazenamento compartilhado do DroidDeck</string>
-    <string name="sync_location_card">DroidDeck em %1$s</string>
-    <string name="sync_location_app">Dados do app DroidDeck</string>
-    <string name="sync_web_path_locked">Novas pastas são salvas na pasta Sync do DroidDeck. Para sincronizar outra pasta do DroidDeck, use Adicionar pasta na aba Syncthing.</string>
+    <string name="sync_location_shared">Armazenamento compartilhado do DroidHost</string>
+    <string name="sync_location_card">DroidHost em %1$s</string>
+    <string name="sync_location_app">Dados do app DroidHost</string>
+    <string name="sync_web_path_locked">Novas pastas são salvas na pasta Sync do DroidHost. Para sincronizar outra pasta do DroidHost, use Adicionar pasta na aba Syncthing.</string>
     <string name="sync_web_title">Syncthing</string>
     <string name="sync_web_reload">Recarregar</string>
     <string name="sync_not_running">O Syncthing não está em execução.</string>
@@ -3791,22 +3791,22 @@
     <string name="session_end_gpu_unsupported">Esta sessão não pode começar porque esta GPU não tem um driver Vulkan para Linux compatível na configuração atual. Os drivers Adreno Turnip não conseguem habilitar suporte a GPUs MediaTek/Mali.</string>
     <string name="setup_group_memory">Memória</string>
     <string name="setup_clear_cached">Fechar apps em cache antes de uma sessão</string>
-    <string name="setup_clear_cached_hint">Quando uma sessão começa, o DroidDeck fecha os apps que o Android mantém em segundo plano, para que o jogo tenha mais memória. A Depuração por Wi-Fi precisa estar ativada.</string>
-    <string name="setup_clear_cached_unpaired">O DroidDeck precisa estar pareado com a Depuração por Wi-Fi (Parear, abaixo).</string>
+    <string name="setup_clear_cached_hint">Quando uma sessão começa, o DroidHost fecha os apps que o Android mantém em segundo plano, para que o jogo tenha mais memória. A Depuração por Wi-Fi precisa estar ativada.</string>
+    <string name="setup_clear_cached_unpaired">O DroidHost precisa estar pareado com a Depuração por Wi-Fi (Parear, abaixo).</string>
     <string name="setup_memory_hud">Indicador de memória</string>
-    <string name="setup_memory_hud_hint">Memória e swap em uso, na tela da sessão. O modo Avançado divide entre o jogo, o DroidDeck, o Android e a GPU.</string>
+    <string name="setup_memory_hud_hint">Memória e swap em uso, na tela da sessão. O modo Avançado divide entre o jogo, o DroidHost, o Android e a GPU.</string>
     <string name="setup_memory_hud_simple">Simples</string>
     <string name="setup_memory_hud_advanced">Avançado</string>
     <string name="memory_hud_simple">RAM %1$s/%2$s GB · swap %3$s/%4$s GB</string>
-    <string name="memory_hud_split">jogo %1$s · DroidDeck %2$s · Android %3$s GB</string>
+    <string name="memory_hud_split">jogo %1$s · DroidHost %2$s · Android %3$s GB</string>
     <string name="memory_hud_gpu">GPU %1$s GB</string>
     <string name="setup_bg_limit">Apps em segundo plano durante uma sessão</string>
-    <string name="setup_bg_limit_hint">Enquanto uma sessão está em andamento, o Android mantém no máximo esse número de apps em cache e fecha o restante, para que o jogo fique com a memória deles. O DroidDeck restaura o limite anterior quando a sessão termina. A Depuração por Wi-Fi precisa estar ativada.</string>
+    <string name="setup_bg_limit_hint">Enquanto uma sessão está em andamento, o Android mantém no máximo esse número de apps em cache e fecha o restante, para que o jogo fique com a memória deles. O DroidHost restaura o limite anterior quando a sessão termina. A Depuração por Wi-Fi precisa estar ativada.</string>
     <string name="setup_bg_limit_4">No máximo 4</string>
     <string name="setup_bg_limit_1">No máximo 1</string>
     <string name="setup_bg_limit_0">Nenhum</string>
     <string name="setup_adb_pair">Depuração por Wi-Fi</string>
-    <string name="setup_adb_pair_hint">Pareia o DroidDeck com a Depuração por Wi-Fi do Android para as opções acima. O limite de processos filhos continua desativado.</string>
+    <string name="setup_adb_pair_hint">Pareia o DroidHost com a Depuração por Wi-Fi do Android para as opções acima. O limite de processos filhos continua desativado.</string>
     <string name="setup_adb_pair_button">Parear</string>
     <string name="tracking_recovery_look">Olhe ao redor lentamente em um ambiente bem iluminado.\nMantenha as câmeras de rastreamento desobstruídas e voltadas para móveis ou outros detalhes visíveis.</string>
     <string name="epic_client_missing">Não instalado</string>
@@ -3865,7 +3865,7 @@
     <string name="integration_app_info">Informações do app</string>
     <string name="integration_wifi">Nomes de Wi-Fi</string>
     <string name="integration_brightness">Brilho</string>
-    <string name="integration_home">DroidDeck como tela inicial</string>
+    <string name="integration_home">DroidHost como tela inicial</string>
     <string name="integration_shortcuts">Teclas do sistema</string>
     <string name="integration_wifi_hint">Mostra redes na Steam · requer acesso à localização, nunca rastreada</string>
     <string name="integration_wifi_on">As redes aparecem na Steam</string>
@@ -3876,8 +3876,8 @@
     <string name="integration_shortcuts_hint">Alt+Tab, tecla Win e botão Início ficam na sessão</string>
     <string name="integration_shortcuts_maybe_restricted">Esmaecido no Android? Informações do app → ⋮ → Permitir configurações restritas</string>
     <string name="integration_shortcuts_restricted">Bloqueado pelo Android · Informações do app → ⋮ → Permitir configurações restritas</string>
-    <string name="integration_shortcuts_service">Teclas do sistema DroidDeck</string>
-    <string name="integration_shortcuts_service_description">Mantém Alt+Tab, a tecla Win e o botão Início em uma sessão ativa do DroidDeck em vez do Android.</string>
+    <string name="integration_shortcuts_service">Teclas do sistema DroidHost</string>
+    <string name="integration_shortcuts_service_description">Mantém Alt+Tab, a tecla Win e o botão Início em uma sessão ativa do DroidHost em vez do Android.</string>
     <string name="integration_brightness_needed">Ative Brilho em Configuração → Integração com a Steam</string>
     <string name="setup_gpu_bridge_off">Ponte Mali: desligada</string>
     <string name="setup_gpu_bridge_unusable">%1$s não pode usar a ponte Mali (ela precisa de uma GPU Mali sem uma rota de driver do sistema), por isso esta chave não tem efeito aqui.</string>
@@ -3956,7 +3956,7 @@
         <item quantity="other">%d apps</item>
     </plurals>
     <string name="desktop_restore_title">Restaurando seus programas</string>
-    <string name="desktop_restore_body">Reinstalando os apps que você adicionou após uma atualização do DroidDeck.</string>
+    <string name="desktop_restore_body">Reinstalando os apps que você adicionou após uma atualização do DroidHost.</string>
     <string name="desktop_restore_done_title">Programas restaurados</string>
     <string name="desktop_restore_done_body">Os apps que você adicionou estão instalados de novo.</string>
     <string name="desktop_restore_failed_title">Não foi possível restaurar alguns programas</string>

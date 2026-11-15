@@ -1,5 +1,5 @@
 /*
- * DROIDDECK_MALI_COMPAT_TRACE=1: the physical-device queries an application makes before
+ * DROIDHOST_MALI_COMPAT_TRACE=1: the physical-device queries an application makes before
  * vkCreateDevice, logged as they pass through. Zink on Venus over an older Mali driver gave up
  * after vkGetPhysicalDeviceProperties2 without a word (its release builds print nothing there),
  * so the last query in the log is where it stopped.

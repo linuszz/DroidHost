@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds VK_LAYER_DROIDDECK_gpu_load for the arm64 guest: tools/gpuload/build.sh [--native] OUT
+# Builds VK_LAYER_DROIDHOST_gpu_load for the arm64 guest: tools/gpuload/build.sh [--native] OUT
 # OUT gets libVkLayer_droiddeck_gpuload.so, libVkLayer_droiddeck_vramcap.so and their implicit-layer manifests.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
@@ -48,12 +48,12 @@ cmd=(sh -c '
 if [ "$native" = 1 ]; then
     (cd "$repo" && "${cmd[@]}")
 else
-    docker run --rm --platform "${DROIDDECK_DOCKER_PLATFORM:-linux/amd64}" --user "$(id -u):$(id -g)" -v "$repo:/src" -w /src \
-        "${DROIDDECK_BUILD_IMAGE:-droiddeck-local-cross:24.04-v3}" "${cmd[@]}"
+    docker run --rm --platform "${DROIDHOST_DOCKER_PLATFORM:-linux/amd64}" --user "$(id -u):$(id -g)" -v "$repo:/src" -w /src \
+        "${DROIDHOST_BUILD_IMAGE:-droiddeck-local-cross:24.04-v3}" "${cmd[@]}"
 fi
 
-cp "$here/layer/VK_LAYER_DROIDDECK_gpu_load.json" "$here/layer/VK_LAYER_DROIDDECK_vram_cap.json" "$work/out/"
+cp "$here/layer/VK_LAYER_DROIDHOST_gpu_load.json" "$here/layer/VK_LAYER_DROIDHOST_vram_cap.json" "$work/out/"
 mkdir -p "$out"
 cp "$work/out/libVkLayer_droiddeck_gpuload.so" "$work/out/libVkLayer_droiddeck_vramcap.so" \
-    "$work/out/VK_LAYER_DROIDDECK_gpu_load.json" "$work/out/VK_LAYER_DROIDDECK_vram_cap.json" "$out/"
+    "$work/out/VK_LAYER_DROIDHOST_gpu_load.json" "$work/out/VK_LAYER_DROIDHOST_vram_cap.json" "$out/"
 echo "built $out"

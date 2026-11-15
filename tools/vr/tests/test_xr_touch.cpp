@@ -4,7 +4,7 @@
 #include <limits>
 
 int main() {
-    DroidDeckXrHand hand{};
+    DroidHostXrHand hand{};
     hand.active = 1;
     hand.trigger = 0.7f; hand.squeeze = 0.8f;
     hand.stick[0] = -0.4f; hand.stick[1] = 0.9f;
@@ -12,22 +12,22 @@ int main() {
     assert(input.trigger == hand.trigger && input.grip == hand.squeeze && input.triggerClick && input.gripClick);
     assert(input.stickX == -0.4f && input.stickY == 0.9f);
     assert(!input.stickTouch && !input.stickClick && !input.primaryClick && !input.secondaryClick && !input.systemClick);
-    hand.buttons = DROIDDECK_XR_PRIMARY_CLICK;
+    hand.buttons = DROIDHOST_XR_PRIMARY_CLICK;
     input = xr_touch_input(hand, false);
     assert(input.primaryClick && !input.secondaryClick && !input.stickClick && !input.systemClick && !input.primaryTouch);
-    hand.buttons = DROIDDECK_XR_SECONDARY_CLICK;
+    hand.buttons = DROIDHOST_XR_SECONDARY_CLICK;
     input = xr_touch_input(hand, true);
     assert(input.secondaryClick && !input.primaryClick && !input.systemClick && !input.stickClick);
-    hand.buttons = DROIDDECK_XR_STICK_CLICK;
+    hand.buttons = DROIDHOST_XR_STICK_CLICK;
     input = xr_touch_input(hand, true);
     assert(input.stickClick && !input.primaryClick && !input.stickTouch);
-    hand.buttons = DROIDDECK_XR_MENU_CLICK;
+    hand.buttons = DROIDHOST_XR_MENU_CLICK;
     assert(xr_touch_input(hand, false).systemClick);
     assert(!xr_touch_input(hand, true).systemClick);
     hand.buttons = 0;
     assert(!xr_touch_input(hand, false).systemClick);
-    hand.buttons = DROIDDECK_XR_TRIGGER_TOUCH | DROIDDECK_XR_STICK_TOUCH | DROIDDECK_XR_PRIMARY_TOUCH |
-                   DROIDDECK_XR_SECONDARY_TOUCH | DROIDDECK_XR_THUMBREST_TOUCH;
+    hand.buttons = DROIDHOST_XR_TRIGGER_TOUCH | DROIDHOST_XR_STICK_TOUCH | DROIDHOST_XR_PRIMARY_TOUCH |
+                   DROIDHOST_XR_SECONDARY_TOUCH | DROIDHOST_XR_THUMBREST_TOUCH;
     hand.trigger = hand.squeeze = 0;
     input = xr_touch_input(hand, false);
     assert(input.triggerTouch && input.stickTouch && input.primaryTouch && input.secondaryTouch && input.thumbrestTouch);

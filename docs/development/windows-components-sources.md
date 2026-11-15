@@ -56,9 +56,9 @@ list (worked out again only when the files it is read from change, by modificati
 in `files/wincomp-findings.json`, so a page opens on it at once) and a component's download (each
 component once, for every game that wants it). What the user asked for goes first: the page of a
 game (on a metered network too), a store install or an add. A game's list is queued when it is
-installed, added or edited, when its page opens, when it is launched from DroidDeck (the launch
+installed, added or edited, when its page opens, when it is launched from DroidHost (the launch
 itself only takes what is on already), and for every Steam game once per app start, ten seconds
-after the launcher is up (Steam installs them without a word to DroidDeck). The queue waits while
+after the launcher is up (Steam installs them without a word to DroidHost). The queue waits while
 a session runs, and a download also waits for a validated network (the page then greys what is not
 downloaded yet, "Available when online", and follows the network live); what nobody asked for also waits on battery saver, thermal status moderate or
 worse, or a metered network. A component turns on for its games when its download lands, for the

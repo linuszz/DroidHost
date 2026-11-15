@@ -17,7 +17,7 @@ allocation pid=9810 comm=steam api=fallocate result=-1 api_error=95 errno_after=
 
 === Native-path allocation diagnostics ===
 Source: direct-storage-completed.log / session 64
-DroidDeck storage diagnostics v1
+DroidHost storage diagnostics v1
 selected_library=secondary
 volume_removable=true
 filesystem=exfat
@@ -55,8 +55,8 @@ Source: direct-content-completed.log / session 64
 
 === Normal-app native/FUSE directory read ===
 Source: app-raw-probe-session.log / session 62
-APP_RAW_PROBE uid=10195 path=/mnt/media_rw/FF7F-F56A/Android/data/com.droiddeck.launcher/files/steam/steamapps/downloading/1675830-fuse-control/1000xRESIST_Data/StreamingAssets/aa/StandaloneWindows64 seconds=0.002288 calls=2 bytes=154920 read_error=0
-APP_RAW_PROBE uid=10195 path=/storage/FF7F-F56A/Android/data/com.droiddeck.launcher/files/steam/steamapps/downloading/1675830-fuse-control/1000xRESIST_Data/StreamingAssets/aa/StandaloneWindows64 seconds=0.501306 calls=112 bytes=154872 read_error=0
+APP_RAW_PROBE uid=10195 path=/mnt/media_rw/FF7F-F56A/Android/data/com.droidhost.launcher/files/steam/steamapps/downloading/1675830-fuse-control/1000xRESIST_Data/StreamingAssets/aa/StandaloneWindows64 seconds=0.002288 calls=2 bytes=154920 read_error=0
+APP_RAW_PROBE uid=10195 path=/storage/FF7F-F56A/Android/data/com.droidhost.launcher/files/steam/steamapps/downloading/1675830-fuse-control/1000xRESIST_Data/StreamingAssets/aa/StandaloneWindows64 seconds=0.501306 calls=112 bytes=154872 read_error=0
 
 === Binding regression: bind-probe-before.log ===
 Source: bind-probe-before.log
@@ -93,7 +93,7 @@ files=64 bytes_per_file=262144 open_seconds=2.013194 truncate_seconds=0.095924 w
 Source: game-launch-exit-info.txt
         ApplicationExitInfo #0:
           timestamp=2026-10-04 18:13:48.454 pid=14709 realUid=10195 packageUid=10195 definingUid=10195 user=0
-          process=com.droiddeck.launcher reason=3 (LOW_MEMORY) subreason=0 (UNKNOWN) status=0
+          process=com.droidhost.launcher reason=3 (LOW_MEMORY) subreason=0 (UNKNOWN) status=0
           importance=100 pss=227MB rss=344MB description=null state=empty trace=null
 
 === Combined release unit-test completion ===
@@ -104,4 +104,4 @@ BUILD SUCCESSFUL in 10s
 === Combined release build completion ===
 Source: combined-233-build.log
 BUILD SUCCESSFUL in 25s
-APK: /Users/danhimebauch/.codex/worktrees/steam-sd-preallocation/DroidDeck/app/build/outputs/apk/release/app-release.apk
+APK: /Users/danhimebauch/.codex/worktrees/steam-sd-preallocation/DroidHost/app/build/outputs/apk/release/app-release.apk

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="steamvr_recovery_title">SteamVR 圖形已停止運作</string>
-    <string name="steamvr_recovery_countdown">DroidDeck 將在 %1$d 秒後重新啟動，以重設圖形並重新開啟 SteamVR。執行中的遊戲會被關閉，未儲存的進度將無法復原。</string>
+    <string name="steamvr_recovery_countdown">DroidHost 將在 %1$d 秒後重新啟動，以重設圖形並重新開啟 SteamVR。執行中的遊戲會被關閉，未儲存的進度將無法復原。</string>
     <string name="steamvr_recovery_repeated">最近一次重新啟動後，圖形故障再次發生。為避免無限循環，已暫停自動復原。重新啟動會關閉你的遊戲，未儲存的進度將無法復原。</string>
     <string name="steamvr_recovery_restart">立即重新啟動</string>
     <string name="steamvr_recovery_cancel">保持開啟</string>
     <string name="steamvr_recovery_restarting">正在重設圖形並重新開啟 SteamVR…</string>
-    <string name="steamvr_recovery_failed">DroidDeck 無法自動重新啟動。請完全關閉應用程式，然後重新開啟。</string>
-    <string name="app_name">DroidDeck</string>
+    <string name="steamvr_recovery_failed">DroidHost 無法自動重新啟動。請完全關閉應用程式，然後重新開啟。</string>
+    <string name="app_name">DroidHost</string>
     <string-array name="loading_hints">
         <item>首次執行會下載 Steam。這可能需要幾分鐘。</item>
         <item>預設情況下，離開應用程式會暫停 Steam；返回時會從上次中斷處繼續。</item>
@@ -145,7 +145,7 @@
     <string name="user_apps_remove_confirm">再次點擊以移除</string>
     <string name="user_apps_stop_session">請先結束工作階段再移除</string>
     <string name="user_apps_script_linked">從其所在資料夾執行 %1$s，該資料夾會原地連結到工作階段中。移除應用程式不會動到該資料夾。</string>
-    <string name="user_apps_script_copied">從複製到 DroidDeck 內部的資料夾中執行 %1$s。移除應用程式會刪除複本，不會刪除原始檔案。</string>
+    <string name="user_apps_script_copied">從複製到 DroidHost 內部的資料夾中執行 %1$s。移除應用程式會刪除複本，不會刪除原始檔案。</string>
     <string name="user_apps_runtime_required">請先安裝 Linux 執行環境</string>
     <string name="user_apps_file_gone">檔案已不存在</string>
     <string name="user_apps_no_space">可用空間不足：複製該資料夾需要 %1$s</string>
@@ -180,8 +180,8 @@
     <string name="app_fex_off">關閉</string>
     <string name="app_fex_hint">FEX 可在這部 ARM64 裝置上執行 x86 Linux 程式。「自動」會在程式為 x86 組建時使用 FEX。</string>
     <string name="app_fex_x86">透過 FEX 執行 %1$s</string>
-    <string name="app_fex_not_ready">此程式是為 %1$s 電腦組建的，需透過 FEX 執行，但 FEX 尚未設定。請在登入狀態下開啟一次 Steam：DroidDeck 會讓它下載 FEX 和所需的 Steam Linux Runtime，之後就能開啟此程式。</string>
-    <string name="session_proot_missing">無法下載 DroidDeck 的 proot。請檢查連線後再試一次。工作階段未啟動，因為備用 proot 太慢，無法用來玩遊戲。</string>
+    <string name="app_fex_not_ready">此程式是為 %1$s 電腦組建的，需透過 FEX 執行，但 FEX 尚未設定。請在登入狀態下開啟一次 Steam：DroidHost 會讓它下載 FEX 和所需的 Steam Linux Runtime，之後就能開啟此程式。</string>
+    <string name="session_proot_missing">無法下載 DroidHost 的 proot。請檢查連線後再試一次。工作階段未啟動，因為備用 proot 太慢，無法用來玩遊戲。</string>
     <string name="session_powervr_missing">無法下載 PowerVR 圖形環境。請檢查網路連線後再試。</string>
     <string name="session_directaudio_missing">無法下載 DirectAudio，因此本次工作階段的遊戲音訊會使用較慢的路徑。</string>
     <string name="session_end_program">此程式</string>
@@ -221,13 +221,13 @@
     <string name="edit_app_save">儲存</string>
     <string name="add_app_checking_folder">正在檢查資料夾…</string>
     <string name="add_app_folder_linked">其資料夾已連結到工作階段中：%1$s</string>
-    <string name="add_app_folder_copied">該資料夾包含 Linux 程式，共用儲存空間無法執行這些程式，因此會將其複製到 DroidDeck（%1$s）。</string>
+    <string name="add_app_folder_copied">該資料夾包含 Linux 程式，共用儲存空間無法執行這些程式，因此會將其複製到 DroidHost（%1$s）。</string>
     <string name="add_app_confirm">新增</string>
     <string name="add_app_cancel">取消</string>
     <string name="add_app_runtime_required">請先從「初始設定」中安裝 Linux 執行環境。</string>
     <string name="add_app_busy">請等待 %1$s 完成。</string>
     <string name="steam_compat_label">相容</string>
-    <string name="proton_compatible_note">在 Steam 的「相容性」選單中標示「%1$s」的組建版本包含 DroidDeck 的 前綴修正，可在此啟動遊戲。預設為 Proton Experimental ARM64（%1$s）；安裝較新的 Proton 11.0 ARM64（%1$s）後則改用該版本。Valve 自己未帶此標示的 Proton 項目無法在這部裝置上啟動遊戲。</string>
+    <string name="proton_compatible_note">在 Steam 的「相容性」選單中標示「%1$s」的組建版本包含 DroidHost 的 前綴修正，可在此啟動遊戲。預設為 Proton Experimental ARM64（%1$s）；安裝較新的 Proton 11.0 ARM64（%1$s）後則改用該版本。Valve 自己未帶此標示的 Proton 項目無法在這部裝置上啟動遊戲。</string>
     <string name="proton_installed_compatible">已安裝 %1$s · %2$s</string>
     <string name="common_cancel">取消</string>
     <string name="common_auto">自動</string>
@@ -293,7 +293,7 @@
     <string name="back_double_tap_window">連按兩下間隔</string>
     <string name="back_tap_ms">%1$d 毫秒</string>
     <string name="brightness_permission_title">允許控制亮度</string>
-    <string name="brightness_permission_text">在 DroidDeck 中設定亮度控制。</string>
+    <string name="brightness_permission_text">在 DroidHost 中設定亮度控制。</string>
     <string name="back_menu_then_qam">選單 → QAM</string>
     <string name="back_qam_then_menu">QAM → 選單</string>
     <string name="mode_session">工作階段</string>
@@ -307,7 +307,7 @@
     <string name="mode_suspend_note">「自動」會在背景時暫停，並在重新顯示時繼續。「手動」會等你點擊「繼續」。「從不」則會持續執行。</string>
     <string name="mode_startup">啟動</string>
     <string name="mode_startup_session">啟動時開啟</string>
-    <string name="mode_startup_session_hint">DroidDeck 啟動時開始此工作階段。</string>
+    <string name="mode_startup_session_hint">DroidHost 啟動時開始此工作階段。</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">正在檢查發行版本…</string>
     <string name="mode_decky_ready">已準備好安裝 %1$s。</string>
@@ -330,8 +330,8 @@
     <string name="mode_client">用戶端</string>
     <string name="mode_mangoapp">效能重疊層</string>
     <string name="mode_mangoapp_hint">如果 Deck 模式下遊戲崩潰或黑畫面，請關閉此項。下次工作階段生效。</string>
-    <string name="mode_return_after_game">遊戲結束後返回 DroidDeck</string>
-    <string name="mode_return_after_game_hint">從 DroidDeck 或其他啟動器啟動的遊戲關閉後，Steam 會正常退出（先完成雲端存檔同步），並返回啟動位置。關閉：留在 Steam 中。</string>
+    <string name="mode_return_after_game">遊戲結束後返回 DroidHost</string>
+    <string name="mode_return_after_game_hint">從 DroidHost 或其他啟動器啟動的遊戲關閉後，Steam 會正常退出（先完成雲端存檔同步），並返回啟動位置。關閉：留在 Steam 中。</string>
     <string name="mode_shader_precache">著色器預先快取</string>
     <string name="mode_shader_precache_hint">Steam 會為你的遊戲下載預先編譯的著色器並在背景處理，讓遊戲較不卡頓。關閉可節省數據用量、儲存空間和電量；遊戲則會改為在執行時編譯著色器。與 Steam 的「下載」>「著色器預先快取」為同一個設定。下次工作階段生效。</string>
     <string name="mode_steam_repair">修復 Steam 用戶端</string>
@@ -413,7 +413,7 @@
     <string name="mode_wifi_open_settings">開啟設定</string>
     <string name="mode_wifi_continue">繼續</string>
     <string name="mode_wifi_explain_title">啟用 Wi-Fi 探索？</string>
-    <string name="mode_wifi_explain_text">Android 需要定位權限才能讀取 Wi-Fi 名稱並探索附近網路。DroidDeck 使用此權限在 Steam 中顯示這些網路。我們不會追蹤你的位置。沒有此權限也可以存取網際網路。</string>
+    <string name="mode_wifi_explain_text">Android 需要定位權限才能讀取 Wi-Fi 名稱並探索附近網路。DroidHost 使用此權限在 Steam 中顯示這些網路。我們不會追蹤你的位置。沒有此權限也可以存取網際網路。</string>
     <string name="mode_storage">遊戲儲存空間</string>
     <string name="mode_storage_auto">自動 - 有 SD 卡時使用 SD 卡，以及你的遊戲資料夾</string>
     <string name="mode_storage_auto_none">自動 - 使用你的遊戲資料夾，有 SD 卡時也使用 SD 卡（目前無 SD 卡）</string>
@@ -433,7 +433,7 @@
     <string name="libraries_found_hint">在此裝置找到 · %1$s · %2$s</string>
     <string name="libraries_add_found">新增</string>
     <string name="libraries_access_title">尋找內部儲存空間中的收藏庫</string>
-    <string name="libraries_access_hint">允許存取所有檔案，讓 DroidDeck 能找到其他應用程式存放在內部儲存空間的 Steam 收藏庫</string>
+    <string name="libraries_access_hint">允許存取所有檔案，讓 DroidHost 能找到其他應用程式存放在內部儲存空間的 Steam 收藏庫</string>
     <string name="libraries_access_allow">允許</string>
     <string name="libraries_used_inner">已新增 %1$s，即所選資料夾內的 Steam 收藏庫</string>
     <string name="mode_storage_note">從 SD 卡或共用儲存空間讀取資源的遊戲可能會卡頓。</string>
@@ -550,7 +550,7 @@
     <string name="comp_nightlies_count">Nightlies 中 · %1$d</string>
     <string name="comp_channel_stable">穩定版</string>
     <string name="comp_channel_nightly">每夜版</string>
-    <string name="comp_refresh_to_list">重新整理以列出 Nightlies 和 DroidDeck 中的套件。</string>
+    <string name="comp_refresh_to_list">重新整理以列出 Nightlies 和 DroidHost 中的套件。</string>
     <string name="comp_nothing_new">自上次檢查以來沒有新內容。</string>
     <string name="comp_import_wcp">匯入 .wcp</string>
     <string name="comp_restore_original">還原此 Proton 的原始檔案</string>
@@ -562,7 +562,7 @@
     <string name="comp_tag_new">新</string>
     <string name="comp_tag_stored">已儲存</string>
     <string name="comp_mode_title">版本的選擇方式</string>
-    <string name="comp_mode_auto_detail">最新 DroidDeck 版本，持續保持更新</string>
+    <string name="comp_mode_auto_detail">最新 DroidHost 版本，持續保持更新</string>
     <string name="comp_mode_manual_detail">自行選擇並安裝版本</string>
     <string name="comp_auto_title">Auto 會讓 %1$s 保持最新</string>
     <string name="comp_auto_hint">新版本會在背景安裝。如果先前能執行的遊戲兩次在幾秒內關閉，Auto 會退回到先前可用的版本。</string>
@@ -728,7 +728,7 @@
     <string name="hud_temp_red_battery">電池變紅溫度</string>
     <string name="hud_group_more">更多</string>
     <string name="hud_export">HUD 診斷</string>
-    <string name="hud_export_hint">將 HUD 讀取的所有感測器報告儲存到 Downloads/DroidDeck。</string>
+    <string name="hud_export_hint">將 HUD 讀取的所有感測器報告儲存到 Downloads/DroidHost。</string>
     <string name="hud_export_button">儲存</string>
     <string name="hud_export_done">已儲存到 %1$s</string>
     <string name="hud_export_failed">無法儲存 HUD 報告。</string>
@@ -912,7 +912,7 @@
     <string name="setup_language_system">系統預設（%1$s）</string>
     <string name="setup_language_system_short">系統預設</string>
     <string name="setup_app_scale">應用程式縮放</string>
-    <string name="setup_app_scale_hint">DroidDeck 的文字和控制項</string>
+    <string name="setup_app_scale_hint">DroidHost 的文字和控制項</string>
     <string name="setup_app_scale_default">%1$d%%（預設）</string>
     <string name="setup_theme">佈景主題</string>
     <string name="setup_theme_hint">啟動器外觀</string>
@@ -920,11 +920,11 @@
     <string name="setup_launcher_icon_dark">深色</string>
     <string name="setup_launcher_icon_light">淺色</string>
     <string name="setup_home">用作主螢幕</string>
-    <string name="setup_home_on">DroidDeck 可以作為主螢幕應用程式</string>
-    <string name="setup_home_off">DroidDeck 不會作為主螢幕應用程式提供</string>
+    <string name="setup_home_on">DroidHost 可以作為主螢幕應用程式</string>
+    <string name="setup_home_off">DroidHost 不會作為主螢幕應用程式提供</string>
     <string name="setup_home_page">按主畫面鍵開啟</string>
-    <string name="setup_home_page_hint">當 DroidDeck 為主畫面應用程式，且按下主畫面鍵時顯示的頁面</string>
-    <string name="setup_home_game_space_first">請在「新增遊戲」中將 DroidDeck 設為「包含」</string>
+    <string name="setup_home_page_hint">當 DroidHost 為主畫面應用程式，且按下主畫面鍵時顯示的頁面</string>
+    <string name="setup_home_game_space_first">請在「新增遊戲」中將 DroidHost 設為「包含」</string>
     <string name="setup_orientation">螢幕方向</string>
     <string name="setup_launcher_orientation">啟動器方向</string>
     <string name="setup_launcher_orientation_auto">跟隨裝置旋轉</string>
@@ -952,7 +952,7 @@
     <string name="setup_default_home">預設主螢幕應用程式</string>
     <string name="setup_choose_home">選擇主螢幕應用程式</string>
     <string name="setup_hide_home_from_recents">閒置時在「最近使用的應用程式」中隱藏啟動器</string>
-    <string name="setup_hide_home_from_recents_hint">僅在 DroidDeck 為預設主畫面應用程式，且沒有執行中的工作階段時生效。</string>
+    <string name="setup_hide_home_from_recents_hint">僅在 DroidHost 為預設主畫面應用程式，且沒有執行中的工作階段時生效。</string>
     <string name="setup_choose">選擇</string>
     <string name="setup_linux_apps">Linux 應用程式（測試版）</string>
     <string name="setup_tool_files">檔案</string>
@@ -1022,16 +1022,16 @@
     <string name="store_website">網站</string>
     <string name="store_verified">已驗證</string>
     <string name="upd_title">更新</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">DroidHost %1$s · %2$s</string>
     <string name="upd_checked">已檢查 %1$s</string>
     <string name="upd_not_checked">尚未檢查</string>
-    <string name="upd_perm_title">允許 DroidDeck 自行更新</string>
+    <string name="upd_perm_title">允許 DroidHost 自行更新</string>
     <string name="upd_perm_text">在下一頁開啟「允許來自此來源」，然後返回。更新會自動繼續。</string>
     <string name="upd_open_settings">開啟設定</string>
     <string name="upd_not_now">暫時不要</string>
     <string name="upd_signed_status">簽章不同</string>
     <string name="upd_signed_headline">無法原地更新</string>
-    <string name="upd_signed_detail">此複本使用的不是 DroidDeck 發行金鑰簽章，因此無法直接覆寫更新。請解除安裝後切換。</string>
+    <string name="upd_signed_detail">此複本使用的不是 DroidHost 發行金鑰簽章，因此無法直接覆寫更新。請解除安裝後切換。</string>
     <string name="upd_available">有可用更新</string>
     <string name="upd_blocked_status">無法安裝</string>
     <string name="upd_switch">可以切換</string>
@@ -1053,7 +1053,7 @@
     <string name="upd_stop_session">請停止正在執行的工作階段後再更新。</string>
     <string name="upd_less">收合</string>
     <string name="upd_more">更多</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">DroidHost %1$s</string>
     <string name="upd_new_preview">新的預覽版組建版本</string>
     <string name="upd_new_test">PR #%1$d 測試組建版本</string>
     <string name="upd_mb">%1$d MB</string>
@@ -1093,7 +1093,7 @@
     <string name="upd_lab">實驗版</string>
     <string name="lab_builds">實驗版本</string>
     <string name="lab_in_use">使用中</string>
-    <string name="lab_paused_row">Android 重新最佳化 DroidDeck 後已暫停</string>
+    <string name="lab_paused_row">Android 重新最佳化 DroidHost 後已暫停</string>
     <string name="lab_not_loaded">未載入：%1$s</string>
     <string name="lab_waiting">等待重新啟動</string>
     <string name="lab_kept">已保留</string>
@@ -1107,17 +1107,17 @@
     <string name="lab_delete_confirm">立即刪除</string>
     <string name="lab_restart_failed">無法準備重新啟動：%1$s。請在設定中配對無線偵錯，然後再試一次。</string>
     <string name="lab_installed_title">實驗版已安裝</string>
-    <string name="lab_installed_text">DroidDeck 已使用 %1$s 重新啟動</string>
+    <string name="lab_installed_text">DroidHost 已使用 %1$s 重新啟動</string>
     <string name="lab_paused_title">實驗版已暫停</string>
-    <string name="lab_paused_text">Android 重新最佳化了 DroidDeck，因此未載入 %1$s。請到「更新」改用它重新啟動。</string>
+    <string name="lab_paused_text">Android 重新最佳化了 DroidHost，因此未載入 %1$s。請到「更新」改用它重新啟動。</string>
     <string name="lab_off_title">Lab 版本已關閉</string>
-    <string name="lab_off_other_install">它是為另一個 DroidDeck 版本建置的，目前保留在「更新」中。</string>
-    <string name="lab_off_did_not_start">DroidDeck 用它啟動失敗兩次</string>
+    <string name="lab_off_other_install">它是為另一個 DroidHost 版本建置的，目前保留在「更新」中。</string>
+    <string name="lab_off_did_not_start">DroidHost 用它啟動失敗兩次</string>
     <string name="rail_agent">AI 代理</string>
     <string name="agent_channel_name">AI 代理</string>
     <string name="agent_working">AI 代理正在處理</string>
     <string name="agent_missing">請在 Linux 使用者環境安裝 Claude Code，才能使用 AI 代理。</string>
-    <string name="agent_hint">問問遊戲、閃退，或想改 DroidDeck 的地方</string>
+    <string name="agent_hint">問問遊戲、閃退，或想改 DroidHost 的地方</string>
     <string name="agent_send">傳送</string>
     <string name="agent_new">新對話</string>
     <string name="agent_stop">停止</string>
@@ -1126,20 +1126,20 @@
     <string name="agent_storage_confirm">立即移除</string>
     <string name="agent_storage_claude">Claude Code</string>
     <string name="agent_storage_codex">Codex</string>
-    <string name="agent_storage_source">DroidDeck 原始碼</string>
+    <string name="agent_storage_source">DroidHost 原始碼</string>
     <string name="agent_storage_caches">下載快取</string>
     <string name="agent_storage_source_warning">未推送的變更會遺失</string>
     <string name="agent_storage_caches_warning">建置時會重新下載</string>
     <string name="agent_storage_reinstall_warning">設定流程可重新安裝，登入狀態會保留</string>
-    <string name="agent_resumed">DroidDeck 已用你的 Lab 版本重新啟動，可從上次離開的地方繼續。</string>
-    <string name="agent_empty">問它遊戲為什麼打不開、請它解讀記錄檔，或改 DroidDeck 並在這台裝置上試用修改結果。</string>
+    <string name="agent_resumed">DroidHost 已用你的 Lab 版本重新啟動，可從上次離開的地方繼續。</string>
+    <string name="agent_empty">問它遊戲為什麼打不開、請它解讀記錄檔，或改 DroidHost 並在這台裝置上試用修改結果。</string>
     <string name="agent_failed">失敗：%1$s</string>
     <string name="agent_exited">%1$s 已結束（結束碼 %2$d）</string>
     <string name="agent_stopped">已停止</string>
     <string name="agent_no_reply">已結束，但沒有回覆</string>
     <string name="agent_retry">重試</string>
     <string name="agent_setting_up">正在設定 AI 代理</string>
-    <string name="agent_rebuild_lab">依目前安裝的 DroidDeck 版本重新建置我的 Lab 版本 %1$s，並改用它重新啟動。</string>
+    <string name="agent_rebuild_lab">依目前安裝的 DroidHost 版本重新建置我的 Lab 版本 %1$s，並改用它重新啟動。</string>
     <string name="agent_tokens">輸入 %1$s · 輸出 %2$s</string>
     <string name="agent_thinking">思考中</string>
     <string name="agent_thought">思考內容</string>
@@ -1200,7 +1200,7 @@
     <string name="agent_lab_stage_starting">正在啟動</string>
     <string name="agent_lab_stage_building">%1$d%%</string>
     <string name="agent_lab_stage_packaging">正在封裝</string>
-    <string name="agent_lab_stage_restarting">正在於該建置上重新啟動 DroidDeck</string>
+    <string name="agent_lab_stage_restarting">正在於該建置上重新啟動 DroidHost</string>
     <string name="agent_lab_stage_ready">完成</string>
     <string name="agent_lab_stage_failed">失敗：%1$s</string>
     <string name="agent_setup_title">設定代理程式</string>
@@ -1208,7 +1208,7 @@
     <string name="agent_setup_retry">重試</string>
     <string name="agent_setup_done">開始對話</string>
     <string name="agent_step_connection">裝置連線</string>
-    <string name="agent_step_connection_hint">無線偵錯，讓代理程式能查看並操控 DroidDeck</string>
+    <string name="agent_step_connection_hint">無線偵錯，讓代理程式能查看並操控 DroidHost</string>
     <string name="agent_step_install">安裝 %1$s</string>
     <string name="agent_step_install_hint">安裝至 Linux 使用者空間，包含 git、gh 與 adb</string>
     <string name="agent_step_sign_in">登入 %1$s</string>
@@ -1231,7 +1231,7 @@
     <string name="agent_action_install">安裝</string>
     <string name="agent_action_sign_in">登入</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">未為此 DroidDeck 複本組建</string>
+    <string name="upd_not_built">未為此 DroidHost 複本組建</string>
     <string name="upd_updated">已更新 %1$s</string>
     <string name="upd_test_name">PR #%1$d 測試版</string>
     <string name="upd_while_ago">一段時間前</string>
@@ -1251,13 +1251,13 @@
     <string name="gate_fix_for_me">幫我修復</string>
     <string name="gate_toggle_steps">開啟「停止限制子程序」，然後返回。請保持開發人員選項開啟，否則該開關會再次關閉。</string>
     <string name="gate_open_dev">開啟開發人員選項</string>
-    <string name="gate_no_toggle">此 Android 版本沒有該開關，因此 DroidDeck 會透過無線偵錯進行修改。大約需要一分鐘，無需電腦。</string>
+    <string name="gate_no_toggle">此 Android 版本沒有該開關，因此 DroidHost 會透過無線偵錯進行修改。大約需要一分鐘，無需電腦。</string>
     <string name="gate_needs_wifi">無線偵錯需要 Wi-Fi。任何網路都可以，不需要網際網路。</string>
-    <string name="gate_needs_notifications">配對碼會顯示在通知中。請允許 DroidDeck 傳送通知，或使用「其他方式」。</string>
+    <string name="gate_needs_notifications">配對碼會顯示在通知中。請允許 DroidHost 傳送通知，或使用「其他方式」。</string>
     <string name="gate_allow_notifications">允許通知</string>
     <string name="gate_step1">開啟「Android 設定」→「開發人員選項」→「無線偵錯」，並將其開啟</string>
     <string name="gate_step2">點擊「使用配對碼配對裝置」</string>
-    <string name="gate_step3">將配對碼輸入 DroidDeck 通知中</string>
+    <string name="gate_step3">將配對碼輸入 DroidHost 通知中</string>
     <string name="pairguide_build_number">在「關於手機」中輕觸「版本號碼」7 次</string>
     <string name="pairguide_wireless">開啟「無線偵錯」</string>
     <string name="pairguide_pair">開啟「無線偵錯」，然後輕觸「使用配對碼配對裝置」</string>
@@ -1366,7 +1366,7 @@
     <string name="desktop_removing">正在移除桌面</string>
     <string name="desktop_removed">已移除桌面</string>
     <string name="desktop_cleaning_legacy">正在移除舊的 LXQt 檔案</string>
-    <string name="desktop_removal_unknown">請先更新 DroidDeck，再移除此桌面版本。</string>
+    <string name="desktop_removal_unknown">請先更新 DroidHost，再移除此桌面版本。</string>
     <string name="content_linux_desktop">Linux 桌面</string>
     <string name="content_linux_desktop_hint">KDE Plasma、Firefox 和你的模擬器</string>
     <string name="games_empty">在 Steam 中安裝的遊戲會在工作階段結束後顯示在這裡。</string>
@@ -1410,8 +1410,8 @@
     <string name="gpu_hide_other">隱藏其他 GPU 的驅動程式</string>
     <string name="gpu_show_other">顯示其他 GPU 的驅動程式</string>
     <string name="gpu_ubwc_title">UBWC 相容性</string>
-    <string name="gpu_ubwc_hint">如果 Steam 或 Android 出現條紋或閃爍，請試試開啟或關閉。重新啟動 DroidDeck 後會套用到兩種驅動程式。</string>
-    <string name="gpu_ubwc_restart">重新啟動 DroidDeck 以套用。</string>
+    <string name="gpu_ubwc_hint">如果 Steam 或 Android 出現條紋或閃爍，請試試開啟或關閉。重新啟動 DroidHost 後會套用到兩種驅動程式。</string>
+    <string name="gpu_ubwc_restart">重新啟動 DroidHost 以套用。</string>
     <string name="gpu_set_with_display">與顯示驅動程式一起設定：%1$s 同時包含兩者。</string>
     <string name="gpu_set_with_runtime">與執行環境驅動程式一起設定：%1$s 同時包含兩者。</string>
     <string name="gpu_runtime_hint">供遊戲和桌面使用。</string>
@@ -1419,7 +1419,7 @@
     <string name="gpu_auto_by_gpu">自動 - 按 GPU 選擇</string>
     <string name="gpu_manage">下載、匯入或刪除…</string>
     <string name="gpu_in_use_caps">正在使用</string>
-    <string name="gpu_builtin">DroidDeck 內建驅動程式</string>
+    <string name="gpu_builtin">DroidHost 內建驅動程式</string>
     <string name="gpu_matched_pair">執行環境驅動程式和顯示驅動程式作為配對組合一起設定。</string>
     <string name="gpu_recommended_for">建議此 GPU 使用：%1$s。</string>
     <string name="gpu_refresh_hint">重新整理以尋找適用於此 GPU 的驅動程式。</string>
@@ -1528,7 +1528,7 @@
     <string name="unfolded_controls_with_controller_hint">連接手把時也顯示這些觸控按鍵。</string>
     <string name="pip_suspended">已暫停</string>
     <string name="pip_not_ready">工作階段準備就緒後即可使用子母畫面。</string>
-    <string name="pip_permission">請在 Android 設定中允許 DroidDeck 使用子母畫面。</string>
+    <string name="pip_permission">請在 Android 設定中允許 DroidHost 使用子母畫面。</string>
     <string name="pip_unavailable">Android 無法開啟子母畫面。</string>
     <string name="game_more">更多</string>
     <string name="game_edit_art">編輯圖片</string>
@@ -1541,7 +1541,7 @@
     <string name="game_link_copied">已複製啟動連結</string>
     <string name="game_shortcut_unsupported">此啟動器無法新增捷徑。請改用「複製啟動連結」。</string>
     <string name="game_link_invalid">無效的遊戲啟動連結。</string>
-    <string name="game_link_missing">此遊戲已不在你的 DroidDeck 收藏庫中。</string>
+    <string name="game_link_missing">此遊戲已不在你的 DroidHost 收藏庫中。</string>
     <string name="game_link_session_busy">啟動 Steam 遊戲前請停止目前工作階段。</string>
     <string name="game_link_failed">無法將遊戲傳送到 Steam。請再次嘗試啟動。</string>
     <string name="setup_retry_removal">重試移除</string>
@@ -1568,7 +1568,7 @@
         <item quantity="other">已從 %2$s 匯入 %1$d 個檔案到 %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="other">已從 %2$s 匯入 %1$d 個檔案到 %3$s。舊存檔已備份到 Download/DroidDeck/Saves/backups</item>
+        <item quantity="other">已從 %2$s 匯入 %1$d 個檔案到 %3$s。舊存檔已備份到 Download/DroidHost/Saves/backups</item>
     </plurals>
     <string name="main_addons_close_session">請先關閉工作階段，以免遊戲在匯入期間使用外掛</string>
     <string name="main_addons_importing">正在匯入外掛到 %1$s</string>
@@ -1637,7 +1637,7 @@
 
     <string name="upd_unknown_apps_failed">無法開啟 Android 的「安裝不明應用程式」設定</string>
     <string name="upd_couldnt_check">無法檢查：%1$s</string>
-    <string name="upd_no_download">此組建版本沒有適用於此 DroidDeck 複本的下載檔案</string>
+    <string name="upd_no_download">此組建版本沒有適用於此 DroidHost 複本的下載檔案</string>
     <string name="upd_stop_first">請先停止正在執行的工作階段，再進行更新</string>
     <string name="upd_stage_downloading">正在下載</string>
     <string name="upd_stage_installing">正在安裝</string>
@@ -1666,22 +1666,22 @@
     <string name="drivers_recommended_unpublished">建議的驅動程式目前尚未發布</string>
     <string name="drivers_downloading_pair">正在下載 %1$s %2$s…</string>
     <string name="drivers_updated_to">已更新到 %1$s %2$s。</string>
-    <string name="drivers_updated_to_restart">已更新到 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_updated_to_restart">已更新到 %1$s %2$s。顯示驅動程式會在 DroidHost 重新啟動後生效。</string>
     <string name="drivers_auto_waits_for_session">驅動程式更新會等到工作階段結束後進行。</string>
     <string name="drivers_auto_waits_for_network">結束行動數據與省電模式後，將下載 %1$s %2$s。</string>
     <string name="drivers_skipping_bad">%1$s %2$s 在此裝置上未能啟動工作階段，自動模式繼續使用可用的驅動程式。</string>
     <string name="drivers_rolled_back">%1$s 兩次未能啟動工作階段，自動模式已回到可用的驅動程式。</string>
     <string name="drivers_switched_to">已切換到 %1$s %2$s。</string>
-    <string name="drivers_switched_to_restart">已切換到 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_switched_to_restart">已切換到 %1$s %2$s。顯示驅動程式會在 DroidHost 重新啟動後生效。</string>
     <string name="drivers_using">正在使用 %1$s %2$s。</string>
-    <string name="drivers_using_restart">正在使用 %1$s %2$s。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_using_restart">正在使用 %1$s %2$s。顯示驅動程式會在 DroidHost 重新啟動後生效。</string>
     <string name="drivers_using_quest">使用內建的 Quest 顯示驅動程式與執行環境預設值。</string>
-    <string name="drivers_using_quest_restart">使用內建的 Quest 顯示驅動程式與執行環境預設值。顯示驅動程式將在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_using_quest_restart">使用內建的 Quest 顯示驅動程式與執行環境預設值。顯示驅動程式將在 DroidHost 重新啟動後生效。</string>
     <string name="drivers_not_a_driver">不是驅動程式 zip：既不是 AdrenoTools 驅動程式、-Linux Turnip，也不是 Android + Linux 套件組合</string>
     <string name="drivers_import_failed">匯入失敗：%1$s</string>
     <string name="drivers_imported_unnamed">已匯入的驅動程式</string>
     <string name="drivers_using_bundle">正在將 %1$s 同時用作執行環境驅動程式和顯示驅動程式。</string>
-    <string name="drivers_using_bundle_restart">正在將 %1$s 同時用作執行環境驅動程式和顯示驅動程式。顯示驅動程式會在 DroidDeck 重新啟動後生效。</string>
+    <string name="drivers_using_bundle_restart">正在將 %1$s 同時用作執行環境驅動程式和顯示驅動程式。顯示驅動程式會在 DroidHost 重新啟動後生效。</string>
     <string name="drivers_deleted_bundle">已刪除 %1$s（兩個驅動程式）</string>
     <string name="drivers_deleted">已刪除 %1$s</string>
     <string name="drivers_release_status">最新：%1$s · 檢查於 %2$s</string>
@@ -1695,7 +1695,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d 天前</item>
     </plurals>
-    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 DroidDeck…</string>
+    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 DroidHost…</string>
     <string name="drivers_check_failed">檢查失敗</string>
     <string name="drivers_installed_pick_either">已安裝 %1$s - 在任一清單中選擇它即可同時設定兩個驅動程式</string>
     <string name="drivers_installed_pick">已安裝 %1$s - 請在選單中選擇</string>
@@ -1911,7 +1911,7 @@
     <string name="fm_decline">拒絕</string>
     <string name="fm_drive_not_readable">%1$s 已掛載，但目前無法讀取</string>
     <string name="fm_drive_access_title">允許存取 %1$s</string>
-    <string name="fm_drive_access_text">Android 允許 DroidDeck 看到這個磁碟，但不允許讀取。請為 DroidDeck 開啟「所有檔案存取權」，然後返回。</string>
+    <string name="fm_drive_access_text">Android 允許 DroidHost 看到這個磁碟，但不允許讀取。請為 DroidHost 開啟「所有檔案存取權」，然後返回。</string>
     <string name="fm_list_view">清單檢視</string>
     <string name="fm_grid_view">格狀檢視</string>
     <string name="fm_search">搜尋</string>
@@ -2055,7 +2055,7 @@
     <string name="bottom_telemetry_send_close">請先關閉 %1$s 再變更此項。</string>
     <string name="bottom_telemetry_send_failed">無法變更 %1$s 的設定。</string>
     <string name="bottom_telemetry_send_menu">%1$s：請在遊戲設定中開啟 %2$s，IP 設為 127.0.0.1，連接埠設為 %3$d。</string>
-    <string name="bottom_shots_where">儲存至 Pictures/DroidDeck。Steam 螢幕擷取畫面也會顯示在這裡。</string>
+    <string name="bottom_shots_where">儲存至 Pictures/DroidHost。Steam 螢幕擷取畫面也會顯示在這裡。</string>
     <string name="bottom_shots_take">擷取螢幕畫面</string>
     <string name="bottom_shots_saved">已儲存螢幕擷取畫面。</string>
     <string name="bottom_shots_failed">無法擷取螢幕畫面。</string>
@@ -2063,12 +2063,12 @@
     <string name="bottom_page_chat">聊天和語音</string>
     <string name="bottom_chat_why">遊戲在主螢幕上持續執行的同時，在此閱讀和回覆 Steam 聊天。會使用 Steam 目前登入的帳戶。</string>
     <string name="bottom_chat_not_signed_in">Steam 目前還沒有可共用的網頁登入狀態，請在此登入一次。</string>
-    <string name="bottom_chat_stopped">DroidDeck 在背景執行時，Android 關閉了聊天頁面。回到 DroidDeck 後會重新開啟。</string>
+    <string name="bottom_chat_stopped">DroidHost 在背景執行時，Android 關閉了聊天頁面。回到 DroidHost 後會重新開啟。</string>
     <string name="bottom_chat_open">開啟 Steam 聊天</string>
     <string name="bottom_chat_close">關閉聊天</string>
     <string name="bottom_chat_mic_on">麥克風已開啟</string>
     <string name="bottom_chat_mic_off">麥克風已關閉</string>
-    <string name="bottom_chat_mic_unavailable">此遊戲的麥克風已關閉。若要說話，請在 DroidDeck 的 Steam 設定（音訊）中開啟麥克風，然後重新啟動遊戲。</string>
+    <string name="bottom_chat_mic_unavailable">此遊戲的麥克風已關閉。若要說話，請在 DroidHost 的 Steam 設定（音訊）中開啟麥克風，然後重新啟動遊戲。</string>
     <string name="bottom_chat_volume">音量 %1$d%%</string>
     <string name="bottom_page_telemetry">遊戲內數據</string>
     <string name="bottom_hud_group">下螢幕 HUD</string>
@@ -2121,7 +2121,7 @@
     <string name="flatpakmgr_not_ready">請先設定 Flatpak</string>
     <string name="flatpakmgr_starting">正在啟動</string>
     <string name="flatpakmgr_exit_status">Flatpak 已結束，狀態碼 %1$d</string>
-    <string name="flatpakmgr_wrong_arch">%1$s 是為 %2$s 建置的，DroidDeck 無法執行。這裡的 Flatpak 應用程式需要 ARM64 或 x86_64 版本。</string>
+    <string name="flatpakmgr_wrong_arch">%1$s 是為 %2$s 建置的，DroidHost 無法執行。這裡的 Flatpak 應用程式需要 ARM64 或 x86_64 版本。</string>
     <string name="flatpakmgr_installing">正在安裝 %1$s</string>
     <string name="flatpakmgr_updating">正在更新 %1$s</string>
     <string name="flatpakmgr_removing">正在移除 %1$s</string>
@@ -2204,7 +2204,7 @@
     <string name="adbfix_no_pairing">尚未儲存任何無線偵錯配對</string>
     <string name="adbfix_enter_address">請輸入目前的無線偵錯 IP 位址和連接埠</string>
 
-    <string name="adbpair_timed_out">等待配對彈出視窗逾時。請從 DroidDeck 再試一次。</string>
+    <string name="adbpair_timed_out">等待配對彈出視窗逾時。請從 DroidHost 再試一次。</string>
     <string name="adbpair_discovery_failed_code">無法尋找配對彈出視窗（%1$d）。請確認 Wi-Fi 已開啟。</string>
     <string name="adbpair_discovery_failed">無法尋找配對彈出視窗：%1$s</string>
     <string name="adbpair_six_digits">請輸入完整的 6 位數配對碼</string>
@@ -2227,20 +2227,20 @@
     <string name="adbpair_enter_code">輸入配對碼</string>
     <string name="adbpair_title_working">正在設定 Steam</string>
     <string name="adbpair_title_done">Steam 已就緒</string>
-    <string name="adbpair_done_text">點擊即可返回 DroidDeck。現在可以關閉無線偵錯了。</string>
+    <string name="adbpair_done_text">點擊即可返回 DroidHost。現在可以關閉無線偵錯了。</string>
     <string name="adbpair_title_failed">無線偵錯設定已停止</string>
 
     <string name="selfinst_download_failed">下載失敗</string>
     <string name="selfinst_size_mismatch">下載的大小與發布的 APK 不符，已捨棄 - 請再試一次</string>
     <string name="selfinst_checksum_mismatch">下載的檔案與校驗碼不符，已捨棄 - 請再試一次</string>
     <string name="selfinst_wrong_package">此更新適用於 Android 套件 %1$s，而非 %2$s</string>
-    <string name="selfinst_metadata_signer">更新中繼資料未列出 DroidDeck 的發行簽署金鑰</string>
+    <string name="selfinst_metadata_signer">更新中繼資料未列出 DroidHost 的發行簽署金鑰</string>
     <string name="selfinst_unreadable">Android 無法讀取下載的 APK</string>
     <string name="selfinst_apk_wrong_package">下載的 APK 適用於 %1$s，而非 %2$s</string>
     <string name="selfinst_version_mismatch">下載的 APK 標示 versionCode 為 %1$d，與發布的 %2$d 不符</string>
     <string name="selfinst_downgrade">Android 不會以 versionCode %1$d 覆蓋已安裝的 %2$d</string>
     <string name="selfinst_no_signing">下載的 APK 沒有簽署資訊</string>
-    <string name="selfinst_wrong_signer">下載的 APK 並非以 DroidDeck 的發行金鑰簽署</string>
+    <string name="selfinst_wrong_signer">下載的 APK 並非以 DroidHost 的發行金鑰簽署</string>
     <string name="appupd_http">更新目錄回應 HTTP %1$d</string>
 
     <string name="loadstate_starting">正在啟動工作階段…</string>
@@ -2287,7 +2287,7 @@
     <string name="cmgr_original_kept">已安裝組建的原始版本會保留，以便還原。</string>
     <string name="cmgr_not_stored">未儲存</string>
     <string name="cmgr_deleted_original">已刪除 %2$s 來自 %1$s 的原始版本。</string>
-    <string name="cmgr_nightlies_only">只會從 Nightlies 和 DroidDeck 發行版本下載</string>
+    <string name="cmgr_nightlies_only">只會從 Nightlies 和 DroidHost 發行版本下載</string>
     <string name="cmgr_nightly_replaced">下載失敗：此每夜版本可能已被較新的版本取代。請重新整理清單後再試一次。</string>
     <string name="cmgr_list_predates_checksums">此套件清單早於校驗碼機制 - 請重新整理後再試一次</string>
     <string name="cmgr_checksum_mismatch">校驗碼不符</string>
@@ -2330,7 +2330,7 @@
     <string name="drivers_powervr_builtin">已為執行階段與顯示選用系統 PowerVR 驅動程式。</string>
     <string name="drivers_mali_bridge_auto">目前還沒有開源驅動程式支援這顆 Mali：Mali 橋接已開啟。</string>
     <string name="upd_block_non_adreno_test">這是非 Snapdragon 測試版：這裡的官方版本只能在 Adreno 上執行，因此不會覆蓋安裝這個版本。新版測試版請至 github.com/The412Banner/droiddeck-nonadreno-drivers。</string>
-    <string name="session_killed_for_memory">上次工作階段會結束，是因為 Android 為了釋放記憶體關閉了 DroidDeck，並非當機。請關閉其他應用程式或調低遊戲的材質設定，然後再試一次。</string>
+    <string name="session_killed_for_memory">上次工作階段會結束，是因為 Android 為了釋放記憶體關閉了 DroidHost，並非當機。請關閉其他應用程式或調低遊戲的材質設定，然後再試一次。</string>
     <string name="drivers_route_venus">Mali (Venus)</string>
     <string name="drivers_route_bridge">Mali 橋接</string>
     <string name="drivers_mali_no_pair_auto">目前還沒有開源驅動程式支援這顆 Mali：會使用 %1$s，並以手機本身的驅動程式運作。</string>
@@ -2386,10 +2386,10 @@
     <string name="phantom_instructions_not_applicable">此 Android 版本不使用這項限制。</string>
     <string name="phantom_fix_toggle">在開發人員選項中開啟「停止限制子程序」，之後請保持開發人員選項開啟。</string>
     <string name="phantom_fix_no_toggle">此 Android 版本沒有這個開關。請使用無線偵錯，直接在此裝置上變更。</string>
-    <string name="upd_block_no_apk">此組建版本沒有適用於此 DroidDeck 複本的下載檔案。</string>
+    <string name="upd_block_no_apk">此組建版本沒有適用於此 DroidHost 複本的下載檔案。</string>
     <string name="upd_block_version_code">Android 不會以此版本覆蓋目前的組建，因為它的 versionCode %1$d 低於已安裝的 %2$d。</string>
     <string name="upd_fail_downgrade">Android 不會以舊版本覆蓋新版本。請先留在此組建版本，等更新頻道趕上。</string>
-    <string name="upd_fail_signature">此 DroidDeck 複本的簽章不同（是本機組建的嗎？），因此 Android 無法直接覆寫更新。</string>
+    <string name="upd_fail_signature">此 DroidHost 複本的簽章不同（是本機組建的嗎？），因此 Android 無法直接覆寫更新。</string>
     <string name="upd_fail_storage">可用空間不足，無法更新。</string>
     <string name="upd_fail_aborted">已取消更新。</string>
     <string name="upd_fail_with_message">未能安裝更新：%1$s</string>
@@ -2414,7 +2414,7 @@
     <string name="gstore_volume_free">%1$s · 可用 %2$s</string>
     <string name="mode_storage_auto_short">自動</string>
     <string name="appupd_catalog_rejected">更新目錄未通過檢查（%1$s）</string>
-    <string name="main_adb_clip_label">DroidDeck 子處理程序設定</string>
+    <string name="main_adb_clip_label">DroidHost 子處理程序設定</string>
     <string name="setup_signed_in_offline_unnamed">已登入 · 離線模式</string>
     <string name="setup_signed_in_unnamed">已登入</string>
     <string name="driver_tag_bundled">內建</string>
@@ -2814,7 +2814,7 @@
     <string name="gpu_display_next">負責繪製畫面。從下次工作階段起生效。</string>
     <string name="gpu_previous_driver">上一個驅動程式</string>
     <string name="gpu_restart_banner">重新啟動以切換顯示驅動程式。</string>
-    <string name="gpu_restart_blocked">請先停止執行中的工作階段，再重新啟動 DroidDeck 以切換顯示驅動程式。</string>
+    <string name="gpu_restart_blocked">請先停止執行中的工作階段，再重新啟動 DroidHost 以切換顯示驅動程式。</string>
     <string name="gpu_restart_now">立即重新啟動</string>
     <string name="gpu_restart_later">稍後</string>
     <string name="gpu_auto_title">已為你的 %1$s 自動選擇此組合</string>
@@ -2900,7 +2900,7 @@
     <string name="touch_speed_normal">正常</string>
     <string name="touch_speed_fast">快</string>
     <string name="touch_edit_layout">編輯版面配置</string>
-    <string name="touch_droiddeck_menu">DroidDeck 選單</string>
+    <string name="touch_droiddeck_menu">DroidHost 選單</string>
     <string name="touch_drag_hint">將控制項拖曳到畫面上</string>
     <string name="touch_arrange">排列</string>
     <string name="touch_discard">放棄</string>
@@ -2964,7 +2964,7 @@
     <string name="glasses_driver_missing">這個版本未包含這副眼鏡的驅動程式。</string>
     <string name="glasses_connection_failed">無法連線到眼鏡。請重新插上傳輸線，或點擊「允許」重試。</string>
     <string name="glasses_allow">允許</string>
-    <string name="glasses_allow_hint">允許 DroidDeck 設定眼鏡的更新率、3D 模式、亮度、音量和遮光，並讀取其頭部追蹤。</string>
+    <string name="glasses_allow_hint">允許 DroidHost 設定眼鏡的更新率、3D 模式、亮度、音量和遮光，並讀取其頭部追蹤。</string>
     <string name="glasses_asking">正在等待你在 Android 提示中允許…</string>
     <string name="glasses_denied">控制已被拒絕。允許後才能變更眼鏡設定。</string>
     <string name="glasses_no_control">這副眼鏡可以顯示遊戲，但無法在此變更其設定。</string>
@@ -3144,7 +3144,7 @@
     <string name="storage_internal">內部儲存空間</string>
     <string name="storage_used_of">已用 %1$s / %2$s</string>
     <string name="storage_free">可用 %1$s</string>
-    <string name="storage_droiddeck_uses">DroidDeck 使用 %1$s。統計時間 %2$s。</string>
+    <string name="storage_droiddeck_uses">DroidHost 使用 %1$s。統計時間 %2$s。</string>
     <string name="storage_rescanning">正在重新統計…</string>
     <string name="storage_other_apps">其他 Android 應用程式</string>
     <string name="storage_safe_now">現在可安全釋放</string>
@@ -3178,7 +3178,7 @@
     <string name="storage_desktop_hint">Flatpak 應用程式與執行環境</string>
     <string name="storage_system">Linux 系統與 Steam 用戶端</string>
     <string name="storage_system_hint">執行任何內容所必需</string>
-    <string name="storage_app_data">DroidDeck 資料</string>
+    <string name="storage_app_data">DroidHost 資料</string>
     <string name="storage_app_data_hint">舊工作階段日誌 %1$s · 快取 · 驅動程式</string>
     <string name="storage_legend_games">遊戲</string>
     <string name="storage_legend_data">遊戲資料</string>
@@ -3186,7 +3186,7 @@
     <string name="storage_legend_stores">其他商店</string>
     <string name="storage_legend_desktop">桌面應用程式</string>
     <string name="storage_legend_system">Linux 系統</string>
-    <string name="storage_legend_app">DroidDeck</string>
+    <string name="storage_legend_app">DroidHost</string>
     <string name="storage_clean_up_title">清理</string>
     <string name="storage_clean_up_lede">此處不會影響已安裝的遊戲或進行中的下載。</string>
     <string name="storage_nothing_to_clean">目前沒有可清理的內容。</string>
@@ -3236,8 +3236,8 @@
     <string name="storage_tool_fex">執行 Linux x86 遊戲</string>
     <string name="storage_tool_steam">Steam 工具</string>
     <string name="storage_tool_anticheat">即使反作弊已關閉，Steam 仍會為內建反作弊機制的遊戲下載此項目。移除後，這些遊戲的安裝會卡在 0%</string>
-    <string name="storage_tool_old_runtime">DroidDeck 不需要此執行環境即可執行遊戲</string>
-    <string name="storage_tool_x86_proton">x86 Proton，DroidDeck 無法執行</string>
+    <string name="storage_tool_old_runtime">DroidHost 不需要此執行環境即可執行遊戲</string>
+    <string name="storage_tool_x86_proton">x86 Proton，DroidHost 無法執行</string>
     <string name="storage_tool_custom_default">所有遊戲的預設項目</string>
     <string name="storage_tool_custom_unused">沒有遊戲使用它</string>
     <string name="storage_tool_custom_unknown">無法讀取 Steam 的設定，因此保留</string>
@@ -3272,8 +3272,8 @@
         <item quantity="one">%d 個遊戲</item>
         <item quantity="other">%d 個遊戲</item>
     </plurals>
-    <string name="storage_tool_default_proton">DroidDeck 的預設 Proton</string>
-    <string name="storage_tool_proton">DroidDeck 的 Proton 11 選項</string>
+    <string name="storage_tool_default_proton">DroidHost 的預設 Proton</string>
+    <string name="storage_tool_proton">DroidHost 的 Proton 11 選項</string>
     <plurals name="storage_tool_custom_games">
         <item quantity="one">%d 個遊戲使用</item>
         <item quantity="other">%d 個遊戲使用</item>
@@ -3343,7 +3343,7 @@
     </plurals>
     <string name="boot_movie">開機動畫</string>
     <string name="boot_movie_video">影片</string>
-    <string name="boot_movie_droiddeck">DroidDeck · %1$d fps</string>
+    <string name="boot_movie_droiddeck">DroidHost · %1$d fps</string>
     <string name="boot_movie_note">60 fps 較流暢，但 Steam 啟動時會使用較多 CPU。在 Steam 本身設定中選擇的動畫也會顯示在這裡。</string>
     <string name="boot_movie_sound">聲音</string>
     <string name="boot_movie_skip">跳過啟動影片</string>
@@ -3357,24 +3357,24 @@
     <string name="boot_movie_imported_silent">%1$s 現在是開機動畫（無聲）</string>
     <string name="boot_movie_too_long">需要轉換的影片不能超過 %1$d 秒</string>
     <string name="boot_movie_converting">正在轉換 %1$d%%</string>
-    <string name="boot_movie_converting_started">正在為 Steam 轉換 %1$s。請保持 DroidDeck 開啟。</string>
+    <string name="boot_movie_converting_started">正在為 Steam 轉換 %1$s。請保持 DroidHost 開啟。</string>
     <string name="boot_movie_unsupported">此裝置無法解碼該影片。</string>
     <string name="boot_movie_import_failed">無法匯入此影片</string>
     <string name="boot_movie_remove_confirm">移除 %1$s？</string>
-    <string name="boot_movie_remove_confirm_body">這會從 DroidDeck 和 Steam 的動畫資料夾中刪除該動畫。</string>
+    <string name="boot_movie_remove_confirm_body">這會從 DroidHost 和 Steam 的動畫資料夾中刪除該動畫。</string>
     <string name="boot_movie_tab_installed">已安裝</string>
     <string name="boot_movie_tab_import">匯入</string>
     <string name="boot_movie_tab_repo">SteamDeckRepo</string>
     <string name="boot_movie_tab_sound">聲音</string>
     <string name="boot_movie_installed">已安裝的動畫</string>
     <string name="boot_movie_browse">瀏覽</string>
-    <string name="boot_movie_source_droiddeck">DroidDeck</string>
+    <string name="boot_movie_source_droiddeck">DroidHost</string>
     <string name="boot_movie_source_import">已匯入</string>
     <string name="boot_movie_source_repo">SteamDeckRepo</string>
     <string name="boot_movie_source_steam">Steam</string>
     <string name="boot_movie_source_pointshop">點數商店</string>
     <string name="boot_movie_report">啟動影片報告</string>
-    <string name="boot_movie_report_hint">將 DroidDeck 和 Steam 掌握的啟動影片資訊儲存為文字檔，可附在錯誤報告中。</string>
+    <string name="boot_movie_report_hint">將 DroidHost 和 Steam 掌握的啟動影片資訊儲存為文字檔，可附在錯誤報告中。</string>
     <string name="boot_movie_report_save">儲存</string>
     <string name="boot_movie_report_saved">已儲存到 %1$s</string>
     <string name="boot_movie_report_failed">無法儲存報告。</string>
@@ -3410,7 +3410,7 @@
     <string name="glasses_joycons_hint">使用智慧眼鏡攝影機定位已配對的 Joy-Con 控制器。旋轉和按鍵輸入來自 Joy-Con 控制器。當您的手腕被遮住時，系統會估算位置。此功能會取代徒手操作的控制器，並暫停手機相機追蹤。連接或重設追蹤中心時，請將 Joy-Con 控制器指向前方。</string>
     <string name="glasses_joycons_requires_position">請先啟用位置追蹤功能。需要 Android 12 或更高版本且 Joy-Con 控制器支援體感功能。預設關閉。</string>
     <string name="setup_tab_glasses">智慧眼鏡</string>
-    <string name="setup_glasses_scope">顯示和頭部追蹤設定可在 DroidDeck 選單、遊戲和桌面會話之間共用。</string>
+    <string name="setup_glasses_scope">顯示和頭部追蹤設定可在 DroidHost 選單、遊戲和桌面會話之間共用。</string>
     <string name="setup_glasses_connect">連接智慧眼鏡以變更其顯示和追蹤設定。斷開連線後，您儲存的設定將被保留。</string>
     <string name="glasses_vr">VR</string>
     <string name="glasses_display_mode">顯示模式</string>
@@ -3429,7 +3429,7 @@
     <string name="glasses_refresh_30_hint">啟用智慧眼鏡遊戲功能，選擇顯示器的原生 30 Hz 模式。</string>
     <string name="glasses_3dof">3DoF 虛擬螢幕</string>
     <string name="glasses_3dof_hint">將平面遊戲固定在您面前，以便您可以環顧四周。無需切換到 3D 模式即可啟用智慧眼鏡遊戲功能。</string>
-    <string name="glasses_screen_app_wide">寬度和距離會立即更新 DroidDeck 選單、遊戲和桌面會話的追蹤虛擬畫面。</string>
+    <string name="glasses_screen_app_wide">寬度和距離會立即更新 DroidHost 選單、遊戲和桌面會話的追蹤虛擬畫面。</string>
     <string name="glasses_head_tracking_spatial_vr_hint">位置追蹤包含 SteamVR 中的頭部旋轉。如需僅進行旋轉追踪，請關閉位置追蹤。</string>
     <string name="glasses_head_tracking_spatial_hint">控制虛擬螢幕上的頭部移動。位置追蹤包含 SteamVR 中的頭部旋轉。</string>
     <string name="glasses_quick_actions">快速操作</string>
@@ -3523,7 +3523,7 @@
     <string name="spatial_timing_values">%1$.1f Hz • 影像年齡 %2$.1f ms • 處理 %3$.1f ms</string>
     <string name="spatial_input_values">輸入限制%1$.1f Hz • 攝影機影像的%2$.0f%%。頭部追蹤繼續以其最大頻率進行。</string>
     <string name="spatial_frame_counts">%1$d 已處理 • %2$d 已丟棄 • %3$d 因輸入限製而被跳過</string>
-    <string name="spatial_print_title">DroidDeck - Luma Ultra 校準</string>
+    <string name="spatial_print_title">DroidHost - Luma Ultra 校準</string>
     <string name="spatial_print_scale" formatted="false">以 100%/實際尺寸列印。每個正方形：30 毫米（1.181 吋）。</string>
     <string name="spatial_print_stationary">保持校準目標平坦且靜止；在拍攝之間移動智慧眼鏡。</string>
     <string name="spatial_print_check">刻度檢查：刻度之間 100 毫米（3.937 吋）</string>
@@ -3608,7 +3608,7 @@
     <string name="setup_tab_sync">Syncthing</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">使用 Syncthing 同步</string>
-    <string name="sync_enable_hint">這是以 Syncthing-Fork 為基礎的 Syncthing 實作，可將 DroidDeck 內部檔案系統中的檔案與其他 Syncthing 執行個體同步。僅適用於你存放在 DroidDeck 內部檔案系統中的檔案。</string>
+    <string name="sync_enable_hint">這是以 Syncthing-Fork 為基礎的 Syncthing 實作，可將 DroidHost 內部檔案系統中的檔案與其他 Syncthing 執行個體同步。僅適用於你存放在 DroidHost 內部檔案系統中的檔案。</string>
     <string name="sync_missing">此版本未包含 Syncthing。</string>
     <string name="sync_starting">正在啟動 Syncthing</string>
     <string name="sync_status_starting">正在啟動</string>
@@ -3638,7 +3638,7 @@
     <string name="sync_waiting">等待你處理</string>
     <string name="sync_pending_device">%1$s 想要連線</string>
     <string name="sync_pending_folder">%1$s 想要共用「%2$s」</string>
-    <string name="sync_pending_folder_hint">接受後即可選擇在 DroidDeck 中的儲存位置。</string>
+    <string name="sync_pending_folder_hint">接受後即可選擇在 DroidHost 中的儲存位置。</string>
     <string name="sync_review">在網頁介面中檢視</string>
     <string name="sync_folders">資料夾</string>
     <string name="sync_no_folders">尚無資料夾。</string>
@@ -3650,7 +3650,7 @@
     <string name="sync_folder_out_of_sync">未同步</string>
     <string name="sync_folder_errors">%1$d 個檔案無法同步</string>
     <string name="sync_folder_blocked">已封鎖</string>
-    <string name="sync_folder_blocked_hint">此資料夾位於 DroidDeck 的儲存空間之外，因此 DroidDeck 已將其暫停。若要同步 DroidDeck 以外的資料夾，請使用 Syncthing-Fork 應用程式。</string>
+    <string name="sync_folder_blocked_hint">此資料夾位於 DroidHost 的儲存空間之外，因此 DroidHost 已將其暫停。若要同步 DroidHost 以外的資料夾，請使用 Syncthing-Fork 應用程式。</string>
     <string name="sync_remove_folder">從 Syncthing 移除</string>
     <string name="sync_remove_folder_hint">移除後不會刪除任何檔案。</string>
     <string name="sync_devices">裝置</string>
@@ -3678,12 +3678,12 @@
     <string name="sync_api_key">API 金鑰</string>
     <string name="sync_regenerate">重新產生</string>
     <string name="sync_reset">重設 Syncthing</string>
-    <string name="sync_reset_hint">將產生新的裝置 ID，並移除資料夾和裝置。DroidDeck 儲存空間中的檔案會保留。</string>
+    <string name="sync_reset_hint">將產生新的裝置 ID，並移除資料夾和裝置。DroidHost 儲存空間中的檔案會保留。</string>
     <string name="sync_reset_button">重設</string>
     <string name="sync_reset_confirm_title">要重設 Syncthing 嗎？</string>
     <string name="sync_running_group">執行</string>
     <string name="sync_run">執行時機</string>
-    <string name="sync_run_open">DroidDeck 開啟時</string>
+    <string name="sync_run_open">DroidHost 開啟時</string>
     <string name="sync_run_background">在背景執行</string>
     <string name="sync_wifi_only">僅限 Wi-Fi</string>
     <string name="sync_pause_games">遊戲期間暫停</string>
@@ -3695,7 +3695,7 @@
     <string name="sync_accept">接受</string>
     <string name="sync_accept_title">將「%1$s」儲存到</string>
     <string name="sync_add_folder">新增資料夾</string>
-    <string name="sync_add_folder_hint">同步 DroidDeck 儲存空間中的資料夾</string>
+    <string name="sync_add_folder_hint">同步 DroidHost 儲存空間中的資料夾</string>
     <string name="sync_choose">選擇</string>
     <string name="sync_add">新增</string>
     <string name="sync_add_failed">無法新增該資料夾。</string>
@@ -3705,16 +3705,16 @@
     <string name="sync_new_folder">新資料夾</string>
     <string name="sync_location_home">容器家目錄</string>
     <string name="sync_location_sync">Sync 資料夾</string>
-    <string name="sync_location_shared">DroidDeck 共用儲存空間</string>
-    <string name="sync_location_card">%1$s 上的 DroidDeck</string>
-    <string name="sync_location_app">DroidDeck 應用程式資料</string>
-    <string name="sync_web_path_locked">新資料夾會儲存在 DroidDeck 的 Sync 資料夾中。若要同步其他 DroidDeck 資料夾，請在「Syncthing」分頁中使用「新增資料夾」。</string>
+    <string name="sync_location_shared">DroidHost 共用儲存空間</string>
+    <string name="sync_location_card">%1$s 上的 DroidHost</string>
+    <string name="sync_location_app">DroidHost 應用程式資料</string>
+    <string name="sync_web_path_locked">新資料夾會儲存在 DroidHost 的 Sync 資料夾中。若要同步其他 DroidHost 資料夾，請在「Syncthing」分頁中使用「新增資料夾」。</string>
     <string name="sync_web_title">Syncthing</string>
     <string name="sync_web_reload">重新載入</string>
     <string name="sync_not_running">Syncthing 未在執行。</string>
     <string name="glasses_6dof">6DoF 虛擬螢幕</string>
     <string name="tracking_recovery_look">在光線充足的房間內緩慢環顧四周。\n不要遮擋追蹤攝影機，並面向家具等有明顯細節的物體。</string>
-    <string name="spatial_print_job">DroidDeck ChArUco 30 mm</string>
+    <string name="spatial_print_job">DroidHost ChArUco 30 mm</string>
     <string name="session_end_steam_sigill">Steam 因非法指令（SIGILL）停止。這可能是 CPU 指令相容問題，也可能是用戶端當機。請分享記錄並附上裝置資訊。</string>
     <string name="session_end_steam_try_x64">可嘗試「Steam 設定 → Steam 用戶端 → x86-64（實驗）」。此選項需要額外下載，執行速度也可能更慢。</string>
     <string name="session_end_vulkan_device">Linux 圖形驅動程式未找到可用的 Vulkan 裝置。請確認所選 Linux GPU 驅動程式支援這顆 GPU。</string>
@@ -3722,13 +3722,13 @@
     <string name="setup_group_memory">記憶體</string>
     <string name="setup_clear_cached">工作階段前關閉快取的應用程式</string>
     <string name="setup_clear_cached_hint">工作階段開始時關閉 Android 留在背景的應用程式，讓遊戲有更多記憶體可用。需要開啟無線偵錯。</string>
-    <string name="setup_clear_cached_unpaired">需要先將 DroidDeck 與無線偵錯配對（見下方「配對」）。</string>
+    <string name="setup_clear_cached_unpaired">需要先將 DroidHost 與無線偵錯配對（見下方「配對」）。</string>
     <string name="setup_memory_hud">記憶體讀數</string>
-    <string name="setup_memory_hud_hint">在工作階段畫面上顯示已用記憶體和交換空間。進階模式會分別顯示遊戲、DroidDeck、Android 和 GPU。</string>
+    <string name="setup_memory_hud_hint">在工作階段畫面上顯示已用記憶體和交換空間。進階模式會分別顯示遊戲、DroidHost、Android 和 GPU。</string>
     <string name="setup_memory_hud_simple">簡單</string>
     <string name="setup_memory_hud_advanced">進階</string>
     <string name="memory_hud_simple">記憶體 %1$s/%2$s GB · 交換 %3$s/%4$s GB</string>
-    <string name="memory_hud_split">遊戲 %1$s · DroidDeck %2$s · Android %3$s GB</string>
+    <string name="memory_hud_split">遊戲 %1$s · DroidHost %2$s · Android %3$s GB</string>
     <string name="memory_hud_gpu">GPU %1$s GB</string>
     <string name="setup_bg_limit">工作階段期間的背景應用程式</string>
     <string name="setup_bg_limit_hint">工作階段執行期間，Android 最多快取這麼多個應用程式並關閉其餘的，讓遊戲使用它們的記憶體。工作階段結束後還原。需要開啟無線偵錯。</string>
@@ -3736,7 +3736,7 @@
     <string name="setup_bg_limit_1">最多 1 個</string>
     <string name="setup_bg_limit_0">無</string>
     <string name="setup_adb_pair">無線偵錯</string>
-    <string name="setup_adb_pair_hint">為上面的選項將 DroidDeck 與 Android 無線偵錯配對。子處理程序限制保持關閉。</string>
+    <string name="setup_adb_pair_hint">為上面的選項將 DroidHost 與 Android 無線偵錯配對。子處理程序限制保持關閉。</string>
     <string name="setup_adb_pair_button">配對</string>
     <string name="epic_client_missing">未安裝</string>
     <string name="epic_client_open">開啟</string>
@@ -3794,7 +3794,7 @@
     <string name="integration_app_info">應用程式資訊</string>
     <string name="integration_wifi">Wi-Fi 名稱</string>
     <string name="integration_brightness">亮度</string>
-    <string name="integration_home">將 DroidDeck 設為主畫面</string>
+    <string name="integration_home">將 DroidHost 設為主畫面</string>
     <string name="integration_shortcuts">系統按鍵</string>
     <string name="integration_wifi_hint">在 Steam 中顯示網路 · 需要位置存取權，絕不追蹤</string>
     <string name="integration_wifi_on">網路會顯示在 Steam 中</string>
@@ -3805,8 +3805,8 @@
     <string name="integration_shortcuts_hint">Alt+Tab、Win 鍵和主畫面鍵留在工作階段中</string>
     <string name="integration_shortcuts_maybe_restricted">在 Android 中呈灰色？應用程式資訊 → ⋮ → 允許受限制的設定</string>
     <string name="integration_shortcuts_restricted">已被 Android 封鎖 · 應用程式資訊 → ⋮ → 允許受限制的設定</string>
-    <string name="integration_shortcuts_service">DroidDeck 系統按鍵</string>
-    <string name="integration_shortcuts_service_description">讓 Alt+Tab、Win 鍵和主畫面鍵在目前的 DroidDeck 工作階段中生效，而不是交給 Android。</string>
+    <string name="integration_shortcuts_service">DroidHost 系統按鍵</string>
+    <string name="integration_shortcuts_service_description">讓 Alt+Tab、Win 鍵和主畫面鍵在目前的 DroidHost 工作階段中生效，而不是交給 Android。</string>
     <string name="integration_brightness_needed">請在「初始設定 → Steam 整合」中開啟「亮度」</string>
     <string name="setup_bridge_dxvk">DXVK</string>
     <string name="setup_bridge_dxvk_auto">DXVK：自動</string>
@@ -3883,7 +3883,7 @@
         <item quantity="other">%d 個應用程式</item>
     </plurals>
     <string name="desktop_restore_title">正在還原你的軟體</string>
-    <string name="desktop_restore_body">DroidDeck 更新後正在重新安裝你加入的應用程式。</string>
+    <string name="desktop_restore_body">DroidHost 更新後正在重新安裝你加入的應用程式。</string>
     <string name="desktop_restore_done_title">軟體已還原</string>
     <string name="desktop_restore_done_body">你加入的應用程式已重新安裝。</string>
     <string name="desktop_restore_failed_title">部分軟體無法還原</string>

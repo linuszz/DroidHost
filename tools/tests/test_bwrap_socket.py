@@ -26,10 +26,10 @@ class BwrapSocketTest(unittest.TestCase):
 
     def test_the_environment_still_wins(self):
         (self.dir / "bwrap-socket").write_text("com.antutu.benchmark.full.bwrap\n")
-        self.assertEqual("\0com.tencent.ig.bwrap", self.name({"DROIDDECK_BWRAP_SOCKET": "com.tencent.ig.bwrap"}))
+        self.assertEqual("\0com.tencent.ig.bwrap", self.name({"DROIDHOST_BWRAP_SOCKET": "com.tencent.ig.bwrap"}))
 
     def test_without_either_the_standard_package_is_asked(self):
-        self.assertEqual("\0com.droiddeck.launcher.bwrap", self.name({}))
+        self.assertEqual("\0com.droidhost.launcher.bwrap", self.name({}))
 
 
 if __name__ == "__main__":

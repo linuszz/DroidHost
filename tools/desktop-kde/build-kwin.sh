@@ -68,7 +68,7 @@ if grep -Eq '\((RPATH|RUNPATH)\)' "$work/dynamic-tags.txt"; then
     echo 'KWin artifacts must not contain build-directory runtime search paths' >&2
     exit 1
 fi
-grep -aq DROIDDECK_NESTED_SCALE "$out/libkwin.so.$version"
+grep -aq DROIDHOST_NESTED_SCALE "$out/libkwin.so.$version"
 {
     echo "KWin $version source sha256 $source_sha"
     echo "Patch sha256 $(sha256sum "$here/patches/0001-respect-nested-desktop-scale.patch" | cut -d' ' -f1)"

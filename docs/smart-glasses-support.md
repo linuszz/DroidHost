@@ -1,15 +1,15 @@
 # Smart-glasses support
 
-This describes the integrations implemented in DroidDeck as of 2026-10-24. A recognized product name alone does not establish that every firmware, phone, cable, or adapter supports every mode. Controls become available from the connected device's capabilities and the display modes Android actually exposes.
+This describes the integrations implemented in DroidHost as of 2026-10-24. A recognized product name alone does not establish that every firmware, phone, cable, or adapter supports every mode. Controls become available from the connected device's capabilities and the display modes Android actually exposes.
 
-**3DoF** tracks head rotation: turn, tilt, and roll around a virtual screen. **6DoF** also tracks head position, so leaning or moving changes the view. Both apply to DroidDeck menus, non-Steam launchers, desktop sessions, and games when the tracked virtual screen is enabled. Direct SteamVR rendering uses the corresponding headset pose instead of the virtual-screen layout.
+**3DoF** tracks head rotation: turn, tilt, and roll around a virtual screen. **6DoF** also tracks head position, so leaning or moving changes the view. Both apply to DroidHost menus, non-Steam launchers, desktop sessions, and games when the tracked virtual screen is enabled. Direct SteamVR rendering uses the corresponding headset pose instead of the virtual-screen layout.
 
 ## Support levels
 
 - **Integrated:** a device transport and controls are implemented. Tracking requires a working connection and available orientation data.
 - **SDK-dependent:** integrated support requires an APK built with the optional VITURE SDK. Recognizing the display does not mean that SDK is included.
 - **Experimental:** implemented and opt-in, with the qualifications described below. This is not a general tracking-accuracy guarantee.
-- **Display-only:** Android can provide a picture through a compatible display connection, but DroidDeck has no supported control/tracking connection for that device.
+- **Display-only:** Android can provide a picture through a compatible display connection, but DroidHost has no supported control/tracking connection for that device.
 
 ## Device matrix
 
@@ -28,13 +28,13 @@ This describes the integrations implemented in DroidDeck as of 2026-10-24. A rec
 
 RayNeo's Air-series recognition uses its known USB identity or a RayNeo/TCL Air name under the accepted vendor IDs; it is not a per-model certification list. The GT vendor path requires the specific supported product ID. Rokid recognition requires USB 04d2:162f (Max/Air) or 04d2:2002 (Max 2), plus a Rokid product name, since that vendor ID is shared with unrelated devices. Max 2 reports the USB product name "Rokid Max2". Hardware checks cover the Max and Max 2; the Air follows the same published protocol untested. XREAL support currently targets **1S only**: One, One Pro, Air-family devices, and recovery-mode products are not enabled by the 1S transport. VITURE Pro 2 is identified through SDK validation rather than a guessed product ID. A dock does not supply the connected glasses' sensors by itself.
 
-The final column refers specifically to Luma Ultra's stereo tracking cameras. DroidDeck's separate phone-camera and physical-controller features are independent of this matrix.
+The final column refers specifically to Luma Ultra's stereo tracking cameras. DroidHost's separate phone-camera and physical-controller features are independent of this matrix.
 
 ## Display and device controls
 
 All display modes depend on the phone's video output, the cable/adapter, and Android's advertised modes. USB permission or a working sensor connection alone does not create a video display.
 
-| Integration | Display selection | Device controls exposed by DroidDeck |
+| Integration | Display selection | Device controls exposed by DroidHost |
 | --- | --- | --- |
 | VITURE One/Lite and Pro families | 1080p per eye; 2D and SBS | Brightness, volume, dimming toggle according to the family profile |
 | VITURE Luma family | 1080p or 1200p per eye; 2D and SBS | Brightness, volume, dimming toggle |
@@ -46,7 +46,7 @@ All display modes depend on the phone's video output, the cable/adapter, and And
 | Rokid Max / Max 2 | 1080p at 60 or 120 Hz in 2D; SBS at 1080p/60, 1200p/60, or 1200p/90 | Brightness; volume follows Android's USB audio volume; no dimming film |
 | Rokid Air | 1080p/60 in 2D and SBS | Brightness; volume follows Android's USB audio volume |
 
-DroidDeck saves separate **2D resolution**, **3D resolution**, and **VR resolution** preferences. Unsupported saved choices fall back to the connected model's automatic behavior. Native **30 Hz** is offered only when Android advertises a matching mode and glasses presentation output is enabled. Higher refresh selections are constrained by the active 2D/SBS layout and model; a firmware-rejected switch is not treated as successful until the physical display confirms it.
+DroidHost saves separate **2D resolution**, **3D resolution**, and **VR resolution** preferences. Unsupported saved choices fall back to the connected model's automatic behavior. Native **30 Hz** is offered only when Android advertises a matching mode and glasses presentation output is enabled. Higher refresh selections are constrained by the active 2D/SBS layout and model; a firmware-rejected switch is not treated as successful until the physical display confirms it.
 
 In **Automatic** picture mode, ordinary flat content is duplicated in full into both eyes on an SBS display. **Virtual screen** adds a configurable screen plane and tracking. **Side-by-side game** is for content that already contains separate eye images. SteamVR uses its direct stereo view and field-of-view control.
 
@@ -58,10 +58,10 @@ The pointer is left out of the picture when it cannot be drawn where the game is
 
 1. Connect the glasses through a compatible video/data connection. Accept USB access when requested. For XREAL 1S, Android must also expose the glasses' USB-Ethernet network; the app leaves Steam's Internet connection on its normal network.
 2. Open **Setup → Smart glasses**. Enable glasses output and **3DoF virtual screen**. This selects the tracked screen and saves the setting without forcing SBS or changing brightness.
-3. Adjust screen width and distance, then recenter while looking where the screen should sit. The same settings apply when navigating DroidDeck, opening a non-Steam launcher, or entering a game/desktop session.
+3. Adjust screen width and distance, then recenter while looking where the screen should sit. The same settings apply when navigating DroidHost, opening a non-Steam launcher, or entering a game/desktop session.
 4. On an SDK-enabled Luma Ultra, optionally enable positional tracking and set the floor from the current eye height. Use the tracking setup and recovery controls for calibration or recentering. SteamVR startup defers Luma positional initialization until two seconds after SteamVR reports running.
 
-The phone remains the touch/control surface. DroidDeck mirrors its own visible UI into a tracked glasses presentation; it does not capture Android's entire desktop or other apps. Android 29+ can include app dialogs/popups, while Android 26–28 captures the activity's decor only. System keyboards and permission prompts, secure windows, and separately composed `SurfaceView` content stay on their existing surfaces. Menu recentering does not change the VR floor origin. See [tracked-menu behavior](development/glasses-menu-tracking.md).
+The phone remains the touch/control surface. DroidHost mirrors its own visible UI into a tracked glasses presentation; it does not capture Android's entire desktop or other apps. Android 29+ can include app dialogs/popups, while Android 26–28 captures the activity's decor only. System keyboards and permission prompts, secure windows, and separately composed `SurfaceView` content stay on their existing surfaces. Menu recentering does not change the VR floor origin. See [tracked-menu behavior](development/glasses-menu-tracking.md).
 
 ## Luma Ultra tracking qualifications
 
@@ -76,13 +76,13 @@ Positional tracking, bare-hand controllers, and camera-assisted Joy-Cons are sep
 
 ## Build and troubleshooting references
 
-Luma Ultra, Beast, and Pro 2 control/tracking require the optional, externally supplied **VITURE Android SDK 2.4.0** in the APK build. Without it, DroidDeck retains its legacy VITURE and RayNeo transports and the separate XREAL integration; it cannot advertise SDK-dependent tracking. Vendor SDK headers and binaries are not stored in this repository. See [VITURE SDK setup](development/viture-sdk.md).
+Luma Ultra, Beast, and Pro 2 control/tracking require the optional, externally supplied **VITURE Android SDK 2.4.0** in the APK build. Without it, DroidHost retains its legacy VITURE and RayNeo transports and the separate XREAL integration; it cannot advertise SDK-dependent tracking. Vendor SDK headers and binaries are not stored in this repository. See [VITURE SDK setup](development/viture-sdk.md).
 
 If only a flat picture is available, check video output first, then the control connection. A disabled tracking toggle can mean missing SDK support, missing USB/network access, or a device without a supported IMU transport. SBS or a new resolution requires a confirmed physical display mode; selecting a preference cannot add a mode the phone/display does not expose.
 
 - [Luma spatial setup, calibration, and diagnostics](development/luma-spatial-tracking.md)
-- [Tracked DroidDeck menu implementation](development/glasses-menu-tracking.md)
+- [Tracked DroidHost menu implementation](development/glasses-menu-tracking.md)
 - [Agent diagnostics and capture commands](agent-control.md)
 - [RayNeo attribution and protocol references](third-party/rayneo/README.md)
 
-The capability definitions are maintained in [VITURE models](../app/src/main/java/com/droiddeck/launcher/glasses/VitureProtocol.kt), [RayNeo models](../app/src/main/java/com/droiddeck/launcher/glasses/RayNeoModel.kt), [XREAL 1S](../app/src/main/java/com/droiddeck/launcher/glasses/XrealModel.kt), [Rokid](../app/src/main/java/com/droiddeck/launcher/glasses/RokidModel.kt), and [connection capability routing](../app/src/main/java/com/droiddeck/launcher/glasses/Glasses.kt). Update this matrix when those integrations change.
+The capability definitions are maintained in [VITURE models](../app/src/main/java/com/droidhost/launcher/glasses/VitureProtocol.kt), [RayNeo models](../app/src/main/java/com/droidhost/launcher/glasses/RayNeoModel.kt), [XREAL 1S](../app/src/main/java/com/droidhost/launcher/glasses/XrealModel.kt), [Rokid](../app/src/main/java/com/droidhost/launcher/glasses/RokidModel.kt), and [connection capability routing](../app/src/main/java/com/droidhost/launcher/glasses/Glasses.kt). Update this matrix when those integrations change.

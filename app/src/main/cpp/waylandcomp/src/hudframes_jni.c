@@ -5,7 +5,7 @@
 #include "hudframes.h"
 
 JNIEXPORT jlong JNICALL
-Java_com_droiddeck_launcher_hud_HudFrames_nativeOpen(JNIEnv *env, jclass clazz, jstring path) {
+Java_com_droidhost_launcher_hud_HudFrames_nativeOpen(JNIEnv *env, jclass clazz, jstring path) {
     (void)clazz;
     const char *p = path ? (*env)->GetStringUTFChars(env, path, NULL) : NULL;
     if (!p) return 0;
@@ -15,13 +15,13 @@ Java_com_droiddeck_launcher_hud_HudFrames_nativeOpen(JNIEnv *env, jclass clazz, 
 }
 
 JNIEXPORT void JNICALL
-Java_com_droiddeck_launcher_hud_HudFrames_nativeClose(JNIEnv *env, jclass clazz, jlong handle) {
+Java_com_droidhost_launcher_hud_HudFrames_nativeClose(JNIEnv *env, jclass clazz, jlong handle) {
     (void)env; (void)clazz;
     hud_frames_close((struct hud_frames *)(intptr_t)handle);
 }
 
 JNIEXPORT jint JNICALL
-Java_com_droiddeck_launcher_hud_HudFrames_nativePoll(JNIEnv *env, jclass clazz, jlong handle,
+Java_com_droidhost_launcher_hud_HudFrames_nativePoll(JNIEnv *env, jclass clazz, jlong handle,
                                                      jlongArray frametimes, jlongArray times) {
     (void)clazz;
     struct hud_frames *h = (struct hud_frames *)(intptr_t)handle;
@@ -43,7 +43,7 @@ Java_com_droiddeck_launcher_hud_HudFrames_nativePoll(JNIEnv *env, jclass clazz, 
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_droiddeck_launcher_hud_HudFrames_nativeInfo(JNIEnv *env, jclass clazz, jlong handle, jintArray info) {
+Java_com_droidhost_launcher_hud_HudFrames_nativeInfo(JNIEnv *env, jclass clazz, jlong handle, jintArray info) {
     (void)clazz;
     const struct hud_frames *h = (const struct hud_frames *)(intptr_t)handle;
     if (!h || !info || (*env)->GetArrayLength(env, info) < 5) return NULL;

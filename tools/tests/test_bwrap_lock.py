@@ -92,7 +92,7 @@ class BwrapReportedPidTest(unittest.TestCase):
         thread = threading.Thread(target=answer, daemon=True)
         thread.start()
         read_end, write_end = os.pipe()
-        env = dict(os.environ, DROIDDECK_BWRAP_SOCKET=name)
+        env = dict(os.environ, DROIDHOST_BWRAP_SOCKET=name)
         proc = subprocess.Popen([sys.executable, str(BWRAP), "--ro-bind", "/", "/elsewhere", "--info-fd",
                                  str(write_end), "--", "true"], env=env, pass_fds=[write_end])
         os.close(write_end)

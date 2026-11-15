@@ -55,7 +55,7 @@ in Arch Linux ARM even when that repository trails KDE's latest release. The sou
 by SHA-256 from KDE's official source inventory; `patches/0001-respect-nested-desktop-scale.patch`
 lets Display Settings control the inner desktop scale independently of the outer window size.
 It keeps layer sizes, pointer/touch coordinates and the cursor in the same physical pixels.
-The behavior is enabled only with `DROIDDECK_NESTED_SCALE`, which the desktop script supplies.
+The behavior is enabled only with `DROIDHOST_NESTED_SCALE`, which the desktop script supplies.
 `0002-select-explicit-nested-render-node.patch` lets that nested backend use one explicitly
 selected `KWIN_RENDER_NODES` device when host feedback cannot identify it. It does not guess
 between GPUs or change normal KWin device selection.

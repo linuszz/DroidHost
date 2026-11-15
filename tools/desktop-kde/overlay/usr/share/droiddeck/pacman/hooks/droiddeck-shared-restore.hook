@@ -4,6 +4,6 @@ Type = Package
 Target = *
 
 [Action]
-Description = Putting back files other DroidDeck software needs...
+Description = Putting back files other DroidHost software needs...
 When = PostTransaction
 Exec = /usr/share/droiddeck/pacman/keep restore

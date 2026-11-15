@@ -48,7 +48,7 @@ with tarfile.open(archive) as tar:
         if hashlib.sha256(data).hexdigest() != lock['dlls'][name] or data[:2] != b'MZ':
             raise RuntimeError('Xbox Windows runtime module checksum mismatch')
         if data[64:80] == b'Wine builtin DLL':
-            data = data[:64] + b'DroidDeck native' + data[80:]
+            data = data[:64] + b'DroidHost native' + data[80:]
         (output / name).write_bytes(data)
         remaining.remove(name)
 if remaining:

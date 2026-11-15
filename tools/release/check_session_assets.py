@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 
 OVERLAY = Path(__file__).resolve().parents[1] / 'linuxfs/overlay'
-SESSION_FILES = OVERLAY.parents[2] / 'app/src/main/java/com/droiddeck/launcher/session/SessionFiles.kt'
+SESSION_FILES = OVERLAY.parents[2] / 'app/src/main/java/com/droidhost/launcher/session/SessionFiles.kt'
 
 
 def check_extraction(overlay, source):

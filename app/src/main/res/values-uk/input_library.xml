@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Надсилати введення контролера в Steam Input або гру.</string>
     <string name="input_disabled_hint">Цей елемент не надсилає введення контролера, миші чи клавіатури.</string>
     <string name="input_mouse_click">Натискання миші</string>
-    <string name="input_command">Дія DroidDeck</string>
+    <string name="input_command">Дія DroidHost</string>
     <string name="input_action">Дія</string>
     <string name="input_scroll_speed">Швидкість прокрутки: %1$d кроків/с</string>
     <string name="input_new_profile">+ Новий профіль</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Жести тачпада миші</string>
     <string name="input_mouse_gestures_hint">Якщо призначено вказівнику миші: торкніться для кліку, утримуйте для перетягування та прокручуйте двома пальцями.</string>
     <string name="input_quick_override_hint">Для %1$s задано перевизначення швидкого меню. Виберіть «Авто», щоб використати профіль за замовчуванням і всі три збережені частини.</string>
-    <string name="input_route_local">Введення DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Утримується, поки стік відхилено в будь-якому напрямку: натискання вище 55%, відпускання нижче 35%. Використовуйте «Клавіші напрямків», щоб призначити кожен напрямок окремо. Команди DroidDeck спрацьовують раз на відхилення. Натискання стіка налаштовується окремо.</string>
-    <string name="input_contact_action_hint">Утримується, поки ви торкаєтесь тачпада; відпускається, коли піднімаєте палець. Команди DroidDeck спрацьовують раз на дотик. Натискання тачпада налаштовується окремо.</string>
-    <string name="input_trigger_action_hint" formatted="false">Утримується, коли тригер переходить 55%; відпускається нижче 35%. Команди DroidDeck спрацьовують раз на натискання.</string>
+    <string name="input_route_local">Введення DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Утримується, поки стік відхилено в будь-якому напрямку: натискання вище 55%, відпускання нижче 35%. Використовуйте «Клавіші напрямків», щоб призначити кожен напрямок окремо. Команди DroidHost спрацьовують раз на відхилення. Натискання стіка налаштовується окремо.</string>
+    <string name="input_contact_action_hint">Утримується, поки ви торкаєтесь тачпада; відпускається, коли піднімаєте палець. Команди DroidHost спрацьовують раз на дотик. Натискання тачпада налаштовується окремо.</string>
+    <string name="input_trigger_action_hint" formatted="false">Утримується, коли тригер переходить 55%; відпускається нижче 35%. Команди DroidHost спрацьовують раз на натискання.</string>
     <string name="input_scroll_axis">Напрямок прокрутки</string>
     <string name="input_vertical">Вертикально</string>
     <string name="input_horizontal">Горизонтально</string>
     <string name="input_scroll_horizontal">Прокручувати горизонтально</string>
     <string name="input_measurements">Вимірювання</string>
-    <string name="input_measure_instructions">Увімкніть запис, використайте керування в запущеному сеансі, потім поверніться й прочитайте результати. Вимірюється лише час надсилання DroidDeck, без затримки екрана. Запис завершується, коли процес застосунку закривається.</string>
+    <string name="input_measure_instructions">Увімкніть запис, використайте керування в запущеному сеансі, потім поверніться й прочитайте результати. Вимірюється лише час надсилання DroidHost, без затримки екрана. Запис завершується, коли процес застосунку закривається.</string>
     <string name="input_layout_count">Елементів керування: %1$d</string>
     <string name="input_other_layouts">Інші збережені компонування (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Сховати інші збережені компонування (%1$d) ▴</string>

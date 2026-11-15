@@ -54,9 +54,9 @@ class WebKitInputTest(unittest.TestCase):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def load(self, hidden):
-        env = {k: v for k, v in os.environ.items() if k != "DROIDDECK_EPIC_HIDDEN"}
+        env = {k: v for k, v in os.environ.items() if k != "DROIDHOST_EPIC_HIDDEN"}
         if hidden is not None:
-            env["DROIDDECK_EPIC_HIDDEN"] = hidden
+            env["DROIDHOST_EPIC_HIDDEN"] = hidden
         result = subprocess.run([str(self.tmp / "loader")] + URIS, env=env, capture_output=True, text=True, timeout=10)
         self.assertEqual(0, result.returncode, result.stderr)
         return result.stdout.splitlines()

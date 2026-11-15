@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LAYER_NAME "VK_LAYER_DROIDDECK_mali_compat"
+#define LAYER_NAME "VK_LAYER_DROIDHOST_mali_compat"
 
 static pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
 static struct instance *instances;
@@ -135,12 +135,12 @@ void map_free(struct handle_map *map)
     *map = (struct handle_map){0};
 }
 
-/* Wine processes by default. DROIDDECK_MALI_COMPAT=1 (the app's Venus route) turns it on everywhere
+/* Wine processes by default. DROIDHOST_MALI_COMPAT=1 (the app's Venus route) turns it on everywhere
  * but gamescope, so Zink in the Steam client and Xwayland gets robustness2's nullDescriptor, which it
  * requires; gamescope runs fine on the driver's own features. =all includes gamescope too. */
 static bool wanted(void)
 {
-    const char *setting = getenv("DROIDDECK_MALI_COMPAT");
+    const char *setting = getenv("DROIDHOST_MALI_COMPAT");
     if (setting) {
         if (strcmp(setting, "0") == 0)
             return false;
@@ -151,13 +151,13 @@ static bool wanted(void)
     return getenv("WINEPREFIX") != NULL;
 }
 
-/* DROIDDECK_MALI_COMPAT_TRACE=1: what an application asks before it creates a device (Zink on a
+/* DROIDHOST_MALI_COMPAT_TRACE=1: what an application asks before it creates a device (Zink on a
  * Mali-G615 through Venus gave up before vkCreateDevice without a word). */
 static bool tracing(void)
 {
     static int on = -1;
     if (on < 0) {
-        const char *v = getenv("DROIDDECK_MALI_COMPAT_TRACE");
+        const char *v = getenv("DROIDHOST_MALI_COMPAT_TRACE");
         on = v && *v && strcmp(v, "0") != 0;
     }
     return on;

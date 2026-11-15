@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-MARKER = "# DroidDeck human authorship hook"
+MARKER = "# DroidHost human authorship hook"
 
 
 def install():

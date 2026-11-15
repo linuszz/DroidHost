@@ -2336,7 +2336,7 @@ mod tests {
         let mut options = opts("stream app=stub");
         options.stream = true;
         options.per_host_cap = 8;
-        options.headers.push(("User-Agent".to_string(), "DroidDeck/test".to_string()));
+        options.headers.push(("User-Agent".to_string(), "DroidHost/test".to_string()));
         let cancel = AtomicBool::new(false);
         let lines: Mutex<Vec<String>> = Mutex::new(Vec::new());
         let outcome = run_fetch(
@@ -2358,7 +2358,7 @@ mod tests {
         assert_eq!(got[&3], vec![9u8; 20_000]);
         assert_eq!(got[&4].len(), 1000);
         assert_eq!(got[&4][0], 100u8);
-        assert_eq!(got[&5], b"DroidDeck/test".to_vec());
+        assert_eq!(got[&5], b"DroidHost/test".to_vec());
         let finished = sink.finished.lock().unwrap();
         assert_eq!(finished.len(), 5);
         let written: u64 = got.values().map(|b| b.len() as u64).sum();

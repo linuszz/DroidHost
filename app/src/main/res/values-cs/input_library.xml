@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">Odesílá vstup ovladače do Steam Input nebo do hry.</string>
     <string name="input_disabled_hint">Tento prvek neodesílá vstup ovladače, myši ani klávesnice.</string>
     <string name="input_mouse_click">Kliknutí myší</string>
-    <string name="input_command">Akce DroidDeck</string>
+    <string name="input_command">Akce DroidHost</string>
     <string name="input_action">Akce</string>
     <string name="input_scroll_speed">Rychlost posunu: %1$d kroků/s</string>
     <string name="input_new_profile">+ Nový profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Gesta touchpadu myši</string>
     <string name="input_mouse_gestures_hint">Při přiřazení k ukazateli myši: klepnutím kliknete, podržením táhnete a dvěma prsty posouváte.</string>
     <string name="input_quick_override_hint">%1$s má přepsání rychlé nabídky. Vyberte Automaticky, chcete-li použít výchozí profil a všechny tři uložené části.</string>
-    <string name="input_route_local">Vstup DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Drženo, když je páčka vychýlena jakýmkoli směrem: stisk nad 55 %, uvolnění pod 35 %. Pomocí Směrových kláves přiřaďte každý směr zvlášť. Příkazy DroidDeck se spustí jednou za vychýlení. Kliknutí páčky se nastavuje zvlášť.</string>
-    <string name="input_contact_action_hint">Drženo při dotyku touchpadu; uvolněno při zvednutí prstu. Příkazy DroidDeck se spustí jednou za dotyk. Kliknutí touchpadu se nastavuje zvlášť.</string>
-    <string name="input_trigger_action_hint" formatted="false">Drženo, když spoušť překročí 55 %; uvolněno pod 35 %. Příkazy DroidDeck se spustí jednou za stisk.</string>
+    <string name="input_route_local">Vstup DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Drženo, když je páčka vychýlena jakýmkoli směrem: stisk nad 55 %, uvolnění pod 35 %. Pomocí Směrových kláves přiřaďte každý směr zvlášť. Příkazy DroidHost se spustí jednou za vychýlení. Kliknutí páčky se nastavuje zvlášť.</string>
+    <string name="input_contact_action_hint">Drženo při dotyku touchpadu; uvolněno při zvednutí prstu. Příkazy DroidHost se spustí jednou za dotyk. Kliknutí touchpadu se nastavuje zvlášť.</string>
+    <string name="input_trigger_action_hint" formatted="false">Drženo, když spoušť překročí 55 %; uvolněno pod 35 %. Příkazy DroidHost se spustí jednou za stisk.</string>
     <string name="input_scroll_axis">Směr posunu</string>
     <string name="input_vertical">Svisle</string>
     <string name="input_horizontal">Vodorovně</string>
     <string name="input_scroll_horizontal">Posouvat vodorovně</string>
     <string name="input_measurements">Měření</string>
-    <string name="input_measure_instructions">Zapněte záznam, použijte ovládání v běžící relaci, poté se vraťte a přečtěte výsledky. Měří pouze dobu odeslání DroidDeck, ne zpoždění displeje. Záznam končí při zavření procesu aplikace.</string>
+    <string name="input_measure_instructions">Zapněte záznam, použijte ovládání v běžící relaci, poté se vraťte a přečtěte výsledky. Měří pouze dobu odeslání DroidHost, ne zpoždění displeje. Záznam končí při zavření procesu aplikace.</string>
     <string name="input_layout_count">Ovládacích prvků: %1$d</string>
     <string name="input_other_layouts">Další uložená rozložení (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Skrýt další uložená rozložení (%1$d) ▴</string>

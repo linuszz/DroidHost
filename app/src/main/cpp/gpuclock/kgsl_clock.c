@@ -139,7 +139,7 @@ static int sampler_mhz(struct sampler *s) {
 #ifndef KGSL_CLOCK_NO_JNI
 #include <jni.h>
 
-JNIEXPORT jlong JNICALL Java_com_droiddeck_launcher_session_KgslClock_nativeOpen(JNIEnv *env, jclass cls, jintArray error) {
+JNIEXPORT jlong JNICALL Java_com_droidhost_launcher_session_KgslClock_nativeOpen(JNIEnv *env, jclass cls, jintArray error) {
     struct sampler *s = NULL;
     int r = sampler_open(&s);
     if (r && error && (*env)->GetArrayLength(env, error) > 0) {
@@ -149,11 +149,11 @@ JNIEXPORT jlong JNICALL Java_com_droiddeck_launcher_session_KgslClock_nativeOpen
     return r ? 0 : (jlong)(intptr_t)s;
 }
 
-JNIEXPORT jint JNICALL Java_com_droiddeck_launcher_session_KgslClock_nativeSample(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT jint JNICALL Java_com_droidhost_launcher_session_KgslClock_nativeSample(JNIEnv *env, jclass cls, jlong handle) {
     return handle ? sampler_mhz((struct sampler *)(intptr_t)handle) : -EBADF;
 }
 
-JNIEXPORT void JNICALL Java_com_droiddeck_launcher_session_KgslClock_nativeClose(JNIEnv *env, jclass cls, jlong handle) {
+JNIEXPORT void JNICALL Java_com_droidhost_launcher_session_KgslClock_nativeClose(JNIEnv *env, jclass cls, jlong handle) {
     sampler_close((struct sampler *)(intptr_t)handle);
 }
 #endif

@@ -5,7 +5,7 @@ case "${1:-}" in
 esac
 dir=${BL_LAUNCH_DIR:-}
 if [ -z "$dir" ] || [ ! -d "$dir" ]; then
-  echo "steamos-session-select: not inside a DroidDeck session (BL_LAUNCH_DIR unset)" >&2
+  echo "steamos-session-select: not inside a DroidHost session (BL_LAUNCH_DIR unset)" >&2
   exit 1
 fi
 printf 'session=desktop\nui=desktop\nurl=\n' > "$dir/steam-launch.tmp" && mv -f "$dir/steam-launch.tmp" "$dir/steam-launch"

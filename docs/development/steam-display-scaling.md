@@ -61,8 +61,8 @@ Why the current choices were made, from the history:
 
 All runs on the AYN Thor (SD 8 Gen 2, Adreno 740, 1920x1080 top panel), Deck mode on, Force
 fullscreen off, with a spike build of `feat/steam-native-output`. Each run sets
-`Android/data/com.droiddeck.launcher/files/droiddeck-env` and starts the session with
-`am start -n com.droiddeck.launcher/.SessionActivity --es mode steam [--es steamUrl ...]`.
+`Android/data/com.droidhost.launcher/files/droiddeck-env` and starts the session with
+`am start -n com.droidhost.launcher/.SessionActivity --es mode steam [--es steamUrl ...]`.
 
 ### Run 1: baseline (Resolution = Match screen, 1920x1080)
 
@@ -181,7 +181,7 @@ game. `--xwayland-count 2` and `STEAM_MULTIPLE_XWAYLANDS=1` went through `Downlo
 ## Two Xwayland servers by default (`feat/steam-dual-xwayland`)
 
 Steam sessions now start gamescope with `--xwayland-count 2` and `STEAM_MULTIPLE_XWAYLANDS=1`.
-`BL_XWAYLAND_COUNT=1` in `Android/data/com.droiddeck.launcher/files/droiddeck-env` goes back to one. The session script's
+`BL_XWAYLAND_COUNT=1` in `Android/data/com.droidhost.launcher/files/droiddeck-env` goes back to one. The session script's
 root-window requests that are meant for the game (the drawer's live Force fullscreen,
 `GAMESCOPE_FORCE_WINDOWS_FULLSCREEN`, and the resume watcher's `GAMESCOPE_RESTORE_FOCUS_WINDOW`)
 go to both displays, `$DISPLAY` and `STEAM_GAME_DISPLAY_0`. gamescope reads both per server, so
@@ -222,7 +222,7 @@ reason "Force game windows fullscreen" existed. What it still did was make any g
 Resolution differs from what it draws fight it (runs 4 and 5). The switch is gone from Steam
 settings (Games) and the session drawer (Display), along with its preference, the
 `BL_GAMESCOPE_FORCE_FULLSCREEN` flag, the `~/.droiddeck-fill` live watcher and the device report
-line. `BL_GAMESCOPE_ARGS=--force-windows-fullscreen` in `Android/data/com.droiddeck.launcher/files/droiddeck-env` still passes the
+line. `BL_GAMESCOPE_ARGS=--force-windows-fullscreen` in `Android/data/com.droidhost.launcher/files/droiddeck-env` still passes the
 flag for an experiment.
 
 Device check (Thor): Alan Wake's American Nightmare with its 1280x720 Game Resolution runs on `:1`
@@ -258,7 +258,7 @@ larger-source fullscreen sources, and scenes without an eligible fullscreen sour
 the existing path. Off, linear, nearest and sharpen-only modes retain their behavior.
 
 To reproduce, start a 1920x1080 Steam session on a native 1080p panel, run a game that presents
-real 1280x720 buffers, and compare Linear with FSR in DroidDeck's session drawer. Show and hide
+real 1280x720 buffers, and compare Linear with FSR in DroidHost's session drawer. Show and hide
 the game's cursor. The `effects` log should keep 1280x720 input and 1920x1080 output with both
 the game alone and its foreground cursor plane.
 

@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Botão esquerdo do rato</string>
     <string name="input_mouse_right">Botão direito do rato</string>
     <string name="input_mouse_middle">Botão do meio do rato</string>
-    <string name="input_command_menu">Abrir o menu do DroidDeck</string>
+    <string name="input_command_menu">Abrir o menu do DroidHost</string>
     <string name="input_command_keyboard">Mostrar teclado</string>
     <string name="input_command_steam">Abrir o menu do Steam</string>
     <string name="input_command_qam">Abrir o acesso rápido do Steam</string>

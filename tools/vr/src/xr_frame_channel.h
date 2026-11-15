@@ -57,7 +57,7 @@ struct XrFrameDescriptor {
     XrFrameDescriptor &operator=(const XrFrameDescriptor &) = delete;
 };
 
-inline bool xr_frame_header(int socket, DroidDeckXrFrameHeader &header, XrFrameDescriptor &shared, int64_t deadline) {
+inline bool xr_frame_header(int socket, DroidHostXrFrameHeader &header, XrFrameDescriptor &shared, int64_t deadline) {
     for (;;) {
         int64_t remaining = deadline - xr_frame_now();
         if (remaining <= 0) return false;
@@ -98,8 +98,8 @@ inline bool xr_frame_shared_pixels(int descriptor, unsigned char *pixels, size_t
     return ioctl(descriptor, DMA_BUF_IOCTL_SYNC, &sync) == 0 && success;
 }
 
-struct DroidDeckXrPixels {
-    DroidDeckXrFrameHeader header{};
+struct DroidHostXrPixels {
+    DroidHostXrFrameHeader header{};
     std::vector<unsigned char> pixels;
 };
 
@@ -143,7 +143,7 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         pending_ = {}; recycled_.clear();
     }
-    bool Take(DroidDeckXrPixels *out) {
+    bool Take(DroidHostXrPixels *out) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (pending_.pixels.empty()) return false;
         *out = std::move(pending_);
@@ -164,7 +164,7 @@ private:
     std::atomic<uint64_t> rejected_{0}, received_{0};
     std::thread thread_;
     std::mutex mutex_;
-    DroidDeckXrPixels pending_;
+    DroidHostXrPixels pending_;
     std::vector<std::vector<unsigned char>> recycled_;
     void Loop() {
         while (!stopping_) {
@@ -181,14 +181,14 @@ private:
                     available = poll(&idle, 1, 50);
                 } while (!stopping_ && (available == 0 || (available < 0 && errno == EINTR)));
                 if (stopping_ || available <= 0 || !(idle.revents & POLLIN)) break;
-                DroidDeckXrPixels frame;
+                DroidHostXrPixels frame;
                 XrFrameDescriptor shared;
                 int64_t deadline = xr_frame_now() + 200000000LL;
                 if (!xr_frame_header(client, frame.header, shared, deadline)) break;
                 int64_t now = xr_frame_now();
                 if (!xr_frame_valid(frame.header) || frame.header.captured_ns > now
                     || now - frame.header.captured_ns > 500000000LL || frame.header.frame_id <= lastFrame
-                    || (frame.header.version == DROIDDECK_XR_FRAME_SHARED_VERSION) != (shared.fd >= 0)) { rejected_++; break; }
+                    || (frame.header.version == DROIDHOST_XR_FRAME_SHARED_VERSION) != (shared.fd >= 0)) { rejected_++; break; }
                 try {
                     {
                         std::lock_guard<std::mutex> lock(mutex_);
@@ -225,12 +225,12 @@ public:
     XrFrameSender(const XrFrameSender &) = delete;
     XrFrameSender &operator=(const XrFrameSender &) = delete;
     ~XrFrameSender() { Disconnect(); }
-    bool Send(const std::string &filename, const DroidDeckXrFrameHeader &header, const unsigned char *pixels) {
+    bool Send(const std::string &filename, const DroidHostXrFrameHeader &header, const unsigned char *pixels) {
         return SendFrame(filename, header, pixels, -1);
     }
-    bool SendShared(const std::string &filename, DroidDeckXrFrameHeader header, int shared) {
+    bool SendShared(const std::string &filename, DroidHostXrFrameHeader header, int shared) {
         if (shared < 0 || sharedLeaseLost_) return false;
-        header.version = DROIDDECK_XR_FRAME_SHARED_VERSION;
+        header.version = DROIDHOST_XR_FRAME_SHARED_VERSION;
         return SendFrame(filename, header, nullptr, shared);
     }
     bool SharedLeaseLost() const { return sharedLeaseLost_; }
@@ -238,10 +238,10 @@ private:
     int descriptor_ = -1;
     bool sharedLeaseLost_ = false;
     std::string filename_;
-    bool SendFrame(const std::string &filename, const DroidDeckXrFrameHeader &header, const unsigned char *pixels, int shared) {
+    bool SendFrame(const std::string &filename, const DroidHostXrFrameHeader &header, const unsigned char *pixels, int shared) {
         if ((!pixels && shared < 0) || !xr_frame_valid(header) || filename.empty()
             || filename.size() >= sizeof(sockaddr_un::sun_path)
-            || (header.version == DROIDDECK_XR_FRAME_SHARED_VERSION) != (shared >= 0)) return false;
+            || (header.version == DROIDHOST_XR_FRAME_SHARED_VERSION) != (shared >= 0)) return false;
         if (filename_ != filename) Disconnect();
         int64_t deadline = xr_frame_now() + 200000000LL;
         if (descriptor_ < 0) {
@@ -264,7 +264,7 @@ private:
         uint64_t acknowledgement = 0;
         bool sent = false;
         if (shared >= 0) {
-            iovec data{const_cast<DroidDeckXrFrameHeader *>(&header), sizeof(header)};
+            iovec data{const_cast<DroidHostXrFrameHeader *>(&header), sizeof(header)};
             alignas(cmsghdr) unsigned char control[CMSG_SPACE(sizeof(int))]{};
             msghdr message{}; message.msg_iov = &data; message.msg_iovlen = 1;
             message.msg_control = control; message.msg_controllen = sizeof(control);
@@ -277,7 +277,7 @@ private:
                 sent = xr_frame_io(descriptor_, reinterpret_cast<unsigned char *>(data.iov_base) + bytes,
                                    sizeof(header) - bytes, true, deadline);
             }
-        } else sent = xr_frame_io(descriptor_, const_cast<DroidDeckXrFrameHeader *>(&header), sizeof(header), true, deadline)
+        } else sent = xr_frame_io(descriptor_, const_cast<DroidHostXrFrameHeader *>(&header), sizeof(header), true, deadline)
             && xr_frame_io(descriptor_, const_cast<unsigned char *>(pixels), header.bytes, true, deadline);
         if (!sent
             || !xr_frame_io(descriptor_, &acknowledgement, sizeof(acknowledgement), false, deadline)

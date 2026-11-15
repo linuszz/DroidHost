@@ -211,9 +211,9 @@ call can be answered in-process with the 0014 design.
 | `wait4`/`waitpid`, `ptrace` | ptrace emulation inside the guest (breakpad, gdb) | Could become opt-in; then `wait4` is free (one stop per wait today). |
 | `prctl(PR_SET_DUMPABLE)`, `setrlimit`/`prlimit64(RLIMIT_STACK)` | loader and stack fixups | Already narrowed to these arguments (0004). |
 | `ioctl(TCSETSF, termios2, FICLONE)` | Android pty policy, FICLONE `EACCES` | Already narrowed to these requests; GPU ioctls are free (0013). |
-| `uname`, `sethostname`, `setdomainname` | the `DroidDeck` hostname (kompat) | Rare. Keep. |
+| `uname`, `sethostname`, `setdomainname` | the `DroidHost` hostname (kompat) | Rare. Keep. |
 | `set*id`, `*setxattr` | fake_id0 identity mode (0012) | Rare. Keep. |
-| `memfd_create` | Qt JIT and php workarounds (string argument) | Every Wayland `wl_shm` buffer and Chromium shared memory pays one stop. Could be dropped if the DroidDeck runtime doesn't need those workarounds. |
+| `memfd_create` | Qt JIT and php workarounds (string argument) | Every Wayland `wl_shm` buffer and Chromium shared memory pays one stop. Could be dropped if the DroidHost runtime doesn't need those workarounds. |
 | `statfs` (exit) | fakes tmpfs for `/dev/shm` | Rare. |
 | `open_tree`, `move_mount`, `fspick`, `mount_setattr`, `openat2` | answered `ENOSYS` (0008, 0010) | Fine. |
 | Android-blocked calls (previous table) | `SIGSYS` emulation | **Avoidable at the source:** `GLIBC_TUNABLES=glibc.pthread.rseq=0` removes one stop per thread. The rest need a patched glibc. |
@@ -227,7 +227,7 @@ call can be answered in-process with the 0014 design.
    - They report Steam's first window 7× faster and about 5% more FPS, with proot having used 60–65%
      of a core.
    - **They still run Proton and the games under proot.**
-   - DroidDeck also has four package names (`tools/release/variants.txt`), so a relocated prefix
+   - DroidHost also has four package names (`tools/release/variants.txt`), so a relocated prefix
      would need four builds or Winlator-style padded path rewriting.
 2. **Hybrid by process (Steam in proot, game on glibc, or the reverse).** The game side is the
    *harder* half. Wine re-execs itself and `wineserver`, which hits `PT_INTERP`. Its server

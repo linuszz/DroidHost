@@ -469,8 +469,8 @@ VR_JS = r"""
       const item = { receiver: this, id, args, timer: null };
       item.timer = setTimeout(() => {
         self.pending.delete(gameid);
-        self.lastError = "SteamVR did not become ready. Start SteamVR from DroidDeck and try the game again.";
-        console.error("DroidDeck: " + self.lastError);
+        self.lastError = "SteamVR did not become ready. Start SteamVR from DroidHost and try the game again.";
+        console.error("DroidHost: " + self.lastError);
       }, 600000);
       self.pending.set(gameid, item);
       try { window.__BINDING__(gameid); }
@@ -496,7 +496,7 @@ VR_JS = r"""
 
 
 def launch_steamvr():
-    say("SteamVR library launch: using the DroidDeck ARM64 helper")
+    say("SteamVR library launch: using the DroidHost ARM64 helper")
     state = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "droiddeck-steamvr")
     try:
         os.makedirs(state, exist_ok=True)

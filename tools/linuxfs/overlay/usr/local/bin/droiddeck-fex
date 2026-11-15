@@ -182,7 +182,7 @@ def update_own_fex():
             return
     except OSError:
         pass
-    say("installing DroidDeck's FEX build %s" % wanted)
+    say("installing DroidHost's FEX build %s" % wanted)
     try:
         code = subprocess.call([os.path.join(BIN_DIR, "droiddeck-fex-update")], stdout=sys.stderr)
     except OSError:
@@ -194,7 +194,7 @@ def update_own_fex():
     with contextlib.suppress(OSError):
         with open(failed, "w", encoding="utf-8") as handle:
             handle.write(wanted + "\n")
-    say("DroidDeck's FEX build %s did not install; using the FEX already here" % wanted)
+    say("DroidHost's FEX build %s did not install; using the FEX already here" % wanted)
 
 
 def fex_install():
@@ -832,7 +832,7 @@ def extract(image):
 
 
 def parse_run(args):
-    mode, decide = os.environ.get("DROIDDECK_FEX", "auto"), None
+    mode, decide = os.environ.get("DROIDHOST_FEX", "auto"), None
     while args and args[0].startswith("--"):
         option = args.pop(0)
         if option == "--":
@@ -863,7 +863,7 @@ def main(argv):
             return 0
         if not command:
             return 2
-        return launch(command, game_environment(dict(os.environ), command), os.environ.get("DROIDDECK_FEX", "auto"))
+        return launch(command, game_environment(dict(os.environ), command), os.environ.get("DROIDHOST_FEX", "auto"))
     if action == "run":
         try:
             mode, decide, command = parse_run(args)

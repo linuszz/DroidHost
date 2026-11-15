@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-PACKAGE = 'com.droiddeck.launcher'
+PACKAGE = 'com.droidhost.launcher'
 
 
 class SignApkRenamesTest(unittest.TestCase):

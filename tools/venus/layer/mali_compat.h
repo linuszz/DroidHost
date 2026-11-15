@@ -1,5 +1,5 @@
 /*
- * VK_LAYER_DROIDDECK_mali_compat: makes up for what Mali lacks and DXVK requires.
+ * VK_LAYER_DROIDHOST_mali_compat: makes up for what Mali lacks and DXVK requires.
  *
  * DXVK refuses any GPU without fillModeNonSolid, multiViewport, shaderClipDistance,
  * shaderCullDistance, textureCompressionBC and robustBufferAccess2, and Mali has none of them.
@@ -286,7 +286,7 @@ struct instance *instance_from_handle(const void *dispatchable);
 /* What the GPU lacks of the features the layer can make up for. */
 uint32_t physical_device_gaps(struct instance *inst, VkPhysicalDevice physical_device);
 
-/* trace.c (DROIDDECK_MALI_COMPAT_TRACE=1) */
+/* trace.c (DROIDHOST_MALI_COMPAT_TRACE=1) */
 void trace_load(struct instance *inst);
 PFN_vkVoidFunction trace_hook(struct instance *inst, const char *name);
 void trace_extension_names(const VkExtensionProperties *ext, uint32_t n);

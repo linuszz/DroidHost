@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Butang kiri tetikus</string>
     <string name="input_mouse_right">Butang kanan tetikus</string>
     <string name="input_mouse_middle">Butang tengah tetikus</string>
-    <string name="input_command_menu">Buka menu DroidDeck</string>
+    <string name="input_command_menu">Buka menu DroidHost</string>
     <string name="input_command_keyboard">Tunjukkan papan kekunci</string>
     <string name="input_command_steam">Buka menu Steam</string>
     <string name="input_command_qam">Buka akses pantas Steam</string>

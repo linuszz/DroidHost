@@ -1,11 +1,11 @@
-#ifndef DROIDDECK_COLOR_H
-#define DROIDDECK_COLOR_H
+#ifndef DROIDHOST_COLOR_H
+#define DROIDHOST_COLOR_H
 #include <stdint.h>
 #include <wayland-server.h>
 
-#define DROIDDECK_ADATASPACE_UNKNOWN    0
-#define DROIDDECK_ADATASPACE_BT2020_PQ  163971072
-#define DROIDDECK_ADATASPACE_BT2020_HLG 168165376
+#define DROIDHOST_ADATASPACE_UNKNOWN    0
+#define DROIDHOST_ADATASPACE_BT2020_PQ  163971072
+#define DROIDHOST_ADATASPACE_BT2020_HLG 168165376
 
 struct droiddeck_color {
     uint32_t identity;
@@ -50,11 +50,11 @@ void droiddeck_color_stats_tick(void);
 void droiddeck_color_frame_copied(const char *who, const char *reason);
 
 enum droiddeck_hdr_path {
-    DROIDDECK_HDR_ZERO_COPY = 0,
-    DROIDDECK_HDR_LAYER_COPY,
-    DROIDDECK_HDR_COMPOSED,
-    DROIDDECK_HDR_SWAPCHAIN,
-    DROIDDECK_HDR_TONEMAPPED,
+    DROIDHOST_HDR_ZERO_COPY = 0,
+    DROIDHOST_HDR_LAYER_COPY,
+    DROIDHOST_HDR_COMPOSED,
+    DROIDHOST_HDR_SWAPCHAIN,
+    DROIDHOST_HDR_TONEMAPPED,
 
 };
 void droiddeck_color_frame_shown(const struct droiddeck_color *c, int path, uint32_t ahb_format);

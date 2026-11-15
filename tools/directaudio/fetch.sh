@@ -9,7 +9,7 @@ done
 work=$(mktemp -d)
 trap 'rm -rf "${work}"' EXIT
 
-cache=${DROIDDECK_BUILD_CACHE:-"${HOME}/.cache/droiddeck-build"}
+cache=${DROIDHOST_BUILD_CACHE:-"${HOME}/.cache/droiddeck-build"}
 mkdir -p "${cache}"
 fetch() {
   local name=$1 sha=$2 kept="${cache}/$2-$1" part

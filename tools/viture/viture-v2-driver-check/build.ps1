@@ -24,12 +24,12 @@ $output = Join-Path $PSScriptRoot 'out'
 $buildId = [Guid]::NewGuid().ToString('N')
 $classes = Join-Path $output ('classes-' + $buildId)
 $production = Join-Path $output ('production-' + $buildId)
-$productionPackage = Join-Path $production 'com\droiddeck\launcher\glasses'
+$productionPackage = Join-Path $production 'com\droidhost\launcher\glasses'
 $assets = Join-Path $output ('assets-' + $buildId)
 $dex = Join-Path $output ('dex-' + $buildId)
 $buildTools = Join-Path $Sdk 'build-tools\36.0.0'
 $androidJar = Join-Path $Sdk 'platforms\android-34\android.jar'
-$compiled = Join-Path $repo 'app\build\tmp\kotlin-classes\debug\com\droiddeck\launcher\glasses'
+$compiled = Join-Path $repo 'app\build\tmp\kotlin-classes\debug\com\droidhost\launcher\glasses'
 $stdlibVersion = '2.1.0'
 $gradleCacheRoot = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' }
 $stdlibDirectory = Join-Path $gradleCacheRoot ('caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\' + $stdlibVersion)
@@ -58,7 +58,7 @@ try {
         @('GlassesLink.class', 'GlassesHardware.kt')
     )) {
         $binary = Get-Item -LiteralPath (Join-Path $compiled $pair[0])
-        $source = Get-Item -LiteralPath (Join-Path $repo ('app\src\main\java\com\droiddeck\launcher\glasses\' + $pair[1]))
+        $source = Get-Item -LiteralPath (Join-Path $repo ('app\src\main\java\com\droidhost\launcher\glasses\' + $pair[1]))
         $manifestSources += [ordered]@{ name = $source.Name; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $source.FullName).Hash }
     }
     New-Item -ItemType Directory -Force -Path $output, $classes, $productionPackage, $assets, $dex | Out-Null
@@ -96,7 +96,7 @@ try {
         classes = $manifestClasses
     }
     $runtimeManifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $assets 'runtime-manifest.json') -Encoding utf8
-    & (Join-Path $Java 'bin\javac.exe') --release 8 -classpath ($androidJar + ';' + $productionJar + ';' + $stdlib) -encoding UTF-8 -d $classes (Join-Path $PSScriptRoot 'src\com\droiddeck\viturev2check\MainActivity.java')
+    & (Join-Path $Java 'bin\javac.exe') --release 8 -classpath ($androidJar + ';' + $productionJar + ';' + $stdlib) -encoding UTF-8 -d $classes (Join-Path $PSScriptRoot 'src\com\droidhost\viturev2check\MainActivity.java')
     if ($LASTEXITCODE -ne 0) { throw 'Harness Java compilation failed.' }
     & (Join-Path $Java 'bin\jar.exe') cf $classJar -C $classes .
     if ($LASTEXITCODE -ne 0) { throw 'Harness jar creation failed.' }

@@ -104,7 +104,7 @@ private:
     XrAction primary_ = XR_NULL_HANDLE, secondary_ = XR_NULL_HANDLE, menu_ = XR_NULL_HANDLE;
     XrAction triggerTouch_ = XR_NULL_HANDLE, stickTouch_ = XR_NULL_HANDLE, primaryTouch_ = XR_NULL_HANDLE;
     XrAction secondaryTouch_ = XR_NULL_HANDLE, thumbrestTouch_ = XR_NULL_HANDLE;
-    DroidDeckXrHand inputs_[2]{};
+    DroidHostXrHand inputs_[2]{};
     PFN_xrConvertTimeToTimespecTimeKHR convertTime_ = nullptr;
     bool timespecSupported_ = false;
     PFN_xrPerfSettingsSetPerformanceLevelEXT setPerformance_ = nullptr;
@@ -118,7 +118,7 @@ private:
     bool guestAttached_ = false, verifyPixels_ = false;
     XrFrameReceiver receiver_;
     QuestGpuFrames gpuFrames_;
-    DroidDeckXrFrameHeader sourceHeader_{};
+    DroidHostXrFrameHeader sourceHeader_{};
     uint64_t uploadedFrames_ = 0, verifiedFrame_ = 0;
     uint32_t gpuChecksum_ = 0;
     GLuint sourceTexture_ = 0, sourceProgram_ = 0;
@@ -126,8 +126,8 @@ private:
     jmethodID frameCallback_ = nullptr;
     jmethodID activeCallback_ = nullptr;
     jmethodID statusCallback_ = nullptr;
-    DroidDeckXrTracking *tracking_ = nullptr;
-    DroidDeckXrHaptics *haptics_ = nullptr;
+    DroidHostXrTracking *tracking_ = nullptr;
+    DroidHostXrHaptics *haptics_ = nullptr;
     uint64_t lastPulse_[2]{};
     XrSessionState state_ = XR_SESSION_STATE_UNKNOWN;
     uint64_t frames_ = 0, rendered_ = 0;
@@ -207,7 +207,7 @@ private:
         const bool srgbControl = extensions && std::strstr(extensions, "GL_EXT_sRGB_write_control");
         std::fprintf(output, "],\"sourceImage\":true,\"sourceColorSpace\":\"%s\",\"sourceEncoding\":%d,\"eyeEncoding\":%d,"
             "\"srgbWriteControl\":%s,\"srgbWriteEnabled\":%s}\n",
-            sourceHeader_.color_space == DROIDDECK_XR_COLOR_SRGB_RGBA8 ? "srgb" : "linear", sourceEncoding_, eyeEncoding_,
+            sourceHeader_.color_space == DROIDHOST_XR_COLOR_SRGB_RGBA8 ? "srgb" : "linear", sourceEncoding_, eyeEncoding_,
             srgbControl ? "true" : "false", srgbControl && glIsEnabled(0x8DB9) ? "true" : "false");
         if (std::fclose(output) == 0) std::rename(temporary.c_str(), file.c_str());
     }
@@ -227,7 +227,7 @@ private:
             if (runtime->running_) {
                 XrResult result = xrRequestExitSession(runtime->session_);
                 if (XR_SUCCEEDED(result)) runtime->quitRequested_ = true;
-                else __android_log_print(ANDROID_LOG_ERROR, "DroidDeckXR", "exit request failed: %d", result);
+                else __android_log_print(ANDROID_LOG_ERROR, "DroidHostXR", "exit request failed: %d", result);
             } else ANativeActivity_finish(app->activity);
             return 1;
         };
@@ -270,7 +270,7 @@ private:
         androidInfo.applicationActivity = app_->activity->clazz;
         XrInstanceCreateInfo create{XR_TYPE_INSTANCE_CREATE_INFO};
         create.next = &androidInfo;
-        std::strcpy(create.applicationInfo.applicationName, "DroidDeck XR");
+        std::strcpy(create.applicationInfo.applicationName, "DroidHost XR");
         create.applicationInfo.applicationVersion = 1;
         create.applicationInfo.apiVersion = XR_MAKE_VERSION(1, 0, 0);
         create.enabledExtensionCount = enabled.size();
@@ -329,10 +329,10 @@ private:
         initializeGraphics();
         initializeTracking();
         {
-            std::string filename = std::string(app_->activity->internalDataPath) + "/.wayland-rt/" DROIDDECK_XR_FRAME_SOCKET;
+            std::string filename = std::string(app_->activity->internalDataPath) + "/.wayland-rt/" DROIDHOST_XR_FRAME_SOCKET;
             if (!receiver_.Start(filename)) throw std::runtime_error("XR frame receiver unavailable");
-            bool gpu = !verifyPixels_ && gpuFrames_.Start(std::string(app_->activity->internalDataPath) + "/.wayland-rt/" DROIDDECK_XR_GPU_SOCKET, display_);
-            __android_log_print(ANDROID_LOG_INFO, "DroidDeckXR", "GPU frame channel available=%d", gpu);
+            bool gpu = !verifyPixels_ && gpuFrames_.Start(std::string(app_->activity->internalDataPath) + "/.wayland-rt/" DROIDHOST_XR_GPU_SOCKET, display_);
+            __android_log_print(ANDROID_LOG_INFO, "DroidHostXR", "GPU frame channel available=%d", gpu);
         }
         health();
     }
@@ -441,13 +441,13 @@ private:
             if (mapping == MAP_FAILED) throw std::runtime_error("XR IPC map failed");
             return mapping;
         };
-        tracking_ = static_cast<DroidDeckXrTracking *>(mapFile(DROIDDECK_XR_FILE, sizeof(DroidDeckXrTracking)));
-        haptics_ = static_cast<DroidDeckXrHaptics *>(mapFile(DROIDDECK_XR_HAPTIC_FILE, sizeof(DroidDeckXrHaptics)));
-        haptics_->magic = DROIDDECK_XR_HAPTIC_MAGIC; haptics_->version = DROIDDECK_XR_VERSION;
+        tracking_ = static_cast<DroidHostXrTracking *>(mapFile(DROIDHOST_XR_FILE, sizeof(DroidHostXrTracking)));
+        haptics_ = static_cast<DroidHostXrHaptics *>(mapFile(DROIDHOST_XR_HAPTIC_FILE, sizeof(DroidHostXrHaptics)));
+        haptics_->magic = DROIDHOST_XR_HAPTIC_MAGIC; haptics_->version = DROIDHOST_XR_VERSION;
         for (int hand = 0; hand < 2; hand++) lastPulse_[hand] = haptics_->hands[hand].id;
     }
 
-    static DroidDeckXrPose posePacket(const XrPosef &pose, XrSpaceLocationFlags flags) {
+    static DroidHostXrPose posePacket(const XrPosef &pose, XrSpaceLocationFlags flags) {
         return {{pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w},
                 {pose.position.x, pose.position.y, pose.position.z}, (uint32_t)flags};
     }
@@ -455,8 +455,8 @@ private:
     void publishTracking(const XrView views[2], XrTime predicted) {
         if (!tracking_) return;
         timespec now{}; clock_gettime(CLOCK_MONOTONIC, &now);
-        DroidDeckXrTracking packet{};
-        packet.magic = DROIDDECK_XR_MAGIC; packet.version = DROIDDECK_XR_VERSION;
+        DroidHostXrTracking packet{};
+        packet.magic = DROIDHOST_XR_MAGIC; packet.version = DROIDHOST_XR_VERSION;
         packet.active = state_ == XR_SESSION_STATE_VISIBLE || state_ == XR_SESSION_STATE_FOCUSED;
         packet.sampled_ns = (int64_t)now.tv_sec * 1000000000LL + now.tv_nsec;
         if (convertTime_) {
@@ -480,10 +480,10 @@ private:
         uint32_t sequence = __atomic_load_n(&tracking_->seq, __ATOMIC_RELAXED);
         __atomic_store_n(&tracking_->seq, sequence | 1u, __ATOMIC_SEQ_CST);
         __atomic_thread_fence(__ATOMIC_SEQ_CST);
-        std::memcpy(tracking_, &packet, offsetof(DroidDeckXrTracking, seq));
-        std::memcpy(reinterpret_cast<char *>(tracking_) + offsetof(DroidDeckXrTracking, active),
-            reinterpret_cast<const char *>(&packet) + offsetof(DroidDeckXrTracking, active),
-            sizeof(packet) - offsetof(DroidDeckXrTracking, active));
+        std::memcpy(tracking_, &packet, offsetof(DroidHostXrTracking, seq));
+        std::memcpy(reinterpret_cast<char *>(tracking_) + offsetof(DroidHostXrTracking, active),
+            reinterpret_cast<const char *>(&packet) + offsetof(DroidHostXrTracking, active),
+            sizeof(packet) - offsetof(DroidHostXrTracking, active));
         __atomic_store_n(&tracking_->seq, (sequence | 1u) + 1u, __ATOMIC_RELEASE);
     }
 
@@ -498,13 +498,13 @@ private:
 
     void pollHaptics() {
         if (!haptics_) return;
-        DroidDeckXrHaptics packet{};
+        DroidHostXrHaptics packet{};
         uint32_t sequence = __atomic_load_n(&haptics_->seq, __ATOMIC_ACQUIRE);
         if (sequence & 1u) return;
         std::memcpy(&packet, haptics_, sizeof(packet));
         __atomic_thread_fence(__ATOMIC_ACQUIRE);
         if (__atomic_load_n(&haptics_->seq, __ATOMIC_RELAXED) != sequence
-            || packet.magic != DROIDDECK_XR_HAPTIC_MAGIC || packet.version != DROIDDECK_XR_VERSION) return;
+            || packet.magic != DROIDHOST_XR_HAPTIC_MAGIC || packet.version != DROIDHOST_XR_VERSION) return;
         for (int hand = 0; hand < 2; hand++) {
             const auto &pulse = packet.hands[hand];
             if (pulse.id == lastPulse_[hand]) continue;
@@ -553,14 +553,14 @@ private:
             if (uploadedFrames_ % 72 == 1) health();
             return;
         }
-        DroidDeckXrPixels frame;
+        DroidHostXrPixels frame;
         if (!receiver_.Take(&frame)) return;
         GLint maximum = 0; glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maximum);
         if (frame.header.width > static_cast<uint32_t>(maximum) || frame.header.height > static_cast<uint32_t>(maximum))
             throw std::runtime_error("XR source exceeds GPU texture limit");
         sourceTexture_ = cpuTexture_;
         glBindTexture(GL_TEXTURE_2D, sourceTexture_);
-        GLenum encoding = frame.header.color_space == DROIDDECK_XR_COLOR_SRGB_RGBA8 ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+        GLenum encoding = frame.header.color_space == DROIDHOST_XR_COLOR_SRGB_RGBA8 ? GL_SRGB8_ALPHA8 : GL_RGBA8;
         glTexImage2D(GL_TEXTURE_2D, 0, encoding, frame.header.width, frame.header.height, 0,
                      GL_RGBA, GL_UNSIGNED_BYTE, frame.pixels.data());
         if (verifyPixels_) {
@@ -608,7 +608,7 @@ private:
         while ((result = xrPollEvent(instance_, &event)) == XR_SUCCESS) {
             if (event.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) {
                 state_ = reinterpret_cast<XrEventDataSessionStateChanged *>(&event)->state;
-                __android_log_print(ANDROID_LOG_INFO, "DroidDeckXR", "session state=%d", state_);
+                __android_log_print(ANDROID_LOG_INFO, "DroidHostXR", "session state=%d", state_);
                 attachGuest(state_ == XR_SESSION_STATE_VISIBLE || state_ == XR_SESSION_STATE_FOCUSED);
                 if (state_ == XR_SESSION_STATE_READY) {
                     XrSessionBeginInfo begin{XR_TYPE_SESSION_BEGIN_INFO};
@@ -617,7 +617,7 @@ private:
                     if (setPerformance_) {
                         for (auto domain : {XR_PERF_SETTINGS_DOMAIN_CPU_EXT, XR_PERF_SETTINGS_DOMAIN_GPU_EXT}) {
                             XrResult request = setPerformance_(session_, domain, XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIGH_EXT);
-                            __android_log_print(ANDROID_LOG_INFO, "DroidDeckXR", "sustained performance domain=%d result=%d", domain, request);
+                            __android_log_print(ANDROID_LOG_INFO, "DroidHostXR", "sustained performance domain=%d result=%d", domain, request);
                         }
                     }
                 } else if (state_ == XR_SESSION_STATE_STOPPING) {
@@ -628,7 +628,7 @@ private:
             } else if (event.type == XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING) exit_ = true;
             else if (event.type == XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT) {
                 const auto &performance = *reinterpret_cast<XrEventDataPerfSettingsEXT *>(&event);
-                __android_log_print(ANDROID_LOG_INFO, "DroidDeckXR", "performance domain=%d subdomain=%d level=%d->%d",
+                __android_log_print(ANDROID_LOG_INFO, "DroidHostXR", "performance domain=%d subdomain=%d level=%d->%d",
                                     performance.domain, performance.subDomain, performance.fromLevel, performance.toLevel);
             }
             event = {XR_TYPE_EVENT_DATA_BUFFER};
@@ -664,11 +664,11 @@ private:
                 inputs_[hand].stick[1] = stick.isActive ? stick.currentState.y : 0;
                 inputs_[hand].buttons = 0;
                 const std::pair<XrAction, uint32_t> buttons[] = {
-                    {stickClick_, DROIDDECK_XR_STICK_CLICK}, {primary_, DROIDDECK_XR_PRIMARY_CLICK},
-                    {secondary_, DROIDDECK_XR_SECONDARY_CLICK}, {menu_, DROIDDECK_XR_MENU_CLICK},
-                    {triggerTouch_, DROIDDECK_XR_TRIGGER_TOUCH}, {stickTouch_, DROIDDECK_XR_STICK_TOUCH},
-                    {primaryTouch_, DROIDDECK_XR_PRIMARY_TOUCH}, {secondaryTouch_, DROIDDECK_XR_SECONDARY_TOUCH},
-                    {thumbrestTouch_, DROIDDECK_XR_THUMBREST_TOUCH}};
+                    {stickClick_, DROIDHOST_XR_STICK_CLICK}, {primary_, DROIDHOST_XR_PRIMARY_CLICK},
+                    {secondary_, DROIDHOST_XR_SECONDARY_CLICK}, {menu_, DROIDHOST_XR_MENU_CLICK},
+                    {triggerTouch_, DROIDHOST_XR_TRIGGER_TOUCH}, {stickTouch_, DROIDHOST_XR_STICK_TOUCH},
+                    {primaryTouch_, DROIDHOST_XR_PRIMARY_TOUCH}, {secondaryTouch_, DROIDHOST_XR_SECONDARY_TOUCH},
+                    {thumbrestTouch_, DROIDHOST_XR_THUMBREST_TOUCH}};
                 for (const auto &button : buttons) {
                     get.action = button.first;
                     XrActionStateBoolean value{XR_TYPE_ACTION_STATE_BOOLEAN}; check(xrGetActionStateBoolean(session_, &get, &value), "button state");
@@ -729,7 +729,7 @@ private:
         frames_++; if (valid) rendered_++;
         if (frames_ % 72 == 0) {
             health();
-            __android_log_print(ANDROID_LOG_INFO, "DroidDeckXR", "frames=%llu rendered=%llu head=%llu hands=%d,%d period=%lld",
+            __android_log_print(ANDROID_LOG_INFO, "DroidHostXR", "frames=%llu rendered=%llu head=%llu hands=%d,%d period=%lld",
                 (unsigned long long)frames_, (unsigned long long)rendered_, (unsigned long long)head_.locationFlags,
                 handActive_[0], handActive_[1], (long long)period_);
         }
@@ -739,13 +739,13 @@ private:
         receiver_.Stop();
         gpuFrames_.Stop();
         try { attachGuest(false); } catch (const std::exception &error) {
-            __android_log_print(ANDROID_LOG_ERROR, "DroidDeckXR", "cleanup: %s", error.what());
+            __android_log_print(ANDROID_LOG_ERROR, "DroidHostXR", "cleanup: %s", error.what());
         }
         if (tracking_) {
             __atomic_store_n(&tracking_->active, 0u, __ATOMIC_RELEASE);
-            munmap(tracking_, sizeof(DroidDeckXrTracking));
+            munmap(tracking_, sizeof(DroidHostXrTracking));
         }
-        if (haptics_) munmap(haptics_, sizeof(DroidDeckXrHaptics));
+        if (haptics_) munmap(haptics_, sizeof(DroidHostXrHaptics));
         if (display_ != EGL_NO_DISPLAY && context_ != EGL_NO_CONTEXT) {
             glDeleteFramebuffers(1, &framebuffer_); glDeleteVertexArrays(1, &vertexArray_);
             glDeleteTextures(1, &cpuTexture_); glDeleteProgram(sourceProgram_);
@@ -770,7 +770,7 @@ void android_main(android_app *app) {
     QuestXR runtime(app);
     try { runtime.run(); }
     catch (const std::exception &error) {
-        __android_log_print(ANDROID_LOG_ERROR, "DroidDeckXR", "%s", error.what());
+        __android_log_print(ANDROID_LOG_ERROR, "DroidHostXR", "%s", error.what());
         runtime.health(error.what());
         ANativeActivity_finish(app->activity);
     }

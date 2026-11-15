@@ -1,6 +1,6 @@
-# Xbox backend for DroidDeck
+# Xbox backend for DroidHost
 
-DroidDeck uses the Nexus backend protocol with a native Linux AArch64 CLI and
+DroidHost uses the Nexus backend protocol with a native Linux AArch64 CLI and
 service. It does not install the Nexus desktop launcher or x86 Linux Wine.
 `backend.lock.json` pins Xodus, the Nexus commit, Rust, and the ordered patch
 checksums. `runtime.lock.json` pins the Nexus Windows runtime release and each
@@ -59,7 +59,7 @@ authentication checks the mapped backend image instead. A socket name alone gran
 copy of Xodus started by the guest.
 
 Licensed launch-view preparation runs in an Android-owned Xodus child, which
-never starts Wine or a game. Steam and DroidDeck launch paths can request
+never starts Wine or a game. Steam and DroidHost launch paths can request
 preparation for an installed Xbox title during a live session with an Xbox
 account. The reply contains a random launch lease, a materialized executable
 path, a game-service socket and the existing PlayFab game token; it contains no
@@ -70,7 +70,7 @@ closing the child's stdin lets it remove its private view. Suspension preserves
 live leases.
 The Proton initialization and game processes do not inherit the raw credential
 channel or command-file environment variables. The authenticated GDK bridge
-remains available to the game. Like the other stores, games share DroidDeck's
+remains available to the game. Like the other stores, games share DroidHost's
 Linux environment and Android UID. The process checks close the direct
 credential-socket route; they do not isolate writable runtime files, prevent
 same-UID process tampering, or provide a sandbox against malicious games.
@@ -90,7 +90,7 @@ storage proportional to the encrypted images. The app keeps the account service
 alive for the session; an authenticated loopback bridge carries GDK requests.
 Wine's builtin PE marker makes `WINEDLLOVERRIDES=n` reject the Nexus modules.
 The extractor verifies their original hashes, then changes only that 16-byte DOS
-stub marker to `DroidDeck native`; code, imports and exports stay unchanged. This
+stub marker to `DroidHost native`; code, imports and exports stay unchanged. This
 lets ARM64EC Wine load the AMD64 modules through its normal native DLL path.
 Only each Xbox game's prefix receives these Windows modules. Existing
 Steam games and other store prefixes retain their selected runtimes.
@@ -106,7 +106,7 @@ flows still require game/account validation; runtime API presence does not
 establish that they work on Thor.
 
 Upstream contribution restrictions are respected: these are launcher, storage,
-build and file-lifecycle adapters in DroidDeck, not submitted reverse-engineering
+build and file-lifecycle adapters in DroidHost, not submitted reverse-engineering
 contributions to Xodus.
 
 Sources and licenses:

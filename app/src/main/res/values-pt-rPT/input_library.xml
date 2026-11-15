@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">Envia a entrada do comando para o Steam Input ou para o jogo.</string>
     <string name="input_disabled_hint">Este elemento não envia entrada de comando, rato ou teclado.</string>
     <string name="input_mouse_click">Clique do rato</string>
-    <string name="input_command">Ação do DroidDeck</string>
+    <string name="input_command">Ação do DroidHost</string>
     <string name="input_action">Ação</string>
     <string name="input_scroll_speed">Velocidade de deslocamento: %1$d passos/s</string>
     <string name="input_new_profile">+ Novo perfil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Gestos do touchpad do rato</string>
     <string name="input_mouse_gestures_hint">Quando atribuído ao ponteiro do rato: toque para clicar, mantenha para arrastar e desloque com dois dedos.</string>
     <string name="input_quick_override_hint">%1$s tem uma substituição do menu rápido. Selecione Auto para usar o perfil predefinido e as três partes guardadas.</string>
-    <string name="input_route_local">Entrada DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Mantido enquanto o analógico é movido em qualquer direção: pressiona acima de 55%, liberta abaixo de 35%. Use Teclas de direção para atribuir cada direção em separado. Os comandos DroidDeck correm uma vez por desvio. O clique do analógico configura-se à parte.</string>
-    <string name="input_contact_action_hint">Mantido enquanto toca no touchpad; libertado ao levantar o dedo. Os comandos DroidDeck correm uma vez por toque. O clique do touchpad configura-se à parte.</string>
-    <string name="input_trigger_action_hint" formatted="false">Mantido quando o gatilho passa os 55%; libertado abaixo dos 35%. Os comandos DroidDeck correm uma vez por pressão.</string>
+    <string name="input_route_local">Entrada DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Mantido enquanto o analógico é movido em qualquer direção: pressiona acima de 55%, liberta abaixo de 35%. Use Teclas de direção para atribuir cada direção em separado. Os comandos DroidHost correm uma vez por desvio. O clique do analógico configura-se à parte.</string>
+    <string name="input_contact_action_hint">Mantido enquanto toca no touchpad; libertado ao levantar o dedo. Os comandos DroidHost correm uma vez por toque. O clique do touchpad configura-se à parte.</string>
+    <string name="input_trigger_action_hint" formatted="false">Mantido quando o gatilho passa os 55%; libertado abaixo dos 35%. Os comandos DroidHost correm uma vez por pressão.</string>
     <string name="input_scroll_axis">Direção de deslocamento</string>
     <string name="input_vertical">Vertical</string>
     <string name="input_horizontal">Horizontal</string>
     <string name="input_scroll_horizontal">Deslocar horizontalmente</string>
     <string name="input_measurements">Medições</string>
-    <string name="input_measure_instructions">Ative a gravação, use os controlos numa sessão em curso e depois volte e leia os resultados. Mede apenas o tempo de envio do DroidDeck, não a latência do ecrã. A gravação termina quando o processo da app fecha.</string>
+    <string name="input_measure_instructions">Ative a gravação, use os controlos numa sessão em curso e depois volte e leia os resultados. Mede apenas o tempo de envio do DroidHost, não a latência do ecrã. A gravação termina quando o processo da app fecha.</string>
     <string name="input_layout_count">%1$d controlos</string>
     <string name="input_other_layouts">Outras disposições guardadas (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Ocultar outras disposições guardadas (%1$d) ▴</string>

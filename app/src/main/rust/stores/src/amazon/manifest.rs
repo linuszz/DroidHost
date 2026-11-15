@@ -71,7 +71,7 @@ pub fn check_path(raw: &str) -> Result<String, String> {
         }
     }
     if !path.contains('/') && RESERVED_ROOT_NAMES.iter().any(|r| r.eq_ignore_ascii_case(&path)) {
-        return refuse("DroidDeck's own file");
+        return refuse("DroidHost's own file");
     }
     Ok(path)
 }
@@ -271,7 +271,7 @@ mod tests {
             "a\\",
             "a\\.\\b",
             ".droiddeck-store.json",
-            ".DroidDeck-Launch.BAT",
+            ".DroidHost-Launch.BAT",
             ".amazon_download_complete",
         ] {
             assert!(check_path(bad).is_err(), "{bad}");

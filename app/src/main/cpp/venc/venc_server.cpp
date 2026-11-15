@@ -21,7 +21,7 @@
 
 #include "venc_proto.h"
 
-#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "DroidDeckVenc", __VA_ARGS__)
+#define LOG(...) __android_log_print(ANDROID_LOG_INFO, "DroidHostVenc", __VA_ARGS__)
 
 namespace {
 
@@ -552,7 +552,7 @@ void serve(int listener) {
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_droiddeck_launcher_session_VideoEncodeBridge_nativeStart(JNIEnv *env, jobject, jstring jpath) {
+Java_com_droidhost_launcher_session_VideoEncodeBridge_nativeStart(JNIEnv *env, jobject, jstring jpath) {
     if (g_listener.load() >= 0) return JNI_TRUE;
     const char *path = env->GetStringUTFChars(jpath, nullptr);
     sockaddr_un addr = {};
@@ -576,7 +576,7 @@ Java_com_droiddeck_launcher_session_VideoEncodeBridge_nativeStart(JNIEnv *env, j
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_droiddeck_launcher_session_VideoEncodeBridge_nativeStop(JNIEnv *, jobject) {
+Java_com_droidhost_launcher_session_VideoEncodeBridge_nativeStop(JNIEnv *, jobject) {
     int fd = g_listener.exchange(-1);
     if (fd >= 0) {
         shutdown(fd, SHUT_RDWR);

@@ -1,11 +1,11 @@
 # openMali 工作区记录
 
-> 本文件记录 2026-10-31 ~ 2026-11-01 在本机与小米平板上的 MaliBridge + DroidDeck 0.6.7 合并、构建、调试和性能测试结果。  
+> 本文件记录 2026-10-31 ~ 2026-11-01 在本机与小米平板上的 MaliBridge + DroidHost 0.6.7 合并、构建、调试和性能测试结果。  
 > 这是本地工程记录，不是上游发布文档。未特别说明的 APK 均为 testkey 签名。
 
 ## 1. 目标与结论
 
-- 目标：把 MaliBridge v0.5.4.2 的 Mali GPU 支持合并进 DroidDeck 0.6.7 主线，构建可安装 APK，并在平板上进入桌面、跑通 Steam 和性能测试。
+- 目标：把 MaliBridge v0.5.4.2 的 Mali GPU 支持合并进 DroidHost 0.6.7 主线，构建可安装 APK，并在平板上进入桌面、跑通 Steam 和性能测试。
 - 已做到：
   - 0.6.7 + MaliBridge v0.5.4.2 的合并包可安装。
   - Ubuntu rc4 运行时 + 内置最新 proot + KWin Zink/Mali 桥接，成功进入 KDE 桌面。
@@ -18,17 +18,17 @@
 - 设备：Xiaomi M367FC，SoC xring_o3_asic，GPU Mali-G2-Ultra-NX MC16，Android 17，内核 6.18.21。
 - CPU：10 核；内存 15.7 GB；存储 229 GB；屏幕 3408x2272；120 Hz。
 - Mali 驱动：ARM proprietary，Vulkan 1.4.345；桥接暴露 1.4.341。
-- 新 App：com.droiddeck.launcher，DroidDeck 0.6.7，versionCode 25（0.6.7-dnsfix-v25），testkey。
-- 旧 App：com.droiddeck.launcher.mali，DroidDeck-MaliBridge v0.5.4.2，versionCode 5042；保留用于对比，桌面可用。
+- 新 App：com.droidhost.launcher，DroidHost 0.6.7，versionCode 25（0.6.7-dnsfix-v25），testkey。
+- 旧 App：com.droidhost.launcher.mali，DroidDeck-MaliBridge v0.5.4.2，versionCode 5042；保留用于对比，桌面可用。
 
 ## 3. 关键路径
 
-- 新工程：/home/g/openMali/DroidDeck
-- MaliBridge 子模块：/home/g/openMali/DroidDeck/external/MaliBridge，v0.5.4.2，提交 95a1e60
+- 新工程：/home/g/openMali/DroidHost
+- MaliBridge 子模块：/home/g/openMali/DroidHost/external/MaliBridge，v0.5.4.2，提交 95a1e60
 - 合并基线：main 69ffc096，tag mali-0.6.7-v0.5.4.2
 - 旧版源码：/home/g/openMali/reference/mali0542-src
 - 旧版 APK：/home/g/openMali/reference/DroidDeck-MaliBridge-v0.5.4.2.apk
-- 最终 APK：/home/g/openMali/output/DroidDeck-0.6.7-Mali-rc4.apk
+- 最终 APK：/home/g/openMali/output/DroidHost-0.6.7-Mali-rc4.apk
 - 基准/参考工具：/home/g/openMali/reference/vkbridge-bench，/home/g/openMali/reference/oldapk
 
 ## 4. 已验证的修改
@@ -36,7 +36,7 @@
 ### 4.1 运行时与 proot
 
 - 运行时 catalog 从 Debian linuxfs.json(r9) 切到 Ubuntu：
-  - app/src/main/java/com/droiddeck/launcher/runtime/LinuxRuntimeInstaller.java
+  - app/src/main/java/com/droidhost/launcher/runtime/LinuxRuntimeInstaller.java
   - CATALOG_URL = .../linuxfs-ubuntu.json
 - 实际安装：ubuntu-r1-rc4；运行时约 3 GB；桌面栈另下载约 898 MB。
 - APK 不再排除 proot，改为内置最新官方 pack：
@@ -68,7 +68,7 @@
   - 在平板上实际使用 /dev/dri/renderD307（由 /dev/mali0 绑定）。
 - /usr/share/droiddeck/kwin-compositor 为 opengl。
 - 效果：
-  - DroidDeckWayland 日志出现 [window] opened KDE Wayland Compositor 1280x720。
+  - DroidHostWayland 日志出现 [window] opened KDE Wayland Compositor 1280x720。
   - host 统计出现 GPU frames，不再出现 kwin software fallback / black picture。
   - KDE 桌面、任务栏、应用菜单正常。
 - 分辨率：
@@ -76,7 +76,7 @@
   - 720p 与 900p 的 vkgears 都是约 119.8 FPS，说明 GPU 已到 120 Hz 上限；720p 只减少缩放/带宽。
 - Steam 大屏幕模式：
   - app 的“游玩 Steam”使用 gamescope/Big Picture。
-  - DroidDeckWayland 日志：Steam 大屏幕模式 1280x720，86.4 fps，875 GPU frames。
+  - DroidHostWayland 日志：Steam 大屏幕模式 1280x720，86.4 fps，875 GPU frames。
   - 可用 Steam 登录页。
 
 ### 4.4 UI / 桥接文案
@@ -103,7 +103,7 @@
 
 ### 5.2 已修复：App 自动获取本地 DNS
 
-- 修改 app/src/main/java/com/droiddeck/launcher/runtime/LinuxNetworkLinkComponent.kt：
+- 修改 app/src/main/java/com/droidhost/launcher/runtime/LinuxNetworkLinkComponent.kt：
   - 新增 localDnsServers()，用 ConnectivityManager.allNetworks 遍历 WiFi/Ethernet 网络（排除 VPN）。
   - 收集这些网络的 DNS，并把默认路由 gateway 作为本地 DNS 兜底。
   - 私有地址（192.168/10.x）和 IPv4 优先。
@@ -127,7 +127,7 @@
   - /root/.steam/steam.pid 可能残留已死 PID，导致 “Steam is already running”；启动前删除。
 - 不要在 Konsole 里用桌面 UI 方式启动 steam：
   - 会走 Xwayland/CEF，遇到 XRRGetOutputInfo() is not available / 无窗口。
-  - 应从 DroidDeck 的“游玩 Steam”启动 Big Picture/gamescope。
+  - 应从 DroidHost 的“游玩 Steam”启动 Big Picture/gamescope。
 - 已验证（2026-11-01）：
   - Steam 客户端更新 575,927 KB 到 100%。
   - Big Picture 已登录，库中显示 Shadow of the Tomb Raider 等游戏。
@@ -171,7 +171,7 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 
 ### 6.5 v25 复测（2026-11-01 18:32）
 
-环境：DroidDeck v25；GPU/IO 在 lxqt 桌面 1920x1080@120 测，CPU 分别测桌面和 Steam 会话；游戏 FPS 取自 Terraria 世界内 HUD。Thermal Status 0，CPU 32.8 °C，GPU max 34.8–46.5 °C，电池 31.8 °C / 92%。
+环境：DroidHost v25；GPU/IO 在 lxqt 桌面 1920x1080@120 测，CPU 分别测桌面和 Steam 会话；游戏 FPS 取自 Terraria 世界内 HUD。Thermal Status 0，CPU 32.8 °C，GPU max 34.8–46.5 °C，电池 31.8 °C / 92%。
 
 | 项目 | v25 实测 | 说明 |
 |---|---:|---|
@@ -191,15 +191,15 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 ## 7. 构建与安装
 
 - 构建：
-  - cd /home/g/openMali/DroidDeck
+  - cd /home/g/openMali/DroidHost
   - ./gradlew :app:assembleRelease -PndkVersion=27.3.13750724
 - 修改 runtime inputs 后先记录：
   - python3 tools/release/runtime_inputs.py record
 - APK（DNS 自动修复 + GPU 状态文案 + HUD/CPU 温度 + mscoree 兜底，当前安装）：
-  - /home/g/openMali/output/DroidDeck-0.6.7-Mali-rc4-dnsfix-v25.apk
+  - /home/g/openMali/output/DroidHost-0.6.7-Mali-rc4-dnsfix-v25.apk
   - 76 MB；versionCode 25；versionName 0.6.7-dnsfix-v25
   - SHA-256 9808a8ab17f2d9a39e0b3abc9a05c2ee1c07ec7f4ac7cfa77866b2229fb6eb82
-  - 上一版保留：v24（SHA-256 56b0ab03c0120c2a7a6ad0e4ed8d30a748021d7fe9e99a13b60f62a41e13b5e0）、v23（SHA-256 b0fadc5c...）、v22（SHA-256 69cd4f5f...）、v21（SHA-256 508294a6...）、v20（SHA-256 afd1ce12...）、v19（SHA-256 f63f4eae...）、v18（SHA-256 cc469703...）、v16 DroidDeck-0.6.7-Mali-rc4-dnsfix.apk（SHA-256 6c5f8c1f...）和 DroidDeck-0.6.7-Mali-rc4.apk（无 App 内 DNS 修复，SHA-256 c58fcc58...）。
+  - 上一版保留：v24（SHA-256 56b0ab03c0120c2a7a6ad0e4ed8d30a748021d7fe9e99a13b60f62a41e13b5e0）、v23（SHA-256 b0fadc5c...）、v22（SHA-256 69cd4f5f...）、v21（SHA-256 508294a6...）、v20（SHA-256 afd1ce12...）、v19（SHA-256 f63f4eae...）、v18（SHA-256 cc469703...）、v16 DroidHost-0.6.7-Mali-rc4-dnsfix.apk（SHA-256 6c5f8c1f...）和 DroidHost-0.6.7-Mali-rc4.apk（无 App 内 DNS 修复，SHA-256 c58fcc58...）。
   - testkey 签名；官方 release 私钥不在本机。
 - MIUI 安装：
   - 对已安装的旧包，adb push + adb shell pm install -r 可更新。
@@ -208,15 +208,15 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 
 ## 8. 当前安装状态
 
-- com.droiddeck.launcher：0.6.7-dnsfix-v25（versionCode 25，testkey），2026-11-01 18:25 就地更新安装，App 数据保留。
+- com.droidhost.launcher：0.6.7-dnsfix-v25（versionCode 25，testkey），2026-11-01 18:25 就地更新安装，App 数据保留。
 - GPU 状态：Setup 概览显示“GPU 通过 Mali 桥接”，绿色通过；不再显示“GPU 不受支持”。实现为 FrontEndSetup 的 gpuOk 包含 s.vkBridge，并新增 setup_gpu_bridged 文案。
 - 修复“清数据重启后 GPU 菜单消失”：showChecks 默认值从 false 改为 s.vkBridge；桥接开启时详情默认展开，GPU 行直接可见。已在 pm clear 后重新启动验证。
 - HUD：XRing/Mali 的 GPU load/clock/temp/thermal sysfs 对普通 App 拒绝访问，日志为 thermal zones 0、gpu load none、kgsl gpubusy refused。v21 在无数据时隐藏 GPU 统计行、VRAM=0 时隐藏 VRAM，只保留 GPU 型号；真正 GPU% / 温度 / 共享显存需要 root 或厂商遥测。
 - HUD 分辨率/卡死：v22 的 RES 不再用 Android displayMetrics 兜底，改用会话逻辑分辨率；桌面模式隐藏游戏 HUD，Steam/游戏模式显示。实测 Steam 下 HUD 为 RES 1280x720 @ 120Hz、FPS 42.8 / AVG 53.0。
-- CPU 温度/频率：v23 增加 USB/adb 辅助的 CPU 温度输入（/sdcard/DroidDeck/cpu-temp，由开发者在主机侧每 2 秒写入 cpu_therm，仓库不附带该脚本）；v24 把 HUD 的 CPU 行顺序改为“占用 → 频率 → 温度”，Full/Mega/Tiles 三种布局都生效。
+- CPU 温度/频率：v23 增加 USB/adb 辅助的 CPU 温度输入（/sdcard/DroidHost/cpu-temp，由开发者在主机侧每 2 秒写入 cpu_therm，仓库不附带该脚本）；v24 把 HUD 的 CPU 行顺序改为“占用 → 频率 → 温度”，Full/Mega/Tiles 三种布局都生效。
 - 安装方式：官方 0.6.9（release key）与 testkey 不兼容，完整卸载 0.6.9 后通过 PackageInstaller 安装；App 数据已被清空，当前是全新状态（首次启动显示配置页）。
 - DNS 自动修复已在 APK 内；运行时 ubuntu-r1-rc4、Mali 桥接、proot、桌面需要重新下载/配置；此前 Steam Big Picture 和 1280x720 KWin 已验证，但当前新数据需重新登录。
-- com.droiddeck.launcher.mali：旧 0.5.4.2 仍安装，桌面可用，用于对比。
+- com.droidhost.launcher.mali：旧 0.5.4.2 仍安装，桌面可用，用于对比。
 - 注意：Steam chmod/软链接/pid 清理仍是 guest 运行时修改；清除 App 数据或重装运行时会丢失。
 - Terraria 1.4.5.8 启动修复（2026-11-01）：`dotnet40` 组件把 `WINEDLLOVERRIDES` 设为 `mscoree=n`，但该组件没有原生 `mscoree.dll`，Wine 报 `mscoree.dll not found` 后直接退出。v25 的 `droiddeck-wincomponents` 对 `mscoree=n` 自动追加 builtin 回退（`mscoree=n,b`）；`dotnet40` 仍启用时，Terraria 已稳定进入世界并显示 HUD。
 
@@ -228,7 +228,7 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 4. vkcube 纹理断言是桥接兼容性 bug，可单独排查。
 5. 真实游戏帧率/Proton/DXVK 尚未测试；当前性能数据主要是桌面、vkgears、IO/CPU。
 6. 仍是 testkey；如需官方升级安装，需要官方 release keystore。
-7. 官方 0.6.9 与 testkey 不兼容：只能完整卸载后安装，App 数据会丢；官方 APK 备份在 /tmp/installed-069.apk（宿主）和 /sdcard/Download/DroidDeck-0.6.9.apk（平板），回滚同样要先卸载。
+7. 官方 0.6.9 与 testkey 不兼容：只能完整卸载后安装，App 数据会丢；官方 APK 备份在 /tmp/installed-069.apk（宿主）和 /sdcard/Download/DroidHost-0.6.9.apk（平板），回滚同样要先卸载。
 8. HUD 的 Mali GPU load/temp/VRAM 受驱动 sysfs 权限限制；除非 root/厂商接口，普通 App 无法获取。v21 已移除误导性的 GPU - 和 VRAM 0.0，保留 GPU 型号。
 
 ## 10. 已放弃 / 不再使用
@@ -239,6 +239,6 @@ Guest 读取比 host 低约 17%，是 proot 路径开销；写入不慢。
 
 ## 截图
 
-Terraria 1.4.5.8 在 DroidDeck v25 + Mali 桥接 + Wine Mono 下进入世界。HUD 的 CPU 行是“占用 → 频率 → 温度”：
+Terraria 1.4.5.8 在 DroidHost v25 + Mali 桥接 + Wine Mono 下进入世界。HUD 的 CPU 行是“占用 → 频率 → 温度”：
 
-![DroidDeck v25 HUD / Terraria](../images/droiddeck-hud-v25-terraria.png)
+![DroidHost v25 HUD / Terraria](../images/droiddeck-hud-v25-terraria.png)

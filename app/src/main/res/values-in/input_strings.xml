@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Tombol kiri mouse</string>
     <string name="input_mouse_right">Tombol kanan mouse</string>
     <string name="input_mouse_middle">Tombol tengah mouse</string>
-    <string name="input_command_menu">Buka menu DroidDeck</string>
+    <string name="input_command_menu">Buka menu DroidHost</string>
     <string name="input_command_keyboard">Tampilkan keyboard</string>
     <string name="input_command_steam">Buka menu Steam</string>
     <string name="input_command_qam">Buka akses cepat Steam</string>

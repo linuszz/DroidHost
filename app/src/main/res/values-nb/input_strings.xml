@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Venstre museknapp</string>
     <string name="input_mouse_right">Høyre museknapp</string>
     <string name="input_mouse_middle">Midtre museknapp</string>
-    <string name="input_command_menu">Åpne DroidDeck-menyen</string>
+    <string name="input_command_menu">Åpne DroidHost-menyen</string>
     <string name="input_command_keyboard">Vis tastatur</string>
     <string name="input_command_steam">Åpne Steam-menyen</string>
     <string name="input_command_qam">Åpne Steams hurtigtilgang</string>

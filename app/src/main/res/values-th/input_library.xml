@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">ส่งอินพุตคอนโทรลเลอร์ไปยัง Steam Input หรือเกม</string>
     <string name="input_disabled_hint">องค์ประกอบนี้ไม่ส่งอินพุตคอนโทรลเลอร์ เมาส์ หรือคีย์บอร์ด</string>
     <string name="input_mouse_click">คลิกเมาส์</string>
-    <string name="input_command">การทำงานของ DroidDeck</string>
+    <string name="input_command">การทำงานของ DroidHost</string>
     <string name="input_action">การทำงาน</string>
     <string name="input_scroll_speed">ความเร็วการเลื่อน: %1$d ขั้น/วินาที</string>
     <string name="input_new_profile">+ โปรไฟล์ใหม่</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">ท่าทางทัชแพดเมาส์</string>
     <string name="input_mouse_gestures_hint">เมื่อกำหนดให้ตัวชี้เมาส์: แตะเพื่อคลิก กดค้างเพื่อลาก และเลื่อนด้วยสองนิ้ว</string>
     <string name="input_quick_override_hint">%1$s มีการแทนที่เมนูด่วน เลือกอัตโนมัติที่นั่นเพื่อใช้โปรไฟล์เริ่มต้นและทั้งสามส่วนที่บันทึกไว้</string>
-    <string name="input_route_local">อินพุต DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">ถูกกดค้างขณะก้านถูกเลื่อนไปทุกทิศทาง: กดเมื่อเกิน 55% ปล่อยเมื่อต่ำกว่า 35% ใช้ปุ่มทิศทางเพื่อกำหนดแต่ละทิศแยกกัน คำสั่ง DroidDeck ทำงานครั้งเดียวต่อการเอียง คลิกก้านตั้งค่าแยก</string>
-    <string name="input_contact_action_hint">ถูกกดค้างขณะแตะทัชแพด และปล่อยเมื่อยกนิ้ว คำสั่ง DroidDeck ทำงานครั้งเดียวต่อการแตะ คลิกทัชแพดตั้งค่าแยก</string>
-    <string name="input_trigger_action_hint" formatted="false">ถูกกดค้างเมื่อไกเกิน 55% และปล่อยเมื่อต่ำกว่า 35% คำสั่ง DroidDeck ทำงานครั้งเดียวต่อการกด</string>
+    <string name="input_route_local">อินพุต DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">ถูกกดค้างขณะก้านถูกเลื่อนไปทุกทิศทาง: กดเมื่อเกิน 55% ปล่อยเมื่อต่ำกว่า 35% ใช้ปุ่มทิศทางเพื่อกำหนดแต่ละทิศแยกกัน คำสั่ง DroidHost ทำงานครั้งเดียวต่อการเอียง คลิกก้านตั้งค่าแยก</string>
+    <string name="input_contact_action_hint">ถูกกดค้างขณะแตะทัชแพด และปล่อยเมื่อยกนิ้ว คำสั่ง DroidHost ทำงานครั้งเดียวต่อการแตะ คลิกทัชแพดตั้งค่าแยก</string>
+    <string name="input_trigger_action_hint" formatted="false">ถูกกดค้างเมื่อไกเกิน 55% และปล่อยเมื่อต่ำกว่า 35% คำสั่ง DroidHost ทำงานครั้งเดียวต่อการกด</string>
     <string name="input_scroll_axis">ทิศทางการเลื่อน</string>
     <string name="input_vertical">แนวตั้ง</string>
     <string name="input_horizontal">แนวนอน</string>
     <string name="input_scroll_horizontal">เลื่อนแนวนอน</string>
     <string name="input_measurements">การวัด</string>
-    <string name="input_measure_instructions">เปิดการบันทึก ใช้การควบคุมในเซสชันที่กำลังทำงาน แล้วกลับมาอ่านผล วัดเฉพาะเวลาการส่งของ DroidDeck ไม่รวมความหน่วงของหน้าจอ การบันทึกจะสิ้นสุดเมื่อโปรเซสแอปปิด</string>
+    <string name="input_measure_instructions">เปิดการบันทึก ใช้การควบคุมในเซสชันที่กำลังทำงาน แล้วกลับมาอ่านผล วัดเฉพาะเวลาการส่งของ DroidHost ไม่รวมความหน่วงของหน้าจอ การบันทึกจะสิ้นสุดเมื่อโปรเซสแอปปิด</string>
     <string name="input_layout_count">%1$d การควบคุม</string>
     <string name="input_other_layouts">เลย์เอาต์ที่บันทึกไว้อื่น (%1$d) ▾</string>
     <string name="input_hide_other_layouts">ซ่อนเลย์เอาต์ที่บันทึกไว้อื่น (%1$d) ▴</string>

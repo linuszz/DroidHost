@@ -51,7 +51,7 @@ def notify(title, body, icon="dialog-error"):
     if not os.environ.get("DBUS_SESSION_BUS_ADDRESS") or not shutil.which("notify-send"):
         return
     try:
-        subprocess.run(["notify-send", "-a", "DroidDeck", "-i", icon, title, body],
+        subprocess.run(["notify-send", "-a", "DroidHost", "-i", icon, title, body],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
     except (OSError, subprocess.SubprocessError):
         pass
@@ -189,16 +189,16 @@ def import_of(key, what):
 def imported(what, real, key, name):
     launch = os.environ.get("BL_LAUNCH_DIR")
     if not launch or not os.path.isdir(launch):
-        raise RuntimeError("%s cannot run from here; add it in DroidDeck with Add an app." % name)
+        raise RuntimeError("%s cannot run from here; add it in DroidHost with Add an app." % name)
     result = os.path.join(launch, "desktop-import-%s.result" % key)
     request = os.path.join(launch, "desktop-import-%s.request" % key)
     with open(request + ".tmp", "w", encoding="utf-8") as f:
         f.write("id=%s\nkind=%s\npath=%s\n" % (key, what, real))
     os.replace(request + ".tmp", request)
     if what == "appimage":
-        notify("Adding %s to DroidDeck" % name, "It is unpacked once, then it starts, and it stays in the menu.", "system-run")
+        notify("Adding %s to DroidHost" % name, "It is unpacked once, then it starts, and it stays in the menu.", "system-run")
     else:
-        notify("Adding %s to DroidDeck" % name, "Shared storage cannot run its programs, so the folder is copied in "
+        notify("Adding %s to DroidHost" % name, "Shared storage cannot run its programs, so the folder is copied in "
                "once; then it starts, and it stays in the menu.", "system-run")
     deadline = time.monotonic() + IMPORT_WAIT
     while time.monotonic() < deadline:
@@ -212,8 +212,8 @@ def imported(what, real, key, name):
         verdict, _, detail = answer.partition(" ")
         if verdict == "ok" and os.path.exists(os.path.join(detail, IMPORTS[what][1])):
             return detail
-        raise RuntimeError(detail or "DroidDeck could not add %s." % name)
-    raise RuntimeError("DroidDeck did not finish adding %s." % name)
+        raise RuntimeError(detail or "DroidHost could not add %s." % name)
+    raise RuntimeError("DroidHost did not finish adding %s." % name)
 
 
 def game_folder(path):

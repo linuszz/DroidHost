@@ -81,7 +81,7 @@ static void trace_map(const char *kind, size_t n, int prot, int flags, int fd,
 
 static int target_device(int fd, struct stat *st)
 {
-    const char *value = getenv("DROIDDECK_LOW32_RDEV");
+    const char *value = getenv("DROIDHOST_LOW32_RDEV");
     char *end = NULL;
     if (!value || !*value || fd < 0) return 0;
     int saved = errno;
@@ -97,7 +97,7 @@ static int target_device(int fd, struct stat *st)
 static void *adapted_map(map_function forward, void *addr, size_t length, int prot,
                          int flags, int fd, off_t offset)
 {
-    const char *mode = getenv("DROIDDECK_LOW32_MODE");
+    const char *mode = getenv("DROIDHOST_LOW32_MODE");
     struct stat st = {0};
     if (mode && !strcmp(mode, "trace")) {
         void *p = forward(addr, length, prot, flags, fd, offset);

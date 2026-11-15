@@ -27,8 +27,8 @@ int main(void)
     zero_fd=open("/dev/zero",O_RDWR|O_CLOEXEC); assert(zero_fd>=0);
     struct stat st; assert(!fstat(zero_fd,&st)); char value[48];
     snprintf(value,sizeof(value),"%ju",(uintmax_t)st.st_rdev);
-    assert(!setenv("DROIDDECK_LOW32_RDEV",value,1));
-    assert(!setenv("DROIDDECK_LOW32_MODE","low32",1));
+    assert(!setenv("DROIDHOST_LOW32_RDEV",value,1));
+    assert(!setenv("DROIDHOST_LOW32_MODE","low32",1));
     /* Existing low-address memory must survive device mappings. */
     uint32_t *guard=mmap((void *)0x10000000,128u*1024u*1024u,PROT_READ|PROT_WRITE,
                          MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED_NOREPLACE,-1,0);
@@ -107,11 +107,11 @@ int main(void)
     }
     assert(!munmap(large,large_size));assert(!munmap(reservation,hi-lo));
     puts("PASS page-sized mapping density preserves subsequent contiguous 16MiB allocation");
-    assert(!setenv("DROIDDECK_LOW32_RDEV","999999999",1));
+    assert(!setenv("DROIDHOST_LOW32_RDEV","999999999",1));
     q=mmap((void *)0x510000000ull,4096,PROT_READ|PROT_WRITE,MAP_SHARED,zero_fd,0);
     assert(q==(void *)0x510000000ull);assert(!munmap(q,4096));
     puts("PASS mismatched device remains untouched");
-    assert(!unsetenv("DROIDDECK_LOW32_MODE"));
+    assert(!unsetenv("DROIDHOST_LOW32_MODE"));
     q=mmap((void *)0x520000000ull,4096,PROT_READ|PROT_WRITE,MAP_SHARED,zero_fd,0);
     assert(q==(void *)0x520000000ull);assert(!munmap(q,4096));
     puts("PASS opt-in disabled by default");

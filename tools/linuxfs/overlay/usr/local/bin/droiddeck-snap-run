@@ -138,7 +138,7 @@ def main(argv):
             bwrap += ["--bind", source, target]
     content = {k for k, v in (meta.get("plugs") or {}).items() if isinstance(v, dict) and v.get("interface") == "content"}
     plugs = (set(meta.get("plugs") or {}) | set(spec.get("plugs") or [])) - content | {plug for plug, _, _ in binds}
-    env["DROIDDECK_SNAP_PLUGS"] = " ".join(sorted(plugs))
+    env["DROIDHOST_SNAP_PLUGS"] = " ".join(sorted(plugs))
     bwrap += ["--bind", "/usr/local/bin/droiddeck-snapctl", "/usr/lib/snapd/snapctl"]
     bwrap += ["--chdir", os.getcwd() if os.path.isdir(os.getcwd()) else env["HOME"], "--clearenv"]
     for k, v in env.items():

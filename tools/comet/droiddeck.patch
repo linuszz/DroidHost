@@ -68,8 +68,8 @@ index 43a8180..fbbba1b 100644
 -                context.set_updated_achievements(false).await;
 -                info!("Uploaded achievements");
 +                context.set_updated_achievements(pending).await;
-+                if uploaded > 0 { eprintln!("DROIDDECK_COMET_UPLOADED:{uploaded}"); }
-+                if pending { eprintln!("DROIDDECK_COMET_PENDING"); }
++                if uploaded > 0 { eprintln!("DROIDHOST_COMET_UPLOADED:{uploaded}"); }
++                if pending { eprintln!("DROIDHOST_COMET_PENDING"); }
              }
              Err(err) => error!("Failed to read local database {:?}", err),
          }
@@ -99,7 +99,7 @@ index c1bed3b..1dda644 100644
              .await
              .expect("Failed to write achievement to database");
          context.set_updated_achievements(true).await;
-+        eprintln!("DROIDDECK_COMET_UNLOCKED:{}", serde_json::json!({
++        eprintln!("DROIDHOST_COMET_UNLOCKED:{}", serde_json::json!({
 +            "client_id": context.client_id().await,
 +            "id": achievement.achievement_key(),
 +            "name": achievement.name(),
@@ -168,7 +168,7 @@ index 109098f..8301edb 100644
      });
  
      info!("Listening on port 9977");
-+    eprintln!("DROIDDECK_COMET_READY:{}", std::process::id());
++    eprintln!("DROIDHOST_COMET_READY:{}", std::process::id());
      let socket_shutdown = cloned_shutdown.clone();
      let cloned_user_info = user_info.clone();
  

@@ -14,7 +14,7 @@ READER = ROOT / "app/src/main/cpp/waylandcomp/src/hudframes.c"
 def patch_writer():
     added = [line[1:] for line in PATCH.read_text().splitlines() if line.startswith("+") and not line.startswith("+++")]
     text = "\n".join(added)
-    start = text.index("static constexpr uint32_t k_uDroidDeckHudFramesMagic")
+    start = text.index("static constexpr uint32_t k_uDroidHostHudFramesMagic")
     end = text.index("\n}\n", text.index("static void publish_droiddeck_hud_info()", start)) + 3
     return text[start:end]
 
@@ -62,7 +62,7 @@ MAIN = r'''
 static void frame(uint64_t step) { g_now += step; droiddeck_hud_app_frame(g_now); }
 
 int main(int argc, char **argv) {
-    setenv("DROIDDECK_HUD_FRAMES", argv[1], 1);
+    setenv("DROIDHOST_HUD_FRAMES", argv[1], 1);
     assert(droiddeck_hud_frames_wanted());
     global_focus_t &focus = g_VirtualConnectorFocuses[0];
     focus.nFocusWindowPid = 4242;
@@ -127,8 +127,8 @@ class HudFramesTest(unittest.TestCase):
 
     def test_session_points_gamescope_at_the_file_the_app_reads(self):
         session = (ROOT / "tools/linuxfs/overlay/usr/local/bin/droiddeck-session").read_text()
-        self.assertIn("export DROIDDECK_HUD_FRAMES=/run/droiddeck-hud/frames", session)
-        app = (ROOT / "app/src/main/java/com/droiddeck/launcher/hud/HudFrames.kt").read_text()
+        self.assertIn("export DROIDHOST_HUD_FRAMES=/run/droiddeck-hud/frames", session)
+        app = (ROOT / "app/src/main/java/com/droidhost/launcher/hud/HudFrames.kt").read_text()
         self.assertIn('"run/droiddeck-hud/frames"', app)
 
 

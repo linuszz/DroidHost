@@ -10,7 +10,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-GAME_PREFIX = "DROIDDECK_GAME_"
+GAME_PREFIX = "DROIDHOST_GAME_"
 GAME_SPLIT_KEYS = ("TU_DEBUG", "MESA_NO_ERROR")
 CHROMIUM_FILES = {"chrome-sandbox", "chrome_100_percent.pak", "v8_context_snapshot.bin"}
 D3D9_DEFAULT_MEMORY_MB = 4096
@@ -320,7 +320,7 @@ def project_zomboid_jvm(command):
 
 
 def offline_without_anticheat(command, env):
-    if (env.get("DROIDDECK_ANTICHEAT_OFFLINE") != "1" or len(command) <= 2
+    if (env.get("DROIDHOST_ANTICHEAT_OFFLINE") != "1" or len(command) <= 2
             or command[1] != "waitforexitandrun"
             or not re.fullmatch(r"start_protected_game(?:_?x64|_?64)?\.exe",
                                 os.path.basename(command[2]), re.IGNORECASE)):
@@ -442,8 +442,8 @@ def vram_cap(env):
         cap += "; d3d9.maxAvailableMemory = {0}".format(int(value))
     own = result.get("DXVK_CONFIG", "").strip().strip(";").strip()
     result["DXVK_CONFIG"] = cap + "; " + own if own else cap
-    result["DROIDDECK_VRAM_CAP"] = "1"
-    result["DROIDDECK_VRAM_CAP_MB"] = value
+    result["DROIDHOST_VRAM_CAP"] = "1"
+    result["DROIDHOST_VRAM_CAP_MB"] = value
     return result
 
 
@@ -470,7 +470,7 @@ def online_cores():
 
 
 def game_cores(env):
-    text = env.get("DROIDDECK_GAME_CORES", "").strip()
+    text = env.get("DROIDHOST_GAME_CORES", "").strip()
     if not text:
         return
     cores = parse_cores(text)
@@ -531,8 +531,8 @@ def cpu_topology(env, command=()):
         if env["WINE_CPU_TOPOLOGY"]:
             env["PROTON_CPU_TOPOLOGY"] = env["WINE_CPU_TOPOLOGY"]
         return
-    picked = bool(env.get("DROIDDECK_GAME_CORES", "").strip() or env.get("BL_GAME_CPUS", "").strip())
-    fastest = env.get("DROIDDECK_FASTEST_CORES", "").strip() != "0" and game_id(env) is not None
+    picked = bool(env.get("DROIDHOST_GAME_CORES", "").strip() or env.get("BL_GAME_CPUS", "").strip())
+    fastest = env.get("DROIDHOST_FASTEST_CORES", "").strip() != "0" and game_id(env) is not None
     if not (picked or fastest):
         return
     try:
@@ -608,7 +608,7 @@ def apply_config(env, config, app_id, fixes=None):
         for name in ("VKD3D_FEATURE_LEVEL", "VKD3D_SHADER_MODEL"):
             if name not in game and name in result:
                 result.pop(name)
-                result["DROIDDECK_VKD3D_CAPS"] = "driver"
+                result["DROIDHOST_VKD3D_CAPS"] = "driver"
     return result
 
 
@@ -746,7 +746,7 @@ SSBS_LIB = "/usr/local/lib/libssbs.so"
 
 
 def force_ssbs(command, env):
-    if env.get("DROIDDECK_FORCE_SSBS", "").lower() not in ("1", "on", "true", "yes"):
+    if env.get("DROIDHOST_FORCE_SSBS", "").lower() not in ("1", "on", "true", "yes"):
         return env
     proton = os.path.dirname(command[0]) if command else ""
     if not os.path.isdir(os.path.join(proton, "files/lib/wine/aarch64-unix")):
@@ -774,7 +774,7 @@ def mark_install_scripts(command, env):
     if not scripts:
         return []
     try:
-        subprocess.run([SEED_REDISTS, root], env=dict(env, DROIDDECK_SEED_SCRIPTS="\n".join(scripts)),
+        subprocess.run([SEED_REDISTS, root], env=dict(env, DROIDHOST_SEED_SCRIPTS="\n".join(scripts)),
                        stdout=sys.stderr, timeout=60, check=False)
     except (OSError, subprocess.SubprocessError) as error:
         print("droiddeck-game-env: install scripts not marked (%s)" % error, file=sys.stderr)
@@ -1115,7 +1115,7 @@ def wait_forwarding_signals(process):
 def diagnostic_game_event(event, app_id, values=None):
     fields = ["event=" + event, "app_id=" + app_id]
     fields.extend("%s=%s" % item for item in (values or {}).items())
-    print("DROIDDECK_DIAGNOSTICS " + " ".join(fields), file=sys.stderr, flush=True)
+    print("DROIDHOST_DIAGNOSTICS " + " ".join(fields), file=sys.stderr, flush=True)
 
 
 def diagnostic_game_exit(app_id, raw_code, source=None, wrapper_status=None):
@@ -1168,14 +1168,14 @@ class SystemGraphicsError(ValueError):
 
 def system_graphics_launch(command, env):
     """Use the APK's PowerVR compatibility files only for actual Proton game launches."""
-    runtime = env.get("DROIDDECK_POWERVR_RUNTIME")
+    runtime = env.get("DROIDHOST_POWERVR_RUNTIME")
     if not runtime or not game_id(env) or len(command) < 3 or command[1] != "waitforexitandrun":
         return command, env
     directory = Path(runtime)
     if not directory.is_absolute():
         raise SystemGraphicsError("system Vulkan runtime path is not absolute")
     # run-proton.py picks the same payload by name; Xclipse needs a DXVK within 128 bytes of push data.
-    payload = env.get("DROIDDECK_HYBRIS_DXVK") or "dxvk"
+    payload = env.get("DROIDHOST_HYBRIS_DXVK") or "dxvk"
     if not payload.startswith("dxvk") or "/" in payload:
         raise SystemGraphicsError("invalid DXVK payload name: %s" % payload)
     required = (
@@ -1195,11 +1195,11 @@ def system_graphics_launch(command, env):
     except OSError as error:
         raise SystemGraphicsError("system Vulkan component is unreadable: %s" % error) from error
     result = dict(env)
-    layers = "VK_LAYER_window_system_integration:" + env.get("DROIDDECK_HYBRIS_LAYERS", "VK_LAYER_HYBRIS_compat")
+    layers = "VK_LAYER_window_system_integration:" + env.get("DROIDHOST_HYBRIS_LAYERS", "VK_LAYER_HYBRIS_compat")
     result.update({
         "HYBRIS_BC_TEXTURES": "dxvk",
         "VK_LAYER_PATH": ":".join(filter(None, (str(directory / "wsi"), str(directory / "lib"),
-                                                env.get("DROIDDECK_HYBRIS_LAYER_PATH")))),
+                                                env.get("DROIDHOST_HYBRIS_LAYER_PATH")))),
         "VK_INSTANCE_LAYERS": layers,
         "ENABLE_GAMESCOPE_WSI": "0",
         "VK_LOADER_LAYERS_DISABLE": "*gamescope*",
@@ -1246,7 +1246,7 @@ def game_logs(command, env, app_id, now=None):
             "proton: %s" % command[0],
             "started: %s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(now)),
         ] + ["%s=%s" % (key, env[key]) for key in sorted(env)
-             if key.startswith(("VK_", "BL_VK", "BL_DRM", "BL_OPEN", "MESA_", "PANVK", "DXVK_", "VKD3D", "ZINK", "TU_", "DROIDDECK_VKD3D"))]) + "\n")
+             if key.startswith(("VK_", "BL_VK", "BL_DRM", "BL_OPEN", "MESA_", "PANVK", "DXVK_", "VKD3D", "ZINK", "TU_", "DROIDHOST_VKD3D"))]) + "\n")
     except OSError:
         pass
     # Whether the game's sound reaches PulseAudio: the streams 20 s and 60 s in, without waiting.
@@ -1321,7 +1321,7 @@ def main():
         digest = scripts_digest(scripts) if scripts else None
     except OSError:
         digest = None
-    diagnostic_app_id = app_id if waiting and os.environ.get("DROIDDECK_ENHANCED_DIAGNOSTICS") == "1" else None
+    diagnostic_app_id = app_id if waiting and os.environ.get("DROIDHOST_ENHANCED_DIAGNOSTICS") == "1" else None
     dirt_prefix = None
     if app_id:
         gl_default = gl_vsync(env)

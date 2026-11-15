@@ -19,7 +19,7 @@ VERSION = '20261012-a850exp1'
 SOURCE = 'https://github.com/Droid-Deck/DroidDeck/issues/342'
 README = f'''# Adreno 850 community experimental
 
-Manual opt-in experiment for DroidDeck; not native Adreno 850 support.
+Manual opt-in experiment for DroidHost; not native Adreno 850 support.
 Source: community attachments to {SOURCE}
 Android original: AdrenoTools-A850-experimental.zip, SHA256 {ANDROID_SHA256}
 Linux original: A850-experimental.zip, SHA256 {LINUX_SHA256}
@@ -120,7 +120,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--android', type=Path, required=True, help='Original AdrenoTools-A850-experimental.zip')
     parser.add_argument('--linux', type=Path, required=True, help='Original A850-experimental.zip')
-    parser.add_argument('--output', type=Path, required=True, help='Destination DroidDeck DriverBundle zip')
+    parser.add_argument('--output', type=Path, required=True, help='Destination DroidHost DriverBundle zip')
     args = parser.parse_args()
     try:
         result = prepare_bundle(args.android, args.linux, args.output)

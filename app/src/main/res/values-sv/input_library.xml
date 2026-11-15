@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Skicka handkontrollens inmatning till Steam Input eller spelet.</string>
     <string name="input_disabled_hint">Det här elementet skickar ingen inmatning från handkontroll, mus eller tangentbord.</string>
     <string name="input_mouse_click">Musklick</string>
-    <string name="input_command">DroidDeck-åtgärd</string>
+    <string name="input_command">DroidHost-åtgärd</string>
     <string name="input_action">Åtgärd</string>
     <string name="input_scroll_speed">Rullningshastighet: %1$d steg/s</string>
     <string name="input_new_profile">+ Ny profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Musstyrplattesgester</string>
     <string name="input_mouse_gestures_hint">När tilldelad muspekaren: tryck för att klicka, håll för att dra och rulla med två fingrar.</string>
     <string name="input_quick_override_hint">%1$s har en åsidosättning av snabbmenyn. Välj Auto där för att använda standardprofilen och alla tre sparade delarna.</string>
-    <string name="input_route_local">DroidDeck-inmatning</string>
-    <string name="input_axis_action_hint" formatted="false">Hålls medan spaken rörs i valfri riktning: tryck över 55 %, släpp under 35 %. Använd Riktningstangenter för att tilldela varje riktning separat. DroidDeck-kommandon körs en gång per utslag. Spakens klick konfigureras separat.</string>
-    <string name="input_contact_action_hint">Hålls medan du rör styrplattan; släpps när du lyfter fingret. DroidDeck-kommandon körs en gång per beröring. Styrplattans klick konfigureras separat.</string>
-    <string name="input_trigger_action_hint" formatted="false">Hålls när avtryckaren passerar 55 %; släpps under 35 %. DroidDeck-kommandon körs en gång per tryck.</string>
+    <string name="input_route_local">DroidHost-inmatning</string>
+    <string name="input_axis_action_hint" formatted="false">Hålls medan spaken rörs i valfri riktning: tryck över 55 %, släpp under 35 %. Använd Riktningstangenter för att tilldela varje riktning separat. DroidHost-kommandon körs en gång per utslag. Spakens klick konfigureras separat.</string>
+    <string name="input_contact_action_hint">Hålls medan du rör styrplattan; släpps när du lyfter fingret. DroidHost-kommandon körs en gång per beröring. Styrplattans klick konfigureras separat.</string>
+    <string name="input_trigger_action_hint" formatted="false">Hålls när avtryckaren passerar 55 %; släpps under 35 %. DroidHost-kommandon körs en gång per tryck.</string>
     <string name="input_scroll_axis">Rullningsriktning</string>
     <string name="input_vertical">Lodrätt</string>
     <string name="input_horizontal">Vågrätt</string>
     <string name="input_scroll_horizontal">Rulla vågrätt</string>
     <string name="input_measurements">Mätningar</string>
-    <string name="input_measure_instructions">Slå på inspelning, använd styrningen i en pågående session och kom tillbaka och läs resultaten. Mäter bara DroidDecks sändningstid, inte skärmfördröjning. Inspelningen avslutas när appens process stängs.</string>
+    <string name="input_measure_instructions">Slå på inspelning, använd styrningen i en pågående session och kom tillbaka och läs resultaten. Mäter bara DroidHosts sändningstid, inte skärmfördröjning. Inspelningen avslutas när appens process stängs.</string>
     <string name="input_layout_count">%1$d styrningar</string>
     <string name="input_other_layouts">Andra sparade layouter (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Dölj andra sparade layouter (%1$d) ▴</string>

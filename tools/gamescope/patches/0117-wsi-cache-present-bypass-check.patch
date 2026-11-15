@@ -19,7 +19,7 @@
 +
 +    static uint64_t presentBypassIntervalNs() {
 +      static const uint64_t interval = [] {
-+        const char *v = getenv("DROIDDECK_WSI_BYPASS_CHECK_MS");
++        const char *v = getenv("DROIDHOST_WSI_BYPASS_CHECK_MS");
 +        return uint64_t(v && *v ? strtoull(v, nullptr, 10) : 0) * 1000000ull;
 +      }();
 +      return interval;

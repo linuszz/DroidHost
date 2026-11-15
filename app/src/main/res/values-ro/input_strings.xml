@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Butonul stâng al mouse-ului</string>
     <string name="input_mouse_right">Butonul drept al mouse-ului</string>
     <string name="input_mouse_middle">Butonul din mijloc al mouse-ului</string>
-    <string name="input_command_menu">Deschide meniul DroidDeck</string>
+    <string name="input_command_menu">Deschide meniul DroidHost</string>
     <string name="input_command_keyboard">Afișează tastatura</string>
     <string name="input_command_steam">Deschide meniul Steam</string>
     <string name="input_command_qam">Deschide accesul rapid Steam</string>

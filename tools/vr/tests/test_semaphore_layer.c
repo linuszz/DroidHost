@@ -175,7 +175,7 @@ static PFN_vkVoidFunction VKAPI_CALL mock_proc(VkDevice device, const char *name
 }
 
 int main(void) {
-    setenv("DROIDDECK_VR_LAYER_QUIET", "1", 1);
+    setenv("DROIDHOST_VR_LAYER_QUIET", "1", 1);
     void *dispatch = &dispatch;
     VkDevice device = (VkDevice)&dispatch;
     VkQueue queue = (VkQueue)&dispatch;

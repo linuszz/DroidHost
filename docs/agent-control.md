@@ -1,6 +1,6 @@
 # Agent control
 
-`tools/droiddeckctl` drives DroidDeck on a real device over ADB, for agents and scripts that test
+`tools/droiddeckctl` drives DroidHost on a real device over ADB, for agents and scripts that test
 the app end to end: start and stop sessions, launch and quit Steam games, wait for a game to have
 focus, send input, inspect the app's UI and gamescope's windows, run commands inside the session,
 and collect logs, screenshots and recordings. `tools/droiddeck-scenario` repeats a scripted test
@@ -8,12 +8,12 @@ and reports every run.
 
 ## How it works
 
-- **The provider** `content://com.droiddeck.launcher.agent` (`agent/AgentBridgeProvider.kt`)
+- **The provider** `content://com.droidhost.launcher.agent` (`agent/AgentBridgeProvider.kt`)
   answers each command with JSON. It and the session-start Activity (`AgentStartActivity`) are in
   every build and require `android.permission.DUMP`, held by the ADB shell and privileged or
   explicitly granted callers. The provider checks the calling permission before decoding requests.
   A build shipped under another package (`tools/release/variants.txt`) answers at
-  `content://<package>.agent`: set `DROIDDECK_PACKAGE` to that package for `droiddeckctl`.
+  `content://<package>.agent`: set `DROIDHOST_PACKAGE` to that package for `droiddeckctl`.
 - **The guest agent** `droiddeck-agent` runs inside every session (started by
   `droiddeck-session`). It runs commands with the session's own environment, publishes gamescope's
   focus, and talks to the Steam client's DevTools, which only accepts guest processes. The app and

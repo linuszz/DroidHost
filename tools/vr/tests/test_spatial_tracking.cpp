@@ -185,7 +185,7 @@ int main() {
     char path[] = "/tmp/droiddeck-spatial-XXXXXX";
     int fd = mkstemp(path); assert(fd >= 0);
     droiddeck_spatialpose out{}, s{};
-    s.magic = DROIDDECK_SPATIALPOSE_MAGIC; s.version = DROIDDECK_SPATIALPOSE_VERSION; s.size = sizeof(s);
+    s.magic = DROIDHOST_SPATIALPOSE_MAGIC; s.version = DROIDHOST_SPATIALPOSE_VERSION; s.size = sizeof(s);
     s.head = {1000000000LL, {1,2,3}, {0,0,0,1}, DD_SPATIAL_VALID};
     s.hands[0].pose = s.head; s.hands[0].pose.time_ns -= 50000000;
     {
@@ -201,7 +201,7 @@ int main() {
         s.version = 1; assert(pwrite(fd, &s, sizeof(s), 0) == sizeof(s)); assert(!reader.Read(&out));
         s.version = 2; assert(pwrite(fd, &s, sizeof(s), 0) == sizeof(s)); assert(!reader.Read(&out));
         s.input_epochs = 0x04030201;
-        s.version = DROIDDECK_SPATIALPOSE_VERSION; s.head.time_ns += 90000000; assert(pwrite(fd, &s, sizeof(s), 0) == sizeof(s)); assert(reader.Read(&out));
+        s.version = DROIDHOST_SPATIALPOSE_VERSION; s.head.time_ns += 90000000; assert(pwrite(fd, &s, sizeof(s), 0) == sizeof(s)); assert(reader.Read(&out));
         assert(SpatialFresh(out.head, 1190000000)); assert(!SpatialFresh(out.head,1190000001));
         assert(out.hands[0].pose.time_ns == 950000000);
         assert(out.input_epochs == 0x04030201);

@@ -20,12 +20,12 @@ if [ ${#wanted[@]} -eq 0 ] && [ "$have_sources" = 0 ]; then
   echo "$runtime" > "$state/restored"
   exit 0
 fi
-notify() { notify-send -a DroidDeck -i system-software-update "$@" 2>/dev/null; }
+notify() { notify-send -a DroidHost -i system-software-update "$@" 2>/dev/null; }
 notify "$(droiddeck-text desktop_restore_title)" "$(droiddeck-text desktop_restore_body)"
 {
   date
   ok=1
-  DROIDDECK_APT_RESTORING=1 /usr/local/bin/sudo /bin/bash -s "$state" <<'ROOT' || ok=0
+  DROIDHOST_APT_RESTORING=1 /usr/local/bin/sudo /bin/bash -s "$state" <<'ROOT' || ok=0
 state=$1
 mapfile -t wanted < <(grep -v '^$' "$state/packages.txt" 2>/dev/null)
 for f in "$state"/sources/*; do

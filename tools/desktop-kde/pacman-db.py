@@ -245,13 +245,13 @@ def main():
     with open(os.path.join(share, "hooks", "droiddeck-system.hook"), "w") as out:
         out.write("[Trigger]\nOperation = Upgrade\nOperation = Remove\nType = Package\n")
         out.write("".join(f"Target = {n}\n" for n in sorted(system)))
-        out.write("\n[Action]\nDescription = Keeping the packages DroidDeck installed...\nWhen = PreTransaction\n"
+        out.write("\n[Action]\nDescription = Keeping the packages DroidHost installed...\nWhen = PreTransaction\n"
                   "Exec = /usr/share/droiddeck/pacman/refuse\nNeedsTargets\nAbortOnFail\n")
     server = f"{RELEASES}/{tag}" if tag else f"{RELEASES}/unpublished"
     template = open(os.path.join(here, "pacman.conf.in")).read()
     with open(os.path.join(share, "pacman.conf"), "w") as out:
         out.write(template.replace("@SERVER@", server).replace("@ALARM@", ALARM))
-    print(f"pacman: repository {server}, {len(available)} packages ({len(system)} installed by DroidDeck)")
+    print(f"pacman: repository {server}, {len(available)} packages ({len(system)} installed by DroidHost)")
 
 
 if __name__ == "__main__":

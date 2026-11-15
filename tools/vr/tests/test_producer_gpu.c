@@ -32,8 +32,8 @@ static void check_pixels(const uint32_t *pixels, uint32_t expected) {
 }
 
 int main(void) {
-    setenv("DROIDDECK_VR_LAYER_QUIET", "1", 1);
-    VkApplicationInfo application = {VK_STRUCTURE_TYPE_APPLICATION_INFO, NULL, "DroidDeck producer GPU test", 1, NULL, 0, VK_API_VERSION_1_2};
+    setenv("DROIDHOST_VR_LAYER_QUIET", "1", 1);
+    VkApplicationInfo application = {VK_STRUCTURE_TYPE_APPLICATION_INFO, NULL, "DroidHost producer GPU test", 1, NULL, 0, VK_API_VERSION_1_2};
     VkInstanceCreateInfo create_instance = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, NULL, 0, &application, 0, NULL, 0, NULL};
     VkInstance instance;
     assert(vkCreateInstance(&create_instance, NULL, &instance) == VK_SUCCESS);

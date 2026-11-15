@@ -62,9 +62,9 @@ Added for Flatpak:
   Permission denied", `libQt5Gui.so.5` in ONLYOFFICE's Flatpak). The filter traces `mprotect` only
   for that exact request, and a denied one answers success: the stack stays non-executable, as
   Android keeps it anyway, and objects that only carry the flag load.
-Added by DroidDeck:
+Added by DroidHost:
 
-- `0011-kompat-utsname-only.patch` - `--kernel-release` (the guest's `DroidDeck` hostname) loads
+- `0011-kompat-utsname-only.patch` - `--kernel-release` (the guest's `DroidHost` hostname) loads
   kompat, whose filter traps `futex`, `fcntl`, `epoll_pwait`, `pselect6`, `pipe2`, `eventfd2`,
   `socket` and more, and which strips `AT_SYSINFO_EHDR` on every `execve`, so glibc runs without
   the vDSO. When the virtual release is not older than the real kernel and the hwcap is left

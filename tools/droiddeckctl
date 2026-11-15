@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Control a DroidDeck build over ADB (docs/agent-control.md)."""
+"""Control a DroidHost build over ADB (docs/agent-control.md)."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from adb_device import DeviceResolutionError, resolve_serial
 from proot_profile import report as proot_profile_report
 
 
-PACKAGE = os.environ.get("DROIDDECK_PACKAGE", "com.droiddeck.launcher")
+PACKAGE = os.environ.get("DROIDHOST_PACKAGE") or os.environ.get("DROIDDECK_PACKAGE") or "com.droidhost.launcher"
 AUTHORITY = f"content://{PACKAGE}.agent"
 PACKAGE_NAME = re.compile(r"[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+")
 STEAM_CLIENT_APP = 769
@@ -104,7 +104,7 @@ def receiver_call(adb: str, serial: str, method: str, arg: str | None, request: 
     # Its receiver is registered by the running app; a broadcast does not start the app the way `content call` does
     running = run_adb(adb, serial, "shell", f"pidof {PACKAGE}", timeout=30)
     if not running.stdout.decode(errors="replace").strip():
-        raise ControlError(f"{PACKAGE} is not running and this shell has no `content` command to start it; open DroidDeck once", "APP_NOT_RUNNING")
+        raise ControlError(f"{PACKAGE} is not running and this shell has no `content` command to start it; open DroidHost once", "APP_NOT_RUNNING")
     call_id = uuid.uuid4().hex[:16]
     remote = f"/sdcard/Android/data/{PACKAGE}/files/agent-calls/{call_id}.json"
     command = ["shell", "am", "broadcast", "-a", f"{PACKAGE}.AGENT_CALL", "-p", PACKAGE,
@@ -162,7 +162,7 @@ def start_agent_activity(adb: str, serial: str, request: dict) -> None:
         "start",
         "-W",
         "-n",
-        f"{PACKAGE}/com.droiddeck.launcher.agent.AgentStartActivity",
+        f"{PACKAGE}/com.droidhost.launcher.agent.AgentStartActivity",
         "--es",
         "request",
         encoded,
@@ -172,7 +172,7 @@ def start_agent_activity(adb: str, serial: str, request: dict) -> None:
     if result.returncode != 0 or "status: ok" not in output.lower():
         raise ControlError(output.strip() or "The agent start Activity did not launch", "ACTIVITY_START_FAILED")
     if "activity not started" in output.lower():
-        raise ControlError("Android handed the start request to an existing DroidDeck task instead of starting it: "
+        raise ControlError("Android handed the start request to an existing DroidHost task instead of starting it: "
                            + output.strip(), "ACTIVITY_START_FAILED")
 
 
@@ -398,7 +398,7 @@ def pacing(adb: str, serial: str, seconds: float) -> dict:
         raise ControlError("could not turn SurfaceFlinger timestats off", "PACING_FAILED")
     summary = pacing_summary(dump.stdout.decode(errors="replace"))
     if not summary["layers"] or not summary["frames"]:
-        raise ControlError("No DroidDeck layer drew during the capture: is a session on screen?", "NO_FRAMES")
+        raise ControlError("No DroidHost layer drew during the capture: is a session on screen?", "NO_FRAMES")
     summary["fpsOnScreen"] = round(summary["frames"] / elapsed, 1)
     return {"ok": True, "command": "pacing", "seconds": round(elapsed, 1), **summary}
 
@@ -1231,7 +1231,7 @@ def main(argv: list[str] | None = None) -> int:
     serial = None
     try:
         if not PACKAGE_NAME.fullmatch(PACKAGE):
-            raise ControlError(f"DROIDDECK_PACKAGE is not an Android package name: {PACKAGE!r}", "INVALID_REQUEST")
+            raise ControlError(f"DROIDHOST_PACKAGE is not an Android package name: {PACKAGE!r}", "INVALID_REQUEST")
         if args.command == "proot-profile" and args.profile_op == "report":
             if args.limit < 1:
                 raise ControlError("--limit must be positive", "INVALID_ARGUMENTS")

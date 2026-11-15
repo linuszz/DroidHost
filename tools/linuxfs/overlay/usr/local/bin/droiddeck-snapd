@@ -503,7 +503,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if m:
             return self.error(400, "changes cannot be aborted")
         if path in ("/v2/login", "/v2/logout", "/v2/snapctl"):
-            return self.error(400, "not supported by DroidDeck's snap service")
+            return self.error(400, "not supported by DroidHost's snap service")
         return self.error(404, f"not found: {path}")
 
     def do_PUT(self):

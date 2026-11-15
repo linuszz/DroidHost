@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 
-#define DROIDDECK_VR_CONTROLLERS_FILE "droiddeck-vr-controllers"
+#define DROIDHOST_VR_CONTROLLERS_FILE "droiddeck-vr-controllers"
 
 enum class PadProfile { Off, Index, Touch, Vive };
 

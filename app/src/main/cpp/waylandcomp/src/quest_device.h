@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_QUEST_DEVICE_H
-#define DROIDDECK_QUEST_DEVICE_H
+#ifndef DROIDHOST_QUEST_DEVICE_H
+#define DROIDHOST_QUEST_DEVICE_H
 #include <string.h>
 #include <strings.h>
 

@@ -32,7 +32,7 @@ def sha256(path):
 def download(package, cache):
     archive = cache / package['archive']
     if not archive.exists():
-        request = urllib.request.Request(package['url'], headers={'User-Agent': 'DroidDeckXR-UVC-Build'})
+        request = urllib.request.Request(package['url'], headers={'User-Agent': 'DroidHostXR-UVC-Build'})
         with urllib.request.urlopen(request, timeout=60) as response:
             payload = response.read()
         if hashlib.sha256(payload).hexdigest() != package['sha256']:

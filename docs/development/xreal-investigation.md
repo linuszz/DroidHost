@@ -1,6 +1,6 @@
 # XREAL 1S / One Pro feasibility — 2026-10-14
 
-The user owns XREAL 1S and also wants One Pro support. Supporting these in DroidDeck
+The user owns XREAL 1S and also wants One Pro support. Supporting these in DroidHost
 is feasible based on existing open drivers, but the supplied Monado Air driver is
 not their transport. The initial investigation below preceded implementation.
 An experimental native 1S driver is now enabled; see the hardware validation
@@ -46,7 +46,7 @@ The source check confirms a practical path for both requested models. It does no
 establish that this Samsung phone exposes the glasses' USB Ethernet interface to
 ordinary Android apps, or establish the physical tracking axes on this hardware.
 
-## DroidDeck integration path
+## DroidHost integration path
 
 1. Attach the 1S and inspect its USB descriptors, presentation display identity,
    Ethernet network/link properties and whether the IMU endpoint is reachable.
@@ -60,7 +60,7 @@ ordinary Android apps, or establish the physical tracking axes on this hardware.
 4. Establish gyro units, timestamp deltas and axis mapping using stationary,
    directed yaw, pitch and roll captures. Route the validated fused pose through
    the same glasses/HeadTracker/SteamVR pipeline as VITURE and RayNeo. Avoid layering
-   DroidDeck tracking on top of the glasses' own anchor/stabilization.
+   DroidHost tracking on top of the glasses' own anchor/stabilization.
 5. Gate brightness and automatic stereo switching separately on a verified control
    protocol. IMU streaming alone does not justify showing those controls as working.
 6. Test malformed/fragmented/coalesced records, missing network, timeout/reconnect,
@@ -93,7 +93,7 @@ TCP IMU reader above:
   and display-to-IMU transforms. Its example subtracts the factory biases, fuses
   gyro/acceleration and applies the display rotation. This is preferable to
   guessing a fixed mounting angle, but the example's frame convention still
-  needs conversion and directed-motion verification in DroidDeck.
+  needs conversion and directed-motion verification in DroidHost.
 * `27 1c` sets brightness 0–9; `27 27` sets dimming; `28 22` selects regular/SBS
   input; `27 5e/5f` reads/sets display configuration; `28 a6/a7` reads/sets EIS.
   Documented display configurations are 1920×1080 at 60/90/120 Hz and 3840×1080
@@ -108,7 +108,7 @@ TCP IMU reader above:
   there is a protocol-family inference, not hardware validation.
 
 No license file or Cargo license declaration was found in this inspected xr-tools
-revision. No implementation was copied into DroidDeck. Use protocol observations
+revision. No implementation was copied into DroidHost. Use protocol observations
 for an independently written adapter, or resolve source licensing before a port.
 The MIT TCP driver and GPL XRLinuxDriver remain explicitly licensed references.
 
@@ -173,7 +173,7 @@ Decision: retain both candidates. Before choosing the official native-library
 route, establish non-Unity initialization, head-pose access, ControlGlasses
 compatibility, display-surface ownership and distribution terms. Before choosing
 direct TCP, establish the Android network link and 1S protocol behavior. Compare
-both against DroidDeck's existing compositor instead of replacing its rendering
+both against DroidHost's existing compositor instead of replacing its rendering
 architecture merely to fit the SDK's Unity sample.
 
 ## Native 1S implementation and hardware validation

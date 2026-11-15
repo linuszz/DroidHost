@@ -1,4 +1,4 @@
-// Ported to WinNative and DroidDeck by @maxjivi05 from Camille LaVey / the Eden Emulator Project (GPL-3.0-or-later).
+// Ported to WinNative and DroidHost by @maxjivi05 from Camille LaVey / the Eden Emulator Project (GPL-3.0-or-later).
 // DXVK's translator is zlib licensed; vendored under cpp/thirdparty/dxbc.
 
 #include "lsfg_dxbc.h"

@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">कंट्रोलर इनपुट Steam Input या गेम को भेजें।</string>
     <string name="input_disabled_hint">यह तत्व कंट्रोलर, माउस या कीबोर्ड इनपुट नहीं भेजता।</string>
     <string name="input_mouse_click">माउस क्लिक</string>
-    <string name="input_command">DroidDeck क्रिया</string>
+    <string name="input_command">DroidHost क्रिया</string>
     <string name="input_action">क्रिया</string>
     <string name="input_scroll_speed">स्क्रॉल गति: %1$d चरण/से</string>
     <string name="input_new_profile">+ नया प्रोफ़ाइल</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">माउस टचपैड इशारे</string>
     <string name="input_mouse_gestures_hint">माउस पॉइंटर पर असाइन होने पर: क्लिक के लिए टैप करें, खींचने के लिए दबाए रखें, और दो उँगलियों से स्क्रॉल करें।</string>
     <string name="input_quick_override_hint">%1$s में क्विक-मेन्यू ओवरराइड है। वहाँ Auto चुनें ताकि उसका डिफ़ॉल्ट प्रोफ़ाइल और तीनों सहेजे भाग उपयोग हों।</string>
-    <string name="input_route_local">DroidDeck इनपुट</string>
-    <string name="input_axis_action_hint" formatted="false">स्टिक को किसी भी दिशा में हिलाने पर दबा रहता है: 55% से ऊपर दबाएँ, 35% से नीचे छोड़ें। प्रत्येक दिशा अलग असाइन करने के लिए दिशा कुंजियाँ उपयोग करें। DroidDeck क्रियाएँ प्रति झुकाव एक बार चलती हैं। स्टिक क्लिक अलग से सेट होता है।</string>
-    <string name="input_contact_action_hint">टचपैड छूने पर दबा रहता है; उँगली उठाने पर छूटता है। DroidDeck क्रियाएँ प्रति स्पर्श एक बार चलती हैं। टचपैड क्लिक अलग से सेट होता है।</string>
-    <string name="input_trigger_action_hint" formatted="false">ट्रिगर 55% पार करने पर दबा रहता है; 35% से नीचे छूटता है। DroidDeck क्रियाएँ प्रति दबाव एक बार चलती हैं।</string>
+    <string name="input_route_local">DroidHost इनपुट</string>
+    <string name="input_axis_action_hint" formatted="false">स्टिक को किसी भी दिशा में हिलाने पर दबा रहता है: 55% से ऊपर दबाएँ, 35% से नीचे छोड़ें। प्रत्येक दिशा अलग असाइन करने के लिए दिशा कुंजियाँ उपयोग करें। DroidHost क्रियाएँ प्रति झुकाव एक बार चलती हैं। स्टिक क्लिक अलग से सेट होता है।</string>
+    <string name="input_contact_action_hint">टचपैड छूने पर दबा रहता है; उँगली उठाने पर छूटता है। DroidHost क्रियाएँ प्रति स्पर्श एक बार चलती हैं। टचपैड क्लिक अलग से सेट होता है।</string>
+    <string name="input_trigger_action_hint" formatted="false">ट्रिगर 55% पार करने पर दबा रहता है; 35% से नीचे छूटता है। DroidHost क्रियाएँ प्रति दबाव एक बार चलती हैं।</string>
     <string name="input_scroll_axis">स्क्रॉल दिशा</string>
     <string name="input_vertical">लंबवत</string>
     <string name="input_horizontal">क्षैतिज</string>
     <string name="input_scroll_horizontal">क्षैतिज स्क्रॉल करें</string>
     <string name="input_measurements">माप</string>
-    <string name="input_measure_instructions">रिकॉर्डिंग सक्षम करें, चालू सत्र में नियंत्रण उपयोग करें, फिर लौटकर परिणाम पढ़ें। केवल DroidDeck प्रेषण समय मापता है, डिस्प्ले विलंब नहीं। ऐप प्रक्रिया बंद होने पर रिकॉर्डिंग समाप्त होती है।</string>
+    <string name="input_measure_instructions">रिकॉर्डिंग सक्षम करें, चालू सत्र में नियंत्रण उपयोग करें, फिर लौटकर परिणाम पढ़ें। केवल DroidHost प्रेषण समय मापता है, डिस्प्ले विलंब नहीं। ऐप प्रक्रिया बंद होने पर रिकॉर्डिंग समाप्त होती है।</string>
     <string name="input_layout_count">%1$d नियंत्रण</string>
     <string name="input_other_layouts">अन्य सहेजे गए लेआउट (%1$d) ▾</string>
     <string name="input_hide_other_layouts">अन्य सहेजे गए लेआउट छिपाएँ (%1$d) ▴</string>

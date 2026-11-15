@@ -74,14 +74,14 @@ class GameExitDiagnosticsTest(unittest.TestCase):
              contextlib.redirect_stderr(io.StringIO()) as said:
             MODULE["start"](["/game", "arg"], {"A": "B"}, None)
         self.assertEqual(called, [("/game", ["/game", "arg"], {"A": "B"})])
-        self.assertNotIn("DROIDDECK_DIAGNOSTICS", said.getvalue())
+        self.assertNotIn("DROIDHOST_DIAGNOSTICS", said.getvalue())
 
     def test_failed_selected_launch_does_not_invent_a_start_or_exit(self):
         with mock.patch("subprocess.Popen", side_effect=FileNotFoundError("missing")), \
              contextlib.redirect_stderr(io.StringIO()) as said:
             with self.assertRaises(FileNotFoundError):
                 MODULE["start"](["/missing"], {}, None, diagnostic_app_id="42")
-        self.assertNotIn("DROIDDECK_DIAGNOSTICS", said.getvalue())
+        self.assertNotIn("DROIDHOST_DIAGNOSTICS", said.getvalue())
 
     def test_cleanup_runs_after_a_diagnostic_child(self):
         cleaned = []
@@ -121,7 +121,7 @@ class GameExitDiagnosticsTest(unittest.TestCase):
             probe.write_text("#!" + sys.executable + "\nimport sys\nsys.exit(7)\n")
             probe.chmod(0o755)
             base = dict(os.environ, HOME=directory, PATH=os.defpath,
-                        DROIDDECK_ENHANCED_DIAGNOSTICS="1")
+                        DROIDHOST_ENHANCED_DIAGNOSTICS="1")
             valid = subprocess.run(
                 [sys.executable, str(GAME_ENV), str(probe), "waitforexitandrun"],
                 env={**base, "STEAM_COMPAT_DATA_PATH": "/compatdata/42"},
@@ -140,7 +140,7 @@ class GameExitDiagnosticsTest(unittest.TestCase):
                     capture_output=True, text=True, timeout=15,
                 )
                 self.assertEqual(result.returncode, 7, result.stderr)
-                self.assertNotIn("DROIDDECK_DIAGNOSTICS", result.stderr)
+                self.assertNotIn("DROIDHOST_DIAGNOSTICS", result.stderr)
 
     def test_main_records_xbox_result_without_changing_it(self):
         launch = lambda command, env: 23
@@ -149,7 +149,7 @@ class GameExitDiagnosticsTest(unittest.TestCase):
                  "HOME": directory,
                  "PATH": os.defpath,
                  "STEAM_COMPAT_DATA_PATH": "/compatdata/42",
-                 "DROIDDECK_ENHANCED_DIAGNOSTICS": "1",
+                 "DROIDHOST_ENHANCED_DIAGNOSTICS": "1",
              }, clear=True), \
              mock.patch("sys.argv", ["droiddeck-game-env", "/proton", "waitforexitandrun", "game.exe"]), \
              mock.patch("runpy.run_path", return_value={"launch": launch}), \
@@ -169,7 +169,7 @@ class GameExitDiagnosticsTest(unittest.TestCase):
                  "HOME": directory,
                  "PATH": os.defpath,
                  "STEAM_COMPAT_DATA_PATH": "/compatdata/42",
-                 "DROIDDECK_ENHANCED_DIAGNOSTICS": "1",
+                 "DROIDHOST_ENHANCED_DIAGNOSTICS": "1",
              }, clear=True), \
              mock.patch("sys.argv", ["droiddeck-game-env", "/proton", "waitforexitandrun", "game.exe"]), \
              mock.patch("runpy.run_path", return_value={"launch": launch}), \

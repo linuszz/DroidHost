@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-#ifndef DROIDDECK_QUEST_KGSL_COMPAT_H
-#define DROIDDECK_QUEST_KGSL_COMPAT_H
+#ifndef DROIDHOST_QUEST_KGSL_COMPAT_H
+#define DROIDHOST_QUEST_KGSL_COMPAT_H
 
 #ifndef __user
 #define __user

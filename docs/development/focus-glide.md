@@ -5,7 +5,7 @@ the outline; jumps over 360 dp collapse it into a ball before expanding at the
 destination. Rapid repeats keep the faster outline movement. Disabling animations
 places the outline directly at the focused control.
 
-`DroidDeckTheme` supplies the host for standalone Compose interfaces. Custom
+`DroidHostTheme` supplies the host for standalone Compose interfaces. Custom
 controls use `glideBorder` with their focus interaction state. Material controls
 use `Modifier.focusGlide(shape)` before their focus target. Match the control's
 shape, and keep existing selection borders separate from the focus outline.

@@ -1152,7 +1152,7 @@ class BundleTest(unittest.TestCase):
         self.assertEqual(env["SYNC_BUNDLE_TAG"], "droiddeck-esync-index")
         self.assertRegex(env["SYNC_BUNDLE_ASSET"], r"^bundle-[0-9]{8}-[0-9]{6}\.tzst$")
         self.assertRegex(env["SYNC_BUNDLE_SHA256"], r"^[0-9a-f]{64}$")
-        packs = (self.ROOT / "app/src/main/java/com/droiddeck/launcher/session/EsyncPacks.kt").read_text()
+        packs = (self.ROOT / "app/src/main/java/com/droidhost/launcher/session/EsyncPacks.kt").read_text()
         self.assertIn(f'const val REPO = "{env["SYNC_BUNDLE_REPO"]}"', packs)
         self.assertIn('releases/download/{}/index.json"'.format(env["SYNC_BUNDLE_TAG"]), packs)
 

@@ -1,5 +1,5 @@
 /*
- * VK_LAYER_DROIDDECK_xclipse: workarounds for Samsung's Xclipse driver loaded through libhybris.
+ * VK_LAYER_DROIDHOST_xclipse: workarounds for Samsung's Xclipse driver loaded through libhybris.
  *
  * 1. bionic environ. A glibc process never initializes bionic's `environ`; the driver's
  *    AMD-derived shader compiler walks it for AMD_SC_* settings and crashed on the NULL.
@@ -484,7 +484,7 @@ EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance
 
 EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *negotiate) {
     if (!negotiate || negotiate->loaderLayerInterfaceVersion < 2) return VK_ERROR_INITIALIZATION_FAILED;
-    debug = getenv("DROIDDECK_XCLIPSE_LAYER_DEBUG") != NULL;
+    debug = getenv("DROIDHOST_XCLIPSE_LAYER_DEBUG") != NULL;
     negotiate->loaderLayerInterfaceVersion = 2;
     negotiate->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
     negotiate->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;

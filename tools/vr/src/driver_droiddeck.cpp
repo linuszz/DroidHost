@@ -50,9 +50,9 @@ using namespace droiddeck;
 namespace {
 
 const char *const kSettingsSection = "driver_droiddeck";
-const char *const kPosePath = "/run/droiddeck/" DROIDDECK_HEADPOSE_FILE;
-const char *const kJoyConPath = "/run/droiddeck/" DROIDDECK_JOYCON_FILE;
-const char *const kHandCamPath = "/run/droiddeck/" DROIDDECK_HANDCAM_FILE;
+const char *const kPosePath = "/run/droiddeck/" DROIDHOST_HEADPOSE_FILE;
+const char *const kJoyConPath = "/run/droiddeck/" DROIDHOST_JOYCON_FILE;
+const char *const kHandCamPath = "/run/droiddeck/" DROIDHOST_HANDCAM_FILE;
 const char *const kHandTraceFlag = "/run/droiddeck/droiddeck-handtrace.on";
 const char *const kHandTracePath = "/run/droiddeck/droiddeck-handtrace.csv";
 constexpr float kMinPulseMs = 30.0f;
@@ -110,7 +110,7 @@ public:
             memcpy(out, (const void *)map_, sizeof(*out));
             __atomic_thread_fence(__ATOMIC_ACQUIRE);
             if (__atomic_load_n(&map_->seq, __ATOMIC_RELAXED) == a)
-                return out->magic == DROIDDECK_HEADPOSE_MAGIC && out->version == DROIDDECK_HEADPOSE_VERSION;
+                return out->magic == DROIDHOST_HEADPOSE_MAGIC && out->version == DROIDHOST_HEADPOSE_VERSION;
         }
         return false;
     }
@@ -151,7 +151,7 @@ HmdQuaternion_t QuatFromMatrix(const float m[9]) {
 
 double VsyncPeriodSeconds();
 
-HmdMatrix34_t XrPoseMatrix(const DroidDeckXrPose &pose) {
+HmdMatrix34_t XrPoseMatrix(const DroidHostXrPose &pose) {
     const float qx = pose.orientation[0], qy = pose.orientation[1], qz = pose.orientation[2], qw = pose.orientation[3];
     HmdMatrix34_t matrix{};
     matrix.m[0][0] = 1 - 2 * (qy * qy + qz * qz); matrix.m[0][1] = 2 * (qx * qy - qw * qz); matrix.m[0][2] = 2 * (qx * qz + qw * qy);
@@ -161,7 +161,7 @@ HmdMatrix34_t XrPoseMatrix(const DroidDeckXrPose &pose) {
     return matrix;
 }
 
-HmdMatrix34_t XrEyeToHead(const DroidDeckXrPose &head, const DroidDeckXrPose &eye) {
+HmdMatrix34_t XrEyeToHead(const DroidHostXrPose &head, const DroidHostXrPose &eye) {
     HmdMatrix34_t headMatrix = XrPoseMatrix(head), eyeMatrix = XrPoseMatrix(eye), result{};
     for (int row = 0; row < 3; row++) {
         for (int column = 0; column < 3; column++)
@@ -224,7 +224,7 @@ public:
             auto next = std::chrono::steady_clock::now() + Interval();
             while (running_) {
                 auto interval = Interval();
-                DroidDeckXrTracking xr;
+                DroidHostXrTracking xr;
                 if (xrFile.Read(&xr) && XrTrackingFile::Fresh(xr)) {
                     interval = std::chrono::nanoseconds(xr.period_ns);
                     auto now = std::chrono::steady_clock::now();
@@ -261,7 +261,7 @@ double VsyncPeriodSeconds() { return Vsync::Interval().count() / 1e9; }
 
 class DirectMode : public IVRDriverDirectModeComponent {
 public:
-    void ConfigureXr(const DroidDeckXrTracking &tracking) {
+    void ConfigureXr(const DroidHostXrTracking &tracking) {
         xrWidth_ = tracking.eyes[0].width * 2; xrHeight_ = tracking.eyes[0].height;
         for (int eye = 0; eye < 2; eye++) eyeToHead_[eye] = XrEyeToHead(tracking.head, tracking.eyes[eye].pose);
     }
@@ -335,10 +335,10 @@ public:
         if (layerInFrame_++ == 0) {
             frame_.render = {};
             if (xrWidth_) {
-                frame_.render.magic = DROIDDECK_XR_FRAME_MAGIC; frame_.render.version = DROIDDECK_XR_FRAME_VERSION;
+                frame_.render.magic = DROIDHOST_XR_FRAME_MAGIC; frame_.render.version = DROIDHOST_XR_FRAME_VERSION;
                 frame_.render.width = xrWidth_; frame_.render.height = xrHeight_;
                 frame_.render.bytes = xrWidth_ * xrHeight_ * 4;
-                frame_.render.color_space = DROIDDECK_XR_COLOR_LINEAR_RGBA8;
+                frame_.render.color_space = DROIDHOST_XR_COLOR_LINEAR_RGBA8;
             }
             for (int e = 0; e < 2; e++) {
                 frame_.texture[e] = eyes[e].hTexture;
@@ -432,7 +432,7 @@ private:
         if (now < retry_) return false;
         retry_ = now + std::chrono::seconds(2);
         std::string path;
-        if (const char *env = getenv("DROIDDECK_VR_PAD_RING")) path = env;
+        if (const char *env = getenv("DROIDHOST_VR_PAD_RING")) path = env;
         if (path.empty()) {
             const char *paths = getenv("FAKE_EVDEV_MEMFD_PATHS");
             if (paths && !strncmp(paths, "0=", 2)) path.assign(paths + 2, strcspn(paths + 2, ";"));
@@ -526,7 +526,7 @@ int64_t MonotonicNs() {
 }
 
 bool JoyConLive(const droiddeck_joycon_hand &hand, int64_t nowNs) {
-    return (hand.flags & DROIDDECK_JOYCON_CONNECTED) && hand.time_ns > 0 &&
+    return (hand.flags & DROIDHOST_JOYCON_CONNECTED) && hand.time_ns > 0 &&
            nowNs - hand.time_ns < kJoyConStaleNs && hand.time_ns - nowNs < kJoyConStaleNs;
 }
 
@@ -538,7 +538,7 @@ public:
         auto props = VRProperties();
         const PropertyContainerHandle_t c = props->TrackedDeviceToPropertyContainer(id);
         props->SetStringProperty(c, Prop_ModelNumber_String, right_ ? "Knuckles Right" : "Knuckles Left");
-        props->SetStringProperty(c, Prop_ManufacturerName_String, "DroidDeck");
+        props->SetStringProperty(c, Prop_ManufacturerName_String, "DroidHost");
         props->SetStringProperty(c, Prop_TrackingSystemName_String, "droiddeck");
         props->SetStringProperty(c, Prop_RenderModelName_String, RenderModel(expectBare_.load()));
         props->SetStringProperty(c, Prop_ControllerType_String, "knuckles");
@@ -713,7 +713,7 @@ public:
             const Vec3 palm = arm_.Update(kHeadPosition, head, aligned, Length(rate), dt);
             const Vec3 moved = Rotate(turn, {hand->displacement[0], hand->displacement[1], hand->displacement[2]});
             const Vec3 inertial = Rotate(turn, {hand->inertial_velocity[0], hand->inertial_velocity[1], hand->inertial_velocity[2]});
-            const bool holding = (hand->buttons & (DROIDDECK_JOYCON_TRIGGER | DROIDDECK_JOYCON_GRIP)) != 0;
+            const bool holding = (hand->buttons & (DROIDHOST_JOYCON_TRIGGER | DROIDHOST_JOYCON_GRIP)) != 0;
             kalman_.Input(hand->time_ns - kJoyConDelayNs, inertial, Length(rate));
             const bool camera = kalman_.Ready() && kalman_.TimeNs() - kalman_.SeenNs() <= kCameraHoldNs;
             bool switched = false;
@@ -914,10 +914,10 @@ private:
     void SendInputs(const droiddeck_joycon_hand &hand, double dt) {
         const uint32_t b = hand.buttons;
         const float x = std::clamp(hand.stick[0], -1.0f, 1.0f), y = std::clamp(hand.stick[1], -1.0f, 1.0f);
-        const bool stickTouched = (b & DROIDDECK_JOYCON_STICK) || x * x + y * y > kStickTouch * kStickTouch;
-        const bool trigger = b & DROIDDECK_JOYCON_TRIGGER, grip = b & DROIDDECK_JOYCON_GRIP;
-        const bool thumb = stickTouched || (b & (DROIDDECK_JOYCON_A | DROIDDECK_JOYCON_B | DROIDDECK_JOYCON_SYSTEM)) != 0;
-        const bool system = b & DROIDDECK_JOYCON_SYSTEM, a = b & DROIDDECK_JOYCON_A, bButton = b & DROIDDECK_JOYCON_B;
+        const bool stickTouched = (b & DROIDHOST_JOYCON_STICK) || x * x + y * y > kStickTouch * kStickTouch;
+        const bool trigger = b & DROIDHOST_JOYCON_TRIGGER, grip = b & DROIDHOST_JOYCON_GRIP;
+        const bool thumb = stickTouched || (b & (DROIDHOST_JOYCON_A | DROIDHOST_JOYCON_B | DROIDHOST_JOYCON_SYSTEM)) != 0;
+        const bool system = b & DROIDHOST_JOYCON_SYSTEM, a = b & DROIDHOST_JOYCON_A, bButton = b & DROIDHOST_JOYCON_B;
         SetBool(systemClick_, system);
         SetBool(systemTouch_, system);
         SetBool(aClick_, a);
@@ -932,7 +932,7 @@ private:
         SetScalar(gripForce_, grip ? 1.0f : 0.0f);
         SetScalar(stickX_, x);
         SetScalar(stickY_, y);
-        SetBool(stickClick_, (b & DROIDDECK_JOYCON_STICK) != 0);
+        SetBool(stickClick_, (b & DROIDHOST_JOYCON_STICK) != 0);
         SetBool(stickTouch_, stickTouched);
         SetScalar(padX_, 0.0f);
         SetScalar(padY_, 0.0f);
@@ -959,7 +959,7 @@ private:
     }
 
     void SendBattery(const droiddeck_joycon_hand &hand) {
-        const bool charging = hand.flags & DROIDDECK_JOYCON_CHARGING;
+        const bool charging = hand.flags & DROIDHOST_JOYCON_CHARGING;
         if (hand.battery >= 0.0f && std::fabs(hand.battery - battery_) > 0.005f) {
             battery_ = hand.battery;
             VRProperties()->SetFloatProperty(container_, Prop_DeviceBatteryPercentage_Float, std::min(battery_, 1.0f));
@@ -1033,14 +1033,14 @@ public:
         id_ = id;
         PropertyContainerHandle_t c = VRProperties()->TrackedDeviceToPropertyContainer(id_);
         XrTrackingFile tracking;
-        DroidDeckXrTracking packet{};
+        DroidHostXrTracking packet{};
         xrMode_ = tracking.Read(&packet) && XrTrackingFile::Fresh(packet);
         const PadProfile profile = xrMode_ ? PadProfile::Touch : profile_;
         touch_ = profile == PadProfile::Touch;
         index_ = profile == PadProfile::Index;
-        const char *model = touch_ ? "DroidDeck Quest Touch" : index_ ? "DroidDeck Index Hand" : "DroidDeck Pad Hand";
+        const char *model = touch_ ? "DroidHost Quest Touch" : index_ ? "DroidHost Index Hand" : "DroidHost Pad Hand";
         VRProperties()->SetStringProperty(c, Prop_ModelNumber_String, model);
-        VRProperties()->SetStringProperty(c, Prop_ManufacturerName_String, touch_ ? "Meta" : index_ ? "Valve" : "DroidDeck");
+        VRProperties()->SetStringProperty(c, Prop_ManufacturerName_String, touch_ ? "Meta" : index_ ? "Valve" : "DroidHost");
         VRProperties()->SetStringProperty(c, Prop_TrackingSystemName_String, "droiddeck");
         VRProperties()->SetStringProperty(c, Prop_RenderModelName_String, touch_ ?
             (right_ ? "oculus_quest_plus_controller_right" : "oculus_quest_plus_controller_left") :
@@ -1112,7 +1112,7 @@ public:
             Log("%s controller inputs cleared: error=%d", right_ ? "right" : "left", int(error));
     }
 
-    void UpdateXr(const DroidDeckXrHand &hand, int64_t predicted) {
+    void UpdateXr(const DroidHostXrHand &hand, int64_t predicted) {
         if (id_ == k_unTrackedDeviceIndexInvalid) return;
         DriverPose_t pose{};
         pose.qWorldFromDriverRotation.w = pose.qDriverFromHeadRotation.w = 1;
@@ -1355,7 +1355,7 @@ public:
         if (height_ <= 0) height_ = 1080;
         float hz = VRSettings()->GetFloat(kSettingsSection, "displayFrequency");
         if (hz <= 0.0f) hz = 60.0f;
-        DroidDeckXrTracking xr;
+        DroidHostXrTracking xr;
         xrMode_ = xr_.Read(&xr) && XrTrackingFile::Fresh(xr);
         if (xrMode_) {
             width_ = xr.eyes[0].width * 2; height_ = xr.eyes[0].height;
@@ -1367,7 +1367,7 @@ public:
         if (pose_.Read(&hp) && hp.tan_half_fov > 0.0f) {
             tanHalf_ = hp.tan_half_fov;
             if (hp.eye_aspect > 0.0f) eyeAspect_ = hp.eye_aspect;
-            sentMono_ = (hp.flags & DROIDDECK_HEADPOSE_MONO) != 0;
+            sentMono_ = (hp.flags & DROIDHOST_HEADPOSE_MONO) != 0;
             renderHeight_ = hp.render_height;
             panelHeight_ = hp.eye_h;
         }
@@ -1376,8 +1376,8 @@ public:
         sentHz_ = hz;
         sentTan_ = tanHalf_;
         sentAspect_ = eyeAspect_;
-        VRProperties()->SetStringProperty(c, Prop_ModelNumber_String, xrMode_ ? "DroidDeck Quest OpenXR" : "DroidDeck Cardboard");
-        VRProperties()->SetStringProperty(c, Prop_ManufacturerName_String, "DroidDeck");
+        VRProperties()->SetStringProperty(c, Prop_ModelNumber_String, xrMode_ ? "DroidHost Quest OpenXR" : "DroidHost Cardboard");
+        VRProperties()->SetStringProperty(c, Prop_ManufacturerName_String, "DroidHost");
         VRProperties()->SetStringProperty(c, Prop_TrackingSystemName_String, "droiddeck");
         VRProperties()->SetFloatProperty(c, Prop_UserIpdMeters_Float, 0.064f);
         if (xrMode_) {
@@ -1399,7 +1399,7 @@ public:
         VRProperties()->SetBoolProperty(c, Prop_IsOnDesktop_Bool, false);
         VRProperties()->SetBoolProperty(c, Prop_DisplayDebugMode_Bool, false);
         directMode_ = VRSettings()->GetBool(kSettingsSection, "directMode");
-        const char *presentation = std::getenv("DROIDDECK_VR_PRESENT");
+        const char *presentation = std::getenv("DROIDHOST_VR_PRESENT");
         if (xrMode_ && presentation && !std::strcmp(presentation, "questwsi")) directMode_ = false;
         VRProperties()->SetBoolProperty(c, Prop_HasDriverDirectModeComponent_Bool, directMode_);
         if (directMode_) {
@@ -1453,7 +1453,7 @@ public:
         p.qWorldFromDriverRotation.w = 1;
         p.qDriverFromHeadRotation.w = 1;
         p.qRotation.w = 1;
-        DroidDeckXrTracking xr;
+        DroidHostXrTracking xr;
         bool freshXr = xr_.Read(&xr) && XrTrackingFile::Fresh(xr);
         if (freshXr || xrMode_) {
             p.deviceIsConnected = true;
@@ -1517,7 +1517,7 @@ public:
         *x = eye == Eye_Left ? 0 : (uint32_t)width_ / 2;
     }
     void GetProjectionRaw(EVREye eye, float *left, float *right, float *top, float *bottom) override {
-        DroidDeckXrTracking xr;
+        DroidHostXrTracking xr;
         if (xrMode_ && xr_.Read(&xr) && XrTrackingFile::Fresh(xr)) {
             const float *fov = xr.eyes[eye == Eye_Right ? 1 : 0].fov;
             xr_frame_projection_raw(fov, left, right, top, bottom);
@@ -1541,7 +1541,7 @@ private:
     void UpdateEye(const droiddeck_headpose &hp) {
         sentTan_ = tanHalf_ = hp.tan_half_fov;
         sentAspect_ = eyeAspect_ = hp.eye_aspect;
-        sentMono_ = (hp.flags & DROIDDECK_HEADPOSE_MONO) != 0;
+        sentMono_ = (hp.flags & DROIDHOST_HEADPOSE_MONO) != 0;
         renderHeight_ = hp.render_height;
         panelHeight_ = hp.eye_h;
         HmdRect2_t r;
@@ -1555,7 +1555,7 @@ private:
         VRServerDriverHost()->SetRecommendedRenderTargetSize(id_, w, h);
         VRServerDriverHost()->VendorSpecificEvent(id_, VREvent_LensDistortionChanged, VREvent_Data_t{}, 0.0);
         Log("eye now tan(half fov) %.3f, aspect %.3f (%ux%u eye%s), render %ux%u", tanHalf_.load(), eyeAspect_.load(), hp.eye_w, hp.eye_h,
-            (hp.flags & DROIDDECK_HEADPOSE_MONO) ? ", one eye shown" : "", w, h);
+            (hp.flags & DROIDHOST_HEADPOSE_MONO) ? ", one eye shown" : "", w, h);
     }
 
     void UpdateRate(float hz) {
@@ -1565,8 +1565,8 @@ private:
         Log("panel now %.0f Hz", hz);
     }
 
-    void PublishChaperone(const DroidDeckXrTracking &tracking) {
-        chaperone_.Update(tracking, [this](const DroidDeckXrPose &head) {
+    void PublishChaperone(const DroidHostXrTracking &tracking) {
+        chaperone_.Update(tracking, [this](const DroidHostXrPose &head) {
             char timestamp[32];
             std::time_t now = std::time(nullptr); std::tm utc{}; gmtime_r(&now, &utc);
             std::strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%SZ", &utc);
@@ -1581,14 +1581,14 @@ private:
         bool haveJoyCons = false;
         auto lastSent = std::chrono::steady_clock::now();
         while (running_) {
-            DroidDeckXrTracking xr;
+            DroidHostXrTracking xr;
             if (xrMode_) {
                 bool fresh = xr_.Read(&xr) && XrTrackingFile::Fresh(xr);
                 if (fresh) PublishChaperone(xr);
                 DriverPose_t head = GetPose();
                 VRServerDriverHost()->TrackedDevicePoseUpdated(id_, head, sizeof(head));
                 for (int hand = 0; hand < 2; hand++) if (CardboardController *pad = ActiveHand(hand)) {
-                    DroidDeckXrHand state = fresh ? xr.hands[hand] : DroidDeckXrHand{};
+                    DroidHostXrHand state = fresh ? xr.hands[hand] : DroidHostXrHand{};
                     pad->UpdateXr(state, fresh ? xr.predicted_ns : 0);
                 }
                 VRDriverInput()->UpdateBooleanComponent(proximity_, fresh, 0);
@@ -1613,11 +1613,11 @@ private:
                     lastSeq = hp.seq;
                     if (hp.eye_w > 0 && hp.tan_half_fov > 0.0f && hp.eye_aspect > 0.0f &&
                         (fabsf(hp.tan_half_fov - sentTan_) > 1e-3f || fabsf(hp.eye_aspect - sentAspect_) > 1e-3f ||
-                         ((hp.flags & DROIDDECK_HEADPOSE_MONO) != 0) != sentMono_ ||
+                         ((hp.flags & DROIDHOST_HEADPOSE_MONO) != 0) != sentMono_ ||
                          hp.render_height != renderHeight_ || hp.eye_h != panelHeight_))
                         UpdateEye(hp);
                     if (hp.display_hz >= 24.0f && fabsf(hp.display_hz - sentHz_) > 0.5f) UpdateRate(hp.display_hz);
-                    const bool worn = (hp.flags & DROIDDECK_HEADPOSE_ENABLED) != 0;
+                    const bool worn = (hp.flags & DROIDHOST_HEADPOSE_ENABLED) != 0;
                     if (worn != worn_) {
                         worn_ = worn;
                         VRDriverInput()->UpdateBooleanComponent(proximity_, worn, 0);
@@ -1654,12 +1654,12 @@ private:
                     headings_.Add(nowNs, {-std::sin(headYaw), 0.0, -std::cos(headYaw)});
                 droiddeck_handcam cam;
                 if (handCamFile_.Read(&cam)) {
-                    const bool running = (cam.flags & DROIDDECK_HANDCAM_RUNNING) != 0;
+                    const bool running = (cam.flags & DROIDHOST_HANDCAM_RUNNING) != 0;
                     if (cam.frame != lastCamFrame_) {
                         lastCamFrame_ = cam.frame;
                         if (!lumaJoyCons && !optical && running && std::llabs(nowNs - cam.time_ns) < kHandCamStaleNs) SeeCamera(cam, nowNs);
                     }
-                    bareFlag_ = running && (cam.flags & DROIDDECK_HANDCAM_BARE_HANDS);
+                    bareFlag_ = running && (cam.flags & DROIDHOST_HANDCAM_BARE_HANDS);
                     bareTimeNs_ = cam.time_ns;
                 }
                 const bool bare = !otherControllers_ && !optical && !lumaJoyCons && bareFlag_ && std::llabs(nowNs - bareTimeNs_) < kBareHandsStaleNs;
@@ -1698,7 +1698,7 @@ private:
     void SeeCamera(const droiddeck_handcam &cam, int64_t nowNs) {
         Vec3 forward;
         const bool heading = headings_.At(cam.time_ns, &forward) && Length(forward) > 0.5;
-        if ((cam.flags & DROIDDECK_HANDCAM_FACE) && heading) {
+        if ((cam.flags & DROIDHOST_HANDCAM_FACE) && heading) {
             const double dt = lastFaceNs_ ? std::max(0.0, (cam.time_ns - lastFaceNs_) * 1e-9) : 0.0;
             lastFaceNs_ = cam.time_ns;
             cameraYaw_.Add(std::atan2(-forward.x, -forward.z) - cam.face_yaw, dt);
@@ -1718,13 +1718,13 @@ private:
         const Quat turn = AboutY(yaw);
         for (int side = 0; side < 2; side++) {
             const droiddeck_handcam_hand &hand = cam.hands[side];
-            if (!(hand.flags & DROIDDECK_HANDCAM_SEEN) || !handControllers_[side]) continue;
+            if (!(hand.flags & DROIDHOST_HANDCAM_SEEN) || !handControllers_[side]) continue;
             Vec3 joints[kHandJoints];
-            const bool haveJoints = (hand.flags & DROIDDECK_HANDCAM_JOINTS) != 0;
+            const bool haveJoints = (hand.flags & DROIDHOST_HANDCAM_JOINTS) != 0;
             if (haveJoints)
                 for (int i = 0; i < kHandJoints; i++) joints[i] = Rotate(turn, {hand.joints[i][0], hand.joints[i][1], hand.joints[i][2]});
             handControllers_[side]->SeeCamera(Rotate(turn, {hand.position[0], hand.position[1], hand.position[2]}), haveJoints ? joints : nullptr,
-                                              cam.time_ns, (hand.flags & DROIDDECK_HANDCAM_ESTIMATED) != 0, nowNs);
+                                              cam.time_ns, (hand.flags & DROIDHOST_HANDCAM_ESTIMATED) != 0, nowNs);
         }
     }
 
@@ -1784,9 +1784,9 @@ private:
     std::atomic<CardboardController *> hands_[2] = {nullptr, nullptr};
     CardboardController *active_[2] = {nullptr, nullptr};
     bool padHandOff_[2] = {false, false};
-    ShmFile<droiddeck_joycon> joyConFile_{kJoyConPath, DROIDDECK_JOYCON_MAGIC, DROIDDECK_JOYCON_VERSION, "Joy-Con"};
+    ShmFile<droiddeck_joycon> joyConFile_{kJoyConPath, DROIDHOST_JOYCON_MAGIC, DROIDHOST_JOYCON_VERSION, "Joy-Con"};
     uint32_t lastJoyConSeq_ = 0;
-    ShmFile<droiddeck_handcam> handCamFile_{kHandCamPath, DROIDDECK_HANDCAM_MAGIC, DROIDDECK_HANDCAM_VERSION, "hand camera"};
+    ShmFile<droiddeck_handcam> handCamFile_{kHandCamPath, DROIDHOST_HANDCAM_MAGIC, DROIDHOST_HANDCAM_VERSION, "hand camera"};
     uint32_t lastCamFrame_ = 0;
     int64_t lastFaceNs_ = 0;
     TimeHistory headings_;
@@ -1812,7 +1812,7 @@ public:
     EVRInitError Init(IVRDriverContext *ctx) override {
         VR_INIT_SERVER_DRIVER_CONTEXT(ctx);
         focusEnabled_ = access("/run/droiddeck/droiddeck-xr-frames", F_OK) == 0;
-        Log("DroidDeck Cardboard driver loaded");
+        Log("DroidHost Cardboard driver loaded");
         if (!VRServerDriverHost()->TrackedDeviceAdded("droiddeck-cardboard-hmd", TrackedDeviceClass_HMD, &hmd_))
             Log("TrackedDeviceAdded failed");
         padsEnabled_ = VRSettings()->GetBool(kSettingsSection, "gamepadControllers");
@@ -1851,8 +1851,8 @@ public:
             if (e.eventType != VREvent_Input_HapticVibration) continue;
             const VREvent_HapticVibration_t &h = e.data.hapticVibration;
             if (!h.componentHandle) continue;
-            if (h.componentHandle == handLeft_.Haptic()) SendRumble(DROIDDECK_JOYCON_RUMBLE_SLOT, h);
-            else if (h.componentHandle == handRight_.Haptic()) SendRumble(DROIDDECK_JOYCON_RUMBLE_SLOT + 1, h);
+            if (h.componentHandle == handLeft_.Haptic()) SendRumble(DROIDHOST_JOYCON_RUMBLE_SLOT, h);
+            else if (h.componentHandle == handRight_.Haptic()) SendRumble(DROIDHOST_JOYCON_RUMBLE_SLOT + 1, h);
             else for (int p = 0; p < kPadProfiles; p++) {
                 if (!padAdded_[p] || (h.componentHandle != pads_[p][0].Haptic() && h.componentHandle != pads_[p][1].Haptic())) continue;
                 if (pads_[p][0].XrMode()) SendHaptic(h.componentHandle == pads_[p][1].Haptic() ? 1 : 0, h);
@@ -1881,18 +1881,18 @@ private:
         if (written) rename(temporary.c_str(), kFocusPath);
         else unlink(temporary.c_str());
     }
-    DroidDeckXrHaptics *haptics_ = nullptr;
+    DroidHostXrHaptics *haptics_ = nullptr;
     void SendHaptic(int hand, const VREvent_HapticVibration_t &pulse) {
         if (!std::isfinite(pulse.fAmplitude) || !std::isfinite(pulse.fFrequency) || !std::isfinite(pulse.fDurationSeconds)) return;
         if (!haptics_) {
-            int descriptor = open("/run/droiddeck/" DROIDDECK_XR_HAPTIC_FILE, O_RDWR | O_CLOEXEC);
+            int descriptor = open("/run/droiddeck/" DROIDHOST_XR_HAPTIC_FILE, O_RDWR | O_CLOEXEC);
             if (descriptor < 0) return;
             struct stat status{};
             if (fstat(descriptor, &status) != 0 || status.st_size != sizeof(*haptics_)) { close(descriptor); return; }
             void *mapping = mmap(nullptr, sizeof(*haptics_), PROT_READ | PROT_WRITE, MAP_SHARED, descriptor, 0);
             close(descriptor);
             if (mapping == MAP_FAILED) return;
-            haptics_ = static_cast<DroidDeckXrHaptics *>(mapping);
+            haptics_ = static_cast<DroidHostXrHaptics *>(mapping);
         }
         uint32_t sequence = __atomic_load_n(&haptics_->seq, __ATOMIC_RELAXED);
         __atomic_store_n(&haptics_->seq, sequence | 1u, __ATOMIC_SEQ_CST);
@@ -1905,7 +1905,7 @@ private:
         __atomic_store_n(&haptics_->seq, (sequence | 1u) + 1u, __ATOMIC_RELEASE);
     }
     void ApplyPadConfig(bool initial) {
-        const PadControllerConfig pads = read_pad_controller_config("/run/droiddeck/" DROIDDECK_VR_CONTROLLERS_FILE);
+        const PadControllerConfig pads = read_pad_controller_config("/run/droiddeck/" DROIDHOST_VR_CONTROLLERS_FILE);
         if (!initial && pads.profile == configProfile_ && pads.sticksMoveHands == configSticks_) return;
         configProfile_ = pads.profile;
         if (initial || pads.sticksMoveHands != configSticks_) hmd_.SetSticksMoveHands(pads.sticksMoveHands);

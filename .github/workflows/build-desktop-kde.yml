@@ -44,10 +44,10 @@ jobs:
         id: components-token
         if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: Droid-Deck
-          repositories: DroidDeck-Components
+          repositories: DroidHost-Components
       - name: Refuse a published tag
         if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
         env:
@@ -88,13 +88,13 @@ jobs:
           set -euo pipefail
           TAG='${{ inputs.tag }}'
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "::error::$TAG is already published in DroidDeck-Components, and published tags are never replaced: use a new tag"
+            echo "::error::$TAG is already published in DroidHost-Components, and published tags are never replaced: use a new tag"
             exit 1
           fi
           prerelease=false
           case $TAG in *-rc*) prerelease=true ;; esac
           gh release create "$TAG" --latest=false --prerelease="$prerelease" --title "$TAG" \
-            --notes "KDE Plasma desktop package for DroidDeck's Linux runtime ($GITHUB_REPOSITORY tools/desktop-kde, $GITHUB_SHA). size $(stat -c %s out/desktop-kde.tar.zst), sha256 $(cat out/desktop-kde.sha256). desktop-kde.packages.txt lists the signature-checked Arch Linux ARM packages it was built from." \
+            --notes "KDE Plasma desktop package for DroidHost's Linux runtime ($GITHUB_REPOSITORY tools/desktop-kde, $GITHUB_SHA). size $(stat -c %s out/desktop-kde.tar.zst), sha256 $(cat out/desktop-kde.sha256). desktop-kde.packages.txt lists the signature-checked Arch Linux ARM packages it was built from." \
             out/desktop-kde.tar.zst out/desktop-kde.sha256 out/desktop-kde.packages.txt out/desktop-kde.kwin.txt \
             out/desktop-kde.i18n.txt out/desktop-kde-i18n-*.tar.zst out/repo/*
           gh release edit "$TAG" --latest=false --prerelease="$prerelease"

@@ -60,7 +60,7 @@ jobs:
             local marker="<!-- droiddeck-rebuild-$now -->"
             gh api "repos/$GITHUB_REPOSITORY/issues/$number/comments?per_page=100" --jq '.[].body' | grep -qF "$marker" && return 0
             gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$number/comments" -f body="$marker
-          Main is now at versionCode $now, so this PR's test build no longer installs over current DroidDeck, and its last build is too old for GitHub to re-run. Push a commit or merge main to get a new test build." >/dev/null
+          Main is now at versionCode $now, so this PR's test build no longer installs over current DroidHost, and its last build is too old for GitHub to re-run. Push a commit or merge main to get a new test build." >/dev/null
           }
           latest() {
             gh api "repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/runs?event=pull_request&head_sha=$1&per_page=20" \

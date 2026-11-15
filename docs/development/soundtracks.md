@@ -31,7 +31,7 @@ Steam's own library cache image first, then `AlbumArtwork`, `cover`, `folder` an
 
 ## Player page
 
-The layout follows Steam's soundtrack page and uses the DroidDeck theme colors and shapes, so every theme works. Cover, title, artist and total length sit on the left with seek, shuffle, previous, play or pause, next, repeat and volume. The track list with disc headers sits on the right. Portrait stacks the two. The action buttons (game files, shortcut, edit art, uninstall) use the same wide pill style as Steam's See More button.
+The layout follows Steam's soundtrack page and uses the DroidHost theme colors and shapes, so every theme works. Cover, title, artist and total length sit on the left with seek, shuffle, previous, play or pause, next, repeat and volume. The track list with disc headers sits on the right. Portrait stacks the two. The action buttons (game files, shortcut, edit art, uninstall) use the same wide pill style as Steam's See More button.
 
 Controller: d-pad moves between buttons and rows, A confirms, B goes back, the sliders respond to left and right.
 
@@ -39,7 +39,7 @@ Shortcuts use `droiddeck://soundtrack/<appid>` and open the soundtrack page.
 
 ## Playback and Android media controls
 
-`SoundtrackService` is a media3 `MediaSessionService` with an `ExoPlayer`. It runs as a foreground service of type `mediaPlayback`, so playback keeps going when DroidDeck is closed and the notification and lock screen controls show the cover, title and artist. `SoundtrackController` connects a `MediaController` to it and exposes Compose state.
+`SoundtrackService` is a media3 `MediaSessionService` with an `ExoPlayer`. It runs as a foreground service of type `mediaPlayback`, so playback keeps going when DroidHost is closed and the notification and lock screen controls show the cover, title and artist. `SoundtrackController` connects a `MediaController` to it and exposes Compose state.
 
 Launching a game pauses the music unless Enable ingame is on (see Playing during games). Audio focus and headphone unplug are handled by ExoPlayer.
 
@@ -51,7 +51,7 @@ The player page has a Playback options button that opens a panel with:
 
 - Speed and pitch, from 0.5x to 2x in 0.05 steps, applied through ExoPlayer's playback parameters.
 - Skip silence.
-- A sleep timer for 15, 30 or 60 minutes or the end of the current track. The timer runs in `SoundtrackService`, so it still fires when DroidDeck is closed.
+- A sleep timer for 15, 30 or 60 minutes or the end of the current track. The timer runs in `SoundtrackService`, so it still fires when DroidHost is closed.
 - An equalizer with the device presets, one slider per band, and bass boost where the device supports it. The effects are attached to the player's audio session in the service.
 
 Settings are saved in `soundtrack_settings` and sent to the service whenever the controller connects. The last album, track and position are saved too, so the play button on an album resumes where it stopped. The position is saved on track changes, pauses and seeks.

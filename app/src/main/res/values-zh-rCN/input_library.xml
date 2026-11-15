@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">把柄输入发送给 Steam Input 或游戏。</string>
     <string name="input_disabled_hint">此控件不发送手柄、鼠标或键盘输入。</string>
     <string name="input_mouse_click">鼠标点击</string>
-    <string name="input_command">DroidDeck 动作</string>
+    <string name="input_command">DroidHost 动作</string>
     <string name="input_action">动作</string>
     <string name="input_scroll_speed">滚动速度：%1$d 步/秒</string>
     <string name="input_new_profile">+ 新建配置</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">鼠标触控板手势</string>
     <string name="input_mouse_gestures_hint">绑定到鼠标指针时：轻点点击、按住拖动、双指滚动。</string>
     <string name="input_quick_override_hint">%1$s 有快捷菜单覆盖。在那里选「自动」会使用它的默认配置和全部三个已保存部分。</string>
-    <string name="input_route_local">DroidDeck 输入</string>
-    <string name="input_axis_action_hint" formatted="false">摇杆朝任意方向推动期间保持：超过 55% 时按下，低于 35% 时松开。用「方向键」逐方向指定。DroidDeck 动作每次推动只执行一次。摇杆点击单独设置。</string>
-    <string name="input_contact_action_hint">按住触控板期间保持，抬手时松开。DroidDeck 动作每次触摸执行一次。触控板点击单独设置。</string>
-    <string name="input_trigger_action_hint" formatted="false">扳机超过 55% 时保持，低于 35% 时松开。DroidDeck 动作每次按下执行一次。</string>
+    <string name="input_route_local">DroidHost 输入</string>
+    <string name="input_axis_action_hint" formatted="false">摇杆朝任意方向推动期间保持：超过 55% 时按下，低于 35% 时松开。用「方向键」逐方向指定。DroidHost 动作每次推动只执行一次。摇杆点击单独设置。</string>
+    <string name="input_contact_action_hint">按住触控板期间保持，抬手时松开。DroidHost 动作每次触摸执行一次。触控板点击单独设置。</string>
+    <string name="input_trigger_action_hint" formatted="false">扳机超过 55% 时保持，低于 35% 时松开。DroidHost 动作每次按下执行一次。</string>
     <string name="input_scroll_axis">滚动方向</string>
     <string name="input_vertical">垂直</string>
     <string name="input_horizontal">水平</string>
     <string name="input_scroll_horizontal">水平滚动</string>
     <string name="input_measurements">测量</string>
-    <string name="input_measure_instructions">打开记录，在运行中的会话里使用控件，然后回来读取结果。只测 DroidDeck 的发送时间，不含显示延迟。App 进程关闭时记录结束。</string>
+    <string name="input_measure_instructions">打开记录，在运行中的会话里使用控件，然后回来读取结果。只测 DroidHost 的发送时间，不含显示延迟。App 进程关闭时记录结束。</string>
     <string name="input_layout_count">%1$d 个控件</string>
     <string name="input_other_layouts">其它已保存的布局 (%1$d) ▾</string>
     <string name="input_hide_other_layouts">隐藏其它已保存的布局 (%1$d) ▴</string>

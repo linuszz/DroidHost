@@ -19,7 +19,7 @@ BNET["CACHE"] = tempfile.mkdtemp(prefix="bnet-test-cache-")
 BNET["LOG"] = os.path.join(BNET["CACHE"], "battlenet.log")
 RUN = runpy.run_path(str(BIN / "droiddeck-proton-run"))["main"].__globals__
 STORE = runpy.run_path(str(BIN / "droiddeck-store-launch"))["main"].__globals__
-KOTLIN = REPO / "app/src/main/java/com/droiddeck/launcher/runtime/BattleNet.kt"
+KOTLIN = REPO / "app/src/main/java/com/droidhost/launcher/runtime/BattleNet.kt"
 
 
 class Temp(unittest.TestCase):
@@ -1039,10 +1039,10 @@ class LaunchTest(Harness):
                 mock.patch.dict(BNET, {"wallpaper_bmp": lambda w, h: b"BM%dx%d" % (w, h)}):
             self.assertTrue(BNET["wallpaper"](self.root))
             self.assertTrue(BNET["wallpaper"](self.root))
-        image = pfx / "drive_c/users/steamuser/AppData/Local/DroidDeck/wallpaper-160x90.bmp"
+        image = pfx / "drive_c/users/steamuser/AppData/Local/DroidHost/wallpaper-160x90.bmp"
         self.assertEqual(image.read_bytes(), b"BM160x90")
         reg = (pfx / "user.reg").read_text()
-        self.assertEqual(reg.count('"Wallpaper"="C:\\\\users\\\\steamuser\\\\AppData\\\\Local\\\\DroidDeck\\\\wallpaper-160x90.bmp"'), 1)
+        self.assertEqual(reg.count('"Wallpaper"="C:\\\\users\\\\steamuser\\\\AppData\\\\Local\\\\DroidHost\\\\wallpaper-160x90.bmp"'), 1)
         self.assertIn('[Control Panel\\\\Desktop]', reg)
         self.assertIn('"Background"="4 6 11"', reg)
         self.assertIn('"WallpaperStyle"="0"', reg)
@@ -1054,7 +1054,7 @@ class LaunchTest(Harness):
         with mock.patch.dict(os.environ, {"BL_WIDTH": "2560", "BL_HEIGHT": "1600"}), \
                 mock.patch.dict(BNET, {"wallpaper_bmp": lambda w, h: b"BM%dx%d" % (w, h)}):
             self.assertTrue(BNET["wallpaper"](self.root))
-        image = pfx / "drive_c/users/steamuser/AppData/Local/DroidDeck/wallpaper-1152x720.bmp"
+        image = pfx / "drive_c/users/steamuser/AppData/Local/DroidHost/wallpaper-1152x720.bmp"
         self.assertEqual(image.read_bytes(), b"BM1152x720")
         self.assertIn('"WallpaperStyle"="2"', (pfx / "user.reg").read_text())
 

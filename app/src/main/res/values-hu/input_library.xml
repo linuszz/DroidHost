@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Vezérlő bemenet küldése a Steam Inputnak vagy a játéknak.</string>
     <string name="input_disabled_hint">Ez az elem nem küld vezérlő-, egér- vagy billentyűzetbemenetet.</string>
     <string name="input_mouse_click">Egérkattintás</string>
-    <string name="input_command">DroidDeck művelet</string>
+    <string name="input_command">DroidHost művelet</string>
     <string name="input_action">Művelet</string>
     <string name="input_scroll_speed">Görgetési sebesség: %1$d lépés/mp</string>
     <string name="input_new_profile">+ Új profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Egér érintőfelület-gesztusok</string>
     <string name="input_mouse_gestures_hint">Ha az egérkurzorhoz van rendelve: koppintson a kattintáshoz, tartsa nyomva a húzáshoz, és két ujjal görgessen.</string>
     <string name="input_quick_override_hint">A(z) %1$s gyorsmenü-felülírással rendelkezik. Válassza ott az Automatikust, hogy az alapértelmezett profilját és mindhárom mentett részét használja.</string>
-    <string name="input_route_local">DroidDeck bemenet</string>
-    <string name="input_axis_action_hint" formatted="false">Nyomva tartva, amíg a kart bármely irányba mozgatja: nyomás 55% felett, elengedés 35% alatt. Az Iránybillentyűkkel külön rendelhető minden irány. A DroidDeck parancsok kitérésenként egyszer futnak. A kar kattintása külön állítható.</string>
-    <string name="input_contact_action_hint">Nyomva tartva az érintőfelület érintése közben; az ujj felemelésekor elengedve. A DroidDeck parancsok érintésenként egyszer futnak. Az érintőfelület kattintása külön állítható.</string>
-    <string name="input_trigger_action_hint" formatted="false">Nyomva tartva, amikor a ravasz átlépi az 55%-ot; 35% alatt elengedve. A DroidDeck parancsok nyomásonként egyszer futnak.</string>
+    <string name="input_route_local">DroidHost bemenet</string>
+    <string name="input_axis_action_hint" formatted="false">Nyomva tartva, amíg a kart bármely irányba mozgatja: nyomás 55% felett, elengedés 35% alatt. Az Iránybillentyűkkel külön rendelhető minden irány. A DroidHost parancsok kitérésenként egyszer futnak. A kar kattintása külön állítható.</string>
+    <string name="input_contact_action_hint">Nyomva tartva az érintőfelület érintése közben; az ujj felemelésekor elengedve. A DroidHost parancsok érintésenként egyszer futnak. Az érintőfelület kattintása külön állítható.</string>
+    <string name="input_trigger_action_hint" formatted="false">Nyomva tartva, amikor a ravasz átlépi az 55%-ot; 35% alatt elengedve. A DroidHost parancsok nyomásonként egyszer futnak.</string>
     <string name="input_scroll_axis">Görgetési irány</string>
     <string name="input_vertical">Függőleges</string>
     <string name="input_horizontal">Vízszintes</string>
     <string name="input_scroll_horizontal">Vízszintes görgetés</string>
     <string name="input_measurements">Mérések</string>
-    <string name="input_measure_instructions">Kapcsolja be a rögzítést, használja a vezérlőket egy futó munkamenetben, majd térjen vissza és olvassa le az eredményeket. Csak a DroidDeck küldési idejét méri, a kijelző késleltetését nem. A rögzítés az alkalmazás folyamatának bezárásakor ér véget.</string>
+    <string name="input_measure_instructions">Kapcsolja be a rögzítést, használja a vezérlőket egy futó munkamenetben, majd térjen vissza és olvassa le az eredményeket. Csak a DroidHost küldési idejét méri, a kijelző késleltetését nem. A rögzítés az alkalmazás folyamatának bezárásakor ér véget.</string>
     <string name="input_layout_count">%1$d vezérlő</string>
     <string name="input_other_layouts">Egyéb mentett elrendezések (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Egyéb mentett elrendezések elrejtése (%1$d) ▴</string>

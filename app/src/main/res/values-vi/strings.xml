@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="steamvr_recovery_title">Đồ họa SteamVR đã dừng</string>
-    <string name="steamvr_recovery_countdown">DroidDeck sẽ khởi động lại sau %1$d giây để đặt lại đồ họa và mở lại SteamVR. Game đang chạy sẽ bị đóng; tiến trình chưa lưu sẽ không thể khôi phục.</string>
+    <string name="steamvr_recovery_countdown">DroidHost sẽ khởi động lại sau %1$d giây để đặt lại đồ họa và mở lại SteamVR. Game đang chạy sẽ bị đóng; tiến trình chưa lưu sẽ không thể khôi phục.</string>
     <string name="steamvr_recovery_repeated">Lỗi đồ họa lại xuất hiện sau lần khởi động lại gần đây. Tự động khôi phục đã tạm dừng để tránh lặp vô hạn. Khởi động lại sẽ đóng game của bạn; tiến trình chưa lưu sẽ không thể khôi phục.</string>
     <string name="steamvr_recovery_restart">Khởi động lại ngay</string>
     <string name="steamvr_recovery_cancel">Giữ mở</string>
     <string name="steamvr_recovery_restarting">Đang đặt lại đồ họa và mở lại SteamVR…</string>
-    <string name="steamvr_recovery_failed">DroidDeck không thể tự khởi động lại. Hãy đóng hẳn ứng dụng rồi mở lại.</string>
-    <string name="app_name">DroidDeck</string>
+    <string name="steamvr_recovery_failed">DroidHost không thể tự khởi động lại. Hãy đóng hẳn ứng dụng rồi mở lại.</string>
+    <string name="app_name">DroidHost</string>
     <string-array name="loading_hints">
         <item>Lần chạy đầu tải Steam. Quá trình này có thể mất vài phút.</item>
         <item>Theo mặc định, rời khỏi ứng dụng sẽ tạm dừng Steam; nó tiếp tục từ nơi bạn dừng lại khi bạn quay lại.</item>
@@ -145,7 +145,7 @@
     <string name="user_apps_remove_confirm">Nhấn lại để xóa</string>
     <string name="user_apps_stop_session">Dừng phiên để xóa</string>
     <string name="user_apps_script_linked">Chạy %1$s từ thư mục của nó, được liên kết vào phiên tại chính vị trí đó. Xóa ứng dụng sẽ không ảnh hưởng đến thư mục đó.</string>
-    <string name="user_apps_script_copied">Chạy %1$s từ một bản sao thư mục của nó bên trong DroidDeck. Xóa ứng dụng sẽ xóa bản sao, không phải bản gốc.</string>
+    <string name="user_apps_script_copied">Chạy %1$s từ một bản sao thư mục của nó bên trong DroidHost. Xóa ứng dụng sẽ xóa bản sao, không phải bản gốc.</string>
     <string name="user_apps_runtime_required">Cài runtime Linux trước</string>
     <string name="user_apps_file_gone">Tệp không còn tồn tại</string>
     <string name="user_apps_no_space">Không đủ dung lượng trống: sao chép thư mục cần %1$s</string>
@@ -180,8 +180,8 @@
     <string name="app_fex_off">Tắt</string>
     <string name="app_fex_hint">FEX chạy các chương trình Linux x86 trên thiết bị ARM64 này. Tự động sẽ dùng nó khi chương trình được build cho x86.</string>
     <string name="app_fex_x86">%1$s qua FEX</string>
-    <string name="app_fex_not_ready">Chương trình này được build cho PC %1$s và chạy qua FEX, hiện chưa được thiết lập. Mở Steam một lần khi đã đăng nhập: DroidDeck sẽ tải FEX và Steam Linux Runtime cần thiết, sau đó ứng dụng này sẽ mở.</string>
-    <string name="session_proot_missing">Không thể tải proot của DroidDeck. Hãy kiểm tra kết nối rồi thử lại. Phiên chưa được khởi động vì proot dự phòng quá chậm để chơi.</string>
+    <string name="app_fex_not_ready">Chương trình này được build cho PC %1$s và chạy qua FEX, hiện chưa được thiết lập. Mở Steam một lần khi đã đăng nhập: DroidHost sẽ tải FEX và Steam Linux Runtime cần thiết, sau đó ứng dụng này sẽ mở.</string>
+    <string name="session_proot_missing">Không thể tải proot của DroidHost. Hãy kiểm tra kết nối rồi thử lại. Phiên chưa được khởi động vì proot dự phòng quá chậm để chơi.</string>
     <string name="session_powervr_missing">Không thể tải môi trường đồ họa PowerVR. Hãy kiểm tra kết nối rồi thử lại.</string>
     <string name="session_directaudio_missing">Không thể tải DirectAudio, nên âm thanh game dùng đường chậm hơn trong phiên này.</string>
     <string name="session_end_program">Chương trình này</string>
@@ -221,13 +221,13 @@
     <string name="edit_app_save">Lưu</string>
     <string name="add_app_checking_folder">Đang kiểm tra thư mục…</string>
     <string name="add_app_folder_linked">Thư mục của nó được liên kết vào phiên: %1$s</string>
-    <string name="add_app_folder_copied">Thư mục của nó chứa các chương trình Linux, mà bộ nhớ dùng chung không thể chạy, nên nó được sao chép vào DroidDeck (%1$s).</string>
+    <string name="add_app_folder_copied">Thư mục của nó chứa các chương trình Linux, mà bộ nhớ dùng chung không thể chạy, nên nó được sao chép vào DroidHost (%1$s).</string>
     <string name="add_app_confirm">Thêm</string>
     <string name="add_app_cancel">Hủy</string>
     <string name="add_app_runtime_required">Cài runtime Linux từ Thiết lập trước.</string>
     <string name="add_app_busy">Đợi %1$s hoàn tất.</string>
     <string name="steam_compat_label">Tương thích</string>
-    <string name="proton_compatible_note">Các bản build được đánh dấu “%1$s” trong menu Compatibility của Steam có các bản sửa prefix của DroidDeck và chạy game được ở đây. Mặc định là Proton Experimental ARM64 (%1$s), hoặc Proton 11.0 ARM64 (%1$s) khi bản mới hơn đó đã được cài. Các mục Proton gốc của Valve không có dấu này không thể chạy game trên thiết bị này.</string>
+    <string name="proton_compatible_note">Các bản build được đánh dấu “%1$s” trong menu Compatibility của Steam có các bản sửa prefix của DroidHost và chạy game được ở đây. Mặc định là Proton Experimental ARM64 (%1$s), hoặc Proton 11.0 ARM64 (%1$s) khi bản mới hơn đó đã được cài. Các mục Proton gốc của Valve không có dấu này không thể chạy game trên thiết bị này.</string>
     <string name="proton_installed_compatible">Đã cài %1$s · %2$s</string>
     <string name="common_cancel">Hủy</string>
     <string name="common_auto">Tự động</string>
@@ -293,7 +293,7 @@
     <string name="back_double_tap_window">Khoảng thời gian nhấn đúp</string>
     <string name="back_tap_ms">%1$d ms</string>
     <string name="brightness_permission_title">Cho phép điều khiển độ sáng</string>
-    <string name="brightness_permission_text">Thiết lập điều khiển độ sáng trong DroidDeck.</string>
+    <string name="brightness_permission_text">Thiết lập điều khiển độ sáng trong DroidHost.</string>
     <string name="back_menu_then_qam">Menu → QAM</string>
     <string name="back_qam_then_menu">QAM → Menu</string>
     <string name="mode_session">Phiên</string>
@@ -307,7 +307,7 @@
     <string name="mode_suspend_note">Tự động tạm dừng ở nền và tiếp tục khi hiển thị lại. Thủ công chờ nhấn Tiếp tục. Không bao giờ giữ nó luôn chạy.</string>
     <string name="mode_startup">Khởi động</string>
     <string name="mode_startup_session">Mở khi khởi chạy</string>
-    <string name="mode_startup_session_hint">Bắt đầu phiên này khi DroidDeck khởi chạy.</string>
+    <string name="mode_startup_session_hint">Bắt đầu phiên này khi DroidHost khởi chạy.</string>
     <string name="mode_decky">Decky</string>
     <string name="mode_decky_checking">Đang kiểm tra bản phát hành…</string>
     <string name="mode_decky_ready">Sẵn sàng cài %1$s.</string>
@@ -330,8 +330,8 @@
     <string name="mode_client">Client</string>
     <string name="mode_mangoapp">Lớp phủ hiệu năng</string>
     <string name="mode_mangoapp_hint">Tắt nếu game bị crash hoặc màn hình đen ở Chế độ Deck. Áp dụng từ phiên sau.</string>
-    <string name="mode_return_after_game">Quay lại DroidDeck sau khi chơi</string>
-    <string name="mode_return_after_game_hint">Khi game bạn mở từ DroidDeck hoặc launcher khác đóng lại, Steam thoát gọn gàng (bản lưu đám mây hoàn tất trước) và bạn quay về đó. Tắt: ở lại Steam.</string>
+    <string name="mode_return_after_game">Quay lại DroidHost sau khi chơi</string>
+    <string name="mode_return_after_game_hint">Khi game bạn mở từ DroidHost hoặc launcher khác đóng lại, Steam thoát gọn gàng (bản lưu đám mây hoàn tất trước) và bạn quay về đó. Tắt: ở lại Steam.</string>
     <string name="mode_shader_precache">Lưu trước shader</string>
     <string name="mode_shader_precache_hint">Steam tải shader dựng sẵn cho game của bạn và xử lý chúng ở nền, nên game ít giật hơn. Tắt giúp tiết kiệm dữ liệu, bộ nhớ và pin; game sẽ tự dựng shader khi chơi. Giống thiết lập Downloads > Shader Pre-Caching của Steam. Áp dụng từ phiên sau.</string>
     <string name="mode_steam_repair">Sửa chữa client Steam</string>
@@ -413,7 +413,7 @@
     <string name="mode_wifi_open_settings">Mở thiết lập</string>
     <string name="mode_wifi_continue">Tiếp tục</string>
     <string name="mode_wifi_explain_title">Bật dò tìm Wi-Fi?</string>
-    <string name="mode_wifi_explain_text">Android yêu cầu quyền Vị trí để đọc tên Wi-Fi và dò tìm các mạng gần đó. DroidDeck dùng quyền này để hiện các mạng đó trong Steam. Chúng tôi không theo dõi vị trí của bạn. Truy cập Internet vẫn hoạt động mà không cần quyền này.</string>
+    <string name="mode_wifi_explain_text">Android yêu cầu quyền Vị trí để đọc tên Wi-Fi và dò tìm các mạng gần đó. DroidHost dùng quyền này để hiện các mạng đó trong Steam. Chúng tôi không theo dõi vị trí của bạn. Truy cập Internet vẫn hoạt động mà không cần quyền này.</string>
     <string name="mode_storage">Lưu trữ game</string>
     <string name="mode_storage_auto">Tự động - thẻ SD khi có, cùng các thư mục Games của bạn</string>
     <string name="mode_storage_auto_none">Tự động - các thư mục Games của bạn, cùng thẻ SD khi có (hiện không có)</string>
@@ -433,7 +433,7 @@
     <string name="libraries_found_hint">Tìm thấy trên thiết bị này · %1$s · %2$s</string>
     <string name="libraries_add_found">Thêm</string>
     <string name="libraries_access_title">Tìm thư viện trên bộ nhớ trong</string>
-    <string name="libraries_access_hint">Cấp quyền truy cập tất cả tệp để DroidDeck thấy được các thư viện Steam do ứng dụng khác lưu trên bộ nhớ trong</string>
+    <string name="libraries_access_hint">Cấp quyền truy cập tất cả tệp để DroidHost thấy được các thư viện Steam do ứng dụng khác lưu trên bộ nhớ trong</string>
     <string name="libraries_access_allow">Cho phép</string>
     <string name="libraries_used_inner">Đã thêm %1$s, thư viện Steam nằm trong thư mục bạn chọn</string>
     <string name="mode_storage_note">Game truyền dữ liệu từ thẻ SD hoặc bộ nhớ dùng chung có thể bị giật.</string>
@@ -550,7 +550,7 @@
     <string name="comp_nightlies_count">Trên Nightlies · %1$d</string>
     <string name="comp_channel_stable">Ổn định</string>
     <string name="comp_channel_nightly">Nightly</string>
-    <string name="comp_refresh_to_list">Làm mới để liệt kê các gói trên Nightlies và DroidDeck.</string>
+    <string name="comp_refresh_to_list">Làm mới để liệt kê các gói trên Nightlies và DroidHost.</string>
     <string name="comp_nothing_new">Không có gì mới từ lần kiểm tra trước.</string>
     <string name="comp_import_wcp">Nhập tệp .wcp</string>
     <string name="comp_restore_original">Khôi phục bản gốc của Proton này</string>
@@ -562,7 +562,7 @@
     <string name="comp_tag_new">Mới</string>
     <string name="comp_tag_stored">Đã lưu</string>
     <string name="comp_mode_title">Cách chọn bản dựng</string>
-    <string name="comp_mode_auto_detail">Bản dựng DroidDeck mới nhất, luôn cập nhật</string>
+    <string name="comp_mode_auto_detail">Bản dựng DroidHost mới nhất, luôn cập nhật</string>
     <string name="comp_mode_manual_detail">Tự chọn và cài bản dựng</string>
     <string name="comp_auto_title">Auto giữ %1$s luôn cập nhật</string>
     <string name="comp_auto_hint">Bản dựng mới được cài ở nền. Nếu một trò chơi từng chạy được bị đóng sau vài giây hai lần, Auto quay lại bản dựng đã chạy được.</string>
@@ -728,7 +728,7 @@
     <string name="hud_temp_red_battery">Pin đỏ từ</string>
     <string name="hud_group_more">Thêm</string>
     <string name="hud_export">Chẩn đoán HUD</string>
-    <string name="hud_export_hint">Lưu báo cáo về mọi cảm biến mà HUD đọc vào Downloads/DroidDeck.</string>
+    <string name="hud_export_hint">Lưu báo cáo về mọi cảm biến mà HUD đọc vào Downloads/DroidHost.</string>
     <string name="hud_export_button">Lưu</string>
     <string name="hud_export_done">Đã lưu vào %1$s</string>
     <string name="hud_export_failed">Không thể lưu báo cáo HUD.</string>
@@ -913,7 +913,7 @@
     <string name="setup_language_system">Theo hệ thống (%1$s)</string>
     <string name="setup_language_system_short">Theo hệ thống</string>
     <string name="setup_app_scale">Tỷ lệ ứng dụng</string>
-    <string name="setup_app_scale_hint">Văn bản và điều khiển của DroidDeck</string>
+    <string name="setup_app_scale_hint">Văn bản và điều khiển của DroidHost</string>
     <string name="setup_app_scale_default">%1$d%% (Mặc định)</string>
     <string name="setup_theme">Giao diện</string>
     <string name="setup_theme_hint">Giao diện launcher</string>
@@ -921,11 +921,11 @@
     <string name="setup_launcher_icon_dark">Tối</string>
     <string name="setup_launcher_icon_light">Sáng</string>
     <string name="setup_home">Dùng làm màn hình chính</string>
-    <string name="setup_home_on">DroidDeck có thể là ứng dụng Màn hình chính</string>
-    <string name="setup_home_off">DroidDeck không bao giờ được đề xuất làm ứng dụng Màn hình chính</string>
+    <string name="setup_home_on">DroidHost có thể là ứng dụng Màn hình chính</string>
+    <string name="setup_home_off">DroidHost không bao giờ được đề xuất làm ứng dụng Màn hình chính</string>
     <string name="setup_home_page">Nút Màn hình chính mở</string>
-    <string name="setup_home_page_hint">Trang hiển thị khi DroidDeck là ứng dụng Màn hình chính và bạn nhấn nút Màn hình chính</string>
-    <string name="setup_home_game_space_first">Trong Thêm trò chơi, đặt DroidDeck thành Bao gồm</string>
+    <string name="setup_home_page_hint">Trang hiển thị khi DroidHost là ứng dụng Màn hình chính và bạn nhấn nút Màn hình chính</string>
+    <string name="setup_home_game_space_first">Trong Thêm trò chơi, đặt DroidHost thành Bao gồm</string>
     <string name="setup_orientation">Hướng màn hình</string>
     <string name="setup_launcher_orientation">Hướng màn hình launcher</string>
     <string name="setup_launcher_orientation_auto">Theo hướng xoay thiết bị</string>
@@ -953,7 +953,7 @@
     <string name="setup_default_home">Ứng dụng Màn hình chính mặc định</string>
     <string name="setup_choose_home">Chọn một ứng dụng Màn hình chính</string>
     <string name="setup_hide_home_from_recents">Ẩn trình khởi chạy khỏi mục Gần đây khi không có phiên chạy</string>
-    <string name="setup_hide_home_from_recents_hint">Chỉ áp dụng khi DroidDeck là ứng dụng Màn hình chính mặc định và không có phiên nào đang chạy.</string>
+    <string name="setup_hide_home_from_recents_hint">Chỉ áp dụng khi DroidHost là ứng dụng Màn hình chính mặc định và không có phiên nào đang chạy.</string>
     <string name="setup_choose">Chọn</string>
     <string name="setup_linux_apps">Ứng dụng Linux (beta)</string>
     <string name="setup_tool_files">Tệp</string>
@@ -1023,16 +1023,16 @@
     <string name="store_website">Trang web</string>
     <string name="store_verified">Đã xác minh</string>
     <string name="upd_title">Cập nhật</string>
-    <string name="upd_build">DroidDeck %1$s · %2$s</string>
+    <string name="upd_build">DroidHost %1$s · %2$s</string>
     <string name="upd_checked">Đã kiểm tra %1$s</string>
     <string name="upd_not_checked">Chưa kiểm tra</string>
-    <string name="upd_perm_title">Cho phép DroidDeck tự cập nhật</string>
+    <string name="upd_perm_title">Cho phép DroidHost tự cập nhật</string>
     <string name="upd_perm_text">Ở màn hình kế tiếp, bật Cho phép từ nguồn này, rồi quay lại. Việc cập nhật sẽ tự tiếp tục.</string>
     <string name="upd_open_settings">Mở thiết lập</string>
     <string name="upd_not_now">Không phải bây giờ</string>
     <string name="upd_signed_status">Ký khác nhau</string>
     <string name="upd_signed_headline">Không thể cập nhật tại chỗ</string>
-    <string name="upd_signed_detail">Bản này không được ký bằng khóa phát hành của DroidDeck, nên bản cập nhật không thể cài chồng lên nó. Gỡ cài đặt nó để chuyển.</string>
+    <string name="upd_signed_detail">Bản này không được ký bằng khóa phát hành của DroidHost, nên bản cập nhật không thể cài chồng lên nó. Gỡ cài đặt nó để chuyển.</string>
     <string name="upd_available">Có cập nhật</string>
     <string name="upd_blocked_status">Không thể cài</string>
     <string name="upd_switch">Sẵn sàng chuyển</string>
@@ -1054,7 +1054,7 @@
     <string name="upd_stop_session">Dừng phiên đang chạy để cập nhật.</string>
     <string name="upd_less">Ít hơn</string>
     <string name="upd_more">Thêm</string>
-    <string name="upd_new_stable">DroidDeck %1$s</string>
+    <string name="upd_new_stable">DroidHost %1$s</string>
     <string name="upd_new_preview">Bản Preview mới</string>
     <string name="upd_new_test">Bản thử nghiệm PR #%1$d</string>
     <string name="upd_mb">%1$d MB</string>
@@ -1094,7 +1094,7 @@
     <string name="upd_lab">Bản build thử nghiệm</string>
     <string name="lab_builds">Các bản build thử nghiệm</string>
     <string name="lab_in_use">Đang dùng</string>
-    <string name="lab_paused_row">Đã tạm dừng sau khi Android tối ưu lại DroidDeck</string>
+    <string name="lab_paused_row">Đã tạm dừng sau khi Android tối ưu lại DroidHost</string>
     <string name="lab_not_loaded">Chưa tải: %1$s</string>
     <string name="lab_waiting">Đang chờ khởi động lại</string>
     <string name="lab_kept">Đã giữ lại</string>
@@ -1108,17 +1108,17 @@
     <string name="lab_delete_confirm">Xóa ngay</string>
     <string name="lab_restart_failed">Không thể chuẩn bị thao tác khởi động lại: %1$s. Hãy ghép đôi gỡ lỗi không dây trong Cài đặt rồi thử lại.</string>
     <string name="lab_installed_title">Đã cài bản build thử nghiệm</string>
-    <string name="lab_installed_text">DroidDeck đã khởi động lại trên %1$s</string>
+    <string name="lab_installed_text">DroidHost đã khởi động lại trên %1$s</string>
     <string name="lab_paused_title">Đã tạm dừng bản dựng thử nghiệm</string>
-    <string name="lab_paused_text">Android đã tối ưu hóa lại DroidDeck nên %1$s chưa được nạp. Mở Cập nhật để khởi động lại bằng bản dựng đó.</string>
+    <string name="lab_paused_text">Android đã tối ưu hóa lại DroidHost nên %1$s chưa được nạp. Mở Cập nhật để khởi động lại bằng bản dựng đó.</string>
     <string name="lab_off_title">Đã tắt bản dựng thử nghiệm</string>
-    <string name="lab_off_other_install">Bản dựng này được tạo cho một phiên bản DroidDeck khác. Bản dựng vẫn được giữ trong Cập nhật.</string>
-    <string name="lab_off_did_not_start">DroidDeck đã không khởi động được bằng bản dựng này hai lần</string>
+    <string name="lab_off_other_install">Bản dựng này được tạo cho một phiên bản DroidHost khác. Bản dựng vẫn được giữ trong Cập nhật.</string>
+    <string name="lab_off_did_not_start">DroidHost đã không khởi động được bằng bản dựng này hai lần</string>
     <string name="rail_agent">Trợ lý</string>
     <string name="agent_channel_name">Trợ lý</string>
     <string name="agent_working">Trợ lý đang xử lý</string>
     <string name="agent_missing">Cài Claude Code trong môi trường người dùng Linux để sử dụng trợ lý.</string>
-    <string name="agent_hint">Hỏi về một trò chơi, một sự cố hoặc một thay đổi cho DroidDeck</string>
+    <string name="agent_hint">Hỏi về một trò chơi, một sự cố hoặc một thay đổi cho DroidHost</string>
     <string name="agent_send">Gửi</string>
     <string name="agent_new">Cuộc hội thoại mới</string>
     <string name="agent_stop">Dừng</string>
@@ -1127,20 +1127,20 @@
     <string name="agent_storage_confirm">Xóa ngay</string>
     <string name="agent_storage_claude">Claude Code</string>
     <string name="agent_storage_codex">Codex</string>
-    <string name="agent_storage_source">Mã nguồn DroidDeck</string>
+    <string name="agent_storage_source">Mã nguồn DroidHost</string>
     <string name="agent_storage_caches">Bộ nhớ đệm tải xuống</string>
     <string name="agent_storage_source_warning">Các thay đổi chưa được đẩy sẽ bị mất</string>
     <string name="agent_storage_caches_warning">Bản dựng sẽ tải lại các tệp này</string>
     <string name="agent_storage_reinstall_warning">Thiết lập có thể cài lại; thông tin đăng nhập được giữ nguyên</string>
-    <string name="agent_resumed">DroidDeck đã khởi động lại bằng bản dựng thử nghiệm của bạn. Tiếp tục từ chỗ bạn đang dở.</string>
-    <string name="agent_empty">Hỏi tại sao một trò chơi không khởi động được, yêu cầu giải thích nhật ký, hoặc thay đổi DroidDeck và thử trên thiết bị này.</string>
+    <string name="agent_resumed">DroidHost đã khởi động lại bằng bản dựng thử nghiệm của bạn. Tiếp tục từ chỗ bạn đang dở.</string>
+    <string name="agent_empty">Hỏi tại sao một trò chơi không khởi động được, yêu cầu giải thích nhật ký, hoặc thay đổi DroidHost và thử trên thiết bị này.</string>
     <string name="agent_failed">Thất bại: %1$s</string>
     <string name="agent_exited">%1$s đã kết thúc (mã thoát %2$d)</string>
     <string name="agent_stopped">Đã dừng</string>
     <string name="agent_no_reply">Kết thúc mà không có phản hồi</string>
     <string name="agent_retry">Thử lại</string>
     <string name="agent_setting_up">Đang thiết lập trợ lý</string>
-    <string name="agent_rebuild_lab">Dựng lại bản dựng thử nghiệm %1$s của tôi cho phiên bản DroidDeck đã cài và khởi động lại bằng bản dựng đó.</string>
+    <string name="agent_rebuild_lab">Dựng lại bản dựng thử nghiệm %1$s của tôi cho phiên bản DroidHost đã cài và khởi động lại bằng bản dựng đó.</string>
     <string name="agent_tokens">%1$s vào · %2$s ra</string>
     <string name="agent_thinking">Đang suy nghĩ</string>
     <string name="agent_thought">Suy nghĩ</string>
@@ -1201,7 +1201,7 @@
     <string name="agent_lab_stage_starting">Đang khởi động</string>
     <string name="agent_lab_stage_building">%1$d%%</string>
     <string name="agent_lab_stage_packaging">Đang đóng gói</string>
-    <string name="agent_lab_stage_restarting">Đang khởi động lại DroidDeck trên đó</string>
+    <string name="agent_lab_stage_restarting">Đang khởi động lại DroidHost trên đó</string>
     <string name="agent_lab_stage_ready">Hoàn tất</string>
     <string name="agent_lab_stage_failed">Thất bại: %1$s</string>
     <string name="agent_setup_title">Thiết lập tác nhân</string>
@@ -1209,7 +1209,7 @@
     <string name="agent_setup_retry">Thử lại</string>
     <string name="agent_setup_done">Bắt đầu trò chuyện</string>
     <string name="agent_step_connection">Kết nối thiết bị</string>
-    <string name="agent_step_connection_hint">Gỡ lỗi không dây để tác nhân có thể quan sát và điều khiển DroidDeck</string>
+    <string name="agent_step_connection_hint">Gỡ lỗi không dây để tác nhân có thể quan sát và điều khiển DroidHost</string>
     <string name="agent_step_install">Cài đặt %1$s</string>
     <string name="agent_step_install_hint">Vào môi trường người dùng Linux, với git, gh và adb</string>
     <string name="agent_step_sign_in">Đăng nhập vào %1$s</string>
@@ -1232,7 +1232,7 @@
     <string name="agent_action_install">Cài đặt</string>
     <string name="agent_action_sign_in">Đăng nhập</string>
     <string name="upd_pr">PR #%1$d</string>
-    <string name="upd_not_built">Không được build cho bản DroidDeck này</string>
+    <string name="upd_not_built">Không được build cho bản DroidHost này</string>
     <string name="upd_updated">Đã cập nhật %1$s</string>
     <string name="upd_test_name">thử nghiệm PR #%1$d</string>
     <string name="upd_while_ago">một lúc trước</string>
@@ -1252,13 +1252,13 @@
     <string name="gate_fix_for_me">Khắc phục giúp tôi</string>
     <string name="gate_toggle_steps">Bật “Tắt các mục hạn chế đối với tiến trình con”, rồi quay lại. Giữ Tùy chọn cho nhà phát triển luôn mở, nếu không công tắc sẽ tắt lại.</string>
     <string name="gate_open_dev">Mở Tùy chọn cho nhà phát triển</string>
-    <string name="gate_no_toggle">Phiên bản Android này không có công tắc cho việc đó, nên DroidDeck thay đổi nó qua Gỡ lỗi qua mạng không dây. Mất khoảng một phút, không cần máy tính.</string>
+    <string name="gate_no_toggle">Phiên bản Android này không có công tắc cho việc đó, nên DroidHost thay đổi nó qua Gỡ lỗi qua mạng không dây. Mất khoảng một phút, không cần máy tính.</string>
     <string name="gate_needs_wifi">Gỡ lỗi qua mạng không dây cần Wi-Fi. Mạng nào cũng được; không cần Internet.</string>
-    <string name="gate_needs_notifications">Mã ghép nối nằm trong một thông báo. Hãy cho phép thông báo cho DroidDeck, hoặc dùng Cách khác.</string>
+    <string name="gate_needs_notifications">Mã ghép nối nằm trong một thông báo. Hãy cho phép thông báo cho DroidHost, hoặc dùng Cách khác.</string>
     <string name="gate_allow_notifications">Cho phép thông báo</string>
     <string name="gate_step1">Mở Settings → Developer options → Wireless debugging và bật nó lên</string>
     <string name="gate_step2">Nhấn “Pair device with pairing code”</string>
-    <string name="gate_step3">Nhập mã vào thông báo của DroidDeck</string>
+    <string name="gate_step3">Nhập mã vào thông báo của DroidHost</string>
     <string name="pairguide_build_number">Trong Giới thiệu về điện thoại, nhấn Số bản dựng 7 lần</string>
     <string name="pairguide_wireless">Bật Gỡ lỗi không dây</string>
     <string name="pairguide_pair">Mở Gỡ lỗi không dây, rồi nhấn “Ghép nối thiết bị bằng mã ghép nối”</string>
@@ -1367,7 +1367,7 @@
     <string name="desktop_removing">Đang gỡ desktop</string>
     <string name="desktop_removed">Đã gỡ desktop</string>
     <string name="desktop_cleaning_legacy">Đang xóa tệp LXQt cũ</string>
-    <string name="desktop_removal_unknown">Cập nhật DroidDeck trước khi gỡ phiên bản desktop này.</string>
+    <string name="desktop_removal_unknown">Cập nhật DroidHost trước khi gỡ phiên bản desktop này.</string>
     <string name="content_linux_desktop">Desktop Linux</string>
     <string name="content_linux_desktop_hint">KDE Plasma, Firefox và các trình giả lập của bạn</string>
     <string name="games_empty">Game bạn cài trong Steam sẽ xuất hiện ở đây sau phiên.</string>
@@ -1411,8 +1411,8 @@
     <string name="gpu_hide_other">Ẩn driver cho GPU khác</string>
     <string name="gpu_show_other">Hiện driver cho GPU khác</string>
     <string name="gpu_ubwc_title">Tương thích UBWC</string>
-    <string name="gpu_ubwc_hint">Thử Bật hoặc Tắt nếu Steam hoặc Android hiện sọc hay nhấp nháy. Áp dụng cho cả hai driver sau khi khởi động lại DroidDeck.</string>
-    <string name="gpu_ubwc_restart">Khởi động lại DroidDeck để áp dụng.</string>
+    <string name="gpu_ubwc_hint">Thử Bật hoặc Tắt nếu Steam hoặc Android hiện sọc hay nhấp nháy. Áp dụng cho cả hai driver sau khi khởi động lại DroidHost.</string>
+    <string name="gpu_ubwc_restart">Khởi động lại DroidHost để áp dụng.</string>
     <string name="gpu_set_with_display">Được đặt cùng với driver hiển thị: %1$s mang cả hai.</string>
     <string name="gpu_set_with_runtime">Được đặt cùng với driver runtime: %1$s mang cả hai.</string>
     <string name="gpu_runtime_hint">Dùng bởi game và desktop.</string>
@@ -1420,7 +1420,7 @@
     <string name="gpu_auto_by_gpu">Tự động - chọn theo GPU</string>
     <string name="gpu_manage">Tải, nhập hoặc xóa…</string>
     <string name="gpu_in_use_caps">ĐANG DÙNG</string>
-    <string name="gpu_builtin">Các driver tích hợp trong DroidDeck</string>
+    <string name="gpu_builtin">Các driver tích hợp trong DroidHost</string>
     <string name="gpu_matched_pair">Driver runtime và hiển thị được đặt cùng nhau thành một cặp khớp.</string>
     <string name="gpu_recommended_for">Được đề xuất cho GPU này: %1$s.</string>
     <string name="gpu_refresh_hint">Làm mới để tìm driver cho GPU này.</string>
@@ -1529,7 +1529,7 @@
     <string name="unfolded_controls_with_controller_hint">Vẫn hiện các điều khiển cảm ứng này khi đã kết nối tay cầm.</string>
     <string name="pip_suspended">Đã tạm dừng</string>
     <string name="pip_not_ready">Hình trong hình chỉ khả dụng khi phiên đã sẵn sàng.</string>
-    <string name="pip_permission">Cho phép hình trong hình cho DroidDeck trong thiết lập Android.</string>
+    <string name="pip_permission">Cho phép hình trong hình cho DroidHost trong thiết lập Android.</string>
     <string name="pip_unavailable">Android không thể mở hình trong hình.</string>
     <string name="game_more">Thêm</string>
     <string name="game_edit_art">Sửa ảnh bìa</string>
@@ -1542,7 +1542,7 @@
     <string name="game_link_copied">Đã sao chép liên kết khởi chạy</string>
     <string name="game_shortcut_unsupported">Launcher này không thể thêm shortcut. Hãy dùng Sao chép liên kết khởi chạy.</string>
     <string name="game_link_invalid">Liên kết khởi chạy game không hợp lệ.</string>
-    <string name="game_link_missing">Game này không còn trong thư viện DroidDeck của bạn.</string>
+    <string name="game_link_missing">Game này không còn trong thư viện DroidHost của bạn.</string>
     <string name="game_link_session_busy">Dừng phiên hiện tại trước khi khởi chạy một game Steam.</string>
     <string name="game_link_failed">Không thể gửi game đến Steam. Hãy thử khởi chạy lại.</string>
     <string name="setup_retry_removal">Thử gỡ lại</string>
@@ -1569,7 +1569,7 @@
         <item quantity="other">Đã nhập %1$d tệp từ %2$s vào %3$s</item>
     </plurals>
     <plurals name="main_saves_imported_backup">
-        <item quantity="other">Đã nhập %1$d tệp từ %2$s vào %3$s. Tệp lưu cũ đã được sao lưu vào Download/DroidDeck/Saves/backups</item>
+        <item quantity="other">Đã nhập %1$d tệp từ %2$s vào %3$s. Tệp lưu cũ đã được sao lưu vào Download/DroidHost/Saves/backups</item>
     </plurals>
     <string name="main_addons_close_session">Hãy đóng phiên trước, để game không dùng addon trong lúc nhập</string>
     <string name="main_addons_importing">Đang nhập addon vào %1$s</string>
@@ -1638,7 +1638,7 @@
 
     <string name="upd_unknown_apps_failed">Không thể mở thiết lập \"Install unknown apps\" của Android</string>
     <string name="upd_couldnt_check">Không thể kiểm tra: %1$s</string>
-    <string name="upd_no_download">Bản build này không có tệp tải cho bản DroidDeck này</string>
+    <string name="upd_no_download">Bản build này không có tệp tải cho bản DroidHost này</string>
     <string name="upd_stop_first">Dừng phiên đang chạy trước, rồi cập nhật</string>
     <string name="upd_stage_downloading">Đang tải</string>
     <string name="upd_stage_installing">Đang cài</string>
@@ -1667,22 +1667,22 @@
     <string name="drivers_recommended_unpublished">Các driver được đề xuất hiện không được phát hành</string>
     <string name="drivers_downloading_pair">Đang tải %1$s %2$s…</string>
     <string name="drivers_updated_to">Đã cập nhật lên %1$s %2$s.</string>
-    <string name="drivers_updated_to_restart">Đã cập nhật lên %1$s %2$s. Driver hiển thị áp dụng sau khi DroidDeck khởi động lại.</string>
+    <string name="drivers_updated_to_restart">Đã cập nhật lên %1$s %2$s. Driver hiển thị áp dụng sau khi DroidHost khởi động lại.</string>
     <string name="drivers_auto_waits_for_session">Bản cập nhật driver sẽ chờ phiên dừng.</string>
     <string name="drivers_auto_waits_for_network">%1$s %2$s sẽ tải xuống khi bạn thoát dữ liệu di động và chế độ tiết kiệm pin.</string>
     <string name="drivers_skipping_bad">%1$s %2$s không khởi động được phiên ở đây, nên Tự động giữ các driver đã chạy được.</string>
     <string name="drivers_rolled_back">%1$s không khởi động được phiên hai lần, nên Tự động quay lại các driver đang hoạt động.</string>
     <string name="drivers_switched_to">Đã chuyển sang %1$s %2$s.</string>
-    <string name="drivers_switched_to_restart">Đã chuyển sang %1$s %2$s. Driver hiển thị áp dụng sau khi DroidDeck khởi động lại.</string>
+    <string name="drivers_switched_to_restart">Đã chuyển sang %1$s %2$s. Driver hiển thị áp dụng sau khi DroidHost khởi động lại.</string>
     <string name="drivers_using">Đang dùng %1$s %2$s.</string>
-    <string name="drivers_using_restart">Đang dùng %1$s %2$s. Driver hiển thị áp dụng sau khi DroidDeck khởi động lại.</string>
+    <string name="drivers_using_restart">Đang dùng %1$s %2$s. Driver hiển thị áp dụng sau khi DroidHost khởi động lại.</string>
     <string name="drivers_using_quest">Đang dùng driver hiển thị đi kèm Quest và runtime mặc định.</string>
-    <string name="drivers_using_quest_restart">Đang dùng driver hiển thị đi kèm Quest và runtime mặc định. Driver hiển thị áp dụng sau khi khởi động lại DroidDeck.</string>
+    <string name="drivers_using_quest_restart">Đang dùng driver hiển thị đi kèm Quest và runtime mặc định. Driver hiển thị áp dụng sau khi khởi động lại DroidHost.</string>
     <string name="drivers_not_a_driver">Không phải zip driver: không phải driver AdrenoTools, Turnip -Linux, cũng không phải gói Android + Linux</string>
     <string name="drivers_import_failed">Nhập thất bại: %1$s</string>
     <string name="drivers_imported_unnamed">Driver đã nhập</string>
     <string name="drivers_using_bundle">Đang dùng %1$s làm cả driver runtime và hiển thị.</string>
-    <string name="drivers_using_bundle_restart">Đang dùng %1$s làm cả driver runtime và hiển thị. Driver hiển thị áp dụng sau khi DroidDeck khởi động lại.</string>
+    <string name="drivers_using_bundle_restart">Đang dùng %1$s làm cả driver runtime và hiển thị. Driver hiển thị áp dụng sau khi DroidHost khởi động lại.</string>
     <string name="drivers_deleted_bundle">Đã xóa %1$s (cả hai driver)</string>
     <string name="drivers_deleted">Đã xóa %1$s</string>
     <string name="drivers_release_status">Mới nhất: %1$s · đã kiểm tra %2$s</string>
@@ -1696,7 +1696,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d ngày trước</item>
     </plurals>
-    <string name="drivers_checking_sources">Đang kiểm tra Banners-Turnip, WinNative và DroidDeck…</string>
+    <string name="drivers_checking_sources">Đang kiểm tra Banners-Turnip, WinNative và DroidHost…</string>
     <string name="drivers_check_failed">kiểm tra thất bại</string>
     <string name="drivers_installed_pick_either">Đã cài %1$s - chọn nó ở một trong hai danh sách để đặt cả hai driver</string>
     <string name="drivers_installed_pick">Đã cài %1$s - chọn nó trong menu</string>
@@ -1912,7 +1912,7 @@
     <string name="fm_decline">Từ chối</string>
     <string name="fm_drive_not_readable">%1$s đã được gắn nhưng hiện không đọc được</string>
     <string name="fm_drive_access_title">Cho phép truy cập %1$s</string>
-    <string name="fm_drive_access_text">Android cho DroidDeck thấy ổ này nhưng không đọc được. Hãy bật Quyền truy cập mọi tệp cho DroidDeck rồi quay lại.</string>
+    <string name="fm_drive_access_text">Android cho DroidHost thấy ổ này nhưng không đọc được. Hãy bật Quyền truy cập mọi tệp cho DroidHost rồi quay lại.</string>
     <string name="fm_list_view">Xem dạng danh sách</string>
     <string name="fm_grid_view">Xem dạng lưới</string>
     <string name="fm_search">Tìm kiếm</string>
@@ -2056,7 +2056,7 @@
     <string name="bottom_telemetry_send_close">Hãy đóng %1$s để thay đổi mục này.</string>
     <string name="bottom_telemetry_send_failed">Không thể thay đổi thiết lập của %1$s.</string>
     <string name="bottom_telemetry_send_menu">%1$s: hãy bật %2$s trong thiết lập của game với IP 127.0.0.1 và cổng %3$d.</string>
-    <string name="bottom_shots_where">Được lưu vào Pictures/DroidDeck. Ảnh chụp màn hình Steam cũng hiện ở đây.</string>
+    <string name="bottom_shots_where">Được lưu vào Pictures/DroidHost. Ảnh chụp màn hình Steam cũng hiện ở đây.</string>
     <string name="bottom_shots_take">Chụp màn hình</string>
     <string name="bottom_shots_saved">Đã lưu ảnh chụp màn hình.</string>
     <string name="bottom_shots_failed">Không thể chụp màn hình.</string>
@@ -2064,12 +2064,12 @@
     <string name="bottom_page_chat">Chat &amp; thoại</string>
     <string name="bottom_chat_why">Đọc và trả lời chat Steam ở đây trong khi game vẫn chạy trên màn hình chính. Dùng tài khoản đang đăng nhập Steam.</string>
     <string name="bottom_chat_not_signed_in">Steam chưa có phiên đăng nhập web để chia sẻ, vì vậy hãy đăng nhập ở đây một lần.</string>
-    <string name="bottom_chat_stopped">Android đã đóng trang chat khi DroidDeck chạy nền. Trang sẽ mở lại khi bạn quay lại DroidDeck.</string>
+    <string name="bottom_chat_stopped">Android đã đóng trang chat khi DroidHost chạy nền. Trang sẽ mở lại khi bạn quay lại DroidHost.</string>
     <string name="bottom_chat_open">Mở Steam Chat</string>
     <string name="bottom_chat_close">Đóng chat</string>
     <string name="bottom_chat_mic_on">Micro bật</string>
     <string name="bottom_chat_mic_off">Micro tắt</string>
-    <string name="bottom_chat_mic_unavailable">Micro đang tắt cho game này. Để nói chuyện, hãy bật Micro trong thiết lập Steam của DroidDeck (Âm thanh) rồi khởi động lại game.</string>
+    <string name="bottom_chat_mic_unavailable">Micro đang tắt cho game này. Để nói chuyện, hãy bật Micro trong thiết lập Steam của DroidHost (Âm thanh) rồi khởi động lại game.</string>
     <string name="bottom_chat_volume">Âm lượng %1$d%%</string>
     <string name="bottom_page_telemetry">Thông số trong game</string>
     <string name="bottom_hud_group">HUD màn hình dưới</string>
@@ -2122,7 +2122,7 @@
     <string name="flatpakmgr_not_ready">Thiết lập Flatpak trước</string>
     <string name="flatpakmgr_starting">Đang khởi động</string>
     <string name="flatpakmgr_exit_status">Flatpak đã thoát với mã %1$d</string>
-    <string name="flatpakmgr_wrong_arch">%1$s được dựng cho %2$s, DroidDeck không chạy được. Ứng dụng Flatpak ở đây cần bản ARM64 hoặc x86_64.</string>
+    <string name="flatpakmgr_wrong_arch">%1$s được dựng cho %2$s, DroidHost không chạy được. Ứng dụng Flatpak ở đây cần bản ARM64 hoặc x86_64.</string>
     <string name="flatpakmgr_installing">Đang cài %1$s</string>
     <string name="flatpakmgr_updating">Đang cập nhật %1$s</string>
     <string name="flatpakmgr_removing">Đang gỡ %1$s</string>
@@ -2205,7 +2205,7 @@
     <string name="adbfix_no_pairing">Chưa có ghép nối Gỡ lỗi qua mạng không dây nào được lưu</string>
     <string name="adbfix_enter_address">Nhập địa chỉ IP &amp; cổng Gỡ lỗi qua mạng không dây hiện tại</string>
 
-    <string name="adbpair_timed_out">Hết thời gian chờ cửa sổ bật lên ghép nối. Hãy thử lại từ DroidDeck.</string>
+    <string name="adbpair_timed_out">Hết thời gian chờ cửa sổ bật lên ghép nối. Hãy thử lại từ DroidHost.</string>
     <string name="adbpair_discovery_failed_code">Không thể tìm cửa sổ bật lên ghép nối (%1$d). Kiểm tra Wi-Fi đã bật.</string>
     <string name="adbpair_discovery_failed">Không thể tìm cửa sổ bật lên ghép nối: %1$s</string>
     <string name="adbpair_six_digits">Nhập đủ 6 số của mã</string>
@@ -2228,20 +2228,20 @@
     <string name="adbpair_enter_code">Nhập mã</string>
     <string name="adbpair_title_working">Đang thiết lập Steam</string>
     <string name="adbpair_title_done">Steam đã sẵn sàng</string>
-    <string name="adbpair_done_text">Nhấn để quay lại DroidDeck. Bạn có thể tắt Gỡ lỗi qua mạng không dây ngay bây giờ.</string>
+    <string name="adbpair_done_text">Nhấn để quay lại DroidHost. Bạn có thể tắt Gỡ lỗi qua mạng không dây ngay bây giờ.</string>
     <string name="adbpair_title_failed">Thiết lập Gỡ lỗi qua mạng không dây đã dừng</string>
 
     <string name="selfinst_download_failed">Tải xuống thất bại</string>
     <string name="selfinst_size_mismatch">Kích thước tải xuống không khớp với APK đã phát hành và đã bị loại bỏ - hãy thử lại</string>
     <string name="selfinst_checksum_mismatch">Tệp tải xuống không khớp checksum và đã bị loại bỏ - hãy thử lại</string>
     <string name="selfinst_wrong_package">Bản cập nhật này dành cho package Android %1$s, không phải %2$s</string>
-    <string name="selfinst_metadata_signer">Metadata cập nhật không ghi tên khóa ký phát hành của DroidDeck</string>
+    <string name="selfinst_metadata_signer">Metadata cập nhật không ghi tên khóa ký phát hành của DroidHost</string>
     <string name="selfinst_unreadable">Android không thể đọc APK đã tải xuống</string>
     <string name="selfinst_apk_wrong_package">APK đã tải xuống dành cho %1$s, không phải %2$s</string>
     <string name="selfinst_version_mismatch">APK đã tải xuống ghi versionCode %1$d, không phải %2$d đã phát hành</string>
     <string name="selfinst_downgrade">Android sẽ không cài versionCode %1$d chồng lên %2$d đã cài</string>
     <string name="selfinst_no_signing">APK đã tải xuống không có thông tin ký</string>
-    <string name="selfinst_wrong_signer">APK đã tải xuống không được ký bằng khóa phát hành của DroidDeck</string>
+    <string name="selfinst_wrong_signer">APK đã tải xuống không được ký bằng khóa phát hành của DroidHost</string>
     <string name="appupd_http">Danh mục cập nhật trả về HTTP %1$d</string>
 
     <string name="loadstate_starting">Đang khởi động phiên…</string>
@@ -2288,7 +2288,7 @@
     <string name="cmgr_original_kept">Bản gốc của build đã cài được giữ lại: đó là đường quay về.</string>
     <string name="cmgr_not_stored">Chưa được lưu</string>
     <string name="cmgr_deleted_original">Đã xóa bản gốc %1$s của %2$s.</string>
-    <string name="cmgr_nightlies_only">Lượt tải chỉ đến từ các bản phát hành Nightlies và DroidDeck</string>
+    <string name="cmgr_nightlies_only">Lượt tải chỉ đến từ các bản phát hành Nightlies và DroidHost</string>
     <string name="cmgr_nightly_replaced">Tải xuống thất bại: bản nightly này có thể đã được thay bằng bản mới hơn. Hãy làm mới danh sách và thử lại.</string>
     <string name="cmgr_list_predates_checksums">Danh sách gói này có trước checksum - hãy làm mới và thử lại</string>
     <string name="cmgr_checksum_mismatch">Checksum không khớp</string>
@@ -2331,7 +2331,7 @@
     <string name="drivers_powervr_builtin">Trình điều khiển PowerVR của hệ thống được chọn cho runtime và hiển thị.</string>
     <string name="drivers_mali_bridge_auto">Chưa có trình điều khiển mã nguồn mở nào hỗ trợ Mali này: cầu nối Mali đang bật.</string>
     <string name="upd_block_non_adreno_test">Đây là bản thử nghiệm cho máy không dùng Snapdragon: các bản chính thức ở đây chỉ chạy trên Adreno, nên không được cài đè lên bản này. Các bản thử nghiệm mới có tại github.com/The412Banner/droiddeck-nonadreno-drivers.</string>
-    <string name="session_killed_for_memory">Phiên chạy trước kết thúc vì Android đã đóng DroidDeck để giải phóng bộ nhớ, không phải do sự cố. Hãy đóng các ứng dụng khác hoặc giảm thiết lập texture của game, rồi thử lại.</string>
+    <string name="session_killed_for_memory">Phiên chạy trước kết thúc vì Android đã đóng DroidHost để giải phóng bộ nhớ, không phải do sự cố. Hãy đóng các ứng dụng khác hoặc giảm thiết lập texture của game, rồi thử lại.</string>
     <string name="drivers_route_venus">Mali (Venus)</string>
     <string name="drivers_route_bridge">cầu nối Mali</string>
     <string name="drivers_mali_no_pair_auto">Chưa có trình điều khiển mã nguồn mở nào hỗ trợ Mali này: dùng %1$s, trên trình điều khiển gốc của máy.</string>
@@ -2389,10 +2389,10 @@
     <string name="phantom_instructions_not_applicable">Phiên bản Android này không dùng giới hạn này.</string>
     <string name="phantom_fix_toggle">Bật “Tắt các mục hạn chế đối với tiến trình con” trong Developer options, và giữ Developer options luôn mở sau đó.</string>
     <string name="phantom_fix_no_toggle">Phiên bản Android này không có công tắc cho việc đó. Dùng Gỡ lỗi qua mạng không dây để đổi nó từ thiết bị này.</string>
-    <string name="upd_block_no_apk">Bản build này không có tệp tải cho bản DroidDeck này.</string>
+    <string name="upd_block_no_apk">Bản build này không có tệp tải cho bản DroidHost này.</string>
     <string name="upd_block_version_code">Android sẽ không cài nó chồng lên bản này vì versionCode %1$d của nó thấp hơn %2$d đã cài.</string>
     <string name="upd_fail_downgrade">Android sẽ không cài một phiên bản cũ hơn chồng lên phiên bản mới hơn. Hãy giữ nguyên bản này cho đến khi kênh bắt kịp.</string>
-    <string name="upd_fail_signature">Bản DroidDeck này được ký khác (có thể là bản build cục bộ?), nên Android sẽ không cập nhật tại chỗ.</string>
+    <string name="upd_fail_signature">Bản DroidHost này được ký khác (có thể là bản build cục bộ?), nên Android sẽ không cập nhật tại chỗ.</string>
     <string name="upd_fail_storage">Không đủ dung lượng trống cho bản cập nhật.</string>
     <string name="upd_fail_aborted">Bản cập nhật đã bị hủy.</string>
     <string name="upd_fail_with_message">Bản cập nhật không cài được: %1$s</string>
@@ -2417,7 +2417,7 @@
     <string name="gstore_volume_free">%1$s · %2$s trống</string>
     <string name="mode_storage_auto_short">Tự động</string>
     <string name="appupd_catalog_rejected">Danh mục cập nhật không qua được kiểm tra (%1$s)</string>
-    <string name="main_adb_clip_label">Thiết lập tiến trình con của DroidDeck</string>
+    <string name="main_adb_clip_label">Thiết lập tiến trình con của DroidHost</string>
     <string name="setup_signed_in_offline_unnamed">Đã đăng nhập · chế độ ngoại tuyến</string>
     <string name="setup_signed_in_unnamed">Đã đăng nhập</string>
     <string name="driver_tag_bundled">ĐI KÈM</string>
@@ -2817,7 +2817,7 @@
     <string name="gpu_display_next">Vẽ màn hình. Áp dụng từ phiên sau.</string>
     <string name="gpu_previous_driver">driver trước</string>
     <string name="gpu_restart_banner">Khởi động lại để đổi driver hiển thị.</string>
-    <string name="gpu_restart_blocked">Dừng phiên hiện tại và khởi động lại DroidDeck để đổi driver hiển thị.</string>
+    <string name="gpu_restart_blocked">Dừng phiên hiện tại và khởi động lại DroidHost để đổi driver hiển thị.</string>
     <string name="gpu_restart_now">Khởi động lại ngay</string>
     <string name="gpu_restart_later">Để sau</string>
     <string name="gpu_auto_title">Tự động đã chọn cặp này cho %1$s của bạn</string>
@@ -2903,7 +2903,7 @@
     <string name="touch_speed_normal">Bình thường</string>
     <string name="touch_speed_fast">Nhanh</string>
     <string name="touch_edit_layout">Chỉnh sửa bố cục</string>
-    <string name="touch_droiddeck_menu">Menu DroidDeck</string>
+    <string name="touch_droiddeck_menu">Menu DroidHost</string>
     <string name="touch_drag_hint">Kéo các nút điều khiển vào màn hình</string>
     <string name="touch_arrange">Sắp xếp</string>
     <string name="touch_discard">Hủy bỏ</string>
@@ -2967,7 +2967,7 @@
     <string name="glasses_driver_missing">Bản build này không có driver cho kính này.</string>
     <string name="glasses_connection_failed">Không thể kết nối với kính. Hãy cắm lại cáp hoặc nhấn “Cho phép” để thử lại.</string>
     <string name="glasses_allow">Cho phép</string>
-    <string name="glasses_allow_hint">Để DroidDeck đặt tốc độ làm mới, chế độ 3D, độ sáng, âm lượng và chống nắng của kính, đồng thời đọc dữ liệu theo dõi đầu của kính.</string>
+    <string name="glasses_allow_hint">Để DroidHost đặt tốc độ làm mới, chế độ 3D, độ sáng, âm lượng và chống nắng của kính, đồng thời đọc dữ liệu theo dõi đầu của kính.</string>
     <string name="glasses_asking">Đang chờ bạn cho phép trong hộp thoại của Android…</string>
     <string name="glasses_denied">Quyền điều khiển đã bị từ chối. Hãy cho phép để thay đổi thiết lập của kính.</string>
     <string name="glasses_no_control">Kính này hiển thị game, nhưng không thể thay đổi thiết lập của kính từ đây.</string>
@@ -3147,7 +3147,7 @@
     <string name="storage_internal">Bộ nhớ trong</string>
     <string name="storage_used_of">Đã dùng %1$s trên %2$s</string>
     <string name="storage_free">Trống %1$s</string>
-    <string name="storage_droiddeck_uses">DroidDeck dùng %1$s. Đo trên %2$s.</string>
+    <string name="storage_droiddeck_uses">DroidHost dùng %1$s. Đo trên %2$s.</string>
     <string name="storage_rescanning">đang quét lại…</string>
     <string name="storage_other_apps">Ứng dụng Android khác</string>
     <string name="storage_safe_now">Có thể dọn ngay</string>
@@ -3181,7 +3181,7 @@
     <string name="storage_desktop_hint">Ứng dụng và runtime Flatpak</string>
     <string name="storage_system">Hệ thống Linux và ứng dụng Steam</string>
     <string name="storage_system_hint">Cần để mọi thứ chạy được</string>
-    <string name="storage_app_data">Dữ liệu DroidDeck</string>
+    <string name="storage_app_data">Dữ liệu DroidHost</string>
     <string name="storage_app_data_hint">Log phiên cũ %1$s · bộ nhớ đệm · driver</string>
     <string name="storage_legend_games">Game</string>
     <string name="storage_legend_data">Dữ liệu game</string>
@@ -3189,7 +3189,7 @@
     <string name="storage_legend_stores">Cửa hàng khác</string>
     <string name="storage_legend_desktop">Ứng dụng máy tính</string>
     <string name="storage_legend_system">Hệ thống Linux</string>
-    <string name="storage_legend_app">DroidDeck</string>
+    <string name="storage_legend_app">DroidHost</string>
     <string name="storage_clean_up_title">Dọn</string>
     <string name="storage_clean_up_lede">Không mục nào ở đây đụng vào game đã cài hay bản tải đang chạy.</string>
     <string name="storage_nothing_to_clean">Hiện không có gì để dọn.</string>
@@ -3239,8 +3239,8 @@
     <string name="storage_tool_fex">Chạy game Linux x86</string>
     <string name="storage_tool_steam">Công cụ Steam</string>
     <string name="storage_tool_anticheat">Steam tải mục này cho các game có anti-cheat, kể cả khi đang tắt. Xóa nó sẽ khiến quá trình cài đặt của các game đó bị kẹt ở 0%</string>
-    <string name="storage_tool_old_runtime">DroidDeck chạy game mà không cần runtime này</string>
-    <string name="storage_tool_x86_proton">Proton x86, DroidDeck không chạy được</string>
+    <string name="storage_tool_old_runtime">DroidHost chạy game mà không cần runtime này</string>
+    <string name="storage_tool_x86_proton">Proton x86, DroidHost không chạy được</string>
     <string name="storage_tool_custom_default">Mặc định cho mọi game</string>
     <string name="storage_tool_custom_unused">Không game nào dùng</string>
     <string name="storage_tool_custom_unknown">Không đọc được thiết lập Steam nên giữ lại</string>
@@ -3275,8 +3275,8 @@
         <item quantity="one">%d game</item>
         <item quantity="other">%d game</item>
     </plurals>
-    <string name="storage_tool_default_proton">Proton mặc định của DroidDeck</string>
-    <string name="storage_tool_proton">Tùy chọn Proton 11 của DroidDeck</string>
+    <string name="storage_tool_default_proton">Proton mặc định của DroidHost</string>
+    <string name="storage_tool_proton">Tùy chọn Proton 11 của DroidHost</string>
     <plurals name="storage_tool_custom_games">
         <item quantity="one">%d game dùng</item>
         <item quantity="other">%d game dùng</item>
@@ -3346,7 +3346,7 @@
     </plurals>
     <string name="boot_movie">Video khởi động</string>
     <string name="boot_movie_video">Video</string>
-    <string name="boot_movie_droiddeck">DroidDeck · %1$d fps</string>
+    <string name="boot_movie_droiddeck">DroidHost · %1$d fps</string>
     <string name="boot_movie_note">60 fps mượt hơn nhưng tốn CPU hơn khi Steam đang khởi động. Video chọn trong cài đặt của chính Steam cũng hiện ở đây.</string>
     <string name="boot_movie_sound">Âm thanh</string>
     <string name="boot_movie_skip">Bỏ qua phim khởi động</string>
@@ -3360,24 +3360,24 @@
     <string name="boot_movie_imported_silent">%1$s giờ là video khởi động, không có tiếng</string>
     <string name="boot_movie_too_long">Video cần chuyển đổi phải dài tối đa %1$d giây</string>
     <string name="boot_movie_converting">Đang chuyển đổi %1$d%%</string>
-    <string name="boot_movie_converting_started">Đang chuyển đổi %1$s cho Steam. Hãy để DroidDeck mở.</string>
+    <string name="boot_movie_converting_started">Đang chuyển đổi %1$s cho Steam. Hãy để DroidHost mở.</string>
     <string name="boot_movie_unsupported">Thiết bị này không giải mã được video đó.</string>
     <string name="boot_movie_import_failed">Không thể nhập video này</string>
     <string name="boot_movie_remove_confirm">Xóa %1$s?</string>
-    <string name="boot_movie_remove_confirm_body">Thao tác này xóa video khỏi DroidDeck và khỏi thư mục video của Steam.</string>
+    <string name="boot_movie_remove_confirm_body">Thao tác này xóa video khỏi DroidHost và khỏi thư mục video của Steam.</string>
     <string name="boot_movie_tab_installed">Đã cài</string>
     <string name="boot_movie_tab_import">Nhập</string>
     <string name="boot_movie_tab_repo">SteamDeckRepo</string>
     <string name="boot_movie_tab_sound">Âm thanh</string>
     <string name="boot_movie_installed">Video đã cài</string>
     <string name="boot_movie_browse">Duyệt</string>
-    <string name="boot_movie_source_droiddeck">DroidDeck</string>
+    <string name="boot_movie_source_droiddeck">DroidHost</string>
     <string name="boot_movie_source_import">Đã nhập</string>
     <string name="boot_movie_source_repo">SteamDeckRepo</string>
     <string name="boot_movie_source_steam">Steam</string>
     <string name="boot_movie_source_pointshop">Cửa hàng điểm</string>
     <string name="boot_movie_report">Báo cáo phim khởi động</string>
-    <string name="boot_movie_report_hint">Lưu những gì DroidDeck và Steam biết về phim khởi động vào một tệp văn bản để đính kèm báo cáo lỗi.</string>
+    <string name="boot_movie_report_hint">Lưu những gì DroidHost và Steam biết về phim khởi động vào một tệp văn bản để đính kèm báo cáo lỗi.</string>
     <string name="boot_movie_report_save">Lưu</string>
     <string name="boot_movie_report_saved">Đã lưu vào %1$s</string>
     <string name="boot_movie_report_failed">Không thể lưu báo cáo.</string>
@@ -3413,7 +3413,7 @@
     <string name="glasses_joycons_hint">Sử dụng camera của kính thông minh để định vị bộ điều khiển Joy-Con đã ghép nối. Xoay và nhập nút đến từ bộ điều khiển Joy-Con. Vị trí được ước tính khi cổ tay của bạn bị che khuất. Thay thế bộ điều khiển được điều khiển bằng tay không và tạm dừng theo dõi bằng camera điện thoại. Hướng bộ điều khiển Joy-Con về phía trước khi kết nối hoặc đặt lại trung tâm theo dõi.</string>
     <string name="glasses_joycons_requires_position">Trước tiên hãy bật tính năng theo dõi vị trí. Yêu cầu bộ điều khiển Joy-Con có khả năng chuyển động trên Android 12 trở lên. Mặc định là tắt.</string>
     <string name="setup_tab_glasses">Kính thông minh</string>
-    <string name="setup_glasses_scope">Cài đặt hiển thị và theo dõi đầu được chia sẻ trên các menu, trò chơi và phiên máy tính để bàn của DroidDeck.</string>
+    <string name="setup_glasses_scope">Cài đặt hiển thị và theo dõi đầu được chia sẻ trên các menu, trò chơi và phiên máy tính để bàn của DroidHost.</string>
     <string name="setup_glasses_connect">Kết nối kính thông minh để thay đổi cài đặt hiển thị và theo dõi của chúng. Các cài đặt đã lưu của bạn sẽ được giữ lại khi bạn ngắt kết nối.</string>
     <string name="glasses_vr">Thực tế ảo (VR)</string>
     <string name="glasses_display_mode">Chế độ hiển thị</string>
@@ -3432,7 +3432,7 @@
     <string name="glasses_refresh_30_hint">Bật Chơi game trên kính thông minh để chọn chế độ 30 Hz gốc của màn hình.</string>
     <string name="glasses_3dof">Màn hình ảo 3DoF</string>
     <string name="glasses_3dof_hint">Neo các trò chơi phẳng trước mặt bạn để bạn có thể nhìn xung quanh. Cho phép Chơi game trên kính thông minh mà không cần chuyển sang 3D.</string>
-    <string name="glasses_screen_app_wide">Chiều rộng và khoảng cách cập nhật màn hình ảo được theo dõi cho menu, trò chơi và phiên máy tính để bàn của DroidDeck ngay lập tức.</string>
+    <string name="glasses_screen_app_wide">Chiều rộng và khoảng cách cập nhật màn hình ảo được theo dõi cho menu, trò chơi và phiên máy tính để bàn của DroidHost ngay lập tức.</string>
     <string name="glasses_head_tracking_spatial_vr_hint">Theo dõi vị trí bao gồm xoay đầu trong SteamVR. Để chỉ theo dõi xoay, hãy tắt theo dõi vị trí.</string>
     <string name="glasses_head_tracking_spatial_hint">Điều khiển chuyển động đầu trên màn hình ảo. Theo dõi vị trí bao gồm xoay đầu trong SteamVR.</string>
     <string name="glasses_quick_actions">Thao tác nhanh</string>
@@ -3527,8 +3527,8 @@
     <string name="spatial_timing_values">%1$.1f Hz • tuổi hình ảnh %2$.1f ms • xử lý %3$.1f ms</string>
     <string name="spatial_input_values">Giới hạn đầu vào %1$.1f Hz • %2$.0f%% hình ảnh camera. Theo dõi đầu tiếp tục ở tần số tối đa.</string>
     <string name="spatial_frame_counts">%1$d đã xử lý • %2$d bị loại bỏ • %3$d bị bỏ qua theo giới hạn đầu vào</string>
-    <string name="spatial_print_job">DroidDeck ChArUco 30 mm</string>
-    <string name="spatial_print_title">DroidDeck - Hiệu chuẩn Luma Ultra</string>
+    <string name="spatial_print_job">DroidHost ChArUco 30 mm</string>
+    <string name="spatial_print_title">DroidHost - Hiệu chuẩn Luma Ultra</string>
     <string name="spatial_print_scale" formatted="false">In ở tỷ lệ 100% / Kích thước thực tế. Mỗi hình vuông: 30 mm (1,181 in).</string>
     <string name="spatial_print_stationary">Giữ mục tiêu hiệu chỉnh bằng phẳng và cố định; di chuyển kính thông minh giữa các lần chụp.</string>
     <string name="spatial_print_check">Kiểm tra tỷ lệ: 100 mm (3,937 in) giữa các dấu tích</string>
@@ -3613,7 +3613,7 @@
     <string name="setup_tab_sync">Syncthing</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Đồng bộ với Syncthing</string>
-    <string name="sync_enable_hint">Dựa trên Syncthing-Fork, đây là bản triển khai Syncthing cho phép bạn đồng bộ các tệp trong hệ thống tệp nội bộ của DroidDeck với các phiên bản Syncthing khác. Tính năng này chỉ dành cho các tệp bạn lưu trong hệ thống tệp nội bộ của DroidDeck.</string>
+    <string name="sync_enable_hint">Dựa trên Syncthing-Fork, đây là bản triển khai Syncthing cho phép bạn đồng bộ các tệp trong hệ thống tệp nội bộ của DroidHost với các phiên bản Syncthing khác. Tính năng này chỉ dành cho các tệp bạn lưu trong hệ thống tệp nội bộ của DroidHost.</string>
     <string name="sync_missing">Bản dựng này không có Syncthing.</string>
     <string name="sync_starting">Đang khởi động Syncthing</string>
     <string name="sync_status_starting">Đang khởi động</string>
@@ -3643,7 +3643,7 @@
     <string name="sync_waiting">Đang chờ bạn</string>
     <string name="sync_pending_device">%1$s muốn kết nối</string>
     <string name="sync_pending_folder">%1$s muốn chia sẻ “%2$s”</string>
-    <string name="sync_pending_folder_hint">Chấp nhận để chọn nơi lưu thư mục này trong DroidDeck.</string>
+    <string name="sync_pending_folder_hint">Chấp nhận để chọn nơi lưu thư mục này trong DroidHost.</string>
     <string name="sync_review">Xem lại trong giao diện web</string>
     <string name="sync_folders">Thư mục</string>
     <string name="sync_no_folders">Chưa có thư mục nào.</string>
@@ -3655,7 +3655,7 @@
     <string name="sync_folder_out_of_sync">Chưa đồng bộ</string>
     <string name="sync_folder_errors">%1$d tệp không thể đồng bộ</string>
     <string name="sync_folder_blocked">Bị chặn</string>
-    <string name="sync_folder_blocked_hint">Thư mục này nằm ngoài bộ nhớ của DroidDeck nên DroidDeck đã tạm dừng nó. Để đồng bộ các thư mục bên ngoài DroidDeck, hãy dùng app Syncthing-Fork.</string>
+    <string name="sync_folder_blocked_hint">Thư mục này nằm ngoài bộ nhớ của DroidHost nên DroidHost đã tạm dừng nó. Để đồng bộ các thư mục bên ngoài DroidHost, hãy dùng app Syncthing-Fork.</string>
     <string name="sync_remove_folder">Xóa khỏi Syncthing</string>
     <string name="sync_remove_folder_hint">Xóa khỏi Syncthing không xóa tệp nào.</string>
     <string name="sync_devices">Thiết bị</string>
@@ -3683,12 +3683,12 @@
     <string name="sync_api_key">Khóa API</string>
     <string name="sync_regenerate">Tạo lại</string>
     <string name="sync_reset">Đặt lại Syncthing</string>
-    <string name="sync_reset_hint">ID thiết bị mới, các thư mục và thiết bị bị xóa. Tệp trong bộ nhớ của DroidDeck được giữ lại.</string>
+    <string name="sync_reset_hint">ID thiết bị mới, các thư mục và thiết bị bị xóa. Tệp trong bộ nhớ của DroidHost được giữ lại.</string>
     <string name="sync_reset_button">Đặt lại</string>
     <string name="sync_reset_confirm_title">Đặt lại Syncthing?</string>
     <string name="sync_running_group">Chạy</string>
     <string name="sync_run">Chạy</string>
-    <string name="sync_run_open">Khi DroidDeck đang mở</string>
+    <string name="sync_run_open">Khi DroidHost đang mở</string>
     <string name="sync_run_background">Trong nền</string>
     <string name="sync_wifi_only">Chỉ Wi-Fi</string>
     <string name="sync_pause_games">Tạm dừng khi chơi game</string>
@@ -3700,7 +3700,7 @@
     <string name="sync_accept">Chấp nhận</string>
     <string name="sync_accept_title">Lưu “%1$s” vào</string>
     <string name="sync_add_folder">Thêm thư mục</string>
-    <string name="sync_add_folder_hint">Đồng bộ một thư mục trong bộ nhớ của DroidDeck</string>
+    <string name="sync_add_folder_hint">Đồng bộ một thư mục trong bộ nhớ của DroidHost</string>
     <string name="sync_choose">Chọn</string>
     <string name="sync_add">Thêm</string>
     <string name="sync_add_failed">Không thể thêm thư mục.</string>
@@ -3710,10 +3710,10 @@
     <string name="sync_new_folder">Thư mục mới</string>
     <string name="sync_location_home">Thư mục home của container</string>
     <string name="sync_location_sync">Thư mục Sync</string>
-    <string name="sync_location_shared">Bộ nhớ dùng chung DroidDeck</string>
-    <string name="sync_location_card">DroidDeck trên %1$s</string>
-    <string name="sync_location_app">Dữ liệu app DroidDeck</string>
-    <string name="sync_web_path_locked">Thư mục mới được lưu trong thư mục Sync của DroidDeck. Để đồng bộ một thư mục DroidDeck khác, hãy dùng Thêm thư mục trong thẻ Syncthing.</string>
+    <string name="sync_location_shared">Bộ nhớ dùng chung DroidHost</string>
+    <string name="sync_location_card">DroidHost trên %1$s</string>
+    <string name="sync_location_app">Dữ liệu app DroidHost</string>
+    <string name="sync_web_path_locked">Thư mục mới được lưu trong thư mục Sync của DroidHost. Để đồng bộ một thư mục DroidHost khác, hãy dùng Thêm thư mục trong thẻ Syncthing.</string>
     <string name="sync_web_title">Syncthing</string>
     <string name="sync_web_reload">Tải lại</string>
     <string name="sync_not_running">Syncthing không chạy.</string>
@@ -3723,22 +3723,22 @@
     <string name="session_end_gpu_unsupported">Không thể bắt đầu phiên vì GPU này không có driver Vulkan Linux tương thích trong thiết lập hiện tại. Driver Adreno Turnip không thể bật hỗ trợ cho GPU MediaTek/Mali.</string>
     <string name="setup_group_memory">Bộ nhớ</string>
     <string name="setup_clear_cached">Đóng ứng dụng đã lưu đệm trước phiên</string>
-    <string name="setup_clear_cached_hint">Khi phiên bắt đầu, DroidDeck đóng các ứng dụng mà Android giữ ở nền để game có thêm bộ nhớ. Phải bật Gỡ lỗi qua mạng không dây.</string>
-    <string name="setup_clear_cached_unpaired">Cần ghép nối DroidDeck với Gỡ lỗi qua mạng không dây (Ghép nối, bên dưới).</string>
+    <string name="setup_clear_cached_hint">Khi phiên bắt đầu, DroidHost đóng các ứng dụng mà Android giữ ở nền để game có thêm bộ nhớ. Phải bật Gỡ lỗi qua mạng không dây.</string>
+    <string name="setup_clear_cached_unpaired">Cần ghép nối DroidHost với Gỡ lỗi qua mạng không dây (Ghép nối, bên dưới).</string>
     <string name="setup_memory_hud">Chỉ báo bộ nhớ</string>
-    <string name="setup_memory_hud_hint">Bộ nhớ và swap đang dùng, trên màn hình phiên. Nâng cao chia theo game, DroidDeck, Android và GPU.</string>
+    <string name="setup_memory_hud_hint">Bộ nhớ và swap đang dùng, trên màn hình phiên. Nâng cao chia theo game, DroidHost, Android và GPU.</string>
     <string name="setup_memory_hud_simple">Đơn giản</string>
     <string name="setup_memory_hud_advanced">Nâng cao</string>
     <string name="memory_hud_simple">RAM %1$s/%2$s GB · swap %3$s/%4$s GB</string>
-    <string name="memory_hud_split">game %1$s · DroidDeck %2$s · Android %3$s GB</string>
+    <string name="memory_hud_split">game %1$s · DroidHost %2$s · Android %3$s GB</string>
     <string name="memory_hud_gpu">GPU %1$s GB</string>
     <string name="setup_bg_limit">Ứng dụng nền trong phiên</string>
-    <string name="setup_bg_limit_hint">Trong khi phiên chạy, Android chỉ giữ tối đa chừng này ứng dụng trong bộ nhớ đệm và đóng phần còn lại để game có bộ nhớ của chúng. DroidDeck đặt lại giới hạn như cũ khi phiên kết thúc. Phải bật Gỡ lỗi qua mạng không dây.</string>
+    <string name="setup_bg_limit_hint">Trong khi phiên chạy, Android chỉ giữ tối đa chừng này ứng dụng trong bộ nhớ đệm và đóng phần còn lại để game có bộ nhớ của chúng. DroidHost đặt lại giới hạn như cũ khi phiên kết thúc. Phải bật Gỡ lỗi qua mạng không dây.</string>
     <string name="setup_bg_limit_4">Tối đa 4</string>
     <string name="setup_bg_limit_1">Tối đa 1</string>
     <string name="setup_bg_limit_0">Không có</string>
     <string name="setup_adb_pair">Gỡ lỗi qua mạng không dây</string>
-    <string name="setup_adb_pair_hint">Ghép nối DroidDeck với Gỡ lỗi qua mạng không dây của Android cho các tùy chọn ở trên. Giới hạn tiến trình con vẫn tắt.</string>
+    <string name="setup_adb_pair_hint">Ghép nối DroidHost với Gỡ lỗi qua mạng không dây của Android cho các tùy chọn ở trên. Giới hạn tiến trình con vẫn tắt.</string>
     <string name="setup_adb_pair_button">Ghép nối</string>
     <string name="tracking_recovery_look">Nhìn xung quanh chậm rãi trong phòng có đủ ánh sáng.\nGiữ cho camera theo dõi rõ ràng và hướng về phía đồ nội thất hoặc các chi tiết có thể nhìn thấy khác.</string>
     <string name="epic_client_missing">Chưa cài</string>
@@ -3797,7 +3797,7 @@
     <string name="integration_app_info">Thông tin ứng dụng</string>
     <string name="integration_wifi">Tên Wi-Fi</string>
     <string name="integration_brightness">Độ sáng</string>
-    <string name="integration_home">DroidDeck làm màn hình chính</string>
+    <string name="integration_home">DroidHost làm màn hình chính</string>
     <string name="integration_shortcuts">Phím hệ thống</string>
     <string name="integration_wifi_hint">Hiện mạng trong Steam · cần quyền Vị trí, không bao giờ theo dõi</string>
     <string name="integration_wifi_on">Mạng hiện trong Steam</string>
@@ -3808,8 +3808,8 @@
     <string name="integration_shortcuts_hint">Alt+Tab, phím Win và nút Trang chủ giữ trong phiên</string>
     <string name="integration_shortcuts_maybe_restricted">Bị làm mờ trong Android? Thông tin ứng dụng → ⋮ → Cho phép chế độ cài đặt bị hạn chế</string>
     <string name="integration_shortcuts_restricted">Bị Android chặn · Thông tin ứng dụng → ⋮ → Cho phép chế độ cài đặt bị hạn chế</string>
-    <string name="integration_shortcuts_service">Phím hệ thống DroidDeck</string>
-    <string name="integration_shortcuts_service_description">Giữ Alt+Tab, phím Win và nút Trang chủ trong phiên DroidDeck đang dùng thay vì Android.</string>
+    <string name="integration_shortcuts_service">Phím hệ thống DroidHost</string>
+    <string name="integration_shortcuts_service_description">Giữ Alt+Tab, phím Win và nút Trang chủ trong phiên DroidHost đang dùng thay vì Android.</string>
     <string name="integration_brightness_needed">Bật Độ sáng trong Thiết lập → Tích hợp Steam</string>
     <string name="setup_gpu_bridge_off">Cầu Mali: tắt</string>
     <string name="setup_gpu_bridge_unusable">%1$s không thể dùng cầu nối Mali (cần GPU Mali không có đường dẫn qua trình điều khiển hệ thống), nên công tắc này không có tác dụng ở đây.</string>
@@ -3886,7 +3886,7 @@
         <item quantity="other">%d ứng dụng</item>
     </plurals>
     <string name="desktop_restore_title">Đang khôi phục phần mềm của bạn</string>
-    <string name="desktop_restore_body">Đang cài lại các ứng dụng bạn đã thêm sau khi cập nhật DroidDeck.</string>
+    <string name="desktop_restore_body">Đang cài lại các ứng dụng bạn đã thêm sau khi cập nhật DroidHost.</string>
     <string name="desktop_restore_done_title">Đã khôi phục phần mềm</string>
     <string name="desktop_restore_done_body">Các ứng dụng bạn đã thêm đã được cài lại.</string>
     <string name="desktop_restore_failed_title">Không thể khôi phục một số phần mềm</string>

@@ -50,33 +50,33 @@ target_include_directories(droiddeckwayland PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../tools/gpuload/src
 )
 
-set(DROIDDECK_FRAMEGEN_LSFG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../framegen/lsfg)
-set(DROIDDECK_FRAMEGEN_DDFG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../framegen/ddfg)
-if (TARGET dxbc AND EXISTS ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_engine.cpp
-        AND EXISTS ${DROIDDECK_FRAMEGEN_DDFG_DIR}/ddfg_engine.cpp)
+set(DROIDHOST_FRAMEGEN_LSFG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../framegen/lsfg)
+set(DROIDHOST_FRAMEGEN_DDFG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../framegen/ddfg)
+if (TARGET dxbc AND EXISTS ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_engine.cpp
+        AND EXISTS ${DROIDHOST_FRAMEGEN_DDFG_DIR}/ddfg_engine.cpp)
     message(STATUS "droiddeckwayland: frame-generation engines built in (LSFG Native, DD-FG Native)")
     target_sources(droiddeckwayland PRIVATE
             src/framegen_engine.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_probe.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_dll.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_dxbc.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_vkd.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_common.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_shaders.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_mipmaps.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_alpha.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_beta.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_gamma.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_delta.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_generate.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_chain.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_pacer.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_engine.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_governor.cpp
-            ${DROIDDECK_FRAMEGEN_LSFG_DIR}/lsfg_jni.cpp
-            ${DROIDDECK_FRAMEGEN_DDFG_DIR}/framegen.cpp
-            ${DROIDDECK_FRAMEGEN_DDFG_DIR}/ddfg_vkd.cpp
-            ${DROIDDECK_FRAMEGEN_DDFG_DIR}/ddfg_engine.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_probe.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_dll.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_dxbc.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_vkd.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_common.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_shaders.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_mipmaps.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_alpha.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_beta.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_gamma.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_delta.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_generate.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_chain.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_pacer.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_engine.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_governor.cpp
+            ${DROIDHOST_FRAMEGEN_LSFG_DIR}/lsfg_jni.cpp
+            ${DROIDHOST_FRAMEGEN_DDFG_DIR}/framegen.cpp
+            ${DROIDHOST_FRAMEGEN_DDFG_DIR}/ddfg_vkd.cpp
+            ${DROIDHOST_FRAMEGEN_DDFG_DIR}/ddfg_engine.cpp
     )
     target_include_directories(droiddeckwayland PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/..

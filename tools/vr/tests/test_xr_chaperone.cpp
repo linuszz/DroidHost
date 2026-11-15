@@ -3,9 +3,9 @@
 #include <cstdio>
 
 int main() {
-    DroidDeckXrPose head{{0, 0, 0, 1}, {2, 1.6f, -3}, 15};
+    DroidHostXrPose head{{0, 0, 0, 1}, {2, 1.6f, -3}, 15};
     XrChaperoneOrigin deferred;
-    DroidDeckXrTracking tracking{};
+    DroidHostXrTracking tracking{};
     tracking.active = 1; tracking.period_ns = 11111111; tracking.sampled_ns = XrTrackingFile::Now();
     tracking.eyes[0].width = tracking.eyes[0].height = 4;
     unsigned publications = 0;

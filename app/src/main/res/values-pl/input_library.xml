@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Wysyłaj wejście kontrolera do Steam Input lub gry.</string>
     <string name="input_disabled_hint">Ten element nie wysyła wejścia kontrolera, myszy ani klawiatury.</string>
     <string name="input_mouse_click">Kliknięcie myszy</string>
-    <string name="input_command">Akcja DroidDeck</string>
+    <string name="input_command">Akcja DroidHost</string>
     <string name="input_action">Akcja</string>
     <string name="input_scroll_speed">Szybkość przewijania: %1$d kroków/s</string>
     <string name="input_new_profile">+ Nowy profil</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Gesty touchpada myszy</string>
     <string name="input_mouse_gestures_hint">Po przypisaniu do wskaźnika myszy: dotknij, aby kliknąć, przytrzymaj, aby przeciągnąć, i przewijaj dwoma palcami.</string>
     <string name="input_quick_override_hint">%1$s ma zastąpienie szybkiego menu. Wybierz tam Auto, aby użyć profilu domyślnego i wszystkich trzech zapisanych części.</string>
-    <string name="input_route_local">Wejście DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Przytrzymywane, gdy drążek jest wychylony w dowolnym kierunku: naciśnięcie powyżej 55%, zwolnienie poniżej 35%. Użyj Klawiszy kierunkowych, aby przypisać każdy kierunek osobno. Polecenia DroidDeck działają raz na wychylenie. Kliknięcie drążka ustawia się osobno.</string>
-    <string name="input_contact_action_hint">Przytrzymywane podczas dotykania touchpada; zwalniane po podniesieniu palca. Polecenia DroidDeck działają raz na dotknięcie. Kliknięcie touchpada ustawia się osobno.</string>
-    <string name="input_trigger_action_hint" formatted="false">Przytrzymywane, gdy spust przekroczy 55%; zwalniane poniżej 35%. Polecenia DroidDeck działają raz na naciśnięcie.</string>
+    <string name="input_route_local">Wejście DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Przytrzymywane, gdy drążek jest wychylony w dowolnym kierunku: naciśnięcie powyżej 55%, zwolnienie poniżej 35%. Użyj Klawiszy kierunkowych, aby przypisać każdy kierunek osobno. Polecenia DroidHost działają raz na wychylenie. Kliknięcie drążka ustawia się osobno.</string>
+    <string name="input_contact_action_hint">Przytrzymywane podczas dotykania touchpada; zwalniane po podniesieniu palca. Polecenia DroidHost działają raz na dotknięcie. Kliknięcie touchpada ustawia się osobno.</string>
+    <string name="input_trigger_action_hint" formatted="false">Przytrzymywane, gdy spust przekroczy 55%; zwalniane poniżej 35%. Polecenia DroidHost działają raz na naciśnięcie.</string>
     <string name="input_scroll_axis">Kierunek przewijania</string>
     <string name="input_vertical">Pionowo</string>
     <string name="input_horizontal">Poziomo</string>
     <string name="input_scroll_horizontal">Przewijaj poziomo</string>
     <string name="input_measurements">Pomiary</string>
-    <string name="input_measure_instructions">Włącz nagrywanie, użyj sterowania w działającej sesji, a następnie wróć i odczytaj wyniki. Mierzy tylko czas wysyłania DroidDeck, nie opóźnienie ekranu. Nagrywanie kończy się przy zamknięciu procesu aplikacji.</string>
+    <string name="input_measure_instructions">Włącz nagrywanie, użyj sterowania w działającej sesji, a następnie wróć i odczytaj wyniki. Mierzy tylko czas wysyłania DroidHost, nie opóźnienie ekranu. Nagrywanie kończy się przy zamknięciu procesu aplikacji.</string>
     <string name="input_layout_count">Elementów sterowania: %1$d</string>
     <string name="input_other_layouts">Inne zapisane układy (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Ukryj inne zapisane układy (%1$d) ▴</string>

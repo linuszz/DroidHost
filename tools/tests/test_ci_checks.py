@@ -40,7 +40,7 @@ class CiChecksTest(unittest.TestCase):
         jobs = yaml.safe_load((ROOT / '.github/workflows/build.yml').read_text())['jobs']
         steps = {step.get('id'): step for step in jobs['build']['steps']}
         self.assertEqual(steps['build']['env'], steps['unit-tests']['env'])
-        self.assertIn('DROIDDECK_BUILD_LABEL', steps['unit-tests']['env'])
+        self.assertIn('DROIDHOST_BUILD_LABEL', steps['unit-tests']['env'])
         self.assertIn('SGDB_API_KEY', steps['unit-tests']['env'])
         gradle = (ROOT / 'app/build.gradle').read_text()
         self.assertIn("outputs.doNotCacheIf('CI executes the test suite on every run') { true }", gradle)

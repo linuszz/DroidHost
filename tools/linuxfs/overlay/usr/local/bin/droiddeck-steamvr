@@ -2,7 +2,7 @@
 set -u
 
 steamvr=${STEAMVR:-/opt/steamvr}
-vrdir=${DROIDDECK_VR_DIR:-/usr/local/lib/droiddeck-vr}
+vrdir=${DROIDHOST_VR_DIR:-/usr/local/lib/droiddeck-vr}
 driver=$vrdir/droiddeck
 layer=$vrdir/layer
 logs=$HOME/.local/share/Steam/logs
@@ -19,7 +19,7 @@ installed() { [ -x "$steamvr/bin/linuxarm64/vrstartup" ]; }
 quest_settings() {
     backup=$HOME/.local/share/droiddeck/steamvr-quest-settings.json
     [ "$1" != restore ] || [ -f "$backup" ] || return 0
-    python3 "${DROIDDECK_VR_SETTINGS_HELPER:-/usr/local/bin/droiddeck-steamvr-settings}" "$1" \
+    python3 "${DROIDHOST_VR_SETTINGS_HELPER:-/usr/local/bin/droiddeck-steamvr-settings}" "$1" \
         "$HOME/.local/share/Steam/config/steamvr.vrsettings" "$backup"
 }
 
@@ -123,14 +123,14 @@ start)
     installed || { echo "SteamVR is not installed (droiddeck-steamvr install)"; exit 1; }
     [ -f "$driver/bin/linuxarm64/driver_droiddeck.so" ] || { echo "the Cardboard driver is missing from $driver"; exit 1; }
     if [ -f "$state/active" ] && { running || pgrep -x vrstartup >/dev/null 2>&1; }; then
-        echo "DroidDeck SteamVR is already running"
+        echo "DroidHost SteamVR is already running"
         exit 0
     fi
     stop || exit 1
     sleep 1
     mkdir -p "$HOME/.config/openvr" "$HOME/.config/openxr/1" "$logs" "$HOME/.local/share/Steam/config"
-    if [ -S "/run/droiddeck/droiddeck-xr-frames" ] && [ -z "${DROIDDECK_VR_PRESENT:-}" ]; then
-        export DROIDDECK_VR_PRESENT=questwsi
+    if [ -S "/run/droiddeck/droiddeck-xr-frames" ] && [ -z "${DROIDHOST_VR_PRESENT:-}" ]; then
+        export DROIDHOST_VR_PRESENT=questwsi
     fi
     python3 - "$HOME/.local/share/Steam/config/steamvr.vrsettings" <<'PY'
 import json
@@ -143,7 +143,7 @@ path = Path(sys.argv[1])
 try:
     settings = json.loads(path.read_text()) if path.exists() else {}
     section = settings.setdefault("steamvr", {})
-    defaults = {} if os.environ.get("DROIDDECK_VR_PRESENT", "").startswith("quest") else {"supersampleManualOverride": True, "supersampleScale": 1.0}
+    defaults = {} if os.environ.get("DROIDHOST_VR_PRESENT", "").startswith("quest") else {"supersampleManualOverride": True, "supersampleScale": 1.0}
     changed = any(key not in section for key in defaults)
     for key, value in defaults.items():
         section.setdefault(key, value)
@@ -151,7 +151,7 @@ try:
     if isinstance(driver, dict) and driver.get("blocked_by_safe_mode") is True:
         driver["blocked_by_safe_mode"] = False
         changed = True
-        print("SteamVR had blocked the DroidDeck driver after a crash; unblocked it")
+        print("SteamVR had blocked the DroidHost driver after a crash; unblocked it")
     if changed:
         with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False) as output:
             temporary = Path(output.name)
@@ -209,11 +209,11 @@ JSON
 JSON
 
     export VK_LAYER_PATH="$layer${VK_LAYER_PATH:+:$VK_LAYER_PATH}"
-    export VK_INSTANCE_LAYERS="VK_LAYER_DROIDDECK_vr${VK_INSTANCE_LAYERS:+:$VK_INSTANCE_LAYERS}"
+    export VK_INSTANCE_LAYERS="VK_LAYER_DROIDHOST_vr${VK_INSTANCE_LAYERS:+:$VK_INSTANCE_LAYERS}"
     export VK_LOADER_LAYERS_DISABLE="${VK_LOADER_LAYERS_DISABLE:-~implicit~}"
     configure_graphics
     export LD_PRELOAD="$layer/libdroiddeck_vr_scheduling.so${LD_PRELOAD:+:$LD_PRELOAD}"
-    if [ "${DROIDDECK_VR_PRESENT:-}" = questwsi ]; then
+    if [ "${DROIDHOST_VR_PRESENT:-}" = questwsi ]; then
         quest_settings apply || exit 1
         startup_handed_off=0
         trap '[ "$startup_handed_off" = 1 ] || quest_settings restore' EXIT
@@ -225,12 +225,12 @@ JSON
             echo "Disabled Frame-only CVP backend for Quest; SteamVR uses its normal compositor"
         fi
     fi
-    if [ "${DROIDDECK_VR_PRESENT:-}" = questframes ]; then
-        export DROIDDECK_VR_PRODUCER_LEASE=${DROIDDECK_VR_PRODUCER_LEASE:-1}
+    if [ "${DROIDHOST_VR_PRESENT:-}" = questframes ]; then
+        export DROIDHOST_VR_PRODUCER_LEASE=${DROIDHOST_VR_PRODUCER_LEASE:-1}
     fi
-    if [ -z "${DROIDDECK_VR_DISPLAY_MODE:-}" ] && [ -x "$driver/bin/linuxarm64/xr-display-mode" ]; then
+    if [ -z "${DROIDHOST_VR_DISPLAY_MODE:-}" ] && [ -x "$driver/bin/linuxarm64/xr-display-mode" ]; then
         mode=$("$driver/bin/linuxarm64/xr-display-mode") || mode=
-        if [ -n "$mode" ]; then export DROIDDECK_VR_DISPLAY_MODE="$mode"; fi
+        if [ -n "$mode" ]; then export DROIDHOST_VR_DISPLAY_MODE="$mode"; fi
     fi
 
     shims=$state/shims

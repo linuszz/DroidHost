@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Linke Maustaste</string>
     <string name="input_mouse_right">Rechte Maustaste</string>
     <string name="input_mouse_middle">Mittlere Maustaste</string>
-    <string name="input_command_menu">DroidDeck-Menü öffnen</string>
+    <string name="input_command_menu">DroidHost-Menü öffnen</string>
     <string name="input_command_keyboard">Tastatur anzeigen</string>
     <string name="input_command_steam">Steam-Menü öffnen</string>
     <string name="input_command_qam">Steam-Schnellzugriff öffnen</string>

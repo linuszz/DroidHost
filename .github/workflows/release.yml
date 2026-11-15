@@ -113,7 +113,7 @@ jobs:
             echo "::error::release $VERSION already exists"; exit 1
           fi
           title=$(sed -n '1s/^# *//p' "$notes")
-          [ -n "$title" ] || title="DroidDeck $VERSION"
+          [ -n "$title" ] || title="DroidHost $VERSION"
           raw="https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$VERSION/docs/releases/media/"
           {
             sed '1{/^# /d;}' "$notes" | sed -E "s#(\]\(|src=\")media/#\1$raw#g"

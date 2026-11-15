@@ -110,14 +110,14 @@ def timestats_record(name, frames, histogram, hz):
 TIMESTATS_SPLIT = "SurfaceFlinger TimeStats:\ntotalFrames = 2000\n" + "".join([
     timestats_record("droiddeck_wayland_game#6110", 900, {16: 700, 33: 199}, 60),
     timestats_record("droiddeck_wayland_game#6110", 900, {16: 850, 25: 49}, 120),
-    timestats_record("com.droiddeck.launcher/com.droiddeck.launcher.SessionActivity#6097", 8, {16: 7}, 60),
-    timestats_record("f291fb6 SurfaceView[com.droiddeck.launcher/com.droiddeck.launcher.SessionActivity]#6101",
+    timestats_record("com.droidhost.launcher/com.droidhost.launcher.SessionActivity#6097", 8, {16: 7}, 60),
+    timestats_record("f291fb6 SurfaceView[com.droidhost.launcher/com.droidhost.launcher.SessionActivity]#6101",
                      30, {33: 29}, 60),
     timestats_record("StatusBar#106", 1, {}, 60),
 ])
 
 TIMESTATS_SURFACEVIEW = "SurfaceFlinger TimeStats:\n" + "".join([
-    timestats_record("a1b2c3 SurfaceView[com.droiddeck.launcher/com.droiddeck.launcher.SessionActivity]#77",
+    timestats_record("a1b2c3 SurfaceView[com.droidhost.launcher/com.droidhost.launcher.SessionActivity]#77",
                      1800, {16: 1796, 33: 3}, 120),
     timestats_record("a1b2c3 SurfaceView[com.other.app/com.other.app.Main]#12", 500, {8: 499}, 120),
 ])
@@ -140,10 +140,10 @@ CPUFREQ = textwrap.dedent('''\
 
 def battery(tenths):
     return f"Current Battery Service state:\n  level: 80\n  temperature: {tenths}\n  technology: Li-poly"
-PRIVATE_LOG_DIR = "/data/user/0/com.droiddeck.launcher/files/logs/sessions/s1"
-AGENT_LOGS_DIR = "/storage/emulated/0/Android/data/com.droiddeck.launcher/files/agent-logs"
+PRIVATE_LOG_DIR = "/data/user/0/com.droidhost.launcher/files/logs/sessions/s1"
+AGENT_LOGS_DIR = "/storage/emulated/0/Android/data/com.droidhost.launcher/files/agent-logs"
 EXPORTED_DIR = AGENT_LOGS_DIR + "/123e4567-e89b-12d3-a456-426614174000"
-EXPORTED_ZIP = EXPORTED_DIR + "/DroidDeck-s1.zip"
+EXPORTED_ZIP = EXPORTED_DIR + "/DroidHost-s1.zip"
 
 
 def share_zip(entries):
@@ -205,18 +205,18 @@ class DroiddeckctlTest(FakeAdbTest):
         self.assertFalse(self.calls())
 
     def test_a_variant_package_is_reached_through_its_own_provider_and_activity(self):
-        with unittest.mock.patch.dict(os.environ, {"DROIDDECK_PACKAGE": "com.antutu.benchmark.full"}):
+        with unittest.mock.patch.dict(os.environ, {"DROIDHOST_PACKAGE": "com.antutu.benchmark.full"}):
             variant = load("droiddeckctl")
         self.assertEqual("content://com.antutu.benchmark.full.agent", variant.AUTHORITY)
         with self.assertRaises(variant.ControlError):
             variant.start_agent_activity(str(self.adb), "fake-1", {"mode": "steam"})
         started = [e["args"] for e in self.calls() if e["args"][:3] == ["shell", "am", "start"]]
-        self.assertIn("com.antutu.benchmark.full/com.droiddeck.launcher.agent.AgentStartActivity", started[0])
+        self.assertIn("com.antutu.benchmark.full/com.droidhost.launcher.agent.AgentStartActivity", started[0])
 
     def test_a_start_delivered_to_an_existing_task_is_a_failure(self):
-        output = (b"Starting: Intent { cmp=com.droiddeck.launcher/.agent.AgentStartActivity (has extras) }\n"
+        output = (b"Starting: Intent { cmp=com.droidhost.launcher/.agent.AgentStartActivity (has extras) }\n"
                   b"Warning: Activity not started, intent has been delivered to currently running top-most instance.\n"
-                  b"Status: ok\nActivity: com.droiddeck.launcher/.FrontEndActivity\nComplete\n")
+                  b"Status: ok\nActivity: com.droidhost.launcher/.FrontEndActivity\nComplete\n")
 
         def adb(_adb, _serial, *args, timeout=30):
             return ctl.subprocess.CompletedProcess(args, 0, output, b"")
@@ -226,7 +226,7 @@ class DroiddeckctlTest(FakeAdbTest):
         self.assertEqual("ACTIVITY_START_FAILED", caught.exception.code)
 
     def test_a_malformed_package_is_refused_before_adb(self):
-        with unittest.mock.patch.dict(os.environ, {"DROIDDECK_PACKAGE": "com.example;reboot"}):
+        with unittest.mock.patch.dict(os.environ, {"DROIDHOST_PACKAGE": "com.example;reboot"}):
             variant = load("droiddeckctl")
         out = io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
@@ -356,7 +356,7 @@ class DroiddeckctlTest(FakeAdbTest):
         self.assertEqual("NO_SUCH_DISPLAY", out["error"]["code"])
 
     def test_pacing_sums_split_records_of_the_game_layer_only(self):
-        summary = ctl.pacing_summary(TIMESTATS_SPLIT, "com.droiddeck.launcher")
+        summary = ctl.pacing_summary(TIMESTATS_SPLIT, "com.droidhost.launcher")
         self.assertEqual(["droiddeck_wayland_game"], summary["layers"])
         self.assertEqual(1800, summary["frames"])
         self.assertEqual([60, 120], summary["refreshRates"])
@@ -366,14 +366,14 @@ class DroiddeckctlTest(FakeAdbTest):
         self.assertEqual(13.8, summary["offCadencePercent"])
 
     def test_pacing_reads_a_dump_with_windows_line_ends(self):
-        summary = ctl.pacing_summary(TIMESTATS_SPLIT.replace("\n", "\r\n"), "com.droiddeck.launcher")
-        self.assertEqual(ctl.pacing_summary(TIMESTATS_SPLIT, "com.droiddeck.launcher"), summary)
+        summary = ctl.pacing_summary(TIMESTATS_SPLIT.replace("\n", "\r\n"), "com.droidhost.launcher")
+        self.assertEqual(ctl.pacing_summary(TIMESTATS_SPLIT, "com.droidhost.launcher"), summary)
         self.assertEqual(1800, summary["frames"])
 
     def test_pacing_falls_back_to_the_sessions_surfaceview(self):
-        summary = ctl.pacing_summary(TIMESTATS_SURFACEVIEW, "com.droiddeck.launcher")
+        summary = ctl.pacing_summary(TIMESTATS_SURFACEVIEW, "com.droidhost.launcher")
         self.assertEqual(1, len(summary["layers"]))
-        self.assertIn("SurfaceView[com.droiddeck.launcher/", summary["layers"][0])
+        self.assertIn("SurfaceView[com.droidhost.launcher/", summary["layers"][0])
         self.assertEqual(1800, summary["frames"])
         self.assertEqual(3, summary["offCadence"])
 
@@ -399,18 +399,18 @@ class DroiddeckctlTest(FakeAdbTest):
             timestats_record("droiddeck_wayland_game#7", 910, {16: 450, 17: 450, 33: 10}, 60),
             timestats_record("StatusBar#106", 4, {8: 3}, 90),
         ])
-        summary = ctl.pacing_summary(text, "com.droiddeck.launcher")
+        summary = ctl.pacing_summary(text, "com.droidhost.launcher")
         self.assertEqual(10, summary["offCadence"])
         self.assertEqual([60], summary["refreshRates"])
 
     def test_pacing_skips_a_game_layer_with_no_frames_for_the_surfaceview(self):
         text = "SurfaceFlinger TimeStats:\n" + "".join([
             timestats_record("droiddeck_wayland_game#7", 0, {}, 120),
-            timestats_record("a1 SurfaceView[com.droiddeck.launcher/com.droiddeck.launcher.SessionActivity]#8", 600, {16: 598, 33: 1}, 120),
+            timestats_record("a1 SurfaceView[com.droidhost.launcher/com.droidhost.launcher.SessionActivity]#8", 600, {16: 598, 33: 1}, 120),
         ])
-        summary = ctl.pacing_summary(text, "com.droiddeck.launcher")
+        summary = ctl.pacing_summary(text, "com.droidhost.launcher")
         self.assertEqual(600, summary["frames"])
-        self.assertIn("SurfaceView[com.droiddeck.launcher/", summary["layers"][0])
+        self.assertIn("SurfaceView[com.droidhost.launcher/", summary["layers"][0])
 
     def test_pacing_with_a_layer_that_drew_no_frames_exits_4(self):
         self.configure({}, timestats="SurfaceFlinger TimeStats:\n" + timestats_record("droiddeck_wayland_game#7", 0, {}, 120))
@@ -611,7 +611,7 @@ class DroiddeckctlTest(FakeAdbTest):
         self.assertIn(["shell", "rm", "-rf", EXPORTED_DIR], [c["args"] for c in self.calls()])
 
     def test_logs_from_a_legacy_provider_remove_only_the_export_zip(self):
-        legacy_zip = AGENT_LOGS_DIR + "/DroidDeck-s1.zip"
+        legacy_zip = AGENT_LOGS_DIR + "/DroidHost-s1.zip"
         self.configure({"state": ended_state(),
                         "logs": {"ok": True, "sessionId": "s1", "zip": legacy_zip}},
                        files={legacy_zip: share_zip({"s1/session.log": "booted"})})

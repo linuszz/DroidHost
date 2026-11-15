@@ -83,7 +83,7 @@ void frame_received(uvc_frame_t* frame, void* user) {
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_droiddeck_launcher_glasses_UvcRgbDiagnostic_nativeSnapshot(JNIEnv* env, jobject,
+Java_com_droidhost_launcher_glasses_UvcRgbDiagnostic_nativeSnapshot(JNIEnv* env, jobject,
         jint fd, jint width, jint height, jint fps, jint durationMs, jlongArray metadata, jint logFd) {
     if (fd<0 || logFd<0 || !metadata || env->GetArrayLength(metadata)!=14 || width<160 || width>1920 ||
             height<120 || height>1080 || fps<5 || fps>30 || durationMs<1000 || durationMs>30000) return nullptr;

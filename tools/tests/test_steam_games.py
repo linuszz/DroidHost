@@ -54,7 +54,7 @@ class ImportsTest(unittest.TestCase):
         manifest = self.steam / 'steamapps/appmanifest_42.acf'
         self.assertIn('"StateFlags" "4"', manifest.read_text())
         self.assertIn('"Universe" "1"', manifest.read_text())
-        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidDeck-42').resolve())
+        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidHost-42').resolve())
         self.assertEqual(b'game', self.exe.read_bytes())
 
     def steam_install(self, appid=42):
@@ -229,7 +229,7 @@ class ImportsTest(unittest.TestCase):
         self.assertEqual([game], games)
         self.assertEqual({}, routes)
         self.assertFalse((self.steam / 'steamapps/appmanifest_42.acf').exists())
-        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidDeck-42'))
+        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidHost-42'))
 
     def test_store_installs_imported_earlier_are_released(self):
         self.snapshot()
@@ -240,7 +240,7 @@ class ImportsTest(unittest.TestCase):
         self.assertEqual({}, routes)
         self.assertEqual(1, len(games))
         self.assertFalse((self.steam / 'steamapps/appmanifest_42.acf').exists())
-        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidDeck-42'))
+        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidHost-42'))
         self.assertTrue(unrelated.is_file())
         self.assertEqual(b'game', self.exe.read_bytes())
 
@@ -282,7 +282,7 @@ class ImportsTest(unittest.TestCase):
         listing.write_text(json.dumps([self.game]))
         from unittest.mock import Mock
         idle = imports.downloads_idle
-        result = Mock(returncode=0, stdout='DROIDDECK_OWNERSHIP=' + json.dumps(dict(account='123', owned={'42': True})))
+        result = Mock(returncode=0, stdout='DROIDHOST_OWNERSHIP=' + json.dumps(dict(account='123', owned={'42': True})))
         with patch.object(imports, 'identify', side_effect=[None, 42]) as identify, \
              patch.object(imports, 'request_restart'), \
              patch.object(imports, 'ask_restart', return_value=True), \
@@ -305,7 +305,7 @@ class ImportsTest(unittest.TestCase):
             (self.steam / 'steamapps/downloading/7').mkdir(parents=True)
         from unittest.mock import Mock
         idle = imports.downloads_idle
-        result = Mock(returncode=0, stdout='DROIDDECK_OWNERSHIP=' + json.dumps(dict(account='123', owned={'42': True})))
+        result = Mock(returncode=0, stdout='DROIDHOST_OWNERSHIP=' + json.dumps(dict(account='123', owned={'42': True})))
         with patch.object(imports, 'identify', return_value=42), \
              patch.object(imports, 'game_running', return_value=False), \
              patch.object(imports, 'request_restart') as restart, \
@@ -389,7 +389,7 @@ class ImportsTest(unittest.TestCase):
         self.snapshot()
         imports.route(self.steam, self.acct, [self.game])
         text = (self.steam / 'steamapps/appmanifest_42.acf').read_text()
-        self.assertEqual(source.read_text().replace('"Example"', '"DroidDeck-42"'), text)
+        self.assertEqual(source.read_text().replace('"Example"', '"DroidHost-42"'), text)
 
     def test_winnative_manifest_identifies_folder(self):
         self.winnative_manifest()
@@ -399,13 +399,13 @@ class ImportsTest(unittest.TestCase):
     def test_incomplete_winnative_manifest_is_ignored(self):
         for flags, installdir in [('1026', 'Example'), ('4', 'Other')]:
             self.winnative_manifest(flags, installdir)
-            self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+            self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidHost-42'))
 
     def test_depot_config_records_installed_depots(self):
         config = self.folder / '.DepotDownloader/depot.config'
         config.parent.mkdir()
         config.write_text(json.dumps({'installedManifestIDs': {'43': 99}}))
-        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidHost-42'))
         (self.folder / '.download_complete').touch()
         self.snapshot()
         imports.route(self.steam, self.acct, [self.game])
@@ -413,7 +413,7 @@ class ImportsTest(unittest.TestCase):
         self.assertIn('"InstalledDepots"\n    {\n        "43"\n        {\n            "manifest" "99"', text)
         self.assertTrue(text.endswith('    }\n}\n'))
         config.write_text(json.dumps({'installedManifestIDs': {'43': 0x7FFFFFFFFFFFFFFF}}))
-        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidHost-42'))
 
     def test_compressed_protobuf_depot_config_records_installed_depots(self):
         config = self.folder / '.DepotDownloader/depot.config'
@@ -422,25 +422,25 @@ class ImportsTest(unittest.TestCase):
         entry = bytes([0x08, 43, 0x10, 99])
         packed = zlib.compressobj(wbits=-15)
         config.write_bytes(packed.compress(bytes([0x0A, len(entry)]) + entry) + packed.flush())
-        self.assertIn('"43"\n        {\n            "manifest" "99"', imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIn('"43"\n        {\n            "manifest" "99"', imports.installed_build(self.folder, 42, 'DroidHost-42'))
         config.write_bytes(b'not a config')
-        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidHost-42'))
         (config.parent / 'completed').mkdir()
         (config.parent / 'completed/43_98.manifest').write_bytes(b'x')
-        self.assertIn('"manifest" "98"', imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIn('"manifest" "98"', imports.installed_build(self.folder, 42, 'DroidHost-42'))
         config.write_text(json.dumps({'installedManifestIDs': {}}))
-        self.assertIn('"manifest" "98"', imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIn('"manifest" "98"', imports.installed_build(self.folder, 42, 'DroidHost-42'))
 
     def test_completed_manifests_record_installed_depots(self):
         completed = self.folder / '.DepotDownloader/completed'
         completed.mkdir(parents=True)
         (self.folder / '.download_complete').touch()
-        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidDeck-42'))
+        self.assertIsNone(imports.installed_build(self.folder, 42, 'DroidHost-42'))
         (completed / '43_98.manifest').write_bytes(b'old')
         (completed / '43_99.manifest').write_bytes(b'new')
         (completed / '44_7.manifest').write_bytes(b'x')
         os.utime(completed / '43_98.manifest', (1, 1))
-        text = imports.installed_build(self.folder, 42, 'DroidDeck-42')
+        text = imports.installed_build(self.folder, 42, 'DroidHost-42')
         self.assertIn('"43"\n        {\n            "manifest" "99"', text)
         self.assertIn('"44"\n        {\n            "manifest" "7"', text)
         self.assertNotIn('"98"', text)
@@ -456,7 +456,7 @@ class ImportsTest(unittest.TestCase):
         self.snapshot()
         imports.route(self.steam, self.acct, [self.game])
         path = self.steam / 'steamapps/appmanifest_42.acf'
-        path.write_text('"AppState"\n{\n\t"appid"\t\t"42"\n\t"StateFlags"\t\t"6"\n\t"installdir"\t\t"DroidDeck-42"\n'
+        path.write_text('"AppState"\n{\n\t"appid"\t\t"42"\n\t"StateFlags"\t\t"6"\n\t"installdir"\t\t"DroidHost-42"\n'
                         '\t"buildid"\t\t"0"\n\t"BytesDownloaded"\t\t"%s"\n\t"BytesStaged"\t\t"0"\n'
                         '\t"InstalledDepots"\n\t{\n\t}\n}\n' % downloaded)
         self.winnative_manifest()
@@ -481,7 +481,7 @@ class ImportsTest(unittest.TestCase):
         self.snapshot()
         imports.route(self.steam, self.acct, [self.game])
         path = self.steam / 'steamapps/appmanifest_42.acf'
-        path.write_text('"AppState"\n{\n\t"appid"\t\t"42"\n\t"StateFlags"\t\t"6"\n\t"installdir"\t\t"DroidDeck-42"\n'
+        path.write_text('"AppState"\n{\n\t"appid"\t\t"42"\n\t"StateFlags"\t\t"6"\n\t"installdir"\t\t"DroidHost-42"\n'
                         '\t"buildid"\t\t"0"\n\t"TargetBuildID"\t\t"9"\n%s\t"InstalledDepots"\n\t{\n\t}\n'
                         '\t"UserConfig"\n\t{\n\t}\n}\n' % extra)
         return path
@@ -551,7 +551,7 @@ class ImportsTest(unittest.TestCase):
             imports.save_json(self.acct / 'config' / imports.STATE,
                               dict(account='123', owned={'42': True}, candidates={legacy_game['folder']: 42},
                                    sources={legacy_game['folder']: [stamp[0], legacy_game['exe']] + stamp[2:]}))
-            link = self.steam / 'steamapps/common/DroidDeck-42'
+            link = self.steam / 'steamapps/common/DroidHost-42'
             link.parent.mkdir(parents=True)
             link.symlink_to(legacy_game['folder'], target_is_directory=True)
             games, routes = imports.route(self.steam, self.acct, [self.game])
@@ -568,7 +568,7 @@ class ImportsTest(unittest.TestCase):
         self.assertEqual('Steam owns this file', manifest.read_text())
 
     def test_import_collision_falls_back_without_touching_files(self):
-        occupied = self.steam / 'steamapps/common/DroidDeck-42'
+        occupied = self.steam / 'steamapps/common/DroidHost-42'
         occupied.mkdir(parents=True)
         self.snapshot()
         self.assertEqual(([self.game], {}), imports.route(self.steam, self.acct, [self.game]))
@@ -602,7 +602,7 @@ class ImportsTest(unittest.TestCase):
         manifest = self.steam / 'steamapps/appmanifest_42.acf'
         manifest.parent.mkdir(parents=True)
         manifest.write_text('"AppState"\n{\n    "appid" "42"\n    "installdir" "Example"\n}\n')
-        link = self.steam / 'steamapps/common/DroidDeck-42'
+        link = self.steam / 'steamapps/common/DroidHost-42'
         link.parent.mkdir(parents=True)
         link.symlink_to(self.root / 'missing', target_is_directory=True)
         imports.route(self.steam, self.acct, [])
@@ -618,7 +618,7 @@ class ImportsTest(unittest.TestCase):
         self.snapshot()
         self.assertEqual(([], {str(self.game['appid']): 42}), imports.route(self.steam, self.acct, [self.game]))
         self.assertFalse((self.steam / 'steamapps/appmanifest_42.acf').exists())
-        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidDeck-42'))
+        self.assertFalse(os.path.lexists(self.steam / 'steamapps/common/DroidHost-42'))
 
     def test_imported_game_stays_imported_when_ownership_is_unconfirmed(self):
         self.snapshot()
@@ -636,7 +636,7 @@ class ImportsTest(unittest.TestCase):
         with patch.object(imports, 'LIBRARY', str(card)):
             self.assertEqual(([], {str(self.game['appid']): 42}), imports.route(self.steam, self.acct, [self.game]))
         self.assertTrue((self.steam / 'steamapps/appmanifest_42.acf').is_file())
-        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidDeck-42').resolve())
+        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidHost-42').resolve())
 
     def test_replaced_game_does_not_inherit_cached_ownership(self):
         self.snapshot()
@@ -672,7 +672,7 @@ class ImportsTest(unittest.TestCase):
 
     def assert_not_imported_as(self, appid):
         self.assertFalse((self.steam / f'steamapps/appmanifest_{appid}.acf').exists())
-        self.assertFalse(os.path.lexists(self.steam / f'steamapps/common/DroidDeck-{appid}'))
+        self.assertFalse(os.path.lexists(self.steam / f'steamapps/common/DroidHost-{appid}'))
 
     def test_spacewar_import_is_released_and_never_made_again(self):
         self.import_as(480)
@@ -689,7 +689,7 @@ class ImportsTest(unittest.TestCase):
         with patch('builtins.print'):
             self.assertEqual(([], {str(self.game['appid']): 43}), imports.route(self.steam, self.acct, [self.game]))
         self.assert_not_imported_as(42)
-        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidDeck-43').resolve())
+        self.assertEqual(self.folder, (self.steam / 'steamapps/common/DroidHost-43').resolve())
 
     def test_unowned_new_appid_leaves_a_shortcut(self):
         self.snapshot()

@@ -28,7 +28,7 @@ class GlassesLocalizationTest(unittest.TestCase):
             if key.startswith(("glasses_", "spatial_", "tracking_recovery_", "setup_glasses_", "phone_camera_tracking_"))
             or key in ("setup_tab_glasses", "hand_camera_prompt_title", "hand_camera_prompt_body", "hand_camera_setting_hint")
         }
-        language_source = (ROOT / "app/src/main/java/com/droiddeck/launcher/core/AppLanguage.kt").read_text(encoding="utf-8")
+        language_source = (ROOT / "app/src/main/java/com/droidhost/launcher/core/AppLanguage.kt").read_text(encoding="utf-8")
         tags = re.findall(r'"([a-zA-Z0-9-]+)"', re.search(r"val supported:.*?listOf\((.*?)\)", language_source, re.S).group(1))
         special = {"id": "in", "es-419": "b+es+419", "pt-BR": "pt"}
         cls.locales = {}

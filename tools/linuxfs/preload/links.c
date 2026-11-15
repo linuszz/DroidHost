@@ -10,7 +10,7 @@
 static int refused(int error) { return error == EPERM || error == EACCES; }
 
 static int moves_instead(void) {
-  const char *v = getenv("DROIDDECK_LINK_RENAME");
+  const char *v = getenv("DROIDHOST_LINK_RENAME");
   return v != NULL && strcmp(v, "1") == 0;
 }
 

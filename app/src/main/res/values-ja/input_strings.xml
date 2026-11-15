@@ -18,7 +18,7 @@
     <string name="input_mouse_left">マウス左ボタン</string>
     <string name="input_mouse_right">マウス右ボタン</string>
     <string name="input_mouse_middle">マウス中ボタン</string>
-    <string name="input_command_menu">DroidDeck メニューを開く</string>
+    <string name="input_command_menu">DroidHost メニューを開く</string>
     <string name="input_command_keyboard">キーボードを表示</string>
     <string name="input_command_steam">Steam メニューを開く</string>
     <string name="input_command_qam">Steam クイックアクセスを開く</string>

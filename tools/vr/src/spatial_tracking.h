@@ -142,7 +142,7 @@ struct OpticalInputs {
 };
 class SpatialFile {
 public:
-    explicit SpatialFile(const char *path = "/run/droiddeck/" DROIDDECK_SPATIALPOSE_FILE) : path_(path) {}
+    explicit SpatialFile(const char *path = "/run/droiddeck/" DROIDHOST_SPATIALPOSE_FILE) : path_(path) {}
     SpatialFile(const SpatialFile &) = delete;
     SpatialFile &operator=(const SpatialFile &) = delete;
     bool Read(droiddeck_spatialpose *out) {
@@ -163,7 +163,7 @@ public:
             memcpy(out, map_, sizeof(*out));
             __atomic_thread_fence(__ATOMIC_ACQUIRE);
             if (seq == __atomic_load_n(&map_->seq, __ATOMIC_RELAXED))
-                return out->magic == DROIDDECK_SPATIALPOSE_MAGIC && out->version == DROIDDECK_SPATIALPOSE_VERSION && out->size == sizeof(*out);
+                return out->magic == DROIDHOST_SPATIALPOSE_MAGIC && out->version == DROIDHOST_SPATIALPOSE_VERSION && out->size == sizeof(*out);
         }
         return false;
     }

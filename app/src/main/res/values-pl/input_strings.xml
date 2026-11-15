@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Lewy przycisk myszy</string>
     <string name="input_mouse_right">Prawy przycisk myszy</string>
     <string name="input_mouse_middle">Środkowy przycisk myszy</string>
-    <string name="input_command_menu">Otwórz menu DroidDeck</string>
+    <string name="input_command_menu">Otwórz menu DroidHost</string>
     <string name="input_command_keyboard">Pokaż klawiaturę</string>
     <string name="input_command_steam">Otwórz menu Steam</string>
     <string name="input_command_qam">Otwórz szybki dostęp Steam</string>

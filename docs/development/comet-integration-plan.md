@@ -1,11 +1,11 @@
 # Comet integration research and implementation plan
 
-Researched 2026-10-12 against DroidDeck `10ef8c4bd62b21872fc13382a808cb0f2f117b26` (0.4.0).
+Researched 2026-10-12 against DroidHost `10ef8c4bd62b21872fc13382a808cb0f2f117b26` (0.4.0).
 The research below informed the implementation on `feat/gog-comet-achievements`, rebased onto refreshed main `a2a9586b`. Controlled SDK unlock/upload has now been verified on Thor; wider gameplay coverage remains an acceptance test for users.
 
 ## Implementation and testing status
 
-Implemented an opt-in GOG companion built from pinned Comet v0.3.2, credential transfer through stdin, one owned daemon per session/account, private persistent databases, per-game settings, and first-launch Galaxy service provisioning using the selected Proton. Local unlocks, pending uploads and successful uploads produce sanitized session events. The game settings card shows pending/uploaded/unavailable status for the companion in the current session; it is not a per-game achievement history. Local unlocks now show an animated DroidDeck notification with the achievement icon, name and game title. The achievement reader comes from main; upload acknowledgements refresh its progress. No Galaxy overlay is installed. The session-menu reader is available only for a live supported GOG/Epic game window with a nonempty achievement list, including while Steam's overlay is open; GOG browsing does not require Comet syncing to be enabled. Epic syncing remains a separate investigation.
+Implemented an opt-in GOG companion built from pinned Comet v0.3.2, credential transfer through stdin, one owned daemon per session/account, private persistent databases, per-game settings, and first-launch Galaxy service provisioning using the selected Proton. Local unlocks, pending uploads and successful uploads produce sanitized session events. The game settings card shows pending/uploaded/unavailable status for the companion in the current session; it is not a per-game achievement history. Local unlocks now show an animated DroidHost notification with the achievement icon, name and game title. The achievement reader comes from main; upload acknowledgements refresh its progress. No Galaxy overlay is installed. The session-menu reader is available only for a live supported GOG/Epic game window with a nonempty achievement list, including while Steam's overlay is open; GOG browsing does not require Comet syncing to be enabled. Epic syncing remains a separate investigation.
 
 Comet's patch also uses an unconditional periodic sync tick during SDK traffic, preserves retries after failed achievement POSTs, and limits SDK clients to enabled installed GOG games. Credential errors and raw upstream protocol output are not forwarded to Android/session logs.
 
@@ -23,14 +23,14 @@ The reader updated from 0/27 to 1/27 and back after upload/reset without reopeni
 ## User test guide
 
 1. Sign into GOG and enable **GOG achievements** in Stores settings. It is off by default. Keep the game's own achievement switch enabled in its launch settings; cloud saves may be on or off.
-2. Start a supported GOG game using a DroidDeck managed compatibility tool. Obtain a genuinely unearned achievement through normal gameplay.
+2. Start a supported GOG game using a DroidHost managed compatibility tool. Obtain a genuinely unearned achievement through normal gameplay.
 3. Check the game's GOG profile independently. Allow at least ten seconds online and a normal game exit. A local unlock should show a five-second notification over the game. The popup confirms the local unlock; check the GOG profile or the uploaded event for server delivery.
 4. Include the game/product ID, device, Proton choice, whether the prefix was new, and online/offline sequence with the session report. The `gog.achievements` events distinguish `unlocked-locally`, `pending-upload` and `uploaded`; `uploaded` is emitted only after a successful GOG POST. Do not include credentials.
 5. If the game has trouble with the companion, disable its achievement switch and relaunch. Changes to these switches apply on the next game launch.
 
 ## Recommendation and scope
 
-Integrate Comet as a native ARM64 Linux companion for **GOG Galaxy achievements** inside DroidDeck's existing Linux/Proton session. Start with an opt-in GOG setting and a per-game disable switch. Cover launches from Games, Stores, Android shortcuts, Steam's own Play button, and KDE when those paths use DroidDeck's managed compatibility tool.
+Integrate Comet as a native ARM64 Linux companion for **GOG Galaxy achievements** inside DroidHost's existing Linux/Proton session. Start with an opt-in GOG setting and a per-game disable switch. Cover launches from Games, Stores, Android shortcuts, Steam's own Play button, and KDE when those paths use DroidHost's managed compatibility tool.
 
 Comet handles the Galaxy SDK requests made by a game and uploads achievements to that game's GOG account. It does not transfer achievements between storefronts, add achievements to games without Galaxy SDK support, or implement Epic achievement sync. [Comet README](https://github.com/imLinguin/comet/blob/19b32597019ea1e64f1916010441960bcaac6e49/README.md)
 
@@ -38,10 +38,10 @@ Treat the screenshot as two workstreams:
 
 | Request | Approach | Initial deliverable |
 | --- | --- | --- |
-| GOG achievements | Comet + existing GOG sign-in + Proton prefix setup | An unlock reaches the correct GOG profile from a real DroidDeck launch |
+| GOG achievements | Comet + existing GOG sign-in + Proton prefix setup | An unlock reaches the correct GOG profile from a real DroidHost launch |
 | Epic achievements | Validate the game's EOS authentication, deployment, consent and achievement calls | Evidence of an EOS unlock and the corresponding Epic profile update; fixes only where a failure is demonstrated |
 
-Epic Games Store achievements are linked to EOS achievements in a game-specific deployment. A generic launcher service cannot create that integration for a title. DroidDeck already supplies EOS identity/deployment arguments and a fresh exchange code. [Epic achievement setup](https://dev.epicgames.com/docs/epic-games-store/services/epic-achievements/achievements-setup), [Epic authentication guide](https://dev.epicgames.com/docs/epic-online-services/accounts-and-social/eos-epic-account-services/auth-interface/auth-guide/auth-intro)
+Epic Games Store achievements are linked to EOS achievements in a game-specific deployment. A generic launcher service cannot create that integration for a title. DroidHost already supplies EOS identity/deployment arguments and a fresh exchange code. [Epic achievement setup](https://dev.epicgames.com/docs/epic-games-store/services/epic-achievements/achievements-setup), [Epic authentication guide](https://dev.epicgames.com/docs/epic-online-services/accounts-and-social/eos-epic-account-services/auth-interface/auth-guide/auth-intro)
 
 ## What was verified
 
@@ -63,7 +63,7 @@ dummy-service.zip
 
 These are locally measured hashes, not independently signed upstream attestations. A patched build will have different hashes.
 
-## Existing DroidDeck integration points
+## Existing DroidHost integration points
 
 | Source | Existing behavior | Proposed change |
 | --- | --- | --- |
@@ -76,7 +76,7 @@ These are locally measured hashes, not independently signed upstream attestation
 | `stores/StoreGameSidecar.kt`, `stores/gog/GogPrefs.kt` | Persist game and store settings | Add backward-compatible GOG achievement settings; keep game tokens out of sidecars |
 | `app/build.gradle`, `tools/build_local.sh`, `.github/workflows/build.yml`, `tools/release/runtime_inputs.py` | Prepare, cache and attest runtime assets | Include pinned Comet binary, service tools, licenses and build inputs in both local and CI APK paths |
 
-Paths above are under `app/src/main/java/com/droiddeck/launcher/` unless fully qualified.
+Paths above are under `app/src/main/java/com/droidhost/launcher/` unless fully qualified.
 
 `ComponentsManager.kt` manages FEX/DXVK/VKD3D packages. Comet should initially be an internal runtime asset rather than an additional graphics-component type.
 
@@ -116,7 +116,7 @@ Use the title's selected Proton build and `STEAM_COMPAT_DATA_PATH`, not a global
 
 This is an explicit first-launch problem: the existing `droiddeck-store-launch` runs before Proton creates a new prefix, and several existing registry helpers defer until a later launch. Add a guarded bootstrap/prelaunch stage using the selected Proton, prevent recursive store preparation, wait for its wineserver as needed, then register the service before starting the game. Do not accept "works on the second launch" as completion.
 
-Test PE x64 service tools through DroidDeck's ARM64 Proton/FEX path and at least one 32-bit Galaxy game. Architecture fit of the Linux daemon does not prove the Windows helpers work.
+Test PE x64 service tools through DroidHost's ARM64 Proton/FEX path and at least one 32-bit Galaxy game. Architecture fit of the Linux daemon does not prove the Windows helpers work.
 
 ### 5. Keep sync and teardown honest
 
@@ -132,7 +132,7 @@ Add an opt-in **GOG achievements** setting and a per-game override. Keep this in
 
 Defer a unified achievement browser, Android unlock toasts, GOG overlay downloads/injection, leaderboards UI, multiplayer and playtime claims. Upstream can implement more than achievements, but those features require their own validation. Comet itself downloads Galaxy peer redists in the background, so measure that network/cache behavior before deciding whether to defer or package it.
 
-Keep a per-game escape hatch: upstream has reports of incompatible games and crashes when Comet is enabled, including [Rise of the Tomb Raider](https://github.com/imLinguin/comet/issues/80) and [unhandled message type 43](https://github.com/imLinguin/comet/issues/90). These are reports, not reproduced DroidDeck failures.
+Keep a per-game escape hatch: upstream has reports of incompatible games and crashes when Comet is enabled, including [Rise of the Tomb Raider](https://github.com/imLinguin/comet/issues/80) and [unhandled message type 43](https://github.com/imLinguin/comet/issues/90). These are reports, not reproduced DroidHost failures.
 
 ## Implementation order and acceptance gates
 
@@ -142,7 +142,7 @@ Keep a per-game escape hatch: upstream has reports of incompatible games and cra
 4. **Settings and targeted coverage:** add opt-in and per-game override, useful status, request timeout/error cases, process reuse/conflict cases, database preservation, and fake-secret leak checks. Extend `tools/tests/test_store_launch.py`, `test_store_shortcuts.py`, `test_game_environment.py`, `test_runtime_inputs.py` and relevant JVM tests rather than duplicating unrelated suites.
 5. **Device acceptance:** verify an actual unlock appears on the correct GOG profile, then launch the same game twice and another game in a different prefix. Cover Steam Play, app launch, KDE, internal/SD installs, service-required and service-free titles, cloud-off, offline/reconnect, transient upload failure, suspend/resume, normal exit, drawer Stop, force stop, account change and app update. Record exact APK/runtime/Proton versions.
 
-For the initial spike, use an upstream-listed service-free title such as Hollow Knight and a service-required title such as Cuphead, subject to ownership and the current installed build. The [compatibility table](https://github.com/imLinguin/comet/blob/19b32597019ea1e64f1916010441960bcaac6e49/docs/wiki/Game-Compatibility.md) is a starting point, not a DroidDeck compatibility guarantee.
+For the initial spike, use an upstream-listed service-free title such as Hollow Knight and a service-required title such as Cuphead, subject to ownership and the current installed build. The [compatibility table](https://github.com/imLinguin/comet/blob/19b32597019ea1e64f1916010441960bcaac6e49/docs/wiki/Game-Compatibility.md) is a starting point, not a DroidHost compatibility guarantee.
 
 A first GOG PR should include the complete minimal path through packaging, authentication, first launch, sync and teardown. Split Epic into a separate investigation/PR so a GOG success is not presented as fulfilling the Epic half of the request.
 

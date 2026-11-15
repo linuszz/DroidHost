@@ -2,8 +2,8 @@
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/../.." && pwd)
 . "$repo/tools/docker_platform.sh"
-image=${DROIDDECK_BUILD_IMAGE}
-platform=${DROIDDECK_DOCKER_PLATFORM}
+image=${DROIDHOST_BUILD_IMAGE}
+platform=${DROIDHOST_DOCKER_PLATFORM}
 rust_cache="${HOME}/.cache/droiddeck-comet-rust${platform#linux/amd64}"
 rust_cache=${rust_cache/\/arm64/-arm64}
 git_common=$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)

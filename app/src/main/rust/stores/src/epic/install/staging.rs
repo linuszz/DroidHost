@@ -10,7 +10,7 @@ use crate::epic::manifest::Sha1 as Hash;
 
 pub const DIR_NAME: &str = ".droiddeck-epic-staging";
 pub const OWNER_FILE: &str = "owner";
-pub const OWNER_MARKER: &[u8] = b"DroidDeck Epic staging v1\n";
+pub const OWNER_MARKER: &[u8] = b"DroidHost Epic staging v1\n";
 const SUFFIX: &str = ".stage";
 pub const PARTIAL_SUFFIX: &str = ".part";
 const LIST_SUFFIX: &str = ".part.list";
@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn manifest_conflicts_and_names() {
         assert!(conflicts(".droiddeck-epic-staging/x"));
-        assert!(conflicts(".DroidDeck-Epic-Staging"));
+        assert!(conflicts(".DroidHost-Epic-Staging"));
         assert!(!conflicts("Game/.droiddeck-epic-staging"));
         let (a, b) = (unique_name(), unique_name());
         assert_ne!(a, b);

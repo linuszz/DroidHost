@@ -1,9 +1,9 @@
 # Steam's touch controls
 
-Drawer → Controller → **On-screen controls: Steam touch (beta)** replaces DroidDeck's own on-screen pad, in a
+Drawer → Controller → **On-screen controls: Steam touch (beta)** replaces DroidHost's own on-screen pad, in a
 Steam session, with Steam's touch controller: the one the Steam Link apps use. Bindings, action
 sets, per-game configs, Valve's touch templates, official and community touch configs and Steam
-Cloud sync are all Steam's; DroidDeck draws the controls and turns touches into the controller's
+Cloud sync are all Steam's; DroidHost draws the controls and turns touches into the controller's
 input. The research behind this (how Steam Link's touch controller works, the experiments on the
 Thor) is in `steam-touch-controller.md` on the `research/steam-touch-controller` branch.
 
@@ -103,7 +103,7 @@ The pickers are panels in the session's window, not dialogs.
   (`CVirtualControllerLayouts` fields 2-4), so they sync with the config. In Controller mode touches
   outside the controls do nothing; in Mouse mode only the menu button is drawn and the screen is the
   mouse. Also: vibrate on touch, fade when not touched, gyroscope (Steam Link's global options, kept
-  per device), the layout editor and DroidDeck's own menu.
+  per device), the layout editor and DroidHost's own menu.
 - **Editor**: ◀ ▶ steps through every action set of the game's config (each saved to its own layout),
   Add (the tray: bound controls not on screen, and the optional Paste button), More (colour and
   opacity, copy a layout, paste it into another game, reset), W−/W+/H−/H+ and axis-wise pinch for a
@@ -115,10 +115,10 @@ its custom tray drag-in animation. Gyro: the report now carries motion only whil
 (setting report 0x30) at Steam Link's scale (1000 °/s full scale); a `gyro_to_joystick` binding still
 did not move a game's stick with injected rates, so gyro remains unconfirmed.
 
-## DroidDeck's look
+## DroidHost's look
 
 With feature parity reached, the overlay keeps Steam Link's controls (outlined, white, Steam's face
-colours) but is DroidDeck's own: the guide button carries the split-D mark (artwork/droiddeck-mark.svg)
+colours) but is DroidHost's own: the guide button carries the split-D mark (artwork/droiddeck-mark.svg)
 instead of Steam's logo, and the menu, tray and pickers use the app's palette (ui/Theme.kt: surfaces
 #121417 / #1A1D22, hairlines #262A31, text #F2F4F7 / #9AA3AF, accent #1A9FFF), rounded corners and
 switches rather than Steam Link's navy panels and blue gradient tiles.

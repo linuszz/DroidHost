@@ -37,8 +37,8 @@ or imported on the Default Components page.
 
 FEX, DXVK and VKD3D-Proton each have an **Auto** or **Manual** mode on the Default
 Components page. Auto is the default unless a component already uses a package the
-user picked, which keeps it on Manual. In Auto, DroidDeck checks the
-DroidDeck-Components nightly release when DroidDeck is opened, at most hourly and
+user picked, which keeps it on Manual. In Auto, DroidHost checks the
+DroidHost-Components nightly release when DroidHost is opened, at most hourly and
 never during a running session, and installs the newest build into DroidDeck-Proton.
 Valve's Proton, GE-Proton, proton-cachyos and any other tool keep their own components;
 builds an earlier Auto had placed in them go back to the original once. A build the user
@@ -59,12 +59,12 @@ not counted. DXVK stays on Manual while the Vulkan bridge or the PowerVR runtime
 On an Adreno 6xx, DXVK Auto keeps every DroidDeck-Proton build on DXVK-gplasync 2.7.1 instead of
 following the nightlies (see below). Manual keeps the existing download, import and restore lists.
 
-Before publishing game component choices, DroidDeck preserves each Proton build's
+Before publishing game component choices, DroidHost preserves each Proton build's
 original components, including an explicitly empty bundle when a component is not
 shipped. Those restore choices remain after the last override is cleared. A missing
 or unreadable original is an error, not permission to delete the component's files.
 If an original is missing after a build may already have used a game override,
-DroidDeck refuses to capture those potentially modified files as originals.
+DroidHost refuses to capture those potentially modified files as originals.
 
 Component selections and the launch table are saved with a recovery record.
 Publishing the launch table commits the selection: if the app stops before its
@@ -106,7 +106,7 @@ Run the batch/reference and work-budget regressions with
 
 Under **Setup > Developer**, enable **Session logs** and **Game debug logs**
 before reproducing a Windows game problem. Game debug logs is off by default and
-is available when Session logs is enabled. It applies to the next game launch through DroidDeck's
+is available when Session logs is enabled. It applies to the next game launch through DroidHost's
 Valve or third-party Proton wrapper, including added games and store shortcuts.
 A running game must be restarted. If the current session began with Session logs
 disabled, restart that session first: its existing log folder is disposable, and
@@ -143,7 +143,7 @@ that diagnostics were skipped instead of writing uncollected files elsewhere.
 ## Enhanced diagnostics
 
 Use **Setup > Developer > Enhanced diagnostics for next session** when normal
-session logs are not enough. The setting is one-shot: DroidDeck creates and
+session logs are not enough. The setting is one-shot: DroidHost creates and
 retains the next session's log directory, records the diagnostic profile, then
 turns the setting off. It also enables the existing game diagnostic environment
 for that session without changing the user's saved **Session logs** or **Game
@@ -279,7 +279,7 @@ Windows/Wine graphics helper also maps the selected feature level to
 [variable editor](https://github.com/maxjivi05/WinNative/blob/c9fbbb342f2689c852046804f4f5c9afa45b5dcb/app/src/main/shared/ui/widget/EnvVarsView.java),
 [graphics configuration](https://github.com/maxjivi05/WinNative/blob/c9fbbb342f2689c852046804f4f5c9afa45b5dcb/app/src/main/feature/settings/drivers/DXVKConfigUtils.java).
 
-DroidDeck instead publishes an atomic JSON snapshot at
+DroidHost instead publishes an atomic JSON snapshot at
 `/root/.config/droiddeck/game-environment.json`. Both its Valve ARM64 Proton
 wrapper and adopted third-party Proton wrappers execute `droiddeck-game-env`,
 which reads that snapshot for each real game launch and uses `execvpe` to start

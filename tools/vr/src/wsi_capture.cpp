@@ -42,7 +42,7 @@ struct CaptureSlot {
     void *mapping{};
     VkFence fence{};
     bool busy{}, queued{};
-    DroidDeckXrFrameHeader header{};
+    DroidHostXrFrameHeader header{};
     ~CaptureSlot() { Clear(); }
     void Clear() {
         if (!device) return;
@@ -128,7 +128,7 @@ struct CaptureSlot {
     }
 };
 struct Swapchain {
-    explicit Swapchain(const char *trackingPath = "/run/droiddeck/" DROIDDECK_XR_FILE) : tracking(trackingPath) {}
+    explicit Swapchain(const char *trackingPath = "/run/droiddeck/" DROIDHOST_XR_FILE) : tracking(trackingPath) {}
     Device *device{};
     VkExtent2D extent{};
     VkFormat format{};
@@ -186,7 +186,7 @@ struct Swapchain {
                 if (gpu) {
                     uint32_t flags = (format == VK_FORMAT_B8G8R8A8_UNORM || format == VK_FORMAT_B8G8R8A8_SRGB) ? XR_GPU_BGRA : 0;
                     if (!gpuSender.Send(header, static_cast<uint32_t>(slot - slots.data()), flags)) result = VK_ERROR_DEVICE_LOST;
-                } else sender.SendShared("/run/droiddeck/" DROIDDECK_XR_FRAME_SOCKET, header, sharedFd);
+                } else sender.SendShared("/run/droiddeck/" DROIDHOST_XR_FRAME_SOCKET, header, sharedFd);
             }
             if (header.frame_id % 120 == 0) std::fprintf(stderr, "[droiddeck-vr-layer] WSI ms wait=%.2f invalidate=%.2f shared=%.2f\n",
                 (waited-begin)/1e6, (invalidated-waited)/1e6, (XrTrackingFile::Now()-invalidated)/1e6);
@@ -215,7 +215,7 @@ struct Swapchain {
         for (auto &semaphore : ready) if (d.CreateSemaphore(d.handle, &semaphoreInfo, nullptr, &semaphore)) return false;
         XrGpuPoolInfo info;
         std::array<int, XR_GPU_SLOTS> fds{{-1, -1, -1}};
-        gpu = d.foreign && gpuSender.Connect("/run/droiddeck/" DROIDDECK_XR_GPU_SOCKET, extent.width, extent.height, info, fds);
+        gpu = d.foreign && gpuSender.Connect("/run/droiddeck/" DROIDHOST_XR_GPU_SOCKET, extent.width, extent.height, info, fds);
         if (gpu) {
             for (unsigned index = 0; index < slots.size(); index++)
                 if (!slots[index].Initialize(d, extent, format, family, fds[index], info.sizes[index])) { gpu = false; break; }
@@ -235,14 +235,14 @@ struct Swapchain {
         failed = true; slot.busy = false;
         return result;
     }
-    bool Header(DroidDeckXrFrameHeader &header) {
-        DroidDeckXrTracking packet{};
+    bool Header(DroidHostXrFrameHeader &header) {
+        DroidHostXrTracking packet{};
         if (!tracking.Read(&packet) || !XrTrackingFile::Fresh(packet)) return false;
         header = {};
-        header.magic = DROIDDECK_XR_FRAME_MAGIC; header.version = DROIDDECK_XR_FRAME_VERSION;
+        header.magic = DROIDHOST_XR_FRAME_MAGIC; header.version = DROIDHOST_XR_FRAME_VERSION;
         header.width = extent.width; header.height = extent.height;
         header.bytes = extent.width * extent.height * 4;
-        header.color_space = DROIDDECK_XR_COLOR_SRGB_RGBA8;
+        header.color_space = DROIDHOST_XR_COLOR_SRGB_RGBA8;
         header.frame_id = ++frame; header.captured_ns = XrTrackingFile::Now();
         for (int eye = 0; eye < 2; eye++) {
             const auto &pose = packet.eyes[eye].pose;
@@ -271,7 +271,7 @@ struct Swapchain {
         }
         if (!selected) return VK_SUCCESS;
         auto &slot = *selected;
-        DroidDeckXrFrameHeader header{};
+        DroidHostXrFrameHeader header{};
         if (!Header(header)) { std::lock_guard<std::mutex> lock(sendMutex); slot.busy = false; return VK_SUCCESS; }
         auto &command = slot.command;
         auto &buffer = slot.buffer;
@@ -342,7 +342,7 @@ std::unordered_map<VkSwapchainKHR, std::unique_ptr<Swapchain>> swapchains;
 
 extern "C" void droiddeck_wsi_device(VkDevice device, VkPhysicalDevice physical, VkInstance instance,
                                      PFN_vkGetInstanceProcAddr gipa, PFN_vkGetDeviceProcAddr gdpa, const VkDeviceCreateInfo *create) {
-    const char *mode = getenv("DROIDDECK_VR_PRESENT");
+    const char *mode = getenv("DROIDHOST_VR_PRESENT");
     if (!mode || strcmp(mode, "questwsi") || strcmp(program_invocation_short_name, "vrcompositor")) return;
     auto d = std::make_unique<Device>(); d->handle = device;
     d->GetMemoryFdPropertiesKHR = reinterpret_cast<PFN_vkGetMemoryFdPropertiesKHR>(gdpa(device, "vkGetMemoryFdPropertiesKHR"));

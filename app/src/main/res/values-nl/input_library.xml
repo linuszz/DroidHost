@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Stuur controllerinvoer naar Steam Input of het spel.</string>
     <string name="input_disabled_hint">Dit element stuurt geen controller-, muis- of toetsenbordinvoer.</string>
     <string name="input_mouse_click">Muisklik</string>
-    <string name="input_command">DroidDeck-actie</string>
+    <string name="input_command">DroidHost-actie</string>
     <string name="input_action">Actie</string>
     <string name="input_scroll_speed">Scrollsnelheid: %1$d stappen/s</string>
     <string name="input_new_profile">+ Nieuw profiel</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Muis-touchpadgebaren</string>
     <string name="input_mouse_gestures_hint">Bij toewijzing aan de muisaanwijzer: tik om te klikken, houd vast om te slepen en scroll met twee vingers.</string>
     <string name="input_quick_override_hint">%1$s heeft een snelmenu-overschrijving. Kies daar Auto om het standaardprofiel en alle drie opgeslagen delen te gebruiken.</string>
-    <string name="input_route_local">DroidDeck-invoer</string>
-    <string name="input_axis_action_hint" formatted="false">Vastgehouden terwijl de stick in een willekeurige richting wordt bewogen: ingedrukt boven 55%, losgelaten onder 35%. Gebruik Richtingtoetsen om elke richting apart toe te wijzen. DroidDeck-opdrachten worden één keer per uitslag uitgevoerd. De stickklik wordt apart ingesteld.</string>
-    <string name="input_contact_action_hint">Vastgehouden tijdens aanraking van de touchpad; losgelaten bij het optillen van je vinger. DroidDeck-opdrachten worden één keer per aanraking uitgevoerd. De touchpadklik wordt apart ingesteld.</string>
-    <string name="input_trigger_action_hint" formatted="false">Vastgehouden wanneer de trigger 55% passeert; losgelaten onder 35%. DroidDeck-opdrachten worden één keer per druk uitgevoerd.</string>
+    <string name="input_route_local">DroidHost-invoer</string>
+    <string name="input_axis_action_hint" formatted="false">Vastgehouden terwijl de stick in een willekeurige richting wordt bewogen: ingedrukt boven 55%, losgelaten onder 35%. Gebruik Richtingtoetsen om elke richting apart toe te wijzen. DroidHost-opdrachten worden één keer per uitslag uitgevoerd. De stickklik wordt apart ingesteld.</string>
+    <string name="input_contact_action_hint">Vastgehouden tijdens aanraking van de touchpad; losgelaten bij het optillen van je vinger. DroidHost-opdrachten worden één keer per aanraking uitgevoerd. De touchpadklik wordt apart ingesteld.</string>
+    <string name="input_trigger_action_hint" formatted="false">Vastgehouden wanneer de trigger 55% passeert; losgelaten onder 35%. DroidHost-opdrachten worden één keer per druk uitgevoerd.</string>
     <string name="input_scroll_axis">Scrollrichting</string>
     <string name="input_vertical">Verticaal</string>
     <string name="input_horizontal">Horizontaal</string>
     <string name="input_scroll_horizontal">Horizontaal scrollen</string>
     <string name="input_measurements">Metingen</string>
-    <string name="input_measure_instructions">Schakel opnemen in, gebruik de bediening in een lopende sessie en kom terug om de resultaten te lezen. Meet alleen de DroidDeck-verzendtijd, niet de schermvertraging. De opname stopt wanneer het app-proces sluit.</string>
+    <string name="input_measure_instructions">Schakel opnemen in, gebruik de bediening in een lopende sessie en kom terug om de resultaten te lezen. Meet alleen de DroidHost-verzendtijd, niet de schermvertraging. De opname stopt wanneer het app-proces sluit.</string>
     <string name="input_layout_count">%1$d bedieningen</string>
     <string name="input_other_layouts">Andere opgeslagen indelingen (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Andere opgeslagen indelingen verbergen (%1$d) ▴</string>

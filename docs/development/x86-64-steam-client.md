@@ -23,7 +23,7 @@ arm64 client down first.
 | `droiddeck-steam-x64 --prepare` | install and set up, then exit |
 | `droiddeck-steam-x64 --exec ARGS...` | run the client binary in its environment (how the session starts it) |
 | `droiddeck-steam-x64 --sync-login` | copy the newer sign-in to the other client |
-| `droiddeck-steam-x64 --map-direct [--live]` | map Linux titles to DroidDeck direct |
+| `droiddeck-steam-x64 --map-direct [--live]` | map Linux titles to DroidHost direct |
 | `droiddeck-steam-x64 --default-tool` | print the default ARM64 Proton wrapper's tool name |
 | `droiddeck-steam-x64 --gpu` / `--webhelper-gpu` | exit status: client / x86 web helper on the GPU |
 
@@ -208,7 +208,7 @@ alone would then read as an installed client.
   `fex-2610-r3`, `fex-2610-r4` (in-root resolution when openat2 is missing, exact MAP_32BIT
   marking), `fex-2610-r5` (current: bundles libxxhash, which the Linux runtime does not ship; the
   build fails when a program in the package needs a library that is neither bundled nor listed in
-  `tools/fex/runtime-libs.txt`). They were built and published in The412Banner/DroidDeck; up to r3 their tags point at that
+  `tools/fex/runtime-libs.txt`). They were built and published in The412Banner/DroidHost; up to r3 their tags point at that
   repository's `main`, from r4 at the commit each was built from. Later builds are versions on the single
   `fex` release; `fex-2610-r5` stays published as the build `droiddeck-fex-update` pins.
 - **Where the app gets it.** The app downloads FEX from Droid-Deck/DroidDeck-Components, where nothing is
@@ -235,10 +235,10 @@ alone would then read as an installed client.
   one line says so with the exit codes, followed by x86 `glxinfo -B` and `vulkaninfo --summary` through
   FEX's thunks.
 
-## DroidDeck direct for Linux games and runtimes
+## DroidHost direct for Linux games and runtimes
 
 - Steam runs native Linux games in the Steam Linux Runtime container (pressure-vessel), which needs
-  bwrap and user namespaces. **DroidDeck direct** (`compatibilitytools.d/droiddeck-direct`, linux to
+  bwrap and user namespaces. **DroidHost direct** (`compatibilitytools.d/droiddeck-direct`, linux to
   linux) runs them under FEX with no container. Scout titles run through Valve's scout library runtime
   (`ubuntu12_32/steam-runtime/run.sh`). Titles Valve gives a newer runtime (sniper, soldier; listed in
   `direct-sniper`) are built for newer libraries than scout's and run on the rootfs (Ubuntu 24.04) as
@@ -250,7 +250,7 @@ alone would then read as an installed client.
   taken back. `direct-auto.json` lists what was mapped. One pass over the mapping: a 2000-title fixture
   went from 16.5 s to 0.2 s with the same output.
 - A game whose Windows build is installed (it ran on a Proton before) stays a Windows game on the
-  default Proton. Steam does not swap an installed build when the tool changes: DroidDeck direct was
+  default Proton. Steam does not swap an installed build when the tool changes: DroidHost direct was
   handed `Launcher.exe` and the game ended at once (Borderlands 2), and getting the Linux build back
   means downloading the game again.
 - The client rewrites `config.vdf` from memory as it exits, so the mapping is written only while no
@@ -342,7 +342,7 @@ alone would then read as an installed client.
   arm64 token (`RecvMsgClientLogOnResponse ... 'OK'`).
 - **App side.** The library, art picker, grid sync and boot movie follow the running client, else the
   selected one; a changed client applies from the next session. A game is listed once per client: an added game
-  whose folder a Steam install already covers (its `DroidDeck-<appid>` import) is shown as that Steam
+  whose folder a Steam install already covers (its `DroidHost-<appid>` import) is shown as that Steam
   game only, and a client switch drops the old client's imported entries with its Steam games. In
   Steam, an import stays one when its ownership cannot be confirmed that session instead of gaining a
   shortcut beside it, and only the client's own library folders count as an install (the arm64 card
@@ -385,7 +385,7 @@ alone would then read as an installed client.
   untagged `steam_app_<id>` windows with `STEAM_GAME` on the game display when the x86 client runs
   (DiRT 3, an added game, then reached its title screen at 144 fps).
 - The x86 client's tools are not adopted as arm64 Protons: `adopt_extras` on its
-  `compatibilitytools.d` rewrote DroidDeck direct as a Windows tool, and Steam installed Half-Life's
+  `compatibilitytools.d` rewrote DroidHost direct as a Windows tool, and Steam installed Half-Life's
   Windows files. The arm64 Proton is adopted on demand at an x86 launch.
 - **Default.** The newest DroidDeck-Proton, then the newest GE-Proton (aarch64), else
   `droiddeck-proton-a64`. FlatOut from the card ran on DroidDeck-Proton 11-9.1 and exited on
@@ -482,7 +482,7 @@ alone would then read as an installed client.
 - 32-bit Linux titles through the arm64 client's `droiddeck-fex` still fail (not pursued).
 - The x86 web helper's menus run at 60 fps without kopper.
 - Counter-Strike 2 reaches its menu (and loaded Dust II at 78 fps), then Android's `lmkd` kills
-  DroidDeck. The game's GPU memory is pinned: KGSL `page_alloc` followed Shmem through the load, to
+  DroidHost. The game's GPU memory is pinned: KGSL `page_alloc` followed Shmem through the load, to
   about 3.2 GB at the kill, with Unevictable just above it. This device's `lmkd` runs in minfree mode,
   which does not count swap, while MemAvailable counted that memory as available. Paging the game out
   with a root tool (`process_madvise(MADV_PAGEOUT)`) let it draw its menu, but `lmkd` still killed the

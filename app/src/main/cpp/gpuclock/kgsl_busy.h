@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_KGSL_BUSY_H
-#define DROIDDECK_KGSL_BUSY_H
+#ifndef DROIDHOST_KGSL_BUSY_H
+#define DROIDHOST_KGSL_BUSY_H
 // kgsl lets any client map its memstore read-only (KGSL_PROP_DEVICE_SHADOW). The CP writes a ringbuffer's
 // start-of-pipe timestamp there before each submission's command buffers and its end-of-pipe timestamp after them
 // (adreno_gen7_ringbuffer.c gen7_ringbuffer_addcmds), so start != end means that ringbuffer has work on the GPU.

@@ -18,7 +18,7 @@
     <string name="input_mouse_left">마우스 왼쪽 버튼</string>
     <string name="input_mouse_right">마우스 오른쪽 버튼</string>
     <string name="input_mouse_middle">마우스 가운데 버튼</string>
-    <string name="input_command_menu">DroidDeck 메뉴 열기</string>
+    <string name="input_command_menu">DroidHost 메뉴 열기</string>
     <string name="input_command_keyboard">키보드 표시</string>
     <string name="input_command_steam">Steam 메뉴 열기</string>
     <string name="input_command_qam">Steam 빠른 액세스 열기</string>

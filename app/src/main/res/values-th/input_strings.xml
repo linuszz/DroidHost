@@ -18,7 +18,7 @@
     <string name="input_mouse_left">ปุ่มซ้ายของเมาส์</string>
     <string name="input_mouse_right">ปุ่มขวาของเมาส์</string>
     <string name="input_mouse_middle">ปุ่มกลางของเมาส์</string>
-    <string name="input_command_menu">เปิดเมนู DroidDeck</string>
+    <string name="input_command_menu">เปิดเมนู DroidHost</string>
     <string name="input_command_keyboard">แสดงแป้นพิมพ์</string>
     <string name="input_command_steam">เปิดเมนู Steam</string>
     <string name="input_command_qam">เปิดการเข้าถึงด่วนของ Steam</string>

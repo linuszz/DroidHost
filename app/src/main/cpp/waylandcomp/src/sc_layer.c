@@ -404,7 +404,7 @@ static void describe_handle(const struct droiddeck_native_handle *h, char *out, 
 static int g_alloc_failed;
 
 enum { TIER_UBWC, TIER_PLAIN, TIER_LINEAR };
-#define DROIDDECK_AHB_USAGE_VENDOR_UBWC (1ULL << 28)
+#define DROIDHOST_AHB_USAGE_VENDOR_UBWC (1ULL << 28)
 
 static const char *tier_name(int tier) {
     return tier == TIER_UBWC ? "asked for UBWC" : tier == TIER_PLAIN ? "no UBWC request" : "linear by request (CPU bit)";
@@ -419,7 +419,7 @@ static int alloc_slot(struct layer *l, struct slot *s, int w, int h, uint32_t fm
             .format = fmt,
             .usage = AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
                      AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY |
-                     (tier == TIER_UBWC ? DROIDDECK_AHB_USAGE_VENDOR_UBWC : 0) |
+                     (tier == TIER_UBWC ? DROIDHOST_AHB_USAGE_VENDOR_UBWC : 0) |
                      (tier == TIER_LINEAR ? AHARDWAREBUFFER_USAGE_CPU_READ_RARELY : 0)};
         AHardwareBuffer *ahb = NULL;
         if (AHardwareBuffer_allocate(&d, &ahb) != 0 || !ahb) {
@@ -671,10 +671,10 @@ static void apply_headroom(ASurfaceTransaction *tx, struct layer *l, const struc
 }
 
 static void apply_colour(ASurfaceTransaction *tx, struct layer *l, const struct droiddeck_color *c) {
-    int32_t want = c ? c->dataspace : DROIDDECK_ADATASPACE_UNKNOWN;
+    int32_t want = c ? c->dataspace : DROIDHOST_ADATASPACE_UNKNOWN;
     uint32_t md = (c && c->dataspace) ? c->identity : 0;
     if (!api.setBufferDataSpace) return;
-    if (l->ds_applied < 0 && want == DROIDDECK_ADATASPACE_UNKNOWN) return;
+    if (l->ds_applied < 0 && want == DROIDHOST_ADATASPACE_UNKNOWN) return;
     apply_headroom(tx, l, want ? c : NULL);
     if (want == l->ds_applied && md == l->md_applied) return;
     api.setBufferDataSpace(tx, l->sc, want);
@@ -694,7 +694,7 @@ static void apply_colour(ASurfaceTransaction *tx, struct layer *l, const struct 
         char cov[96];
         coverage_text(l, cov, sizeof(cov));
         droiddeck_log("color", "%s: dataspace %s (%#x) set on the display layer for image description #%u%s%s; SMPTE 2086 "
-                   "%s, CTA-861.3 %s [%s]", l->name, want == DROIDDECK_ADATASPACE_BT2020_PQ ? "BT2020_PQ" : "HDR",
+                   "%s, CTA-861.3 %s [%s]", l->name, want == DROIDHOST_ADATASPACE_BT2020_PQ ? "BT2020_PQ" : "HDR",
                    (unsigned)want, c->identity, cov[0] ? ", " : "", cov,
                    st_on ? (api.setHdrMetadata_smpte2086 ? "sent" : "not supported by this Android") : "none given",
                    cta_on ? (api.setHdrMetadata_cta861_3 ? "sent" : "not supported by this Android") : "none given",
@@ -841,7 +841,7 @@ int sc_layer_present_ahb(AHardwareBuffer *ahb, int w, int h, int acquire_fd, voi
     if (!l->shown) { l->shown = 1; droiddeck_log("layer", "%s: layer shown", l->name); }
     if (!l->first_logged) l->first_logged = 1;
     vkp_signal_first_frame();
-    if (color && color->dataspace) droiddeck_color_frame_shown(color, DROIDDECK_HDR_ZERO_COPY, ahb_format);
+    if (color && color->dataspace) droiddeck_color_frame_shown(color, DROIDHOST_HDR_ZERO_COPY, ahb_format);
     return 0;
 unavailable:
     if (acquire_fd >= 0) close(acquire_fd);
@@ -862,7 +862,7 @@ int sc_layer_present(struct vkp_image *src, int scene_w, int scene_h, const stru
     if (idx < 0) { log_drop(l); return 0; }
     if (vkp_blit_image(src, l->slots[idx].img, wait_fd) != 0) return -1;
     if (present_slot(l, idx, r, color, 0) != 0) return -1;
-    if (color && color->dataspace) droiddeck_color_frame_shown(color, DROIDDECK_HDR_LAYER_COPY, AHB_RGBA8);
+    if (color && color->dataspace) droiddeck_color_frame_shown(color, DROIDHOST_HDR_LAYER_COPY, AHB_RGBA8);
     if (!l->first_logged) {
         l->first_logged = 1;
         droiddeck_log("layer", "presenting %dx%d game frames on their own SurfaceControl layer (%s pool, %d buffers); "
@@ -920,7 +920,7 @@ int sc_layer_present_hdr_scene(const struct vkp_draw *draws, int n, const struct
     if (vkp_pass_copy_to(l->slots[idx].img, wait_fd) != 0) return -1;
     if (present_slot(l, idx, r, tm ? NULL : color, 0) != 0) return -1;
     if (color && color->dataspace)
-        droiddeck_color_frame_shown(color, tm ? DROIDDECK_HDR_TONEMAPPED : DROIDDECK_HDR_COMPOSED, tm ? AHB_RGBA8 : g_hdr_pool_fmt);
+        droiddeck_color_frame_shown(color, tm ? DROIDHOST_HDR_TONEMAPPED : DROIDHOST_HDR_COMPOSED, tm ? AHB_RGBA8 : g_hdr_pool_fmt);
     static int said = -1;
     if (said != tm) {
         said = tm;
@@ -934,7 +934,7 @@ int sc_layer_present_hdr_scene(const struct vkp_draw *draws, int n, const struct
             droiddeck_log("color", "HDR picture on its own display layer: %dx%d, %s %s buffers, tagged %s%s%s", rw, rh,
                        pool_kind(l->pool_modifier),
                        g_hdr_pool_fmt == AHB_RGB10A2 ? "10-bit" : "8-bit",
-                       color && color->dataspace == DROIDDECK_ADATASPACE_BT2020_PQ ? "BT2020_PQ" : "HDR",
+                       color && color->dataspace == DROIDHOST_ADATASPACE_BT2020_PQ ? "BT2020_PQ" : "HDR",
                        cov[0] ? ", " : "", cov);
         }
     }

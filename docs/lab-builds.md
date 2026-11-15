@@ -1,6 +1,6 @@
 # Lab builds
 
-A Lab build is DroidDeck app code and resources built on the device itself, by the on-device agent
+A Lab build is DroidHost app code and resources built on the device itself, by the on-device agent
 or by hand, and loaded over the installed APK at the next start. Nothing is reinstalled or
 re-signed, so a tester on a release build keeps their games, sign-ins and settings while trying a
 change.
@@ -14,7 +14,7 @@ after restarting. If no complete copy exists, the pack uses the checkout's pin.
 - `tools/agent/dd-lab-build` builds the checkout with Gradle on the device (`processReleaseResources`
   and `mergeDexRelease`), packs the linked resources and dex files into `overlay.apk`, writes
   `overlay.json`, and stages both in the app's `files/lab/next`. It then recompiles the app without
-  an app image and restarts DroidDeck.
+  an app image and restarts DroidHost.
 - Run by the app's own agent (`DD_AGENT` set), it writes `files/agent/lab-request` instead, and the
   app runs the build in a process of its own, logging to `~/.cache/dd-lab-build.log`; the agent's
   copy follows that log and exits with the build. A turn's processes end with the turn, so a build
@@ -30,8 +30,8 @@ after restarting. If no complete copy exists, the pack uses the checkout's pin.
   install can be used again, and any can be deleted.
 
 The build targets the package owning `DD_AGENT_INBOX` when run from the Agent tab.
-For a manual build of another package, set `DROIDDECK_PACKAGE`, for example
-`DROIDDECK_PACKAGE=com.tencent.ig dd-lab-build`. This also selects the control provider,
+For a manual build of another package, set `DROIDHOST_PACKAGE`, for example
+`DROIDHOST_PACKAGE=com.tencent.ig dd-lab-build`. This also selects the control provider,
 Lab storage, and package to restart.
 
 ## What a Lab build cannot change
@@ -53,7 +53,7 @@ changes; they need a new APK.
 
 ## Setting up a device
 
-From the DroidDeck terminal, in a checkout of this repository:
+From the DroidHost terminal, in a checkout of this repository:
 
 ```sh
 tools/agent/setup
@@ -69,4 +69,4 @@ commit without making a Lab build.
 `~/.cache/dd-lab-build.json` reports the stage, the current task, progress in thousandths and the
 seconds left, estimated from how long each task took the last time (`~/.cache/dd-lab-build-times`).
 `~/.cache/dd-lab-build-base` holds the installed commit the last successful build compiled, so the
-Agent tab can offer to prepare again after DroidDeck updates.
+Agent tab can offer to prepare again after DroidHost updates.

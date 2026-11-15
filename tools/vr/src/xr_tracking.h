@@ -1,59 +1,59 @@
 #pragma once
 #include <stdint.h>
 
-#define DROIDDECK_XR_MAGIC 0x52584444u
-#define DROIDDECK_XR_VERSION 1u
-#define DROIDDECK_XR_FILE "droiddeck-xr-tracking"
-#define DROIDDECK_XR_STICK_CLICK (1u << 0)
-#define DROIDDECK_XR_PRIMARY_CLICK (1u << 1)
-#define DROIDDECK_XR_SECONDARY_CLICK (1u << 2)
-#define DROIDDECK_XR_MENU_CLICK (1u << 3)
-#define DROIDDECK_XR_TRIGGER_TOUCH (1u << 4)
-#define DROIDDECK_XR_STICK_TOUCH (1u << 5)
-#define DROIDDECK_XR_PRIMARY_TOUCH (1u << 6)
-#define DROIDDECK_XR_SECONDARY_TOUCH (1u << 7)
-#define DROIDDECK_XR_THUMBREST_TOUCH (1u << 8)
+#define DROIDHOST_XR_MAGIC 0x52584444u
+#define DROIDHOST_XR_VERSION 1u
+#define DROIDHOST_XR_FILE "droiddeck-xr-tracking"
+#define DROIDHOST_XR_STICK_CLICK (1u << 0)
+#define DROIDHOST_XR_PRIMARY_CLICK (1u << 1)
+#define DROIDHOST_XR_SECONDARY_CLICK (1u << 2)
+#define DROIDHOST_XR_MENU_CLICK (1u << 3)
+#define DROIDHOST_XR_TRIGGER_TOUCH (1u << 4)
+#define DROIDHOST_XR_STICK_TOUCH (1u << 5)
+#define DROIDHOST_XR_PRIMARY_TOUCH (1u << 6)
+#define DROIDHOST_XR_SECONDARY_TOUCH (1u << 7)
+#define DROIDHOST_XR_THUMBREST_TOUCH (1u << 8)
 
-struct DroidDeckXrPose {
+struct DroidHostXrPose {
     float orientation[4];
     float position[3];
     uint32_t flags;
 };
 
-struct DroidDeckXrEye {
-    DroidDeckXrPose pose;
+struct DroidHostXrEye {
+    DroidHostXrPose pose;
     float fov[4];
     uint32_t width, height;
 };
 
-struct DroidDeckXrHand {
-    DroidDeckXrPose pose;
+struct DroidHostXrHand {
+    DroidHostXrPose pose;
     float trigger, squeeze, stick[2];
     uint32_t buttons, active;
 };
 
-struct DroidDeckXrTracking {
+struct DroidHostXrTracking {
     uint32_t magic, version, seq, active;
     int64_t sampled_ns, predicted_ns, period_ns;
-    DroidDeckXrPose head;
-    DroidDeckXrEye eyes[2];
-    DroidDeckXrHand hands[2];
+    DroidHostXrPose head;
+    DroidHostXrEye eyes[2];
+    DroidHostXrHand hands[2];
 };
 
-static_assert(sizeof(DroidDeckXrTracking) == 296, "XR tracking IPC layout");
+static_assert(sizeof(DroidHostXrTracking) == 296, "XR tracking IPC layout");
 
-#define DROIDDECK_XR_HAPTIC_MAGIC 0x48584444u
-#define DROIDDECK_XR_HAPTIC_FILE "droiddeck-xr-haptics"
+#define DROIDHOST_XR_HAPTIC_MAGIC 0x48584444u
+#define DROIDHOST_XR_HAPTIC_FILE "droiddeck-xr-haptics"
 
-struct DroidDeckXrPulse {
+struct DroidHostXrPulse {
     uint64_t id;
     int64_t duration_ns;
     float amplitude, frequency;
 };
 
-struct DroidDeckXrHaptics {
+struct DroidHostXrHaptics {
     uint32_t magic, version, seq, reserved;
-    DroidDeckXrPulse hands[2];
+    DroidHostXrPulse hands[2];
 };
 
-static_assert(sizeof(DroidDeckXrHaptics) == 64, "XR haptics IPC layout");
+static_assert(sizeof(DroidHostXrHaptics) == 64, "XR haptics IPC layout");

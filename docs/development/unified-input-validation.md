@@ -134,7 +134,7 @@ with a layout shared across both screens, target/scroll serialization, and
 horizontal scrolling through both guest mouse backends. Existing physical native
 fast-path and ownership tests remain green.
 
-The settings use stable DroidDeck Input labels, contextual axis/contact hints,
+The settings use stable DroidHost Input labels, contextual axis/contact hints,
 color swatches, opacity sliders and rendered layout thumbnails. Diagnostics now
 open a result dialog and explain how to record a sample and what it measures.
 Shortcut rows show the actual assignment and offer Restore to default.
@@ -158,7 +158,7 @@ shared ownership, cancellation, menu suspension and profile replacement. Separat
 diagonal bindings release previous keys and preserve neighboring-direction
 fallbacks. No additional input queue or thread is used.
 
-Final APK installed over `com.droiddeck.launcher.inputtest` on AYN Thor:
+Final APK installed over `com.droidhost.launcher.inputtest` on AYN Thor:
 `6618be55c28a52746b6504656a480845d25d8a34114daa1829aad5dbb5b5e729`.
 Packaging checked runtime inputs, session assets, native library dependencies and
 v1/v2/v3 signatures. As with the earlier test packages, Rust store engines are
@@ -188,7 +188,7 @@ The test device had no old screen-key sets to import. Legacy content migration
 and toggle ownership were verified by host regression tests, not by a new
 physical-input latency or end-to-end game test. Evidence is under
 `app/build/reports/input-polish/`; the final installable copy is
-`app/build/input-ui/DroidDeck-Input-Test-unified-screenkeys-2026-11-06.apk`.
+`app/build/input-ui/DroidHost-Input-Test-unified-screenkeys-2026-11-06.apk`.
 
 ## Unified editor and session profile composition, 2026-11-06
 
@@ -286,7 +286,7 @@ matching, runtime-input attestation, native dependency/export checks, alignment
 and signing validation. It uses the same local HTTPS/direct-release download
 adaptations as the previous build and still omits the store Rust engines.
 
-Installed the update over `com.droiddeck.launcher.inputtest` on AYN Thor without
+Installed the update over `com.droidhost.launcher.inputtest` on AYN Thor without
 clearing data. Verified Setup → Controller → Desktop → Second screen → Edit on
 screen; the canvas opened on the lower display, Hide tools / Show tools worked,
 and selecting the right trackpad opened large properties on the main display.
@@ -317,7 +317,7 @@ on either display with properties on the activity display.
 - Compose navigation was exercised at 360×800, 640×360 and 960×600 dp. Rendered
   images are generated under `app/build/reports/input-ui/`. The properties Save
   control stays outside the scrollable content on the short landscape screen.
-- Updated the existing `com.droiddeck.launcher.inputtest` installation on AYN
+- Updated the existing `com.droidhost.launcher.inputtest` installation on AYN
   Thor from 0.6.0 to the local 0.6.9 build without clearing its data. The official
   package was not replaced. A local backup of the two input preference files was
   taken before migration; all 61 saved Desktop bindings matched after migration.
@@ -381,8 +381,8 @@ Commands, with Java/SDK paths configured for the local machine:
 
 ```sh
 ./gradlew :app:testDebugUnitTest -PskipRust=true -PndkVersion=28.2.13676358
-DROIDDECK_BUILD_VARIANT=debug DROIDDECK_SKIP_RUST=1 \
-  DROIDDECK_NDK_VERSION=28.2.13676358 bash tools/build_local.sh
+DROIDHOST_BUILD_VARIANT=debug DROIDHOST_SKIP_RUST=1 \
+  DROIDHOST_NDK_VERSION=28.2.13676358 bash tools/build_local.sh
 # Linux with gcc and g++ available:
 python3 -m unittest tools.tests.test_fakeinput_open -v
 ```

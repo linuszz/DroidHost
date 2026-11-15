@@ -11,7 +11,7 @@
     <string name="input_controller_route_hint">Trimite intrarea controllerului către Steam Input sau joc.</string>
     <string name="input_disabled_hint">Acest element nu trimite intrare de controller, mouse sau tastatură.</string>
     <string name="input_mouse_click">Clic de mouse</string>
-    <string name="input_command">Acțiune DroidDeck</string>
+    <string name="input_command">Acțiune DroidHost</string>
     <string name="input_action">Acțiune</string>
     <string name="input_scroll_speed">Viteza de derulare: %1$d pași/s</string>
     <string name="input_new_profile">+ Profil nou</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Gesturi touchpad mouse</string>
     <string name="input_mouse_gestures_hint">Când este atribuit indicatorului mouse-ului: atinge pentru clic, ține pentru tragere și derulează cu două degete.</string>
     <string name="input_quick_override_hint">%1$s are o suprascriere a meniului rapid. Selectează Auto acolo pentru a folosi profilul implicit și toate cele trei părți salvate.</string>
-    <string name="input_route_local">Intrare DroidDeck</string>
-    <string name="input_axis_action_hint" formatted="false">Ținut cât timp maneta este mișcată în orice direcție: apăsat peste 55%, eliberat sub 35%. Folosește Tastele direcționale pentru a atribui fiecare direcție separat. Comenzile DroidDeck rulează o dată per deviere. Clicul manetei se configurează separat.</string>
-    <string name="input_contact_action_hint">Ținut cât timp atingi touchpad-ul; eliberat când ridici degetul. Comenzile DroidDeck rulează o dată per atingere. Clicul touchpad-ului se configurează separat.</string>
-    <string name="input_trigger_action_hint" formatted="false">Ținut când trăgaciul trece de 55%; eliberat sub 35%. Comenzile DroidDeck rulează o dată per apăsare.</string>
+    <string name="input_route_local">Intrare DroidHost</string>
+    <string name="input_axis_action_hint" formatted="false">Ținut cât timp maneta este mișcată în orice direcție: apăsat peste 55%, eliberat sub 35%. Folosește Tastele direcționale pentru a atribui fiecare direcție separat. Comenzile DroidHost rulează o dată per deviere. Clicul manetei se configurează separat.</string>
+    <string name="input_contact_action_hint">Ținut cât timp atingi touchpad-ul; eliberat când ridici degetul. Comenzile DroidHost rulează o dată per atingere. Clicul touchpad-ului se configurează separat.</string>
+    <string name="input_trigger_action_hint" formatted="false">Ținut când trăgaciul trece de 55%; eliberat sub 35%. Comenzile DroidHost rulează o dată per apăsare.</string>
     <string name="input_scroll_axis">Direcția de derulare</string>
     <string name="input_vertical">Vertical</string>
     <string name="input_horizontal">Orizontal</string>
     <string name="input_scroll_horizontal">Derulează orizontal</string>
     <string name="input_measurements">Măsurători</string>
-    <string name="input_measure_instructions">Activează înregistrarea, folosește comenzile într-o sesiune activă, apoi revino și citește rezultatele. Măsoară doar timpul de trimitere DroidDeck, nu latența ecranului. Înregistrarea se termină când procesul aplicației se închide.</string>
+    <string name="input_measure_instructions">Activează înregistrarea, folosește comenzile într-o sesiune activă, apoi revino și citește rezultatele. Măsoară doar timpul de trimitere DroidHost, nu latența ecranului. Înregistrarea se termină când procesul aplicației se închide.</string>
     <string name="input_layout_count">%1$d comenzi</string>
     <string name="input_other_layouts">Alte aspecte salvate (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Ascunde alte aspecte salvate (%1$d) ▴</string>

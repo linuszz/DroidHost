@@ -31,7 +31,7 @@ Gradient in the list, and Setup shows a Speed slider (1 to 10, `SessionPrefs.rgb
 theme while it is chosen.
 
 `Themes.innerGamer(hue)` builds the palette for one hue through `ThemeColors.palette`, so button text
-keeps the same contrast along the gradient at every hue. `DroidDeckTheme` runs one
+keeps the same contrast along the gradient at every hue. `DroidHostTheme` runs one
 `rememberInfiniteTransition` while Inner Gamer is chosen, so the system's animation clock drives it.
 Compose applies Android's animator scale to it, and the colour holds still when animations are off
 in the app (`Motion.scale`) or in Android's own settings. The hue is written to `Themes.rgbHue` in 3° steps, which restyles the

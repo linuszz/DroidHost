@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Vänster musknapp</string>
     <string name="input_mouse_right">Höger musknapp</string>
     <string name="input_mouse_middle">Mitten musknapp</string>
-    <string name="input_command_menu">Öppna DroidDeck-menyn</string>
+    <string name="input_command_menu">Öppna DroidHost-menyn</string>
     <string name="input_command_keyboard">Visa tangentbord</string>
     <string name="input_command_steam">Öppna Steam-menyn</string>
     <string name="input_command_qam">Öppna Steams snabbåtkomst</string>

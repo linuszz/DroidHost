@@ -18,7 +18,7 @@
     <string name="input_mouse_left">माउस का बायाँ बटन</string>
     <string name="input_mouse_right">माउस का दायाँ बटन</string>
     <string name="input_mouse_middle">माउस का मध्य बटन</string>
-    <string name="input_command_menu">DroidDeck मेन्यू खोलें</string>
+    <string name="input_command_menu">DroidHost मेन्यू खोलें</string>
     <string name="input_command_keyboard">कीबोर्ड दिखाएँ</string>
     <string name="input_command_steam">Steam मेन्यू खोलें</string>
     <string name="input_command_qam">Steam त्वरित पहुँच खोलें</string>

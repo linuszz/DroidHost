@@ -77,11 +77,11 @@ void vkp_gpu_busy_device_lost(void) {
     atomic_store(&g_timing, 0);
 }
 
-JNIEXPORT jlong JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor_nativeGpuBusyNs(JNIEnv *env, jclass cls) {
+JNIEXPORT jlong JNICALL Java_com_droidhost_launcher_wayland_WaylandCompositor_nativeGpuBusyNs(JNIEnv *env, jclass cls) {
     return atomic_load(&g_timing) ? (jlong)atomic_load(&g_busy_ns) : -1;
 }
 
-JNIEXPORT void JNICALL Java_com_droiddeck_launcher_wayland_WaylandCompositor_nativeSetGpuTiming(JNIEnv *env, jclass cls, jboolean on) {
+JNIEXPORT void JNICALL Java_com_droidhost_launcher_wayland_WaylandCompositor_nativeSetGpuTiming(JNIEnv *env, jclass cls, jboolean on) {
     pthread_mutex_lock(&g_lock);
     if (!on) g_was_on = 0;
     atomic_store(&g_on, on ? 1 : 0);

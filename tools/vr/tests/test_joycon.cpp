@@ -465,9 +465,9 @@ static void sharedLayoutMatchesTheAppWriter() {
     check(offsetof(droiddeck_joycon_hand, velocity) == 76, "velocity offset");
     check(offsetof(droiddeck_joycon_hand, inertial_velocity) == 88, "inertial velocity offset");
     check(sizeof(droiddeck_joycon) == 224, "file size");
-    check(DROIDDECK_JOYCON_VERSION == 3, "file version");
-    check(DROIDDECK_JOYCON_TRIGGER == 1 && DROIDDECK_JOYCON_GRIP == 2 && DROIDDECK_JOYCON_A == 4 &&
-              DROIDDECK_JOYCON_B == 8 && DROIDDECK_JOYCON_STICK == 16 && DROIDDECK_JOYCON_SYSTEM == 32,
+    check(DROIDHOST_JOYCON_VERSION == 3, "file version");
+    check(DROIDHOST_JOYCON_TRIGGER == 1 && DROIDHOST_JOYCON_GRIP == 2 && DROIDHOST_JOYCON_A == 4 &&
+              DROIDHOST_JOYCON_B == 8 && DROIDHOST_JOYCON_STICK == 16 && DROIDHOST_JOYCON_SYSTEM == 32,
           "button bits match JoyCon.kt");
 }
 
@@ -511,9 +511,9 @@ static void handCameraLayoutMatchesTheAppWriter() {
     check(offsetof(droiddeck_handcam_hand, position) == 4, "camera hand position offset");
     check(offsetof(droiddeck_handcam, hands) + sizeof(droiddeck_handcam_hand) + offsetof(droiddeck_handcam_hand, joints) == 316,
           "second hand's joints offset");
-    check(DROIDDECK_HANDCAM_VERSION == 2 && DROIDDECK_HANDCAM_RUNNING == 1 && DROIDDECK_HANDCAM_FACE == 2 &&
-              DROIDDECK_HANDCAM_BARE_HANDS == 4 && DROIDDECK_HANDCAM_SEEN == 1 && DROIDDECK_HANDCAM_ESTIMATED == 2 &&
-              DROIDDECK_HANDCAM_JOINTS == 4 && DROIDDECK_HANDCAM_JOINT_COUNT == kHandJoints,
+    check(DROIDHOST_HANDCAM_VERSION == 2 && DROIDHOST_HANDCAM_RUNNING == 1 && DROIDHOST_HANDCAM_FACE == 2 &&
+              DROIDHOST_HANDCAM_BARE_HANDS == 4 && DROIDHOST_HANDCAM_SEEN == 1 && DROIDHOST_HANDCAM_ESTIMATED == 2 &&
+              DROIDHOST_HANDCAM_JOINTS == 4 && DROIDHOST_HANDCAM_JOINT_COUNT == kHandJoints,
           "camera flags match HandCameraShm.kt");
 }
 

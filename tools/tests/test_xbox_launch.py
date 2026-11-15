@@ -56,12 +56,12 @@ class XboxLaunchTest(unittest.TestCase):
                  patch.dict(xbox['launch'].__globals__, wine=unittest.mock.Mock(return_value=7)):
                 launch = xbox['launch']
                 self.assertEqual(launch(['/proton', 'waitforexitandrun', '/encrypted/Game.exe'],
-                                        {'BL_LAUNCH_DIR': '/launch', 'DROIDDECK_XBOX_CREDENTIAL_SOCKET': 'stale',
-                                         'DROIDDECK_XBOX_CREDENTIAL_PORT': '4100', 'DROIDDECK_XBOX_CREDENTIAL_KEY': 'stale-key'}), 7)
+                                        {'BL_LAUNCH_DIR': '/launch', 'DROIDHOST_XBOX_CREDENTIAL_SOCKET': 'stale',
+                                         'DROIDHOST_XBOX_CREDENTIAL_PORT': '4100', 'DROIDHOST_XBOX_CREDENTIAL_KEY': 'stale-key'}), 7)
                 wine = launch.__globals__['wine']
                 self.assertEqual(wine.call_args.args[0], ['/private/Game.exe'])
                 env = wine.call_args.args[1]
-                for name in ('DROIDDECK_XBOX_CREDENTIAL_SOCKET', 'DROIDDECK_XBOX_CREDENTIAL_PORT', 'DROIDDECK_XBOX_CREDENTIAL_KEY'):
+                for name in ('DROIDHOST_XBOX_CREDENTIAL_SOCKET', 'DROIDHOST_XBOX_CREDENTIAL_PORT', 'DROIDHOST_XBOX_CREDENTIAL_KEY'):
                     self.assertNotIn(name, env)
                 self.assertEqual(env['XODUS_XSTS_PLAYFAB'], 'game-token')
             close.assert_called_once()
@@ -118,9 +118,9 @@ class XboxLaunchTest(unittest.TestCase):
                 (runtime / name).write_bytes(b'MZ-synthetic')
             command = root / 'command.json'
             command.write_text(json.dumps(['/selected/proton', 'waitforexitandrun', '/encrypted/Game.exe', '--custom', 'two words']))
-            env = {'STEAM_COMPAT_DATA_PATH': str(prefix.parent), 'DROIDDECK_XBOX_COMMAND_FILE': str(command),
-                   'DROIDDECK_XBOX_CREDENTIAL_SOCKET': 'private-account-channel', 'DROIDDECK_XBOX_CREDENTIAL_PORT': '4100',
-                   'DROIDDECK_XBOX_CREDENTIAL_KEY': 'private-key', 'XODUS_BRIDGE_KEY': 'runtime-key'}
+            env = {'STEAM_COMPAT_DATA_PATH': str(prefix.parent), 'DROIDHOST_XBOX_COMMAND_FILE': str(command),
+                   'DROIDHOST_XBOX_CREDENTIAL_SOCKET': 'private-account-channel', 'DROIDHOST_XBOX_CREDENTIAL_PORT': '4100',
+                   'DROIDHOST_XBOX_CREDENTIAL_KEY': 'private-key', 'XODUS_BRIDGE_KEY': 'runtime-key'}
             with patch.dict(os.environ, env), patch.dict(xbox['wine'].__globals__, RUNTIME=runtime.parent), patch('subprocess.run') as initialize, patch('subprocess.call', return_value=7) as call:
                 initialize.return_value.returncode = 0
                 self.assertEqual(xbox['wine'](['/private-view/Game.exe']), 7)
@@ -131,9 +131,9 @@ class XboxLaunchTest(unittest.TestCase):
                 initialize.assert_called_once()
                 for child in (initialize, call):
                     child_env = child.call_args.kwargs['env']
-                    for name in ('DROIDDECK_XBOX_CREDENTIAL_SOCKET', 'DROIDDECK_XBOX_CREDENTIAL_PORT', 'DROIDDECK_XBOX_CREDENTIAL_KEY'):
+                    for name in ('DROIDHOST_XBOX_CREDENTIAL_SOCKET', 'DROIDHOST_XBOX_CREDENTIAL_PORT', 'DROIDHOST_XBOX_CREDENTIAL_KEY'):
                         self.assertNotIn(name, child_env)
-                    self.assertNotIn('DROIDDECK_XBOX_COMMAND_FILE', child_env)
+                    self.assertNotIn('DROIDHOST_XBOX_COMMAND_FILE', child_env)
                     self.assertEqual(child_env['XODUS_BRIDGE_KEY'], 'runtime-key')
 
     def test_launch_view_runs_from_its_own_folder_on_a_short_drive_letter(self):
@@ -148,7 +148,7 @@ class XboxLaunchTest(unittest.TestCase):
             (view / 'Bin').mkdir(parents=True)
             command = root / 'command.json'
             command.write_text(json.dumps(['/selected/proton', 'waitforexitandrun', '/encrypted/Game.exe']))
-            env = {'STEAM_COMPAT_DATA_PATH': str(prefix.parent), 'DROIDDECK_XBOX_COMMAND_FILE': str(command)}
+            env = {'STEAM_COMPAT_DATA_PATH': str(prefix.parent), 'DROIDHOST_XBOX_COMMAND_FILE': str(command)}
             seen = []
             def call(argv, **kwargs):
                 seen.append((argv, os.readlink(prefix / 'dosdevices/x:')))

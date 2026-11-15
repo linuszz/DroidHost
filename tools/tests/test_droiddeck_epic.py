@@ -481,9 +481,9 @@ class SignInHandoffTest(EpicTestCase):
         with mock.patch.dict(G, {"fex_environment": lambda fex, files, base: {}}):
             visible = G["client_environment"]({}, None, None, ":0", "bus", "broker")
             hidden = G["client_environment"]({}, None, None, ":2", "bus", "broker", hidden=True)
-        self.assertNotIn("DROIDDECK_EPIC_HIDDEN", visible)
+        self.assertNotIn("DROIDHOST_EPIC_HIDDEN", visible)
         self.assertNotIn("EGL_DISABLE_STORE_PREWARM", visible)
-        self.assertEqual(("1", "1"), (hidden.get("DROIDDECK_EPIC_HIDDEN"), hidden.get("EGL_DISABLE_STORE_PREWARM")))
+        self.assertEqual(("1", "1"), (hidden.get("DROIDHOST_EPIC_HIDDEN"), hidden.get("EGL_DISABLE_STORE_PREWARM")))
         self.assertEqual(visible["WEBKIT_SKIA_ENABLE_CPU_RENDERING"], hidden["WEBKIT_SKIA_ENABLE_CPU_RENDERING"])
 
     def session(self):
@@ -800,7 +800,7 @@ class BrokerTest(EpicTestCase):
 
     def shim(self, path, args, result):
         def run():
-            with mock.patch.dict(os.environ, {"DROIDDECK_EPIC_BROKER": path}):
+            with mock.patch.dict(os.environ, {"DROIDHOST_EPIC_BROKER": path}):
                 result.append(G["shim_proton"](["waitforexitandrun", "/games/Fig/Fig.exe"] + args))
         thread = threading.Thread(target=run, daemon=True)
         thread.start()
@@ -873,12 +873,12 @@ class BrokerTest(EpicTestCase):
                     conn.sendall(reply)
 
         threading.Thread(target=answer, daemon=True).start()
-        with mock.patch.dict(os.environ, {"DROIDDECK_EPIC_BROKER": path}):
+        with mock.patch.dict(os.environ, {"DROIDHOST_EPIC_BROKER": path}):
             for _ in replies:
                 self.assertEqual(1, G["shim_proton"](["waitforexitandrun", "/x.exe", "-epicapp=Fig"]))
 
     def test_shim_without_broker_fails(self):
-        with mock.patch.dict(os.environ, {"DROIDDECK_EPIC_BROKER": str(self.tmp / "missing.sock")}):
+        with mock.patch.dict(os.environ, {"DROIDHOST_EPIC_BROKER": str(self.tmp / "missing.sock")}):
             self.assertEqual(1, G["shim_proton"](["waitforexitandrun", "/x.exe", "-epicapp=Fig"]))
         self.assertEqual(0, G["shim_proton"](["getcompatpath", "/x"]))
 
@@ -890,7 +890,7 @@ class BrokerTest(EpicTestCase):
         calls = []
 
         def popen(command, env=None, cwd=None, start_new_session=False):
-            calls.append((command, env.get("DROIDDECK_EPIC_HANDLED"), start_new_session))
+            calls.append((command, env.get("DROIDHOST_EPIC_HANDLED"), start_new_session))
             return mock.Mock(wait=mock.Mock(return_value=7))
 
         running = []
@@ -1354,7 +1354,7 @@ class StoreLaunchClientTest(unittest.TestCase):
     def test_handled_launch_keeps_the_clients_args(self):
         calls = []
         (self.folder / ".droiddeck-epic-args").write_text("-epicapp=Fig\r\n")
-        with mock.patch.dict(os.environ, {"BL_LAUNCH_DIR": str(self.tmp / "launch"), "DROIDDECK_EPIC_HANDLED": "1",
+        with mock.patch.dict(os.environ, {"BL_LAUNCH_DIR": str(self.tmp / "launch"), "DROIDHOST_EPIC_HANDLED": "1",
                                           "STEAM_COMPAT_DATA_PATH": ""}), \
                 mock.patch.dict(S, {"client_wanted": lambda: calls.append("wanted") or True,
                                     "ask": lambda channel, request, timeout=0: calls.append(request["op"]) or {"ok": True}}):
@@ -1368,7 +1368,7 @@ class StoreLaunchClientTest(unittest.TestCase):
         with mock.patch.dict(os.environ, {"BL_LAUNCH_DIR": ""}), mock.patch.dict(os.environ), \
                 mock.patch("os.access", return_value=True), \
                 mock.patch.object(subprocess, "run", lambda command, **kwargs: runs.append(command)):
-            os.environ.pop("DROIDDECK_EPIC_HANDLED", None)
+            os.environ.pop("DROIDHOST_EPIC_HANDLED", None)
             self.assertEqual(0, S["main"](["--exited", "--code", "7", bat]))
             self.assertEqual(0, S["main"](["--exited", bat]))
         self.assertEqual([S["EPIC_CLIENT"], "exited", "--code", "7"], runs[0])

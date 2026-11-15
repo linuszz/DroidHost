@@ -53,7 +53,7 @@ class DesktopChromiumAppsTest(unittest.TestCase):
         out = self.gpu["wrap"](self.entry("%s %%U" % self.electron, actions="%s --new" % self.electron))
         self.assertEqual(self.exec_lines(out), [PREFIX + str(self.electron) + FLAGS + " %U",
                                                 PREFIX + str(self.electron) + FLAGS + " --new"])
-        self.assertIn("X-DroidDeck-GPU=1", out)
+        self.assertIn("X-DroidHost-GPU=1", out)
         self.assertIn("Actions=new;", out)
         self.assertNotIn("droiddeck-window", out)
 

@@ -27,7 +27,7 @@ LAUNCH_BEHAVIOR = ("GameLaunchWindowBehavior", "2")
 CLIENT_32_BIT = ("s1",)
 CACHE = os.path.join(HOME, ".cache", "droiddeck", "battlenet")
 MENU = "/usr/local/share/applications/droiddeck-battlenet.desktop"
-WALLPAPER_DIR = ("users", "steamuser", "AppData", "Local", "DroidDeck")
+WALLPAPER_DIR = ("users", "steamuser", "AppData", "Local", "DroidHost")
 DESKTOP_KEY = "[Control Panel\\\\Desktop]"
 COLORS_KEY = "[Control Panel\\\\Colors]"
 WALLPAPER_EDGE = (4, 6, 11)
@@ -207,7 +207,7 @@ def notify(title, body, icon="dialog-information"):
     if not os.environ.get("DBUS_SESSION_BUS_ADDRESS") or not shutil.which("notify-send"):
         return
     try:
-        subprocess.run(["notify-send", "-a", "DroidDeck", "-i", icon, title, body],
+        subprocess.run(["notify-send", "-a", "DroidHost", "-i", icon, title, body],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
     except (OSError, subprocess.SubprocessError):
         pass
@@ -482,7 +482,7 @@ def wallpaper(root):
         with open(path + ".tmp", "wb") as f:
             f.write(wallpaper_bmp(width, height))
         os.replace(path + ".tmp", path)
-        say("drew DroidDeck's wallpaper for Battle.net's %dx%d desktop" % (width, height))
+        say("drew DroidHost's wallpaper for Battle.net's %dx%d desktop" % (width, height))
     windows = "C:\\" + "\\".join(WALLPAPER_DIR + (name,))
     reg_value(reg, DESKTOP_KEY, "Wallpaper", windows)
     reg_value(reg, DESKTOP_KEY, "TileWallpaper", "0")
@@ -755,7 +755,7 @@ def write_menu(path=MENU):
 
 def ask_fex(launch_dir, wait=FEX_WAIT):
     if not launch_dir or not os.path.isdir(launch_dir):
-        say("not inside a DroidDeck session; FEX stays as Components has it")
+        say("not inside a DroidHost session; FEX stays as Components has it")
         return None
     result = os.path.join(launch_dir, FEX_RESULT)
     request = os.path.join(launch_dir, FEX_REQUEST)
@@ -1017,7 +1017,7 @@ def download(url=INSTALLER_URL, folder=CACHE):
     part = dest + ".part"
     try:
         try:
-            request = urllib.request.Request(url, headers={"User-Agent": "DroidDeck"})
+            request = urllib.request.Request(url, headers={"User-Agent": "DroidHost"})
             with urllib.request.urlopen(request, timeout=60) as response, open(part, "wb") as f:
                 shutil.copyfileobj(response, f)
                 length = response.headers.get("Content-Length", "")
@@ -1203,7 +1203,7 @@ def launch(root, code):
     client = os.path.join(client_dir(root), CLIENT)
     if not installed(root) or not os.path.isfile(client):
         say("Battle.net is not installed; %s is not launched" % code)
-        notify("Battle.net is not installed", "Install it from its tile on DroidDeck's Desktop tab.", "dialog-error")
+        notify("Battle.net is not installed", "Install it from its tile on DroidHost's Desktop tab.", "dialog-error")
         return 1
     lock = acquire()
     try:

@@ -1,5 +1,5 @@
-#ifndef DROIDDECK_VENC_PROTO_H
-#define DROIDDECK_VENC_PROTO_H
+#ifndef DROIDHOST_VENC_PROTO_H
+#define DROIDHOST_VENC_PROTO_H
 
 #include <stdint.h>
 

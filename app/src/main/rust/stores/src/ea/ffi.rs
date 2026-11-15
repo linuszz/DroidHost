@@ -32,7 +32,7 @@ fn call(op: &str, request: &str) -> String {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeCall(
+pub extern "system" fn Java_com_droidhost_launcher_stores_ea_EaNative_nativeCall(
     mut env: JNIEnv,
     _class: JClass,
     op: JString,
@@ -149,7 +149,7 @@ impl Events for Listener {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeInstall(
+pub extern "system" fn Java_com_droidhost_launcher_stores_ea_EaNative_nativeInstall(
     mut env: JNIEnv,
     _class: JClass,
     request: JString,
@@ -191,7 +191,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeInst
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeCancel(_env: JNIEnv, _class: JClass, handle: jlong) {
+pub extern "system" fn Java_com_droidhost_launcher_stores_ea_EaNative_nativeCancel(_env: JNIEnv, _class: JClass, handle: jlong) {
     let ptr = handle as *const Arc<AtomicBool>;
     if let Some(cancel) = unsafe { ptr.as_ref() } {
         cancel.store(true, Ordering::SeqCst);
@@ -199,7 +199,7 @@ pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeCanc
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_droiddeck_launcher_stores_ea_EaNative_nativeRelease(_env: JNIEnv, _class: JClass, handle: jlong) {
+pub extern "system" fn Java_com_droidhost_launcher_stores_ea_EaNative_nativeRelease(_env: JNIEnv, _class: JClass, handle: jlong) {
     let ptr = handle as *mut Arc<AtomicBool>;
     if !ptr.is_null() {
         drop(unsafe { Box::from_raw(ptr) });

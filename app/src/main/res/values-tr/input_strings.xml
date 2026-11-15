@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Fare sol düğmesi</string>
     <string name="input_mouse_right">Fare sağ düğmesi</string>
     <string name="input_mouse_middle">Fare orta düğmesi</string>
-    <string name="input_command_menu">DroidDeck menüsünü aç</string>
+    <string name="input_command_menu">DroidHost menüsünü aç</string>
     <string name="input_command_keyboard">Klavyeyi göster</string>
     <string name="input_command_steam">Steam menüsünü aç</string>
     <string name="input_command_qam">Steam hızlı erişimini aç</string>

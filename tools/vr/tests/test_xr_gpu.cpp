@@ -61,9 +61,9 @@ int main() {
         assert(connected == (attempt != 2));
         if (connected) {
             for (int handle : received) close(handle);
-            DroidDeckXrFrameHeader header{};
-            header.magic = DROIDDECK_XR_FRAME_MAGIC; header.version = DROIDDECK_XR_FRAME_VERSION;
-            header.width = header.height = 32; header.bytes = 4096; header.color_space = DROIDDECK_XR_COLOR_SRGB_RGBA8;
+            DroidHostXrFrameHeader header{};
+            header.magic = DROIDHOST_XR_FRAME_MAGIC; header.version = DROIDHOST_XR_FRAME_VERSION;
+            header.width = header.height = 32; header.bytes = 4096; header.color_space = DROIDHOST_XR_COLOR_SRGB_RGBA8;
             header.frame_id = 7; header.captured_ns = xr_frame_now();
             for (int eye = 0; eye < 2; eye++) {
                 for (int axis = 0; axis < 3; axis++) header.eye_pose[eye][axis][axis] = 1;

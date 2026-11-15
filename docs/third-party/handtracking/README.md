@@ -85,7 +85,7 @@ and the Joy-Con movement that it corrects:
 - [ALVR](https://github.com/alvr-org/ALVR) (MIT), `alvr/server_core/src/hand_gestures.rs` at
   ebec107b7e5f81677fb9c631d239daf2110bf573: turning tracked hands into controller input (thumb pinches
   to each finger, a pinch range from touching to pulling, grip from the other fingers, a held palm
-  for the menu). The distances, mapping and timing here are DroidDeck's own.
+  for the menu). The distances, mapping and timing here are DroidHost's own.
 - Meta Quest's hand tracking: the palm-toward-the-face pinch that opens the system menu, and the
   plain white hands it draws, which the gesture and the glove model follow.
 - B. K. P. Horn, "Closed-form solution of absolute orientation using unit quaternions", Journal of

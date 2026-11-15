@@ -1,7 +1,7 @@
 use std::sync::OnceLock;
 use std::time::Duration;
 
-pub const USER_AGENT_PRODUCT: &str = "DroidDeck";
+pub const USER_AGENT_PRODUCT: &str = "DroidHost";
 
 pub const BROWSER_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0";
@@ -290,6 +290,6 @@ mod tests {
 
     #[test]
     fn product_user_agent() {
-        assert!(user_agent().starts_with("DroidDeck/"));
+        assert!(user_agent().starts_with("DroidHost/"));
     }
 }

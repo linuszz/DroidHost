@@ -130,7 +130,7 @@ on the phone remain pending a debugging connection.
 
 ### SteamVR library launch routing (2026-10-14)
 
-DroidDeck's SteamVR library entry (appid 250820), including its game shortcut,
+DroidHost's SteamVR library entry (appid 250820), including its game shortcut,
 now sets the same `EXTRA_STEAMVR` request as Play SteamVR instead of sending a
 normal Steam game URL. Existing sessions resume with that request as well.
 Other games retain their normal launch path and arguments.
@@ -144,7 +144,7 @@ for both desktop and Big Picture. It relies on the live Steam UI API and needs
 verification against the actual phone's Steam version after installation.
 
 The helper serializes installation/startup and avoids restarting an active
-DroidDeck SteamVR session. Library launch diagnostics are in
+DroidHost SteamVR session. Library launch diagnostics are in
 `${XDG_RUNTIME_DIR:-/tmp}/droiddeck-steamvr/library-launch.log`; normal runtime
 logs remain in `vrstartup.log` and Steam's logs directory. It does not intercept
 arbitrary external `steam://` URLs or change VR game launch arguments.
@@ -161,7 +161,7 @@ unmodified on Windows because it requires `fcntl`; no Linux runtime was availabl
 for the helper's lock/process integration tests. Installation and live library
 Play verification are pending while the phone charges.
 
-Run `./gradlew -PskipRust=true :app:testDebugUnitTest --tests 'com.droiddeck.launcher.glasses.*'`.
+Run `./gradlew -PskipRust=true :app:testDebugUnitTest --tests 'com.droidhost.launcher.glasses.*'`.
 Protocol tests cover malformed/fragmented packets, unsigned timestamps, model gating,
 quaternion normalization, yaw basis and tick rollover. USB integration tests cover
 permissions, GT interface preference/fallback, interleaved GT notifications and

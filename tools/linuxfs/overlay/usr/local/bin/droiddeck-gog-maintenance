@@ -87,7 +87,7 @@ def lease(folder, owner):
 
 def desktop_environment(base, proc=Path("/proc")):
     env = dict(base)
-    if env.get("DROIDDECK_GOG_DESKTOP") != "1":
+    if env.get("DROIDHOST_GOG_DESKTOP") != "1":
         return env
     deadline = time.monotonic() + 45
     while True:
@@ -131,7 +131,7 @@ def runner(folder, appid, game, graphical=False):
     tool, command = available[name]
     base = desktop_environment(os.environ) if graphical else dict(os.environ)
     env = run["environment"](base, target, tool, root, window=base.get("BL_DESKTOP") == "1")
-    env["DROIDDECK_GOG_MAINTENANCE"] = "1"
+    env["DROIDHOST_GOG_MAINTENANCE"] = "1"
     env["FEX_X87REDUCEDPRECISION"] = "0"
     env.pop("BL_STORE_EXIT", None)
     return str(Path(tool) / command), env, target.compatdata

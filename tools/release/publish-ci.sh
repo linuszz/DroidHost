@@ -5,10 +5,10 @@ cat signed/SHA256SUMS-*.txt > signed/SHA256SUMS.txt
 rm signed/SHA256SUMS-*.txt
 notes="$(cat notes-head.md)
 
-Signed build of $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA - in main, not yet in a DroidDeck release; for testing.
+Signed build of $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA - in main, not yet in a DroidHost release; for testing.
 Commit: $GITHUB_SHA
 VersionCode: $(sed -n 's/^ *versionCode \([0-9][0-9]*\)$/\1/p' app/build.gradle)
-Each apk installs over a DroidDeck release and keeps its data. \`standard\` is the normal app; the others are the same app under another package name, installed beside it.
+Each apk installs over a DroidHost release and keeps its data. \`standard\` is the normal app; the others are the same app under another package name, installed beside it.
 
 SHA-256:
 \`\`\`
@@ -34,7 +34,7 @@ gh release list -R "$CI_REPO" -L 1000 --exclude-drafts --json tagName,publishedA
 published=$(gh release view "$tag" -R "$CI_REPO" --json tagName,assets)
 jq -e --arg tag "$tag" '.tagName == $tag and (.assets | length) > 0' <<< "$published" >/dev/null
 url="$GITHUB_SERVER_URL/$CI_REPO/releases/tag/$tag"
-apk=$(cd signed && ls DroidDeck-*.apk | awk 'length(a) == 0 || length($0) < length(a) { a = $0 } END { print a }')
+apk=$(cd signed && ls DroidHost-*.apk | awk 'length(a) == 0 || length($0) < length(a) { a = $0 } END { print a }')
 echo "release=$url" >> "$GITHUB_OUTPUT"
 echo "apk=$GITHUB_SERVER_URL/$CI_REPO/releases/download/$tag/$apk" >> "$GITHUB_OUTPUT"
 echo "Published $url"

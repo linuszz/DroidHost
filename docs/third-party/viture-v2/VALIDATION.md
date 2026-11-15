@@ -48,7 +48,7 @@ ready callback, two tracking-on and two tracking-off callbacks, zero errors and
 zero bad frames. Both 500 ms pause windows delivered zero further poses. After
 close, readiness and tracking were both false. The complete sequence took 13.03 s.
 This validates the production USB driver; it does not by itself exercise the full
-DroidDeck UI or an in-game head-tracking session.
+DroidHost UI or an in-game head-tracking session.
 
 All 115 selected host-side tests passed. They cover wire framing/checksums,
 bounded parsing, pose and raw layouts,
@@ -65,9 +65,9 @@ and passed the repository's runtime-input verification and APK signature checks.
 The APK contains the upstream MIT license and contains none of `libglasses.so`,
 `libcarina_vio.so`, `libcloud_protocol.so`, or `libdroiddeck_viture.so`.
 
-Installed as `com.droiddeck.launcher.xr`, version 0.5.0, on the same phone, it
+Installed as `com.droidhost.launcher.xr`, version 0.5.0, on the same phone, it
 recognized Pro 2 and exposed `supportsScreen3dof=true` after USB permission and
-valid bootstrap samples. A five-second sample through DroidDeck's own `glasses`
+valid bootstrap samples. A five-second sample through DroidHost's own `glasses`
 agent endpoint returned **595 poses (118.98 Hz including startup)**, with quaternion
 norms within 0.00000006 of one and zero bad frames. Tracking was false before the
 sample, true during it, and false afterward; the connection remained ready with

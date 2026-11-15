@@ -19,15 +19,15 @@ int main(int argc, char **argv)
     unsigned (*calls)(unsigned) = dlsym(RTLD_DEFAULT, "chain_calls");
     int64_t (*offset)(unsigned) = dlsym(RTLD_DEFAULT, "chain_offset");
     assert(clear && calls && offset);
-    if (strcmp(argv[1], "off")) assert(!setenv("DROIDDECK_LOW32_MODE", argv[1], 1));
-    else assert(!unsetenv("DROIDDECK_LOW32_MODE"));
+    if (strcmp(argv[1], "off")) assert(!setenv("DROIDHOST_LOW32_MODE", argv[1], 1));
+    else assert(!unsetenv("DROIDHOST_LOW32_MODE"));
     int fd = open("/dev/zero", O_RDWR | O_CLOEXEC);
     assert(fd >= 0);
     struct stat st;
     assert(!fstat(fd, &st));
     char rdev[48];
     snprintf(rdev, sizeof(rdev), "%ju", (uintmax_t)st.st_rdev);
-    assert(!setenv("DROIDDECK_LOW32_RDEV", rdev, 1));
+    assert(!setenv("DROIDHOST_LOW32_RDEV", rdev, 1));
     for (unsigned channel = 0; channel < 2; ++channel) {
         clear(fd);
         void *p = channel ? mmap64(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)

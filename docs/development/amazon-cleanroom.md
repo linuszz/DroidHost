@@ -1,7 +1,7 @@
 # Amazon Games module: clean-room rewrite
 
 The Amazon Games integration (the Rust `amazon` module in `libdroiddeckstores.so` and the Kotlin
-package `com.droiddeck.launcher.stores.amazon`) was rewritten so that it carries no code from the
+package `com.droidhost.launcher.stores.amazon`) was rewritten so that it carries no code from the
 earlier implementation. This page records how that was done and every judgement call the new code
 makes.
 
@@ -44,7 +44,7 @@ Rust, `app/src/main/rust/stores/src/amazon/`:
 | `launch.rs` | `fuel.json`, exe scoring, the FuelPump environment |
 | `service.rs`, `ffi.rs` | named operations and the JNI boundary |
 
-Kotlin, `app/src/main/java/com/droiddeck/launcher/stores/amazon/`: `AmazonBackend` (the
+Kotlin, `app/src/main/java/com/droidhost/launcher/stores/amazon/`: `AmazonBackend` (the
 `StoreBackend`, installs the login flow), `AmazonLogin` (the WebView flow), `AmazonCredentialStore`
 (the account through `StoreAccounts`, single-flight refresh), `AmazonPrefs`, `AmazonLibrary` (sync,
 cache, posters, publishing), `AmazonInstaller` (the queue job), `AmazonNative` (JNI), and two thin
@@ -75,20 +75,20 @@ needs it for the `.tar.xz` Windows components, so only Amazon stopped using it.
 Unauthenticated probes of the live services (2026-10-14):
 
 - **Distribution service** (`gaming.amazon.com`): `GetEntitlements`, `GetGameDownload` and
-  `GetLiveVersionIds` answered identically for `AGSLauncher/1.0.0`, `DroidDeck/…`, a curl UA, with
+  `GetLiveVersionIds` answered identically for `AGSLauncher/1.0.0`, `DroidHost/…`, a curl UA, with
   and without the `UserAgent` header. A bad token gives HTTP 401 `<NotAuthorizedException/>`; no
   token gives HTTP 400 with `com.amazon.coral.service#NotAuthorizedException`. The probes cannot
   show whether the UA matters for an authorised call, so the launcher's `User-Agent` and
   `UserAgent` values are kept (Amazon's own client identifiers, one constant each in `net.rs`).
 - **Identity API** (`api.amazon.com`): register, token and deregister gave the same validation
-  errors whatever the UA (Firefox, `DroidDeck/…`, none). The desktop Firefox string is kept for
+  errors whatever the UA (Firefox, `DroidHost/…`, none). The desktop Firefox string is kept for
   these calls, the same as the WebView: it is a generic browser label, not a client name, and
   existing refresh tokens are known to work with it.
 - **Sign-in page** (`www.amazon.com/ap/signin`): every UA got Amazon's bot check from the probe
   host, so nothing could be learned; the WebView keeps the desktop Firefox string (a sign-in page
   that misbehaves would lock every user out).
 - **CDN**: no URL is reachable without a token. Manifest and file requests now send
-  `DroidDeck/<versionName>`, the only third-party label the old integration sent; this needs the
+  `DroidHost/<versionName>`, the only third-party label the old integration sent; this needs the
   device test below.
 
 Refusal detection follows the probes: 401, 403, and 400 whose body names `NotAuthorizedException`
@@ -108,7 +108,7 @@ Recommended fixes from the spec, adopted:
 4. **Mark updating** (`beforeReplace` → `StoreInstalls.markUpdating`) once, before the first file
    is put in place (new or replacing; the shared step only acts on an installed record).
 5. **Manifest path safety**: absolute paths, any `:` (drive letters and stream names; Windows file
-   names cannot contain it), NUL, `.` / `..` and empty segments, and DroidDeck's own root files
+   names cannot contain it), NUL, `.` / `..` and empty segments, and DroidHost's own root files
    (`.droiddeck-store.json` and its `.tmp`, `.droiddeck-launch.bat`, the two markers, compared
    ignoring case) fail the install naming the path. A manifest that lists both `X` and `X.tmp` is
    refused (the second would collide with the first's temporary file). The protobuf reader rejects
@@ -119,7 +119,7 @@ Recommended fixes from the spec, adopted:
    title with the file name **without** `.exe` (the extension's letters would otherwise count). An
    empty title never matches the "path contains the title" rule. Ties: larger file, then the earlier
    path. Only regular files are candidates; symlinks are not followed; depth is capped at 16.
-7. **CDN User-Agent** is `DroidDeck/<versionName>` (see above).
+7. **CDN User-Agent** is `DroidHost/<versionName>` (see above).
 8. **Empty files** whose hash is absent or the SHA-256 of empty input are created locally; stray
    `.tmp` siblings of manifest files are removed at run start (other `.tmp` files are untouched).
 9. **Markers** `.amazon_download_in_progress` / `.amazon_download_complete` are still written.
@@ -169,7 +169,7 @@ Other choices:
 - Install, pause, resume, cancel (folder removed); repair of an installed game (nothing downloaded
   when intact; a corrupted file fetched again; "Resume install" offered when a repair is
   interrupted); an SD-card install; out-of-space refusal.
-- Every endpoint with the chosen User-Agents, the CDN with `DroidDeck/…` in particular.
+- Every endpoint with the chosen User-Agents, the CDN with `DroidHost/…` in particular.
 - Launch of an existing install through its existing Steam shortcut (same shortcut, same prefix)
   and of a fresh install (exe choice, `fuel.json` arguments, the five FuelPump variables in
   `.droiddeck-launch.bat`); uninstall.

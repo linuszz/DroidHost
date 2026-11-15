@@ -12,11 +12,11 @@
 #include <time.h>
 #include <unistd.h>
 
-#define DROIDDECK_PRODUCER_MAGIC 0x44504c31u
-#define DROIDDECK_PRODUCER_ACQUIRE 1u
-#define DROIDDECK_PRODUCER_READY 2u
-#define DROIDDECK_PRODUCER_RELEASE 3u
-#define DROIDDECK_PRODUCER_RELEASED 4u
+#define DROIDHOST_PRODUCER_MAGIC 0x44504c31u
+#define DROIDHOST_PRODUCER_ACQUIRE 1u
+#define DROIDHOST_PRODUCER_READY 2u
+#define DROIDHOST_PRODUCER_RELEASE 3u
+#define DROIDHOST_PRODUCER_RELEASED 4u
 
 struct droiddeck_producer_message {
     uint32_t magic;
@@ -68,7 +68,7 @@ static inline int droiddeck_producer_io(int descriptor, struct droiddeck_produce
         ssize_t transferred = writing ? send(descriptor, message, sizeof(*message), MSG_NOSIGNAL | MSG_DONTWAIT)
                                       : recv(descriptor, message, sizeof(*message), MSG_TRUNC | MSG_DONTWAIT);
         if (transferred < 0 && (errno == EAGAIN || errno == EINTR)) continue;
-        return transferred == (ssize_t)sizeof(*message) && message->magic == DROIDDECK_PRODUCER_MAGIC;
+        return transferred == (ssize_t)sizeof(*message) && message->magic == DROIDHOST_PRODUCER_MAGIC;
     }
 }
 
@@ -88,12 +88,12 @@ static inline int droiddeck_producer_acquire(uint32_t pid, struct droiddeck_prod
     int descriptor = socket(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
     if (descriptor < 0) return 0;
     int64_t deadline = droiddeck_producer_now() + 250000000LL;
-    struct droiddeck_producer_message message = {DROIDDECK_PRODUCER_MAGIC, DROIDDECK_PRODUCER_ACQUIRE, 0};
+    struct droiddeck_producer_message message = {DROIDHOST_PRODUCER_MAGIC, DROIDHOST_PRODUCER_ACQUIRE, 0};
     if (connect(descriptor, (struct sockaddr *)&address, sizeof(address)) != 0 ||
         !droiddeck_producer_peer(descriptor, pid) ||
         !droiddeck_producer_io(descriptor, &message, 1, deadline) ||
         !droiddeck_producer_io(descriptor, &message, 0, deadline) ||
-        message.command != DROIDDECK_PRODUCER_READY || !message.ticket) {
+        message.command != DROIDHOST_PRODUCER_READY || !message.ticket) {
         close(descriptor);
         return 0;
     }
@@ -105,16 +105,16 @@ static inline int droiddeck_producer_acquire(uint32_t pid, struct droiddeck_prod
 static inline int droiddeck_producer_release(struct droiddeck_producer_lease *lease) {
     if (lease->descriptor < 0) return 0;
     int64_t deadline = droiddeck_producer_now() + 250000000LL;
-    struct droiddeck_producer_message message = {DROIDDECK_PRODUCER_MAGIC, DROIDDECK_PRODUCER_RELEASE, lease->ticket};
+    struct droiddeck_producer_message message = {DROIDHOST_PRODUCER_MAGIC, DROIDHOST_PRODUCER_RELEASE, lease->ticket};
     int released = droiddeck_producer_io(lease->descriptor, &message, 1, deadline) &&
                    droiddeck_producer_io(lease->descriptor, &message, 0, deadline) &&
-                   message.command == DROIDDECK_PRODUCER_RELEASED && message.ticket == lease->ticket;
+                   message.command == DROIDHOST_PRODUCER_RELEASED && message.ticket == lease->ticket;
     close(lease->descriptor);
     lease->descriptor = -1;
     return released;
 }
 
-#ifdef DROIDDECK_PRODUCER_SERVER
+#ifdef DROIDHOST_PRODUCER_SERVER
 #include <pthread.h>
 
 struct droiddeck_producer_server {
@@ -139,12 +139,12 @@ static void *droiddeck_producer_serve(void *argument) {
         int64_t deadline = droiddeck_producer_now() + 150000000LL;
         if (!droiddeck_producer_peer(connection, 0) ||
             !droiddeck_producer_io(connection, &message, 0, deadline) ||
-            message.command != DROIDDECK_PRODUCER_ACQUIRE || message.ticket || !server->acquire(deadline)) {
+            message.command != DROIDHOST_PRODUCER_ACQUIRE || message.ticket || !server->acquire(deadline)) {
             close(connection);
             continue;
         }
         uint64_t granted = ++ticket;
-        message = (struct droiddeck_producer_message){DROIDDECK_PRODUCER_MAGIC, DROIDDECK_PRODUCER_READY, granted};
+        message = (struct droiddeck_producer_message){DROIDHOST_PRODUCER_MAGIC, DROIDHOST_PRODUCER_READY, granted};
         if (!droiddeck_producer_io(connection, &message, 1, droiddeck_producer_now() + 100000000LL)) {
             server->release();
             close(connection);
@@ -157,7 +157,7 @@ static void *droiddeck_producer_serve(void *argument) {
             if (ready < 0 && errno == EINTR) continue;
             if (ready <= 0 || !(request.revents & POLLIN)) { valid = 0; break; }
             valid = droiddeck_producer_io(connection, &message, 0, droiddeck_producer_now() + 100000000LL) &&
-                    message.command == DROIDDECK_PRODUCER_RELEASE && message.ticket == granted;
+                    message.command == DROIDHOST_PRODUCER_RELEASE && message.ticket == granted;
             break;
         }
         if (!valid) {
@@ -166,7 +166,7 @@ static void *droiddeck_producer_serve(void *argument) {
             break;
         }
         server->release();
-        message = (struct droiddeck_producer_message){DROIDDECK_PRODUCER_MAGIC, DROIDDECK_PRODUCER_RELEASED, granted};
+        message = (struct droiddeck_producer_message){DROIDHOST_PRODUCER_MAGIC, DROIDHOST_PRODUCER_RELEASED, granted};
         droiddeck_producer_io(connection, &message, 1, droiddeck_producer_now() + 100000000LL);
         close(connection);
     }

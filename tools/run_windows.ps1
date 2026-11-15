@@ -17,7 +17,7 @@ try {
         Get-Content -LiteralPath 'local.properties' | Where-Object { $_ -match '^droiddeck.debugApplicationIdSuffix=' } | Select-Object -First 1
     }
     $suffix = if ($suffixLine) { $suffixLine.Substring('droiddeck.debugApplicationIdSuffix='.Length) } else { '' }
-    & adb @adbArgs shell am start -W -n "com.droiddeck.launcher$suffix/com.droiddeck.launcher.MainActivity"
+    & adb @adbArgs shell am start -W -n "com.droidhost.launcher$suffix/com.droidhost.launcher.MainActivity"
     if ($LASTEXITCODE -ne 0) { throw 'App launch failed.' }
 } finally {
     Pop-Location

@@ -42,7 +42,7 @@ public:
         return true;
     }
 
-    bool Take(DroidDeckXrFrameHeader &header, GLuint &texture) {
+    bool Take(DroidHostXrFrameHeader &header, GLuint &texture) {
         if (listener_ < 0) return false;
         if (peer_ < 0) {
             peer_ = accept4(listener_, nullptr, nullptr, SOCK_CLOEXEC | SOCK_NONBLOCK);
@@ -92,7 +92,7 @@ public:
         if (!xr_gpu_send(peer_, &frame.header.frame_id, sizeof(frame.header.frame_id))) Disconnect();
         received_++;
         header = frame.header;
-        texture = header.color_space == DROIDDECK_XR_COLOR_SRGB_RGBA8 ? srgb_ : raw_;
+        texture = header.color_space == DROIDHOST_XR_COLOR_SRGB_RGBA8 ? srgb_ : raw_;
         return true;
     }
 

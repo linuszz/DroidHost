@@ -44,7 +44,7 @@
     <string name="input_controller_route_hint">Lähettää ohjaimen syötteen Steam Inputille tai pelille.</string>
     <string name="input_disabled_hint">Tämä elementti ei lähetä ohjaimen, hiiren tai näppäimistön syötettä.</string>
     <string name="input_mouse_click">Hiiren napsautus</string>
-    <string name="input_command">DroidDeck-toiminto</string>
+    <string name="input_command">DroidHost-toiminto</string>
     <string name="input_action">Toiminto</string>
     <string name="input_scroll_speed">Vieritysnopeus: %1$d askelta/s</string>
     <string name="input_new_profile">+ Uusi profiili</string>
@@ -84,16 +84,16 @@
     <string name="input_mouse_gestures">Hiiren kosketuslevyn eleet</string>
     <string name="input_mouse_gestures_hint">Kun määritetty hiiren osoittimelle: napauta klikataksesi, pidä painettuna vetääksesi ja vieritä kahdella sormella.</string>
     <string name="input_quick_override_hint">Kohteella %1$s on pikavalikon ohitus. Valitse Automaattinen käyttääksesi sen oletusprofiilia ja kaikkia kolmea tallennettua osaa.</string>
-    <string name="input_route_local">DroidDeck-syöte</string>
-    <string name="input_axis_action_hint" formatted="false">Pidetään, kun tikkua liikutetaan mihin tahansa suuntaan: painetaan yli 55 %:ssa, vapautetaan alle 35 %:ssa. Määritä jokainen suunta erikseen Suuntanäppäimillä. DroidDeck-komennot suoritetaan kerran poikkeamaa kohti. Tikun napsautus määritetään erikseen.</string>
-    <string name="input_contact_action_hint">Pidetään kosketuslevyn kosketuksen ajan; vapautetaan, kun nostat sormen. DroidDeck-komennot suoritetaan kerran kosketusta kohti. Kosketuslevyn napsautus määritetään erikseen.</string>
-    <string name="input_trigger_action_hint" formatted="false">Pidetään, kun liipaisin ylittää 55 %; vapautetaan alle 35 %:ssa. DroidDeck-komennot suoritetaan kerran painallusta kohti.</string>
+    <string name="input_route_local">DroidHost-syöte</string>
+    <string name="input_axis_action_hint" formatted="false">Pidetään, kun tikkua liikutetaan mihin tahansa suuntaan: painetaan yli 55 %:ssa, vapautetaan alle 35 %:ssa. Määritä jokainen suunta erikseen Suuntanäppäimillä. DroidHost-komennot suoritetaan kerran poikkeamaa kohti. Tikun napsautus määritetään erikseen.</string>
+    <string name="input_contact_action_hint">Pidetään kosketuslevyn kosketuksen ajan; vapautetaan, kun nostat sormen. DroidHost-komennot suoritetaan kerran kosketusta kohti. Kosketuslevyn napsautus määritetään erikseen.</string>
+    <string name="input_trigger_action_hint" formatted="false">Pidetään, kun liipaisin ylittää 55 %; vapautetaan alle 35 %:ssa. DroidHost-komennot suoritetaan kerran painallusta kohti.</string>
     <string name="input_scroll_axis">Vierityssuunta</string>
     <string name="input_vertical">Pystysuora</string>
     <string name="input_horizontal">Vaakasuora</string>
     <string name="input_scroll_horizontal">Vieritä vaakasuunnassa</string>
     <string name="input_measurements">Mittaukset</string>
-    <string name="input_measure_instructions">Ota tallennus käyttöön, käytä ohjaimia käynnissä olevassa istunnossa ja palaa sitten lukemaan tulokset. Mittaa vain DroidDeckin lähetysajan, ei näytön viivettä. Tallennus päättyy, kun sovelluksen prosessi sulkeutuu.</string>
+    <string name="input_measure_instructions">Ota tallennus käyttöön, käytä ohjaimia käynnissä olevassa istunnossa ja palaa sitten lukemaan tulokset. Mittaa vain DroidHostin lähetysajan, ei näytön viivettä. Tallennus päättyy, kun sovelluksen prosessi sulkeutuu.</string>
     <string name="input_layout_count">%1$d ohjainta</string>
     <string name="input_other_layouts">Muut tallennetut asettelut (%1$d) ▾</string>
     <string name="input_hide_other_layouts">Piilota muut tallennetut asettelut (%1$d) ▴</string>

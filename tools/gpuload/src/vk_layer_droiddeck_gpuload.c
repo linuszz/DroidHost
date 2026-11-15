@@ -1,7 +1,7 @@
-// VK_LAYER_DROIDDECK_gpu_load: this process's GPU busy time for the HUD where Android keeps the GPU load from apps
+// VK_LAYER_DROIDHOST_gpu_load: this process's GPU busy time for the HUD where Android keeps the GPU load from apps
 // (kgsl sysfs SELinux-blocked, perfcounter reads refused while /sys/class/kgsl/kgsl-3d0/perfcounter is 0).
-// The process total in nanoseconds goes to $DROIDDECK_GPU_LOAD_DIR/<pid>; nothing is timed while
-// $DROIDDECK_GPU_LOAD_DIR/on is missing (the app removes it while no HUD is shown).
+// The process total in nanoseconds goes to $DROIDHOST_GPU_LOAD_DIR/<pid>; nothing is timed while
+// $DROIDHOST_GPU_LOAD_DIR/on is missing (the app removes it while no HUD is shown).
 #define _GNU_SOURCE
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_layer.h>
@@ -33,7 +33,7 @@ static void say(const char *what) {
 }
 
 __attribute__((constructor)) static void init(void) {
-    const char *dir = getenv("DROIDDECK_GPU_LOAD_DIR");
+    const char *dir = getenv("DROIDHOST_GPU_LOAD_DIR");
     g_dir = dir && *dir ? dir : NULL;
 }
 
@@ -369,7 +369,7 @@ static void VKAPI_CALL DestroyDevice(VkDevice device, const VkAllocationCallback
 
 // ---- dispatch --------------------------------------------------------------------------------------------------
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckGpuLoad_GetDeviceProcAddr(VkDevice device, const char *name);
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostGpuLoad_GetDeviceProcAddr(VkDevice device, const char *name);
 
 static PFN_vkVoidFunction device_hook(struct dev *d, const char *name) {
     if (!g_dir) return NULL;
@@ -381,19 +381,19 @@ static PFN_vkVoidFunction device_hook(struct dev *d, const char *name) {
     return NULL;
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckGpuLoad_GetInstanceProcAddr(VkInstance instance, const char *name) {
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostGpuLoad_GetInstanceProcAddr(VkInstance instance, const char *name) {
     if (!strcmp(name, "vkCreateInstance")) return (PFN_vkVoidFunction)CreateInstance;
     if (!strcmp(name, "vkDestroyInstance")) return (PFN_vkVoidFunction)DestroyInstance;
     if (!strcmp(name, "vkCreateDevice")) return (PFN_vkVoidFunction)CreateDevice;
-    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidDeckGpuLoad_GetInstanceProcAddr;
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckGpuLoad_GetDeviceProcAddr;
+    if (!strcmp(name, "vkGetInstanceProcAddr")) return (PFN_vkVoidFunction)DroidHostGpuLoad_GetInstanceProcAddr;
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostGpuLoad_GetDeviceProcAddr;
     if (!instance) return NULL;
     struct inst *in = inst_for(instance);
     return in ? in->gipa(instance, name) : NULL;
 }
 
-EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckGpuLoad_GetDeviceProcAddr(VkDevice device, const char *name) {
-    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidDeckGpuLoad_GetDeviceProcAddr;
+EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidHostGpuLoad_GetDeviceProcAddr(VkDevice device, const char *name) {
+    if (!strcmp(name, "vkGetDeviceProcAddr")) return (PFN_vkVoidFunction)DroidHostGpuLoad_GetDeviceProcAddr;
     if (!strcmp(name, "vkDestroyDevice")) return (PFN_vkVoidFunction)DestroyDevice;
     struct dev *d = dev_for(device);
     if (!d) return NULL;
@@ -401,10 +401,10 @@ EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL DroidDeckGpuLoad_GetDeviceProcAd
     return mine ? mine : d->gdpa(device, name);
 }
 
-EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidDeckGpuLoad_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
+EXPORT VKAPI_ATTR VkResult VKAPI_CALL DroidHostGpuLoad_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *v) {
     if (v->loaderLayerInterfaceVersion > 2) v->loaderLayerInterfaceVersion = 2;
-    v->pfnGetInstanceProcAddr = DroidDeckGpuLoad_GetInstanceProcAddr;
-    v->pfnGetDeviceProcAddr = DroidDeckGpuLoad_GetDeviceProcAddr;
+    v->pfnGetInstanceProcAddr = DroidHostGpuLoad_GetInstanceProcAddr;
+    v->pfnGetDeviceProcAddr = DroidHostGpuLoad_GetDeviceProcAddr;
     v->pfnGetPhysicalDeviceProcAddr = NULL;
     return VK_SUCCESS;
 }

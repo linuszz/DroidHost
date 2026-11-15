@@ -18,7 +18,7 @@
     <string name="input_mouse_left">Αριστερό κουμπί ποντικιού</string>
     <string name="input_mouse_right">Δεξί κουμπί ποντικιού</string>
     <string name="input_mouse_middle">Μεσαίο κουμπί ποντικιού</string>
-    <string name="input_command_menu">Άνοιγμα μενού DroidDeck</string>
+    <string name="input_command_menu">Άνοιγμα μενού DroidHost</string>
     <string name="input_command_keyboard">Εμφάνιση πληκτρολογίου</string>
     <string name="input_command_steam">Άνοιγμα μενού Steam</string>
     <string name="input_command_qam">Άνοιγμα γρήγορης πρόσβασης Steam</string>

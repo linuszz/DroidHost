@@ -13,15 +13,15 @@ int main(int argc, char **argv) {
     std::snprintf(filename, sizeof(filename), "%s/droiddeck-xr-test-XXXXXX", argc > 1 ? argv[1] : "/tmp");
     int descriptor = mkstemp(filename);
     assert(descriptor >= 0);
-    assert(ftruncate(descriptor, sizeof(DroidDeckXrTracking)) == 0);
-    auto *writer = static_cast<DroidDeckXrTracking *>(mmap(nullptr, sizeof(DroidDeckXrTracking),
+    assert(ftruncate(descriptor, sizeof(DroidHostXrTracking)) == 0);
+    auto *writer = static_cast<DroidHostXrTracking *>(mmap(nullptr, sizeof(DroidHostXrTracking),
         PROT_READ | PROT_WRITE, MAP_SHARED, descriptor, 0));
     assert(writer != MAP_FAILED);
     {
         XrTrackingFile reader(filename);
-        DroidDeckXrTracking packet{};
+        DroidHostXrTracking packet{};
         assert(!reader.Read(&packet));
-        writer->magic = DROIDDECK_XR_MAGIC; writer->version = DROIDDECK_XR_VERSION;
+        writer->magic = DROIDHOST_XR_MAGIC; writer->version = DROIDHOST_XR_VERSION;
         writer->active = 1; writer->sampled_ns = XrTrackingFile::Now(); writer->period_ns = 13888889;
         writer->eyes[0].width = 1680; writer->eyes[0].height = 1760;
         writer->head.orientation[3] = 1; writer->head.position[1] = 1.6f; writer->head.flags = 15;
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
         __atomic_store_n(&writer->seq, 2u, __ATOMIC_RELEASE);
         writer->version++;
         assert(!reader.Read(&packet));
-        writer->version = DROIDDECK_XR_VERSION;
+        writer->version = DROIDHOST_XR_VERSION;
         writer->sampled_ns = XrTrackingFile::Now() - 1000000000LL;
         assert(reader.Read(&packet)); assert(!XrTrackingFile::Fresh(packet));
         writer->sampled_ns = XrTrackingFile::Now() + 1000000000LL;
@@ -61,11 +61,11 @@ int main(int argc, char **argv) {
         writer->active = 1; writer->eyes[0].width = 9000;
         assert(reader.Read(&packet)); assert(!XrTrackingFile::Fresh(packet));
     }
-    munmap(writer, sizeof(DroidDeckXrTracking));
+    munmap(writer, sizeof(DroidHostXrTracking));
     assert(ftruncate(descriptor, 16) == 0);
     {
         XrTrackingFile reader(filename);
-        DroidDeckXrTracking packet{};
+        DroidHostXrTracking packet{};
         assert(!reader.Read(&packet));
     }
     close(descriptor); unlink(filename);

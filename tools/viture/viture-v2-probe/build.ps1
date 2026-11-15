@@ -30,13 +30,13 @@ $unsigned = Join-Path $output 'viture-v2-probe-unsigned.apk'
 $aligned = Join-Path $output 'viture-v2-probe-aligned.apk'
 $apk = Join-Path $output 'viture-v2-probe-debug.apk'
 $classJar = Join-Path $output 'classes.jar'
-$source = Join-Path $PSScriptRoot 'src\com\droiddeck\viturev2probe'
+$source = Join-Path $PSScriptRoot 'src\com\droidhost\viturev2probe'
 $previousJavaHome = $env:JAVA_HOME
 try {
     $env:JAVA_HOME = $Java
-    & (Join-Path $Java 'bin\javac.exe') --release 8 -encoding UTF-8 -d $testClasses (Join-Path $source 'Protocol.java') (Join-Path $PSScriptRoot 'tests\com\droiddeck\viturev2probe\ProtocolTest.java')
+    & (Join-Path $Java 'bin\javac.exe') --release 8 -encoding UTF-8 -d $testClasses (Join-Path $source 'Protocol.java') (Join-Path $PSScriptRoot 'tests\com\droidhost\viturev2probe\ProtocolTest.java')
     if ($LASTEXITCODE -ne 0) { throw 'test compilation failed' }
-    & (Join-Path $Java 'bin\java.exe') -cp $testClasses com.droiddeck.viturev2probe.ProtocolTest
+    & (Join-Path $Java 'bin\java.exe') -cp $testClasses com.droidhost.viturev2probe.ProtocolTest
     if ($LASTEXITCODE -ne 0) { throw 'protocol tests failed' }
     & (Join-Path $Java 'bin\javac.exe') --release 8 -classpath $androidJar -encoding UTF-8 -d $classes (Join-Path $source 'Protocol.java') (Join-Path $source 'MainActivity.java')
     if ($LASTEXITCODE -ne 0) { throw 'javac failed' }

@@ -1,11 +1,11 @@
-// Timestamp ring shared by VK_LAYER_DROIDDECK_gpu_load (guest) and DroidDeck's compositor (app): each submit batch
+// Timestamp ring shared by VK_LAYER_DROIDHOST_gpu_load (guest) and DroidHost's compositor (app): each submit batch
 // that has command buffers gets one of the ring's command buffers in front (resets a query pair, writes a TOP_OF_PIPE
 // timestamp) and one behind (BOTTOM_OF_PIPE timestamp). Finished pairs are read back without waiting.
 // The start timestamp sits after the batch's semaphore waits only because Turnip and Qualcomm's driver on kgsl hold a
 // whole batch until its waits signal; a driver that starts TOP_OF_PIPE work earlier would count the wait as busy.
 // Callers serialize access to one ring (a queue's submits are externally synchronized anyway).
-#ifndef DROIDDECK_GPULOAD_RING_H
-#define DROIDDECK_GPULOAD_RING_H
+#ifndef DROIDHOST_GPULOAD_RING_H
+#define DROIDHOST_GPULOAD_RING_H
 
 #include <stdint.h>
 #include <stdlib.h>

@@ -69,7 +69,7 @@ def build_a6xx(ndk, output_dir=OUTPUT.parent, archive_path=None):
     llvm = hosts[0] / 'bin'
     provenance = (f'Banners-Turnip {A6XX_TAG}\n{A6XX_URL}\nSHA256 {A6XX_SHA256}\n'
                   'Mesa source: a0ff50acf0e1d152f54949490fa41558d2e0f7a4\n'
-                  'Quest adapter: DroidDeck tools/quest (GPL-3.0-or-later)\n').encode()
+                  'Quest adapter: DroidHost tools/quest (GPL-3.0-or-later)\n').encode()
     for quest in (False, True):
         meta = dict(original_meta)
         meta['name'] = 'Turnip Adreno 6xx' + (' - Quest 2 GPUOBJ experimental' if quest else ' - bundled fallback')

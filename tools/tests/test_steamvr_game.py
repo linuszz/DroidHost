@@ -44,7 +44,7 @@ class SteamVrGameTest(unittest.TestCase):
         self.assertEqual(data['argv'][:2], ['--backend', 'openvr'])
         self.assertEqual(data['argv'][-4:], ['--', 'game with spaces', 'a b', '$literal'])
         self.assertIsNone(data['modifiers'])
-        self.assertEqual(data['layers'], 'VK_LAYER_DROIDDECK_vr')
+        self.assertEqual(data['layers'], 'VK_LAYER_DROIDHOST_vr')
 
     def test_quest_selects_vulkan_sharing_and_preserves_explicit_override(self):
         with socket.socket(socket.AF_UNIX) as receiver:

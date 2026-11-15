@@ -63,7 +63,7 @@ int main(int argc,char **argv)
     PFN_vkCreateInstance create=(PFN_vkCreateInstance)gipa(NULL,"vkCreateInstance");
     REQUIRE(create,"missing_create_instance");
     VkApplicationInfo app={.sType=VK_STRUCTURE_TYPE_APPLICATION_INFO,
-      .pApplicationName="DroidDeck low32 buffer integrity probe",.apiVersion=VK_API_VERSION_1_1};
+      .pApplicationName="DroidHost low32 buffer integrity probe",.apiVersion=VK_API_VERSION_1_1};
     VkInstanceCreateInfo ici={.sType=VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,.pApplicationInfo=&app};
     CHECK(create(&ici,NULL,&instance));
     puts("PROBE_STAGE instance_created");

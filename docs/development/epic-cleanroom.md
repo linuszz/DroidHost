@@ -1,7 +1,7 @@
 # Epic Games Store module: clean-room rewrite
 
 The Epic integration (the Rust `epic` module in `libdroiddeckstores.so` and the Kotlin package
-`com.droiddeck.launcher.stores.epic`) was rewritten so that it carries no code from the earlier
+`com.droidhost.launcher.stores.epic`) was rewritten so that it carries no code from the earlier
 implementation, whose Rust module stated derivation from third-party Epic clients. This page
 records how that was done and every judgement call the new code makes.
 
@@ -66,7 +66,7 @@ Numbers in brackets refer to the spec's list of unknowns.
 **Chosen where the spec left it open**
 
 3. **User-Agent** [1]: every HTTP request (account, library, catalog, build info, CDNs, store
-   GraphQL, promotions, cloud saves) sends `DroidDeck/<versionName>`, defined once in
+   GraphQL, promotions, cloud saves) sends `DroidHost/<versionName>`, defined once in
    `epic/net.rs` (`USER_AGENT_PRODUCT`); changing that constant is the one place to adjust.
    Achievements are the exception: Epic's achievements service rejects other agents, so
    `epic/achievements.rs` sends Epic's launcher agent (`net.rs::EPIC_LAUNCHER_USER_AGENT`). The sign-in **WebView** keeps the launcher-style UA it used
@@ -142,7 +142,7 @@ Numbers in brackets refer to the spec's list of unknowns.
 
 - Sign-in through the WebView, and that an **existing** saved account (sealed `credentials.json`)
   stays signed in after the update.
-- Every endpoint with the DroidDeck User-Agent: library, catalog, build info, CDN downloads, store
+- Every endpoint with the DroidHost User-Agent: library, catalog, build info, CDN downloads, store
   GraphQL and promotions, cloud saves (achievements use the launcher agent, see above).
 - Library sync and shelves; install, pause/resume, cancel, update and repair; a card install with
   the internal scratch cache; launch with an exchange code; cloud-save up/down.

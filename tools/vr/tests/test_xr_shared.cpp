@@ -3,11 +3,11 @@
 #include <cstdio>
 #include <sys/syscall.h>
 
-static DroidDeckXrFrameHeader Header() {
-    DroidDeckXrFrameHeader header{};
-    header.magic = DROIDDECK_XR_FRAME_MAGIC; header.version = DROIDDECK_XR_FRAME_VERSION;
+static DroidHostXrFrameHeader Header() {
+    DroidHostXrFrameHeader header{};
+    header.magic = DROIDHOST_XR_FRAME_MAGIC; header.version = DROIDHOST_XR_FRAME_VERSION;
     header.width = 8; header.height = 4; header.bytes = 128;
-    header.color_space = DROIDDECK_XR_COLOR_SRGB_RGBA8; header.frame_id = 1; header.captured_ns = xr_frame_now();
+    header.color_space = DROIDHOST_XR_COLOR_SRGB_RGBA8; header.frame_id = 1; header.captured_ns = xr_frame_now();
     for (int eye = 0; eye < 2; eye++) {
         for (int axis = 0; axis < 3; axis++) header.eye_pose[eye][axis][axis] = 1;
         header.projection[eye][0][0] = header.projection[eye][1][1] = 1;
@@ -31,9 +31,9 @@ int main() {
     XrFrameSender sender;
     std::thread peer([&] {
         int client = accept(listener, nullptr, nullptr); assert(client >= 0);
-        DroidDeckXrFrameHeader received{}; XrFrameDescriptor shared;
+        DroidHostXrFrameHeader received{}; XrFrameDescriptor shared;
         assert(xr_frame_header(client, received, shared, xr_frame_now() + 1000000000LL));
-        assert(received.version == DROIDDECK_XR_FRAME_SHARED_VERSION && xr_frame_valid(received));
+        assert(received.version == DROIDHOST_XR_FRAME_SHARED_VERSION && xr_frame_valid(received));
         assert(shared.fd >= 0 && (fcntl(shared.fd, F_GETFD) & FD_CLOEXEC));
         unsigned char copy[128]; assert(pread(shared.fd, copy, sizeof(copy), 0) == sizeof(copy));
         for (auto value : copy) assert(value == 27);
@@ -45,7 +45,7 @@ int main() {
     XrFrameSender lost;
     std::thread disconnected([&] {
         int client = accept(listener, nullptr, nullptr); assert(client >= 0);
-        DroidDeckXrFrameHeader received{}; XrFrameDescriptor shared;
+        DroidHostXrFrameHeader received{}; XrFrameDescriptor shared;
         assert(xr_frame_header(client, received, shared, xr_frame_now() + 1000000000LL));
         assert(shared.fd >= 0);
         close(client);
@@ -60,7 +60,7 @@ int main() {
     XrFrameSender invalid;
     assert(!invalid.SendShared(path, Header(), buffer));
     assert(invalid.SharedLeaseLost() && receiver.Rejected() == 1);
-    DroidDeckXrPixels frame; assert(!receiver.Take(&frame));
+    DroidHostXrPixels frame; assert(!receiver.Take(&frame));
     receiver.Stop(); close(buffer); unlink((path + ".lock").c_str()); rmdir(directory);
     std::puts("XR shared handoff passed: descriptor ownership, copied payload, acknowledgement, disconnect quarantine, absent peer and invalid buffer rejection");
 }

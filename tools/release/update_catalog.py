@@ -34,7 +34,7 @@ class GitHub:
         data = None
         headers = {
             "Accept": "application/vnd.github+json",
-            "User-Agent": "DroidDeck-update-catalog",
+            "User-Agent": "DroidHost-update-catalog",
             "X-GitHub-Api-Version": "2022-11-28",
         }
         if self.token:
@@ -306,7 +306,7 @@ def stable_app_release(releases: list[dict]) -> dict | None:
     apps = [
         r for r in releases
         if not r.get("draft") and not r.get("prerelease")
-        and any(a.get("name") == f"DroidDeck-{r.get('tag_name')}.apk" for a in r.get("assets") or [])
+        and any(a.get("name") == f"DroidHost-{r.get('tag_name')}.apk" for a in r.get("assets") or [])
     ]
     return max(apps, key=lambda r: r.get("published_at") or r.get("created_at") or "", default=None)
 
@@ -505,7 +505,7 @@ def publish_catalog(source: GitHub, ci: GitHub, source_repo: str, ci_repo: str, 
         catalog = build_catalog(source, ci, source_repo, ci_repo, previous_catalog(old))
         content = (json.dumps(catalog, separators=(",", ":")) + "\n").encode()
         body = {
-            "message": "ci: refresh DroidDeck update catalog",
+            "message": "ci: refresh DroidHost update catalog",
             "content": base64.b64encode(content).decode(),
             "branch": branch,
         }
