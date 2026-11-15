@@ -166,16 +166,18 @@ object VmDesktop {
     private fun copySettings(context: Context, root: File): Int {
         val shared = LinuxRuntime.rootDir(context)
         var copied = 0
-        for (path in configPaths(context)) {
-            val from = File(shared, path)
-            if (!from.isFile) continue
-            val to = File(root, path)
+        for (entry in configPaths(context)) {
+            // A file may sit under more than one name, because the runtime that is installed and
+            // the one the fork builds name it differently. It keeps the name it is found under.
+            val name = entry.split('|').firstOrNull { File(shared, it).isFile } ?: continue
+            val from = File(shared, name)
+            val to = File(root, name)
             to.parentFile?.mkdirs()
             val copiedOk = runCatching { from.copyTo(to, overwrite = true) }
-                .onFailure { Log.w(TAG, "could not copy $path", it) }
+                .onFailure { Log.w(TAG, "could not copy $name", it) }
                 .isSuccess
             if (!copiedOk) continue
-            if (path.startsWith("usr/local/bin/") || path.startsWith("usr/share/droiddeck/")) {
+            if (name.startsWith("usr/local/bin/") || name.startsWith("usr/share/droiddeck/")) {
                 to.setExecutable(true, false)
             }
             copied++
@@ -195,14 +197,19 @@ object VmDesktop {
         progress = State(Stage.FAILED, 0, reason)
     }
 
-    private fun filterScript(): String = """
-for p in "${'$'}@"; do
-  apt-cache show --no-show-versions "${'$'}p" >/dev/null 2>&1 && echo "${'$'}p"
-done > $PACKAGE_LIST
+    internal fun filterScript(): String = """
+printf '%s\n' "${'$'}@" > /root/.droiddeck-wanted.txt
+apt-cache dumpavail | sed -n 's/^Package: //p' | sort -u > /root/.droiddeck-repo.txt
+grep -F -x -f /root/.droiddeck-wanted.txt /root/.droiddeck-repo.txt > $PACKAGE_LIST
 """
 
-    private fun installScript(): String = """
+    internal fun installScript(): String = """
 export DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8
-xargs apt-get install -y --no-install-recommends < $PACKAGE_LIST
+printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
+chmod +x /usr/sbin/policy-rc.d
+xargs -r apt-get install -y --no-install-recommends < $PACKAGE_LIST
+rc=${'$'}?
+apt-get clean
+exit ${'$'}rc
 """
 }
