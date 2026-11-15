@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +38,15 @@ import com.droidhost.launcher.vm.VmMachine
 
 internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, RUNNING, DELETING, IMPORTED }
 
-internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = when {
+internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = vmStatus(s, machine, false)
+
+/**
+ * The status of a machine.
+ *
+ * [desktopInMachine] says whether the machine's own rootfs holds a desktop. A machine the user
+ * brought keeps its system to itself, so the shared runtime's desktop says nothing about it.
+ */
+internal fun vmStatus(s: FrontEndState, machine: VmMachine?, desktopInMachine: Boolean): VmStatus = when {
     machine == null -> VmStatus.ABSENT
     // A removal is also busy, so it has to be told apart before the install branch.
     s.removalPending -> VmStatus.DELETING
@@ -45,7 +54,7 @@ internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = when {
     s.sessionRunning -> VmStatus.RUNNING
     // A machine the user brought runs on a system of its own, so the shared runtime's desktop
     // says nothing about it; its own desktop pack is not installed yet.
-    machine.imported -> VmStatus.IMPORTED
+    machine.imported -> if (desktopInMachine) VmStatus.READY else VmStatus.IMPORTED
     s.desktopInstalled -> VmStatus.READY
     else -> VmStatus.NEW
 }
@@ -82,7 +91,7 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.RUNNING -> stringResource(R.string.vm_stop)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
-    VmStatus.IMPORTED -> stringResource(R.string.vm_imported_wait)
+    VmStatus.IMPORTED -> stringResource(R.string.vm_install_desktop)
 }
 
 internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
@@ -90,6 +99,7 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
     VmStatus.NEW -> Icons.Outlined.DesktopWindows
     VmStatus.READY -> Icons.Filled.PlayArrow
     VmStatus.RUNNING -> Icons.Filled.Close
+    VmStatus.IMPORTED -> Icons.Outlined.Download
     else -> null
 }
 

@@ -28,7 +28,8 @@ object VmGuest {
      * Throws when the machine has no rootfs of its own: there is nothing to run in.
      */
     fun run(context: Context, machineId: String, argv: List<String>, guestRoot: Boolean = false,
-             timeoutMs: Long = 120_000, env: Map<String, String> = emptyMap()): Result {
+             timeoutMs: Long = 120_000, env: Map<String, String> = emptyMap(),
+             onLine: ((String) -> Unit)? = null): Result {
         val root = rootfsOf(context, machineId)
         val output = StringBuilder()
         val cancelled = AtomicBoolean(false)
@@ -50,6 +51,7 @@ object VmGuest {
         val code = try {
             GuestCommand.run(context, command, false, null, null, null, false, cancelled, root, guestRoot) { line ->
                 output.append(line).append('\n')
+                onLine?.invoke(line)
             }
         } finally {
             cancelled.set(true)

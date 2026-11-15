@@ -70,9 +70,12 @@ import com.droidhost.launcher.R
 import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.session.SessionService
 import com.droidhost.launcher.vm.VmCatalog
+import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmRuntime
 import com.droidhost.launcher.vm.VmStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 private val VM_TABS = modeSheetTabs(steam = false) + SheetTab.FILES
@@ -94,7 +97,17 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     var machine by remember { mutableStateOf(VmStore.load(ctx)) }
     // A build that already carries the desktop predates any record; it is still the one machine.
     val vm = machine ?: if (s.desktopPresent) VmCatalog.of(VmCatalog.UBUNTU)?.let { VmMachine(it, 0L) } else null
-    val status = vmStatus(s, vm)
+    var install by remember { mutableStateOf(VmDesktop.state()) }
+    // A machine the user brought keeps its desktop in its own rootfs, so the shared one says
+    // nothing about it.
+    val desktopInMachine = VmDesktop.desktopInstalled(vm?.let { VmRuntime.ownRootfs(ctx, it.id) })
+    val status = vmStatus(s, vm, desktopInMachine)
+    LaunchedEffect(install.busy) {
+        while (install.busy) {
+            delay(1000)
+            install = VmDesktop.state()
+        }
+    }
     var picking by rememberSaveable { mutableStateOf(false) }
     var everPresent by remember { mutableStateOf(s.desktopPresent) }
     LaunchedEffect(s.desktopPresent) { if (s.desktopPresent) everPresent = true }
@@ -112,12 +125,18 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         VmStatus.ABSENT -> ({ picking = true })
         VmStatus.NEW, VmStatus.READY -> a.onDesktop
         VmStatus.RUNNING -> a.onVmStop
+        VmStatus.IMPORTED -> ({
+            vm?.let { machine ->
+                if (VmDesktop.start(ctx, machine)) install = VmDesktop.state()
+            }
+        })
         else -> ({})
     }
     val primaryEnabled = when (status) {
         VmStatus.ABSENT -> !s.busy
         VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked
         VmStatus.READY, VmStatus.RUNNING -> !s.busy
+        VmStatus.IMPORTED -> !s.busy && !install.busy && !s.runtimeActionsBlocked
         else -> false
     }
     val label = vmPrimaryLabel(status)
@@ -146,8 +165,13 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     BusyChip(s)
                 }
                 if (vm?.imported == true) Text(
-                    stringResource(R.string.vm_imported_note), fontSize = 12.5.sp, lineHeight = 17.sp,
-                    color = colors.onSurfaceVariant,
+                    when {
+                        install.busy -> stringResource(R.string.vm_install_desktop_running, install.percent)
+                        install.stage == VmDesktop.Stage.FAILED ->
+                            stringResource(R.string.vm_install_desktop_failed, install.detail)
+                        else -> stringResource(R.string.vm_imported_note)
+                    },
+                    fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant,
                 )
             }
         },

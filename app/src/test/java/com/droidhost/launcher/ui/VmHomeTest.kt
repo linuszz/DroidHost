@@ -10,6 +10,8 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.droidhost.launcher.R
 import com.droidhost.launcher.vm.VmCatalog
+import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmRuntime
 import com.droidhost.launcher.vm.VmStore
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -18,6 +20,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w1200dp-h752dp-land", application = android.app.Application::class)
@@ -56,6 +59,17 @@ class VmHomeTest {
         assertTrue(compose.onAllNodesWithText(ctx.getString(R.string.vm_deleting)).fetchSemanticsNodes().isNotEmpty())
     }
 
+    @Test fun aBroughtMachineAsksForItsDesktop() {
+        render(state(desktopInstalled = false, desktopPresent = false, machine = true, imported = true))
+        compose.onNodeWithText(ctx.getString(R.string.vm_install_desktop)).assertIsDisplayed()
+    }
+
+    @Test fun aBroughtMachineWithADesktopOffersTheStart() {
+        render(state(desktopInstalled = false, desktopPresent = false, machine = true, imported = true,
+            desktopInMachine = true))
+        compose.onNodeWithText(ctx.getString(R.string.vm_start)).assertIsDisplayed()
+    }
+
     @Test fun thePickerListsEverySystemAndGatesTheOnesWithoutAnEngine() {
         render(state(desktopInstalled = false, desktopPresent = false))
         compose.onNodeWithContentDescription(ctx.getString(R.string.vm_new)).performClick()
@@ -84,8 +98,19 @@ class VmHomeTest {
         removalPending: Boolean = false,
         machine: Boolean = desktopInstalled,
         busy: Boolean = false,
+        imported: Boolean = false,
+        desktopInMachine: Boolean = false,
     ): FrontEndState {
-        if (machine) VmStore.create(ctx, VmCatalog.distros.first { it.engine })
+        if (machine) {
+            val distro = VmCatalog.distros.first { it.engine }
+            val created = VmStore.create(ctx, distro, if (imported) "vm-brought" else VmMachine.DEFAULT_ID, imported)
+            if (imported && created != null) {
+                // The machine's own rootfs holds a desktop when the marker is there.
+                val root = VmRuntime.allocateRootfs(ctx, created.id)
+                if (desktopInMachine) File(root, "usr/share/droiddeck").mkdirs()
+                if (desktopInMachine) File(root, "usr/share/droiddeck/desktop-installed").writeText("installed\n")
+            }
+        }
         return FrontEndState(
             installed = "r9", ready = true, available = null, busy = busy, stage = "", percent = -1,
             desktopInstalled = desktopInstalled, desktopPresent = desktopPresent,
