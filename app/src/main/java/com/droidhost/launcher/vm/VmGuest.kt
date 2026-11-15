@@ -20,38 +20,19 @@ object VmGuest {
     private const val TAG = "VmGuest"
 
     /**
-     * Where the guest's tar is given a wrapper.
+     * Where the guest's tar was given a wrapper, and where the wrapper is taken away again.
      *
-     * apt hands dpkg a path of /usr/sbin:/usr/bin:/sbin:/bin, and the directories a distribution
-     * package owns are of no use: a package that installs a tar would put the real one back. The
-     * slots below belong to no package, so the wrapper stays where it is put.
+     * The wrapper was there because the guest could not set the time of a file.  The fast path
+     * took that ability away with it, so the real tar is wanted back.
      */
     private val TAR_SLOTS = listOf("usr/sbin/tar", "usr/local/bin/tar", "usr/local/sbin/tar")
+
+    /** The mark the wrapper of ours carries, so that only ours is taken away. */
+    private const val TAR_MARK = "DroidHost: this guest cannot set the time of a file"
 
     /** Where the guest's apt is told there is no terminal to give dpkg. */
     private const val APT_CONFIG = "etc/apt/apt.conf.d/99droidhost"
     private const val APT_CONFIG_TEXT = "DPkg::Use-Pty \"false\";\n"
-
-    /**
-     * The tar the guest is given.
-     *
-     * The device refuses the syscall that sets a file's time inside the guest, so the tar that
-     * unpacks a package fails on every file it writes and takes the package with it. This one is
-     * told to leave the time alone.
-     */
-    internal val TAR_SCRIPT = """
-        #!/bin/sh
-        # DroidHost: this guest cannot set the time of a file, so tar is told not to try.
-        for t in /bin/tar /usr/bin/tar; do
-            [ -x "${'$'}t" ] || continue
-            if "${'$'}t" --help 2>/dev/null | grep -q -- '--touch'; then
-                exec "${'$'}t" --touch "${'$'}@"
-            fi
-            exec "${'$'}t" "${'$'}@"
-        done
-        echo 'this distribution has no tar' >&2
-        exit 127
-    """.trimIndent() + "\n"
 
     /** What a program left behind: its exit status and everything it printed. */
     class Result(val exitCode: Int, val output: String, val timedOut: Boolean)
@@ -107,16 +88,14 @@ object VmGuest {
         return dir
     }
 
-    /** Gives the guest a tar that can take a package apart, and an apt that does not want one. */
+    /** Takes the tar wrapper of ours away, and gives the guest an apt that does not want one. */
     internal fun prepare(root: File) {
         for (slot in TAR_SLOTS) {
             val shim = File(root, slot)
-            if (shim.isFile) continue
-            runCatching {
-                shim.parentFile?.mkdirs()
-                shim.writeText(TAR_SCRIPT)
-                shim.setExecutable(true, false)
-            }.onFailure { Log.w(TAG, "the guest could not be given a tar that works", it) }
+            if (!shim.isFile) continue
+            if (!runCatching { shim.readText() }.getOrDefault("").contains(TAR_MARK)) continue
+            runCatching { shim.delete() }
+                .onFailure { Log.w(TAG, "the guest kept a tar of ours", it) }
         }
         val apt = File(root, APT_CONFIG)
         if (!apt.isFile) {

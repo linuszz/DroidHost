@@ -1,5 +1,6 @@
 package com.droidhost.launcher.vm
 
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -9,19 +10,25 @@ import java.io.File
 class VmGuestTest {
     @get:Rule val folder = TemporaryFolder()
 
-    @Test fun theGuestGetsATarThatLeavesTheTimeAlone() {
-        // The device refuses the syscall that sets a file's time inside the guest, so the tar
-        // that unpacks a package fails on every file it writes and takes the package with it.
-        assertTrue(VmGuest.TAR_SCRIPT.contains("--touch"))
+    @Test fun theGuestKeepsTheTarItCameWith() {
+        // The guest could not set the time of a file for a while, and the tar that unpacks a
+        // package was given a wrapper to leave the time alone.  That is taken away again, so the
+        // real tar is used and the time of a file is the one the package says it is.
+        val root = folder.newFolder("rootfs")
+        File(root, "usr/sbin").mkdirs()
+        val tar = File(root, "usr/sbin/tar")
+        tar.writeText("#!/bin/sh\nexec /bin/tar \"$@\"\n")
+        VmGuest.prepare(root)
+        assertTrue(tar.isFile)
     }
 
-    @Test fun theTarIsPutWherePackageManagersLook() {
-        // apt hands dpkg a path of /usr/sbin:/usr/bin:/sbin:/bin, and a directory a distribution
-        // package owns would have the real tar put back over this one.
+    @Test fun theWrapperOfOursIsTakenAway() {
         val root = folder.newFolder("rootfs")
+        File(root, "usr/sbin").mkdirs()
+        val tar = File(root, "usr/sbin/tar")
+        tar.writeText("#!/bin/sh\n# DroidHost: this guest cannot set the time of a file\n")
         VmGuest.prepare(root)
-        assertTrue(File(root, "usr/sbin/tar").isFile)
-        assertTrue(File(root, "usr/local/bin/tar").isFile)
+        assertFalse(tar.exists())
     }
 
     @Test fun theGuestIsToldAptHasNoTerminalToGiveDpkg() {
