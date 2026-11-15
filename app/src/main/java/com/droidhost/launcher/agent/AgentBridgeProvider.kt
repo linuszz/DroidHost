@@ -376,21 +376,33 @@ class AgentBridgeProvider : ContentProvider() {
      * install what it is missing.
      */
     private fun vm(context: Context, request: JSONObject, timeoutMs: Long): JSONObject {
-        val machineId = request.optString("machine")
-        if (machineId.isEmpty()) throw AgentException("INVALID_REQUEST", "machine is required")
+        val machine = machineFor(context, request.optString("machine"))
         val argvJson = request.optJSONArray("argv")
             ?: throw AgentException("INVALID_REQUEST", "argv is required")
         val argv = (0 until argvJson.length()).map { argvJson.getString(it) }
         if (argv.isEmpty()) throw AgentException("INVALID_REQUEST", "argv is empty")
         val env = linkedMapOf<String, String>()
         request.optJSONObject("env")?.let { obj -> obj.keys().forEach { env[it] = obj.getString(it) } }
-        val result = com.droidhost.launcher.vm.VmGuest.run(context, machineId, argv,
+        val result = com.droidhost.launcher.vm.VmGuest.run(context, machine.id, argv,
             request.optBoolean("root", false), timeoutMs, env)
         return JSONObject().put("ok", true).put("command", "vm")
-            .put("machine", machineId)
+            .put("machine", machine.id)
             .put("exitCode", result.exitCode)
             .put("timedOut", result.timedOut)
             .put("output", result.output)
+    }
+
+    /** The machine a command is meant for: the one that was named, or the only one there is. */
+    private fun machineFor(context: Context, named: String): com.droidhost.launcher.vm.VmMachine {
+        val machines = com.droidhost.launcher.vm.VmStore.all(context)
+        val id = named.trim()
+        if (id.isNotEmpty()) {
+            return machines.firstOrNull { it.id == id }
+                ?: throw AgentException("NO_MACHINE", "There is no machine '$id'")
+        }
+        if (machines.size == 1) return machines.first()
+        throw AgentException("NO_MACHINE", "Name the machine to run in: " +
+            machines.joinToString(", ") { it.id })
     }
 
     private fun timeoutMs(request: JSONObject, defaultSeconds: Double, slackMs: Long): Long {

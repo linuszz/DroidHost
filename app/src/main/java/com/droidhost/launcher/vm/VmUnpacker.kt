@@ -24,6 +24,12 @@ import java.io.InputStream
 object VmUnpacker {
     private const val TAG = "VmUnpacker"
 
+    // The access bits of a tar mode. They are octal there, and Kotlin has no octal literals.
+    private const val TAR_READ = 0b100_100_100
+    private const val TAR_WRITE = 0b010_010_010
+    private const val TAR_EXEC = 0b001_001_001
+    private const val TAR_PERMISSIONS = 0b111_111_111
+
     /** How much of the archive has been unpacked. */
     fun interface Progress {
         fun onProgress(stage: VmStage, percent: Int)
@@ -178,13 +184,5 @@ object VmUnpacker {
             Kind.TAR_BZ2 -> BZip2CompressorInputStream(file)
             Kind.TAR -> file
         }
-    }
-
-    companion object {
-        // The access bits of a tar mode. They are octal there, and Kotlin has no octal literals.
-        private const val TAR_READ = 0b100_100_100
-        private const val TAR_WRITE = 0b010_010_010
-        private const val TAR_EXEC = 0b001_001_001
-        private const val TAR_PERMISSIONS = 0b111_111_111
     }
 }
