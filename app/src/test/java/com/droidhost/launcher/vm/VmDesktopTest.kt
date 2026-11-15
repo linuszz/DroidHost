@@ -38,4 +38,13 @@ class VmDesktopTest {
         assertTrue(script.contains("policy-rc.d"))
         assertTrue(script.contains("exit \$rc"))
     }
+
+    @Test fun theInstallTriesAgainWhenTheMirrorFailsIt() {
+        // A mirror that replaces a file while it is being downloaded fails the whole run, and
+        // what it did fetch is worth keeping for the next attempt.
+        val script = VmDesktop.installScript()
+        assertTrue(script.contains("for attempt in 1 2 3"))
+        assertTrue(script.contains("PIPESTATUS"))
+        assertTrue(script.contains("Acquire::Retries"))
+    }
 }

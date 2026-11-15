@@ -25,6 +25,7 @@ object VmDesktop {
     private const val CONFIG_LIST = "$ASSETS/desktop-config.txt"
     private const val MARKER = "usr/share/droiddeck/desktop-installed"
     private const val PACKAGE_LIST = "/root/.droiddeck-packages.txt"
+    private const val INSTALL_LOG = "/root/.droiddeck-install.log"
     private const val UPDATE_TIMEOUT_MS = 15 * 60 * 1000L
     private const val INSTALL_TIMEOUT_MS = 180 * 60 * 1000L
 
@@ -207,9 +208,14 @@ grep -F -x -f /root/.droiddeck-wanted.txt /root/.droiddeck-repo.txt > $PACKAGE_L
 export DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8
 printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d
-xargs -r apt-get install -y --no-install-recommends < $PACKAGE_LIST
-rc=${'$'}?
-apt-get clean
+rc=1
+for attempt in 1 2 3; do
+  xargs -r apt-get install -y --no-install-recommends -o Acquire::Retries=3 < $PACKAGE_LIST 2>&1 | tee -a $INSTALL_LOG
+  rc=${'$'}{PIPESTATUS[0]}
+  [ "${'$'}rc" = 0 ] && break
+  echo "== attempt ${'$'}attempt left the machine at ${'$'}rc"
+done
+[ "${'$'}rc" = 0 ] && apt-get clean
 exit ${'$'}rc
 """
 }
