@@ -110,13 +110,28 @@ devices:
 | --- | --- |
 | `DroidDeck-Proton`, `Droid-Deck/DroidDeck-Proton` | An upstream build product with its own release line. |
 | `Droid-Deck/DroidDeck`, `Droid-Deck/DroidDeck-CI`, `Droid-Deck/DroidDeck-Components` | Upstream repositories that host the runtime components, Proton builds and catalogues DroidHost still downloads. |
+| `DroidDeck-CI`, `DroidDeck-Components` without the owner prefix | The same two repositories, named bare in the workflow `repositories:` fields. |
+| Third-party repositories whose own name contains the old brand, such as `wallentx/DroidDeck`, `ASEbrahim/DroidDeck`, `Someone/DroidDeck` | Not ours. Renaming them breaks every link to them. |
+| Release asset names inside upstream release URLs, such as `DroidDeck-PR.732-bdf876d.apk` | The asset in that upstream release is still called that; the download 404s otherwise. |
+| `.DroidDeck-Launch.BAT`, `.DroidDeck-Epic-Staging` | The store engines test that the reserved names `.droiddeck-launch.bat` and `.droiddeck-epic-staging` are matched case-insensitively. These are the case variants they assert with. |
 | `droiddeck-esync`, `droiddeck-fsync`, `droiddeck-ntsync`, `droiddeck-session`, `droiddeck-bwrap`, `droiddeck-root`, `droiddeck-clipboard`, `droiddeck-glprobe`, `droiddeck-vkbridge-smoke` | Guest-side executables installed by the prepared Linux runtime. They exist on devices already prepared by upstream, so renaming them breaks those sessions. |
 | `~/.cache/droiddeck/`, `/root/.local/share/droiddeck/ctl/`, `/usr/share/droiddeck/` | Guest filesystem layout from the same prepared runtime. |
 | `libdroiddeckstores.so`, `libdroiddeckwayland.so`, `droiddeck_viture`, `droiddeck_uvc` | Native library names, referenced from both the CMake targets and `System.loadLibrary`. |
+| `droiddeck-launch.bat`, `droiddeck-epic-staging`, `.droiddeck-store.json`, `.droiddeck-sync.json`, `.droiddeck-routes.json` | Reserved file names the app writes inside guest directories. |
+| `debug.droiddeck.linuxfs` | A device-level system property a developer can set to point the runtime catalogue elsewhere. |
 | `tools/droiddeckctl` | The tool's file name and guest install path are fixed; only its default package and env var changed. |
 | `docs/releases/*.md`, `docs/progress-log.md` | Historical record of upstream releases, which really were called DroidDeck. |
 | `artwork/` | Upstream brand assets. DroidHost has no mark of its own yet. |
 | `From: DroidDeck` in `tools/proot/patches` and `tools/gamescope/patches` | Patch authorship metadata. |
+
+The rule behind the table: a name moves to DroidHost when it identifies something **this fork
+produces** — the package, the namespaces, the JNI and Vulkan symbols, the build variables, the
+user-visible text. A name stays when it points at **something else**: an upstream or third-party
+repository, a release asset DroidHost does not publish, a name already baked into a prepared
+runtime, or a file on a device that DroidHost did not create.
+
+表中规则：只有「本 fork 自己产出的东西」才改成 DroidHost；指向别的仓库、上游发布资产、已准备好的
+运行时、或设备上本 fork 没创建过的文件，一律保持原名。
 
 ---
 
