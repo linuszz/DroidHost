@@ -1,0 +1,15 @@
+# The programs a desktop is started with.
+#
+# A distribution the user brought has no DroidDeck runtime in it, so it has none of these either.
+# They are taken from the app's own runtime, so a machine ends up with the same desktop the app
+# ships and the session script finds what it expects.
+usr/local/bin/droiddeck-desktop
+usr/local/bin/droiddeck-bottom-desktop
+usr/local/bin/droiddeck-desktop-gpu
+usr/local/bin/droiddeck-gpu
+usr/local/bin/droiddeck-desktop-window-rules
+usr/local/bin/droiddeck-ime
+usr/local/bin/droiddeck-library-perms
+usr/local/bin/kwin_wayland_wrapper
+usr/lib/firefox/defaults/pref/droiddeck.js
+etc/xdg/autostart/droiddeck-clipboard.desktop

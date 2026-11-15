@@ -4204,6 +4204,8 @@
     <string name="vm_imported_wait">Desktop pending</string>
     <string name="vm_imported_note">The system is imported. Its desktop environment is not installed yet.</string>
     <string name="vm_install_desktop">Install the desktop</string>
+    <string name="vm_install_desktop_updating">Reading the distribution\'s own repository</string>
+    <string name="vm_install_desktop_configuring">Giving the desktop its settings</string>
     <string name="vm_install_desktop_running">Installing the desktop from the distribution\'s own repository: %1$d%%</string>
     <string name="vm_install_desktop_failed">The desktop could not be installed: %1$s</string>
     <string name="vm_install_reason_repository">the distribution\'s repository could not be reached</string>

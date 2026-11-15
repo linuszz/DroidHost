@@ -2,8 +2,10 @@ package com.droidhost.launcher.vm
 
 import android.content.Context
 import android.util.Log
+import com.droidhost.launcher.R
 import com.droidhost.launcher.runtime.GuestCommand
 import com.droidhost.launcher.runtime.LinuxRuntime
+import com.droidhost.launcher.runtime.RuntimeInstallService
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -23,6 +25,7 @@ object VmDesktop {
     private const val TAG = "VmDesktop"
     private const val ASSETS = "droidhost/vm"
     private const val CONFIG_LIST = "$ASSETS/desktop-config.txt"
+    private const val PROGRAM_LIST = "$ASSETS/desktop-programs.txt"
     private const val MARKER = "usr/share/droiddeck/desktop-installed"
     private const val PACKAGE_LIST = "/root/.droiddeck-packages.txt"
     private const val INSTALL_LOG = "/root/.droiddeck-install.log"
@@ -74,8 +77,11 @@ object VmDesktop {
             return
         }
         installed.set(0)
+        // The system freezes an app that sits in the background, and this install takes an hour.
+        val hold = RuntimeInstallService.holdForPackage(context, context.getString(R.string.vm_install_desktop))
         try {
             progress = State(Stage.UPDATING, 3)
+            report(context, Stage.UPDATING, 3)
             val update = VmGuest.run(context, machine.id,
                 listOf("/usr/bin/apt-get", "update"), guestRoot = true, timeoutMs = UPDATE_TIMEOUT_MS)
             // apt-get update only warns when it cannot reach a mirror, so the warnings are the
@@ -86,6 +92,7 @@ object VmDesktop {
             }
 
             progress = State(Stage.INSTALLING, 10)
+            report(context, Stage.INSTALLING, 10)
             val packages = runtimePackages(context)
             if (packages.isEmpty()) {
                 fail(Reason.NO_PACKAGES)
@@ -98,9 +105,10 @@ object VmDesktop {
             }
 
             progress = State(Stage.INSTALLING, 15)
+            report(context, Stage.INSTALLING, 15)
             val result = VmGuest.run(context, machine.id,
                 listOf("/bin/bash", "-c", installScript()), guestRoot = true, timeoutMs = INSTALL_TIMEOUT_MS) { line ->
-                onInstallLine(line, wanted.size)
+                onInstallLine(context, line, wanted.size)
             }
             if (result.exitCode != 0) {
                 fail(Reason.INSTALL_FAILED)
@@ -108,6 +116,7 @@ object VmDesktop {
             }
 
             progress = State(Stage.CONFIGURING, 90)
+            report(context, Stage.CONFIGURING, 90)
             val copied = copySettings(context, root)
             if (copied == 0) {
                 fail(Reason.NO_SETTINGS)
@@ -121,8 +130,20 @@ object VmDesktop {
             Log.w(TAG, "the desktop could not be fitted in", e)
             fail(Reason.INSTALL_FAILED)
         } finally {
+            hold()
             running.set(false)
         }
+    }
+
+    /** Says what the install is doing in the notification that keeps the app awake. */
+    private fun report(context: Context, stage: Stage, percent: Int) {
+        val text = when (stage) {
+            Stage.UPDATING -> context.getString(R.string.vm_install_desktop_updating)
+            Stage.INSTALLING -> context.getString(R.string.vm_install_desktop_running, percent)
+            Stage.CONFIGURING -> context.getString(R.string.vm_install_desktop_configuring)
+            else -> context.getString(R.string.vm_install_desktop)
+        }
+        RuntimeInstallService.packageProgress(text, percent)
     }
 
     /**
@@ -151,15 +172,16 @@ object VmDesktop {
     }
 
     /** How many packages are set up so far, so the page can show how far it got. */
-    private fun onInstallLine(line: String, total: Int) {
+    private fun onInstallLine(context: Context, line: String, total: Int) {
         if (!line.startsWith("Setting up ")) return
         val done = installed.incrementAndGet()
         val percent = if (total <= 0) 0 else (15 + done * 70 / total).coerceAtMost(85)
         progress = State(Stage.INSTALLING, percent)
+        report(context, Stage.INSTALLING, percent)
     }
 
     /**
-     * The desktop settings, taken from the app's own runtime.
+     * The desktop programs and settings, taken from the app's own runtime.
      *
      * They are the same for every distribution: the Plasma layout, the colours and the shortcuts
      * are ours, not the system's.
@@ -167,7 +189,7 @@ object VmDesktop {
     private fun copySettings(context: Context, root: File): Int {
         val shared = LinuxRuntime.rootDir(context)
         var copied = 0
-        for (entry in configPaths(context)) {
+        for (entry in configPaths(context, CONFIG_LIST) + configPaths(context, PROGRAM_LIST)) {
             // A file may sit under more than one name, because the runtime that is installed and
             // the one the fork builds name it differently. It keeps the name it is found under.
             val name = entry.split('|').firstOrNull { File(shared, it).isFile } ?: continue
@@ -186,9 +208,9 @@ object VmDesktop {
         return copied
     }
 
-    private fun configPaths(context: Context): List<String> =
+    private fun configPaths(context: Context, list: String): List<String> =
         runCatching {
-            context.assets.open(CONFIG_LIST).bufferedReader().useLines { lines ->
+            context.assets.open(list).bufferedReader().useLines { lines ->
                 lines.map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }.toList()
             }
         }.getOrDefault(emptyList())
