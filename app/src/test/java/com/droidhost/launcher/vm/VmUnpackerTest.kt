@@ -169,13 +169,15 @@ class VmUnpackerTest {
 
     @Test fun aDirectoryKeepsTheExecuteBitTheArchiveGaveIt() {
         val archive = tar("system.tar") { tar ->
-            val entry = TarArchiveEntry("usr/bin")
-            entry.mode = 0755
+            // A name that ends in a slash is a directory to the tar format.
+            val entry = TarArchiveEntry("usr/bin/")
+            entry.mode = 0700
             tar.putArchiveEntry(entry)
             tar.closeArchiveEntry()
         }
         val root = folder.newFolder()
         VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertTrue(File(root, "usr/bin").isDirectory)
         assertTrue(File(root, "usr/bin").canExecute())
     }
 }

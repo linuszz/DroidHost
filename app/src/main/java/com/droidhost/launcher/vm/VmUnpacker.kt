@@ -147,9 +147,9 @@ object VmUnpacker {
      */
     private fun applyMode(file: File, mode: Int) {
         val bits = mode and 0777
-        if (bits and 0111 != 0) file.setExecutable(true, false)
-        if (bits and 0444 != 0) file.setReadable(true, false)
-        if (bits and 0222 != 0) file.setWritable(true, false)
+        if ((bits and 0111) != 0) file.setExecutable(true, false)
+        if ((bits and 0444) != 0) file.setReadable(true, false)
+        if ((bits and 0222) != 0) file.setWritable(true, false)
     }
 
     /** A hard link becomes a copy of the file it points at, which the archive wrote earlier. */
