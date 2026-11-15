@@ -1,0 +1,81 @@
+--- a/src/syscall/exit.c
++++ b/src/syscall/exit.c
+@@ -25,6 +25,7 @@
+ #include <linux/net.h>   /* SYS_*, */
+ #include <linux/ioctl.h> /* _IOW, */
+ #include <string.h>      /* strlen(3), */
++#include <stdio.h>       /* snprintf(3), */
+ #include <sys/mman.h>    /* PROT_*, */
+ 
+ #include "cli/note.h"
+@@ -48,6 +49,43 @@
+ #include "arch.h"
+ 
+ /**
++ * Whether @path designates the executable link of @tracee itself, that is
++ * /proc/self/exe, /proc/thread-self/exe, or /proc/<its own pid>/exe.
++ */
++static bool is_tracee_exe_link(const Tracee *tracee, const char *path)
++{
++	const char *head = "/proc/";
++	const char *entry;
++	const char *slash;
++	char pid[32];
++	char own[32];
++	size_t length;
++
++	if (strncmp(path, head, strlen(head)) != 0)
++		return false;
++
++	entry = path + strlen(head);
++	slash = strchr(entry, '/');
++	if (slash == NULL || strcmp(slash, "/exe") != 0)
++		return false;
++
++	length = slash - entry;
++	if (length == 0 || length >= sizeof(pid))
++		return false;
++
++	memcpy(pid, entry, length);
++	pid[length] = '\0';
++
++	if (strcmp(pid, "self") == 0 || strcmp(pid, "thread-self") == 0)
++		return true;
++
++	if (snprintf(own, sizeof(own), "%d", (int) tracee->pid) < 0)
++		return false;
++
++	return strcmp(pid, own) == 0;
++}
++
++/**
+  * Translate the output arguments of the current @tracee's syscall in
+  * the @tracee->pid process area. This function sets the result of
+  * this syscall to @tracee->status if an error occured previously
+@@ -391,6 +429,26 @@
+ 				break;
+ 		}
+ 
++		/* A guest learns who it is from the executable link of its own
++		 * /proc entry.  The kernel answers with the program it really
++		 * executed, and under the loader that is PRoot's own loader -- a
++		 * guest that names its applets after this link (Ubuntu's uutils
++		 * coreutils does) then believes it was started as the loader.
++		 * Answer with the program the guest asked for instead.  */
++		if (tracee->exe != NULL && is_tracee_exe_link(tracee, referer)) {
++			size_t length = strlen(tracee->exe);
++
++			if (length > max_size)
++				length = max_size;
++
++			status = write_data(tracee, output, tracee->exe, length);
++			if (status < 0)
++				break;
++
++			status = (int) length;
++			break;
++		}
++
+ 		status = detranslate_path(tracee, referee, referer);
+ 		if (status < 0)
+ 			break;
