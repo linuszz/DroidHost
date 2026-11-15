@@ -79,7 +79,7 @@ object VmUnpacker {
                             continue
                         }
                         if (entry.isSymbolicLink) {
-                            writeLink(file, entry.linkName ?: continue)
+                            writeLink(destination, file, entry.linkName ?: continue)
                             continue
                         }
                         if (entry.isLink) {
@@ -112,18 +112,18 @@ object VmUnpacker {
      *
      * A relative target is resolved against the link's own directory and must land inside the
      * rootfs; an absolute one would point into the host's filesystem, which the machine must
-     * never see, so it is dropped. Distributions ship the usual /bin -> usr/bin as relative
-     * links, so a working rootfs keeps them.
+     * never see, so it is dropped. Distributions ship the usual /bin -> usr/bin and
+     * /etc/os-release -> ../usr/lib/os-release as relative links, so a working rootfs keeps them.
      */
-    private fun writeLink(file: File, target: String) {
+    private fun writeLink(root: File, file: File, target: String) {
         val parent = file.parentFile ?: return
         if (target.startsWith("/")) {
             Log.w(TAG, "dropping a link that leaves the rootfs: ${file.name} -> $target")
             return
         }
         val resolved = File(parent, target).canonicalFile
-        val base = file.canonicalFile.parentFile ?: return
-        if (resolved != base && !resolved.path.startsWith(base.path + File.separator)) {
+        val base = root.canonicalFile
+        if (!resolved.path.startsWith(base.path + File.separator)) {
             Log.w(TAG, "dropping a link that leaves the rootfs: ${file.name} -> $target")
             return
         }

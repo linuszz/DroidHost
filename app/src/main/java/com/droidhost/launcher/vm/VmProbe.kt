@@ -158,13 +158,24 @@ object VmProbeReader {
 
     /** The architecture, read from the loader the rootfs ships. */
     private fun readArchitecture(root: File): String {
-        for (path in listOf("lib/ld-linux-aarch64.so.1", "lib/aarch64-linux-gnu/ld-linux-aarch64.so.1")) {
+        for (path in listOf(
+            "lib/ld-linux-aarch64.so.1",
+            "lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+            "usr/lib/ld-linux-aarch64.so.1",
+            "usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        )) {
             if (File(root, path).isFile) return "aarch64"
         }
-        for (path in listOf("lib/ld-linux-x86-64.so.2", "lib64/ld-linux-x86-64.so.2")) {
+        for (path in listOf(
+            "lib/ld-linux-x86-64.so.2",
+            "lib64/ld-linux-x86-64.so.2",
+            "lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+            "usr/lib64/ld-linux-x86-64.so.2",
+            "usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",
+        )) {
             if (File(root, path).isFile) return "x86-64"
         }
-        for (path in listOf("lib/ld-linux-armhf.so.3", "lib/ld-linux.so.2")) {
+        for (path in listOf("lib/ld-linux-armhf.so.3", "lib/ld-linux.so.2", "usr/lib/ld-linux.so.2")) {
             if (File(root, path).isFile) return "arm"
         }
         return ""

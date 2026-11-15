@@ -107,6 +107,29 @@ class VmUnpackerTest {
         assertFalse(File(root, "bin/sh").exists())
     }
 
+    @Test fun aLinkThatPointsAtAnotherDirectoryOfTheRootfsIsKept() {
+        // Distributions ship /etc/os-release -> ../usr/lib/os-release, so a link may leave the
+        // directory it sits in as long as it stays inside the rootfs.
+        val archive = tar("system.tar") { tar ->
+            tar.file("usr/lib/os-release", "ID=ubuntu\n")
+            tar.link("etc/os-release", "../usr/lib/os-release", hard = false)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val link = File(root, "etc/os-release")
+        assertTrue(Files.isSymbolicLink(link.toPath()))
+        assertEquals("ID=ubuntu\n", link.readText())
+    }
+
+    @Test fun aLinkThatLeavesTheRootfsIsDropped() {
+        val archive = tar("system.tar") { tar ->
+            tar.link("etc/passwd", "../../etc/passwd", hard = false)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertFalse(File(root, "etc/passwd").exists())
+    }
+
     @Test fun aHardLinkBecomesACopyOfTheFileItPointsAt() {
         val archive = tar("system.tar") { tar ->
             tar.file("etc/os-release", "ID=debian\n")

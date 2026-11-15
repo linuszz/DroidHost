@@ -129,4 +129,15 @@ class VmProbeTest {
         ))
         assertTrue(probe.hasGpuStack)
     }
+
+    @Test fun theLoaderIsFoundWhereverTheDistributionKeepsIt() {
+        assertEquals("aarch64", VmProbeReader.probe(rootfs(
+            "ID=ubuntu\nVERSION_ID=\"24.04\"\n",
+            loader = "usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        )).architecture)
+        assertEquals("aarch64", VmProbeReader.probe(rootfs(
+            "ID=ubuntu\nVERSION_ID=\"24.04\"\n",
+            loader = "usr/lib/ld-linux-aarch64.so.1",
+        )).architecture)
+    }
 }
