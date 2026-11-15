@@ -153,7 +153,7 @@ object VmUnpacker {
     }
 
     private fun decompress(archive: File, kind: Kind): InputStream {
-        val file = BufferedInputStream(FileInputStream(archive), 1 << 16)
+        val file = BufferedInputStream(FileInputStream(archive), 1 shl 16)
         return when (kind) {
             Kind.TAR_ZST -> ZstdCompressorInputStream(file)
             Kind.TAR_GZ -> GzipCompressorInputStream(file)
