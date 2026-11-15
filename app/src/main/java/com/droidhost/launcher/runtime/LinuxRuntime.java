@@ -390,6 +390,11 @@ public final class LinuxRuntime {
         return numbers == null ? null : "renderD" + numbers.substring(numbers.indexOf(':') + 1);
     }
 
+    /** True when the guest renders through KGSL rather than a DRM render node. */
+    public static boolean kgslOnly(Context context) {
+        return KGSL_DEVICE.equals(gpuStandIn(context));
+    }
+
     private static void bindGpuNode(Context context, List<String> cmd) {
         String standIn = gpuStandIn(context);
         if (standIn == null) return;

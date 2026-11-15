@@ -179,7 +179,13 @@ static uint16_t g_fmt_table_n;
 dev_t g_main_device;
 
 static dev_t dmabuf_render_node(void) {
-    static const char *nodes[] = {"/dev/dri/renderD128", "/dev/dri/renderD129", "/dev/dri/card0"};
+    /* KGSL owns the GPU on Adreno devices, and the launcher binds its node into the guest as
+       renderD0. /dev/dri itself is not readable from the app there, so this is the only device
+       the buffers can have come from. */
+    static const char *nodes[] = {
+        "/dev/dri/renderD128", "/dev/dri/renderD129", "/dev/dri/card0",
+        "/dev/kgsl-3d0", "/dev/mali0",
+    };
     struct stat st;
     if (g_no_render_node) return 0;
     for (size_t i = 0; i < sizeof(nodes) / sizeof(nodes[0]); i++)

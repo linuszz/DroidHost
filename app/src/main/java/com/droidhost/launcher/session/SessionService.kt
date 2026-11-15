@@ -932,7 +932,8 @@ class SessionService : Service() {
         guest.add("GAMESCOPE_FORCE_GENERAL_QUEUE=1")
         guest.add("MESA_LOADER_DRIVER_OVERRIDE=zink")
         guest.add("GALLIUM_DRIVER=zink")
-        guest.add("LIBGL_KOPPER_DRI2=true")
+        // Kopper's DRI2 path wants a display device, which a KGSL guest has no way to offer.
+        if (!LinuxRuntime.kgslOnly(this)) guest.add("LIBGL_KOPPER_DRI2=true")
         // KWin's nested backend cannot name a DRM device from the host's dmabuf feedback here.
         LinuxRuntime.guestRenderNode(this)?.let { guest.add("KWIN_RENDER_NODES=/dev/dri/$it") }
         val venus = VenusComponent.wanted(this)
