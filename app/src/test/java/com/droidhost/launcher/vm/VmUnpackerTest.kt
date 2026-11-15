@@ -99,13 +99,42 @@ class VmUnpackerTest {
         assertEquals("usr/bin/busybox", Files.readSymbolicLink(link.toPath()).toString())
     }
 
-    @Test fun aLinkThatPointsAtTheHostIsDropped() {
+    @Test fun aLinkWithAnAbsoluteTargetIsKept() {
+        // The guest reads an absolute link in its own root, so /usr/bin/awk -> /etc/alternatives/awk
+        // stays inside the machine. Without it the guest has no awk at all, and every package
+        // that needs one cannot be set up.
         val archive = tar("system.tar") { tar ->
-            tar.link("bin/sh", "/usr/bin/busybox", hard = false)
+            tar.file("usr/bin/mawk", "binary")
+            tar.link("etc/alternatives/awk", "/usr/bin/mawk", hard = false)
+            tar.link("usr/bin/awk", "/etc/alternatives/awk", hard = false)
         }
         val root = folder.newFolder()
         VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
-        assertFalse(File(root, "bin/sh").exists())
+        val link = File(root, "usr/bin/awk")
+        assertTrue(Files.isSymbolicLink(link.toPath()))
+        assertEquals("/etc/alternatives/awk", Files.readSymbolicLink(link.toPath()).toString())
+        assertEquals("/usr/bin/mawk", Files.readSymbolicLink(File(root, "etc/alternatives/awk").toPath()).toString())
+    }
+
+    @Test fun aLinkThatClimbsOutOfTheGuestsRootIsDropped() {
+        val archive = tar("system.tar") { tar ->
+            tar.link("etc/passwd", "/../../etc/passwd", hard = false)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertFalse(Files.exists(File(root, "etc/passwd").toPath()))
+    }
+
+    @Test fun aLinkThatPointsOutOfTheRootfsIsNotFollowedWhenSomethingIsWritten() {
+        // The link points outside the rootfs; nothing that follows it may be written there.
+        val outside = folder.newFolder("outside")
+        val archive = tar("system.tar") { tar ->
+            tar.link("etc/planted", outside.absolutePath, hard = false)
+            tar.file("etc/planted/planted.txt", "no")
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertFalse(File(outside, "planted.txt").exists())
     }
 
     @Test fun aLinkThatPointsAtAnotherDirectoryOfTheRootfsIsKept() {

@@ -116,32 +116,48 @@ object VmUnpacker {
     }
 
     /**
-     * A symbolic link is only kept when it stays inside the rootfs.
+     * A symbolic link is only kept when the machine can follow it without leaving its own rootfs.
      *
      * A relative target is resolved against the link's own directory and must land inside the
-     * rootfs; an absolute one would point into the host's filesystem, which the machine must
-     * never see, so it is dropped. Distributions ship the usual /bin -> usr/bin and
-     * /etc/os-release -> ../usr/lib/os-release as relative links, so a working rootfs keeps them.
+     * rootfs. An absolute one is read by the guest as a path in the guest's own root, so it stays
+     * inside the machine: a distribution ships /bin -> usr/bin, /etc/os-release ->
+     * ../usr/lib/os-release, /var/run -> /run and the links of update-alternatives that way. It
+     * is kept as long as it does not climb out of the guest's root.
+     *
+     * The host is still out of reach: every path that is written is checked against the rootfs
+     * before anything is written, so a link that points out of it is never followed on the host.
      */
     private fun writeLink(root: File, file: File, target: String) {
         val parent = file.parentFile ?: return
-        if (target.startsWith("/")) {
-            Log.w(TAG, "dropping a link that leaves the rootfs: ${file.name} -> $target")
-            return
+        val inside = if (target.startsWith("/")) !climbsOut(target) else {
+            val resolved = File(parent, target).canonicalFile
+            val base = root.canonicalFile
+            resolved.path.startsWith(base.path + File.separator)
         }
-        val resolved = File(parent, target).canonicalFile
-        val base = root.canonicalFile
-        if (!resolved.path.startsWith(base.path + File.separator)) {
+        if (!inside) {
             Log.w(TAG, "dropping a link that leaves the rootfs: ${file.name} -> $target")
             return
         }
         try {
             if (!parent.isDirectory) parent.mkdirs()
-            if (file.exists()) file.delete()
+            if (file.exists() || java.nio.file.Files.isSymbolicLink(file.toPath())) file.delete()
             java.nio.file.Files.createSymbolicLink(file.toPath(), java.nio.file.Paths.get(target))
         } catch (e: Exception) {
             Log.w(TAG, "cannot keep the link ${file.name}", e)
         }
+    }
+
+    /** Whether an absolute target climbs out of the guest's root. */
+    private fun climbsOut(target: String): Boolean {
+        var depth = 0
+        for (part in target.split('/')) {
+            when (part) {
+                "", "." -> Unit
+                ".." -> if (--depth < 0) return true
+                else -> depth++
+            }
+        }
+        return false
     }
 
     /**
