@@ -1496,7 +1496,8 @@ static int utimens_common(int dirfd, const char *path, const struct timespec tim
 int utimensat(int dirfd, const char *path, const struct timespec times[2], int flags) {
   return utimens_common(dirfd, path, times, flags);
 }
-int futimens(int fd, const struct timespec times[2]) { return utimens_common(fd, NULL, times, 0); }
+/* The kernel only accepts a null path together with AT_EMPTY_PATH, so a call without it fails. */
+int futimens(int fd, const struct timespec times[2]) { return utimens_common(fd, NULL, times, AT_EMPTY_PATH); }
 
 static int utimes_common(int dirfd, const char *path, const struct timeval tv[2], int flags) {
   struct timespec ts[2];
@@ -1511,7 +1512,7 @@ static int utimes_common(int dirfd, const char *path, const struct timeval tv[2]
 }
 int utimes(const char *path, const struct timeval tv[2]) { return utimes_common(AT_FDCWD, path, tv, 0); }
 int lutimes(const char *path, const struct timeval tv[2]) { return utimes_common(AT_FDCWD, path, tv, AT_SYMLINK_NOFOLLOW); }
-int futimes(int fd, const struct timeval tv[2]) { return utimes_common(fd, NULL, tv, 0); }
+int futimes(int fd, const struct timeval tv[2]) { return utimes_common(fd, NULL, tv, AT_EMPTY_PATH); }
 int utime(const char *path, const struct utimbuf *times) {
   if (!times) return utimens_common(AT_FDCWD, path, NULL, 0);
   struct timespec ts[2] = { { times->actime, 0 }, { times->modtime, 0 } };
