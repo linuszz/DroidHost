@@ -104,5 +104,6 @@ object VmGuest {
                 apt.writeText(APT_CONFIG_TEXT)
             }.onFailure { Log.w(TAG, "the guest could not be given an apt that works", it) }
         }
+        VmGuestIndex.keepInside(root)
     }
 }
