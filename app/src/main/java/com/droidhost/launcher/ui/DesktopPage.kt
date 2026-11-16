@@ -172,7 +172,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         install.stage == VmDesktop.Stage.FAILED && install.machineId == vm?.id ->
             stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
         status == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
-        vm?.imported == true -> stringResource(R.string.vm_imported_note)
+        status == VmStatus.IMPORTED -> stringResource(R.string.vm_imported_note)
         else -> null
     }
 
