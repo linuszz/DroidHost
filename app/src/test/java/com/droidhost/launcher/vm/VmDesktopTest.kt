@@ -1,5 +1,6 @@
 package com.droidhost.launcher.vm
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -46,5 +47,19 @@ class VmDesktopTest {
         assertTrue(script.contains("for attempt in 1 2 3"))
         assertTrue(script.contains("PIPESTATUS"))
         assertTrue(script.contains("Acquire::Retries"))
+    }
+
+    @Test fun theDesktopLeavesTheSteamSideProgramsOut() {
+        // A machine runs a desktop, not the games the app itself launches. gamescope drags a
+        // compositor and a VR API in with it, and an older runtime still holds them.
+        val wanted = VmDesktop.installable(
+            listOf("plasma-desktop", "gamescope", "libopenvr-api2", "kwin-wayland"),
+            setOf("gamescope", "libopenvr-api2"))
+        assertEquals(listOf("plasma-desktop", "kwin-wayland"), wanted)
+    }
+
+    @Test fun aNameRepeatedOrPaddedIsAskedForOnce() {
+        val wanted = VmDesktop.installable(listOf(" bash ", "", "bash", "dpkg"), emptySet())
+        assertEquals(listOf("bash", "dpkg"), wanted)
     }
 }

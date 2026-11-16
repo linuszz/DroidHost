@@ -13,7 +13,7 @@ var kickoff = dock.addWidget("org.kde.plasma.kickoff");
 kickoff.currentConfigGroup = ["Shortcuts"];
 kickoff.writeConfig("global", "Alt+F1");
 kickoff.currentConfigGroup = ["General"];
-kickoff.writeConfig("icon", "distributor-logo-steamdeck");
+kickoff.writeConfig("icon", "start-here-kde");
 kickoff.writeConfig("favorites", [
     "preferred://browser",
     "applications:org.kde.dolphin.desktop",
@@ -26,7 +26,6 @@ kickoff.writeConfig("favorites", [
 var tasks = dock.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", [
-    "applications:steamdeck-steam.desktop",
     "preferred://filemanager",
     "preferred://browser",
     "applications:org.kde.konsole.desktop",

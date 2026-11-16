@@ -1,0 +1,10 @@
+# The packages a desktop never brings into a machine.
+#
+# A machine the user brought runs a desktop, not the games the app itself launches, so the
+# Steam-side programs the runtime happens to hold are of no use there. They are also the largest
+# thing in the set: gamescope pulls a compositor, a VR API and their libraries with it.
+#
+# A runtime that predates this list still holds them, which is why the names are kept here rather
+# than left to the runtime's own package set.
+gamescope
+libopenvr-api2

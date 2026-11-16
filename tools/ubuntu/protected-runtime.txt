@@ -5,7 +5,6 @@ dbus-daemon
 dpkg
 flatpak
 fontconfig
-gamescope
 libegl-mesa0
 libgl1-mesa-dri
 libluajit-5.1-2

@@ -26,6 +26,7 @@ object VmDesktop {
     private const val ASSETS = "droidhost/vm"
     private const val CONFIG_LIST = "$ASSETS/desktop-config.txt"
     private const val PROGRAM_LIST = "$ASSETS/desktop-programs.txt"
+    private const val EXCLUDE_LIST = "$ASSETS/desktop-excluded-packages.txt"
     private const val MARKER = "usr/share/droiddeck/desktop-installed"
     private const val PACKAGE_LIST = "/root/.droiddeck-packages.txt"
     private const val INSTALL_LOG = "/root/.droiddeck-install.log"
@@ -171,8 +172,12 @@ object VmDesktop {
         GuestCommand.run(context, listOf("/usr/bin/dpkg-query", "-W", "-f=\${Package}\n")) { line ->
             out.append(line).append('\n')
         }
-        return out.toString().lines().map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        return installable(out.toString().lines(), configPaths(context, EXCLUDE_LIST).toSet())
     }
+
+    /** The names worth asking the machine's repository for, with the ones a desktop has no use for left out. */
+    internal fun installable(packages: List<String>, excluded: Set<String>): List<String> =
+        packages.map { it.trim() }.filter { it.isNotEmpty() && it !in excluded }.distinct()
 
     /** The packages of that list the machine's own repository holds. */
     private fun packagesTheMachineHas(context: Context, machineId: String, packages: List<String>): List<String> {

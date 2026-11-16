@@ -136,7 +136,6 @@ if [ "$stage" = runtime ]; then
   divert_to /usr/bin/su /usr/local/bin/su droiddeck-runtime
   multiarch=/usr/lib/aarch64-linux-gnu
   ln -sf liblua5.4.so.0 "$multiarch/liblua.so.5.4"
-  divert_to "$multiarch/gamescope/libVkLayer_FROG_gamescope_wsi_aarch64.so" ../../libVkLayer_FROG_gamescope_wsi_aarch64.so droiddeck-runtime
   install_turnip
 
   mkdir -p /var/cache/droiddeck-flatpak /usr/share/droiddeck/apt /etc/droiddeck/proc /etc/droiddeck/empty /root/Desktop
@@ -147,7 +146,7 @@ if [ "$stage" = runtime ]; then
   echo "LANG=C.UTF-8" > /etc/default/locale
   printf 'DroidHost\n' > /etc/hostname
   . /etc/os-release
-  printf 'NAME="%s"\nVERSION="%s"\nID=%s\nID_LIKE=debian\nPRETTY_NAME="%s"\nVERSION_ID="%s"\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\nHOME_URL="https://github.com/Droid-Deck/DroidDeck"\nSUPPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nBUG_REPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nLOGO=distributor-logo-steamdeck\nVARIANT="DroidHost"\nVARIANT_ID=droiddeck\n' \
+  printf 'NAME="%s"\nVERSION="%s"\nID=%s\nID_LIKE=debian\nPRETTY_NAME="%s"\nVERSION_ID="%s"\nVERSION_CODENAME=%s\nUBUNTU_CODENAME=%s\nHOME_URL="https://github.com/Droid-Deck/DroidDeck"\nSUPPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nBUG_REPORT_URL="https://github.com/Droid-Deck/DroidDeck/issues"\nLOGO=ubuntu-logo\nVARIANT="DroidHost"\nVARIANT_ID=droiddeck\n' \
     "$NAME" "$VERSION" "$ID" "$PRETTY_NAME" "$VERSION_ID" "$VERSION_CODENAME" "$UBUNTU_CODENAME" > /etc/os-release.droiddeck
   dpkg-divert --package droiddeck-runtime --rename --divert /usr/lib/os-release.distrib --add /usr/lib/os-release
   mv /etc/os-release.droiddeck /usr/lib/os-release
