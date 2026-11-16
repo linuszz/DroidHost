@@ -1,0 +1,40 @@
+#!/bin/sh
+# A machine the user brought runs its desktop session as root inside the machine.
+#
+# The real sudo refuses to work there: proot sets the no-new-privileges flag, and
+# sudo would rather fail than run a command it cannot vouch for. A session that is
+# root already has no privilege to gain, so this wrapper runs the command as the
+# session is. It never hands the command to the app's root service, which would
+# run it in the app's own runtime instead of in the machine.
+me=$(basename "$0")
+shell=${SHELL:-/bin/bash}
+login=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -E|-H|-n|-k|-S|-A) shift ;;
+        -u)
+            echo "$me: this session is root; there is no other user to become" >&2
+            exit 1
+            ;;
+        -i) login=1; shift ;;
+        -s) shift ;;
+        --) shift; break ;;
+        -*) echo "$me: unknown option $1" >&2; exit 1 ;;
+        *) break ;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    login=1
+fi
+
+if [ "$login" = 1 ]; then
+    cd "${HOME:-/root}" 2>/dev/null || true
+    if [ $# -gt 0 ]; then
+        exec "$shell" -l -c "$*"
+    fi
+    exec "$shell" -l
+fi
+
+exec "$@"
