@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Linusz <46770204+linuszz@users.noreply.github.com>
+Date: Sun, 16 Nov 2026 19:55:00 +0800
+Subject: [PATCH] zink: recreate every sampler view surface on rebind (Debian
+ 25.0.7 port)
+
+Port of the Ubuntu mesa patch (coffeemeist3r, "zink: recreate every sampler
+view surface on rebind") to mesa 25.0.7, which predates the lazy-view
+refactor: there is no init_sampler_view() or rebind_count here.
+
+rebind_image() and zink_rebind_all_images() refresh only sv->image_view via
+zink_rebind_surface() after a resource got a new backing object (for example
+the ZINK_BIND_MUTABLE switch that zink_get_surface() itself triggers). The
+view's cube_array and zs_view surfaces still belonged to the old object, and
+get_imageview_for_binding() hands those out. Once the old object was freed,
+its surfaces went with it, and the next descriptor update wrote a garbage
+VkImageView. Rebind those two surfaces as well whenever they exist.
+---
+diff --git a/src/gallium/drivers/zink/zink_context.c b/src/gallium/drivers/zink/zink_context.c
+--- a/src/gallium/drivers/zink/zink_context.c
++++ b/src/gallium/drivers/zink/zink_context.c
+@@ -5031,6 +5031,17 @@
+                struct pipe_surface *psurf = &sv->image_view->base;
+                zink_rebind_surface(ctx, &psurf);
+                sv->image_view = zink_surface(psurf);
++               /* cube_array and zs_view belong to the old object too */
++               if (sv->cube_array) {
++                  psurf = &sv->cube_array->base;
++                  zink_rebind_surface(ctx, &psurf);
++                  sv->cube_array = zink_surface(psurf);
++               }
++               if (sv->zs_view) {
++                  psurf = &sv->zs_view->base;
++                  zink_rebind_surface(ctx, &psurf);
++                  sv->zs_view = zink_surface(psurf);
++               }
+                ctx->invalidate_descriptor_state(ctx, i, ZINK_DESCRIPTOR_TYPE_SAMPLER_VIEW, j, 1);
+                update_descriptor_state_sampler(ctx, i, j, res);
+             }
+@@ -5107,6 +5118,17 @@
+              struct pipe_surface *psurf = &sv->image_view->base;
+              zink_rebind_surface(ctx, &psurf);
+              sv->image_view = zink_surface(psurf);
++             /* cube_array and zs_view belong to the old object too */
++             if (sv->cube_array) {
++                psurf = &sv->cube_array->base;
++                zink_rebind_surface(ctx, &psurf);
++                sv->cube_array = zink_surface(psurf);
++             }
++             if (sv->zs_view) {
++                psurf = &sv->zs_view->base;
++                zink_rebind_surface(ctx, &psurf);
++                sv->zs_view = zink_surface(psurf);
++             }
+              ctx->invalidate_descriptor_state(ctx, i, ZINK_DESCRIPTOR_TYPE_SAMPLER_VIEW, j, 1);
+              update_descriptor_state_sampler(ctx, i, j, res);
+          }

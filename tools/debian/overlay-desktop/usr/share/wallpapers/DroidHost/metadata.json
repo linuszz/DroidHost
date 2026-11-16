@@ -1,0 +1,8 @@
+{
+    "KPlugin": {
+        "Authors": [{ "Name": "DroidHost" }],
+        "Id": "DroidHost",
+        "License": "GPL-3.0-or-later",
+        "Name": "DroidHost"
+    }
+}

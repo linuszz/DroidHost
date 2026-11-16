@@ -1,0 +1,171 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Linusz <46770204+linuszz@users.noreply.github.com>
+Date: Sun, 16 Nov 2026 19:55:00 +0800
+Subject: [PATCH] Respect nested desktop scale (Debian kwin 6.3 port)
+
+Rewrite of the Ubuntu kwin 6.8 patch (maxjivi05, "Respect nested desktop
+scale") for kwin 6.3.6, whose wayland backend has no fractional-scale
+protocol support, no m_pendingScale/scaleSetting, no viewporter and no
+subsurfaces. Buffer scale there is the integer ceil(scale()).
+
+With DROIDHOST_NESTED_SCALE set (the desktop script exports it as a gate;
+the value is not a scale), the guest's Display Settings controls the logical
+output scale S through OutputConfiguration (the base Output::applyChanges
+already applies it), while buffer geometry keeps following the host's
+integer scale H recorded at init (m_hostScale):
+
+- applyConfigure sizes the buffer as surface-local * H;
+- present attaches buffer scale ceil(H);
+- presentationScale() returns H, and mapToOutput() maps host surface-local
+  input coordinates to guest logical ones (factor H/S, transform-aware);
+- pointer, relative pointer and touch go through mapToOutput();
+- the cursor surface is attached at scale H with hotspot/H.
+
+Without the env var every path keeps the upstream 6.3 behavior unchanged.
+Layer sizes, pointer/touch coordinates and the cursor stay in the same
+physical pixels, matching the Ubuntu image's contract.
+---
+diff --git a/src/backends/wayland/wayland_backend.cpp b/src/backends/wayland/wayland_backend.cpp
+--- a/src/backends/wayland/wayland_backend.cpp
++++ b/src/backends/wayland/wayland_backend.cpp
+@@ -100,7 +100,9 @@
+     connect(pointer, &Pointer::motion, this, [this](const QPointF &relativeToSurface, quint32 time) {
+         WaylandOutput *output = m_seat->backend()->findOutput(m_pointer->enteredSurface());
+         Q_ASSERT(output);
+-        const QPointF absolutePos = output->geometry().topLeft() + relativeToSurface;
++        const QPointF absolutePos = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
++            ? output->mapToOutput(relativeToSurface)
++            : output->geometry().topLeft() + relativeToSurface;
+         Q_EMIT pointerMotionAbsolute(absolutePos, std::chrono::milliseconds(time), this);
+     });
+     connect(pointer, &Pointer::buttonStateChanged, this, [this](quint32 serial, quint32 time, quint32 button, Pointer::ButtonState nativeState) {
+@@ -174,7 +176,15 @@
+     , m_relativePointer(relativePointer)
+ {
+     connect(relativePointer, &RelativePointer::relativeMotion, this, [this](const QSizeF &delta, const QSizeF &deltaNonAccelerated, quint64 timestamp) {
+-        Q_EMIT pointerMotion(sizeToPoint(delta), sizeToPoint(deltaNonAccelerated), std::chrono::microseconds(timestamp), this);
++        const auto pointer = m_seat->pointerDevice();
++        const auto output = pointer && pointer->nativePointer()
++            ? m_seat->backend()->findOutput(pointer->nativePointer()->enteredSurface()) : nullptr;
++        const auto toOutput = [output](const QSizeF &hostDelta) {
++            return output && qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
++                ? output->mapToOutput(sizeToPoint(hostDelta)) - output->mapToOutput(QPointF())
++                : sizeToPoint(hostDelta);
++        };
++        Q_EMIT pointerMotion(toOutput(delta), toOutput(deltaNonAccelerated), std::chrono::microseconds(timestamp), this);
+     });
+ }
+ 
+@@ -191,13 +201,17 @@
+     connect(touch, &Touch::sequenceStarted, this, [this](TouchPoint *tp) {
+         auto o = m_seat->backend()->findOutput(tp->surface());
+         Q_ASSERT(o);
+-        const QPointF position = o->geometry().topLeft() + tp->position();
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
++            ? o->mapToOutput(tp->position())
++            : o->geometry().topLeft() + tp->position();
+         Q_EMIT touchDown(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
+     });
+     connect(touch, &Touch::pointAdded, this, [this](TouchPoint *tp) {
+         auto o = m_seat->backend()->findOutput(tp->surface());
+         Q_ASSERT(o);
+-        const QPointF position = o->geometry().topLeft() + tp->position();
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
++            ? o->mapToOutput(tp->position())
++            : o->geometry().topLeft() + tp->position();
+         Q_EMIT touchDown(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
+     });
+     connect(touch, &Touch::pointRemoved, this, [this](TouchPoint *tp) {
+@@ -206,7 +220,9 @@
+     connect(touch, &Touch::pointMoved, this, [this](TouchPoint *tp) {
+         auto o = m_seat->backend()->findOutput(tp->surface());
+         Q_ASSERT(o);
+-        const QPointF position = o->geometry().topLeft() + tp->position();
++        const QPointF position = qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")
++            ? o->mapToOutput(tp->position())
++            : o->geometry().topLeft() + tp->position();
+         Q_EMIT touchMotion(tp->id(), position, std::chrono::milliseconds(tp->time()), this);
+     });
+ }
+diff --git a/src/backends/wayland/wayland_egl_backend.cpp b/src/backends/wayland/wayland_egl_backend.cpp
+--- a/src/backends/wayland/wayland_egl_backend.cpp
++++ b/src/backends/wayland/wayland_egl_backend.cpp
+@@ -204,7 +204,12 @@
+     wl_buffer *buffer = m_backend->backend()->importBuffer(m_buffer->buffer());
+     Q_ASSERT(buffer);
+ 
+-    static_cast<WaylandOutput *>(m_output)->cursor()->update(buffer, scale(), hotspot().toPoint());
++    auto output = static_cast<WaylandOutput *>(m_output);
++    if (qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE")) {
++        output->cursor()->update(buffer, output->presentationScale(), (hotspot() / output->presentationScale()).toPoint());
++    } else {
++        output->cursor()->update(buffer, scale(), hotspot().toPoint());
++    }
+ 
+     EGLNativeFence releaseFence{m_backend->eglDisplayObject()};
+     m_swapchain->release(m_buffer, releaseFence.takeFileDescriptor());
+diff --git a/src/backends/wayland/wayland_output.cpp b/src/backends/wayland/wayland_output.cpp
+--- a/src/backends/wayland/wayland_output.cpp
++++ b/src/backends/wayland/wayland_output.cpp
+@@ -197,7 +197,7 @@
+     }
+     m_surface->attachBuffer(m_presentationBuffer);
+     m_surface->damage(frame->damage());
+-    m_surface->setScale(std::ceil(scale()));
++    m_surface->setScale(std::ceil(qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE") ? presentationScale() : scale()));
+     m_presentationBuffer = nullptr;
+     if (auto presentationTime = m_backend->display()->presentationTime()) {
+         m_presentationFeedback = wp_presentation_feedback(presentationTime, *m_surface);
+@@ -285,6 +285,7 @@
+     initialState.modes = {mode};
+     initialState.currentMode = mode;
+     initialState.scale = scale;
++    m_hostScale = scale;
+     setState(initialState);
+ 
+     m_surface->commit(KWayland::Client::Surface::CommitFlag::None);
+@@ -353,10 +354,23 @@
+ {
+     m_xdgShellSurface->ackConfigure(serial);
+     if (!size.isEmpty()) {
+-        resize(size * scale());
++        resize(size * (qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE") ? presentationScale() : scale()));
+     }
+ }
+ 
++qreal WaylandOutput::presentationScale() const
++{
++    return qEnvironmentVariableIsSet("DROIDHOST_NESTED_SCALE") ? m_hostScale : scale();
++}
++
++QPointF WaylandOutput::mapToOutput(const QPointF &hostPosition) const
++{
++    const QPointF inPanel = hostPosition * presentationScale() / scale();
++    const QSizeF panelSize = QSize(std::round(modeSize().width() / scale()),
++                                   std::round(modeSize().height() / scale()));
++    return geometry().topLeft() + transform().inverted().map(inPanel, panelSize);
++}
++
+ void WaylandOutput::updateWindowTitle()
+ {
+     QString grab;
+diff --git a/src/backends/wayland/wayland_output.h b/src/backends/wayland/wayland_output.h
+--- a/src/backends/wayland/wayland_output.h
++++ b/src/backends/wayland/wayland_output.h
+@@ -72,6 +72,8 @@
+ 
+     void init(const QSize &pixelSize, qreal scale);
+ 
++    qreal presentationScale() const;
++    QPointF mapToOutput(const QPointF &hostPosition) const;
+     bool isReady() const;
+     KWayland::Client::Surface *surface() const;
+     WaylandCursor *cursor() const;
+@@ -111,6 +113,7 @@
+     QTimer m_configureThrottleTimer;
+     wp_presentation_feedback *m_presentationFeedback = nullptr;
+     uint32_t m_refreshRate = 60'000;
++    qreal m_hostScale = 1;
+ };
+ 
+ } // namespace Wayland
