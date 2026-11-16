@@ -1,0 +1,41 @@
+var desktops = desktopsForActivity(currentActivity());
+for (var i = 0; i < desktops.length; i++) {
+    desktops[i].wallpaperPlugin = "org.kde.image";
+    desktops[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
+    desktops[i].writeConfig("Image", "file:///usr/share/wallpapers/DroidHost");
+}
+
+var dock = new Panel;
+dock.location = "bottom";
+dock.height = 2 * Math.ceil(gridUnit * 2.5 / 2);
+
+var kickoff = dock.addWidget("org.kde.plasma.kickoff");
+kickoff.currentConfigGroup = ["Shortcuts"];
+kickoff.writeConfig("global", "Alt+F1");
+kickoff.currentConfigGroup = ["General"];
+kickoff.writeConfig("icon", "start-here-kde");
+kickoff.writeConfig("favorites", [
+    "preferred://browser",
+    "applications:org.kde.dolphin.desktop",
+    "applications:org.kde.konsole.desktop",
+    "applications:org.kde.kate.desktop",
+    "applications:org.kde.discover.desktop",
+    "applications:systemsettings.desktop",
+]);
+
+var tasks = dock.addWidget("org.kde.plasma.icontasks");
+tasks.currentConfigGroup = ["General"];
+tasks.writeConfig("launchers", [
+    "preferred://filemanager",
+    "preferred://browser",
+    "applications:org.kde.konsole.desktop",
+    "applications:org.kde.kate.desktop",
+]);
+
+var tray = dock.addWidget("org.kde.plasma.systemtray");
+var trayId = tray.readConfig("SystrayContainmentId");
+if (trayId) {
+    var trayContainment = desktopById(trayId);
+    trayContainment.currentConfigGroup = ["General"];
+    trayContainment.writeConfig("scaleIconsToFit", true);
+}

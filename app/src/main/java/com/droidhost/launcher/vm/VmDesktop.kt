@@ -27,6 +27,8 @@ object VmDesktop {
     private const val CONFIG_LIST = "$ASSETS/desktop-config.txt"
     private const val PROGRAM_LIST = "$ASSETS/desktop-programs.txt"
     private const val EXCLUDE_LIST = "$ASSETS/desktop-excluded-packages.txt"
+    private const val FILE_LIST = "$ASSETS/desktop-files.txt"
+    private const val FILES = "$ASSETS/desktop-files"
     private const val MARKER = "usr/share/droiddeck/desktop-installed"
     private const val PACKAGE_LIST = "/root/.droiddeck-packages.txt"
     private const val INSTALL_LOG = "/root/.droiddeck-install.log"
@@ -205,15 +207,19 @@ object VmDesktop {
      * They are the same for every distribution: the Plasma layout, the colours and the shortcuts
      * are ours, not the system's.
      */
-    private fun copySettings(context: Context, root: File): Int {
+    internal fun copySettings(context: Context, root: File): Int {
+        var copied = copyBundledSettings(context, root)
         val shared = LinuxRuntime.rootDir(context)
-        var copied = 0
+        val bundled = configPaths(context, FILE_LIST).toSet()
         for (entry in configPaths(context, CONFIG_LIST) + configPaths(context, PROGRAM_LIST)) {
             // A file may sit under more than one name, because the runtime that is installed and
-            // the one the fork builds name it differently. It keeps the name it is found under.
-            val name = entry.split('|').firstOrNull { File(shared, it).isFile } ?: continue
+            // the one the fork builds name it differently. The machine gets it under the first
+            // name, the one the settings the fork carries refer to it by.
+            val names = entry.split('|')
+            val name = names.firstOrNull { File(shared, it).isFile } ?: continue
+            if (name in bundled) continue
             val from = File(shared, name)
-            val to = File(root, name)
+            val to = File(root, names.first())
             to.parentFile?.mkdirs()
             val copiedOk = runCatching { from.copyTo(to, overwrite = true) }
                 .onFailure { Log.w(TAG, "could not copy $name", it) }
@@ -223,6 +229,28 @@ object VmDesktop {
                 to.setExecutable(true, false)
             }
             copied++
+        }
+        return copied
+    }
+
+    /**
+     * The settings the fork carries itself, copied over whatever the installed runtime holds.
+     *
+     * A runtime built before a fix still carries the old file, and a machine fitted from it must
+     * not inherit the defect. Runs at install, and again before a desktop session for machines
+     * fitted from an older runtime.
+     */
+    internal fun copyBundledSettings(context: Context, root: File): Int {
+        var copied = 0
+        for (name in configPaths(context, FILE_LIST)) {
+            val ok = runCatching {
+                context.assets.open("$FILES/$name").use { input ->
+                    val to = File(root, name)
+                    to.parentFile?.mkdirs()
+                    to.outputStream().use { input.copyTo(it) }
+                }
+            }.onFailure { Log.w(TAG, "could not copy bundled $name", it) }.isSuccess
+            if (ok) copied++
         }
         return copied
     }

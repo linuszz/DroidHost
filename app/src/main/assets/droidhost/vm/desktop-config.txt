@@ -4,8 +4,8 @@
 # its own system ends up with the same look as the one the app ships.
 #
 # A path may name the same file under two names, separated by "|". The runtime that is installed
-# and the one this fork builds give the wallpaper a different folder, and the file is copied
-# under the name it is found with.
+# and the one this fork builds give the wallpaper a different folder; the machine gets the file
+# under the first name, the one the fork's own settings refer to it by.
 etc/dpkg/dpkg.cfg.d/droiddeck
 etc/xdg/autostart/droiddeck-apt-restore.desktop
 etc/xdg/baloofilerc

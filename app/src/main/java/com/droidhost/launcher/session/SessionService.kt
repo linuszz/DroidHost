@@ -766,6 +766,8 @@ class SessionService : Service() {
 
         if (SessionState.mode == MODE_STEAM || SessionState.mode == MODE_DESKTOP) OfflineMode.apply(this, root)
         if (SessionState.mode == MODE_DESKTOP) {
+            runCatching { com.droidhost.launcher.vm.VmPanelHeal.beforeSession(this, root) }
+                .onFailure { Log.w(TAG, "desktop panel heal: $it") }
             runCatching { com.droidhost.launcher.runtime.DesktopLanguage.ensure(this, com.droidhost.launcher.core.AppLanguage.effective(this)) }
                 .onFailure { Log.w(TAG, "desktop language pack: $it") }
         }
