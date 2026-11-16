@@ -715,16 +715,12 @@ class SessionService : Service() {
             }
         } else null
 
-        // A machine the user brought is theirs: its session runs as root inside it, so a
-        // package manager in the guest can do its work. The app's own runtime keeps its
-        // identity, as the games and the stores there are not root.
-        val guestIsRoot = sessionMachineId() != null
         val sessionBindSpecs = LinuxRuntime.binds(this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds)
         val command = if (nativeUserland) {
             LinuxRuntime.rememberSessionBinds(sessionBindSpecs)
             com.droidhost.launcher.runtime.NativeGuest.command(root, guest.first(), guest.drop(1))
         } else {
-            LinuxRuntime.command(this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, guest, guestIsRoot)
+            LinuxRuntime.command(this, root, sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, guest, false)
         }
 
         val prootEnv = HostEnvironment()
@@ -753,7 +749,7 @@ class SessionService : Service() {
         val terminalCommand = if (nativeUserland) {
             com.droidhost.launcher.runtime.NativeGuest.command(root, shellGuest.first(), shellGuest.drop(1))
         } else {
-            LinuxRuntime.command(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, shellGuest, guestIsRoot)
+            LinuxRuntime.command(this, sessionRootfs(), sessionRoot, runtimeDir, Environment.getExternalStorageDirectory(), binds, shellGuest, false)
         }
         val terminalHostEnvironment = LinkedHashMap(System.getenv())
         hostEnv.asArray().forEach { entry ->

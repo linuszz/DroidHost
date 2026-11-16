@@ -234,8 +234,7 @@ object VmDesktop {
     }
 
     /**
-     * The settings and programs the fork carries itself, copied over whatever the installed
-     * runtime holds.
+     * The settings the fork carries itself, copied over whatever the installed runtime holds.
      *
      * A runtime built before a fix still carries the old file, and a machine fitted from it must
      * not inherit the defect. Runs at install, and again before a desktop session for machines
@@ -249,9 +248,6 @@ object VmDesktop {
                     val to = File(root, name)
                     to.parentFile?.mkdirs()
                     to.outputStream().use { input.copyTo(it) }
-                    if (name.startsWith("usr/local/bin/") || name.startsWith("usr/share/droiddeck/")) {
-                        to.setExecutable(true, false)
-                    }
                 }
             }.onFailure { Log.w(TAG, "could not copy bundled $name", it) }.isSuccess
             if (ok) copied++
