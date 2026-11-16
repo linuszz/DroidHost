@@ -38,4 +38,24 @@ class VmGuestTest {
         assertTrue(config.isFile)
         assertTrue(config.readText().contains("DPkg::Use-Pty"))
     }
+
+    @Test fun theGuestIsToldHowDpkgShouldAnswerAConffile() {
+        // dpkg asks a question when a package brings a configuration file that the machine
+        // already has another version of.  There is no terminal to answer it in, so the answer
+        // is given to dpkg instead of waited for.
+        val root = folder.newFolder("rootfs")
+        VmGuest.prepare(root)
+        val text = File(root, "etc/apt/apt.conf.d/99droidhost").readText()
+        assertTrue(text.contains("--force-confdef"))
+        assertTrue(text.contains("--force-confold"))
+    }
+
+    @Test fun theAnswerIsGivenAgainWhenTheGuestIsMissingIt() {
+        val root = folder.newFolder("rootfs")
+        val config = File(root, "etc/apt/apt.conf.d/99droidhost")
+        config.parentFile?.mkdirs()
+        config.writeText("DPkg::Use-Pty \"false\";\n")
+        VmGuest.prepare(root)
+        assertTrue(config.readText().contains("--force-confold"))
+    }
 }

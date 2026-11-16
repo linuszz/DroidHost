@@ -30,9 +30,16 @@ object VmGuest {
     /** The mark the wrapper of ours carries, so that only ours is taken away. */
     private const val TAR_MARK = "DroidHost: this guest cannot set the time of a file"
 
-    /** Where the guest's apt is told there is no terminal to give dpkg. */
+    /**
+     * Where the guest's apt is told how to talk to dpkg.
+     *
+     * dpkg asks a question when a package brings a configuration file the machine already has a
+     * different version of. There is no terminal to answer it in a machine, so the answer is
+     * given here: the package keeps the file it ships, and the file the machine has is kept.
+     */
     private const val APT_CONFIG = "etc/apt/apt.conf.d/99droidhost"
-    private const val APT_CONFIG_TEXT = "DPkg::Use-Pty \"false\";\n"
+    private const val APT_CONFIG_TEXT = "DPkg::Use-Pty \"false\";\n" +
+        "DPkg::Options {\"--force-confdef\"; \"--force-confold\";};\n"
 
     /** What a program left behind: its exit status and everything it printed. */
     class Result(val exitCode: Int, val output: String, val timedOut: Boolean)
@@ -98,7 +105,8 @@ object VmGuest {
                 .onFailure { Log.w(TAG, "the guest kept a tar of ours", it) }
         }
         val apt = File(root, APT_CONFIG)
-        if (!apt.isFile) {
+        val current = runCatching { apt.readText() }.getOrDefault("")
+        if (current != APT_CONFIG_TEXT) {
             runCatching {
                 apt.parentFile?.mkdirs()
                 apt.writeText(APT_CONFIG_TEXT)
