@@ -38,6 +38,7 @@ import com.droidhost.launcher.vm.VmDriverTier
 import com.droidhost.launcher.vm.VmFamily
 import com.droidhost.launcher.vm.VmImport
 import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmProblem
 import com.droidhost.launcher.vm.VmProbe
 import com.droidhost.launcher.vm.VmStage
@@ -61,7 +62,6 @@ internal fun VmSourceDialog(
 ) {
     val ctx = LocalContext.current
     var importing by remember { mutableStateOf(false) }
-    val existing = VmStore.load(ctx)
 
     if (importing) {
         VmImportDialog(onDismiss = { importing = false }) { machine ->
@@ -77,10 +77,6 @@ internal fun VmSourceDialog(
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     stringResource(R.string.vm_source_note), fontSize = 13.sp, lineHeight = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 12.dp),
-                )
-                if (existing != null) Text(
-                    stringResource(R.string.vm_source_replace_note), fontSize = 12.sp, lineHeight = 17.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 12.dp),
                 )
                 Text(
@@ -100,11 +96,13 @@ internal fun VmSourceDialog(
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                     )
                     for (distro in list) VmDistroRow(distro) {
-                        // The runtime carries one machine at a time, so a new system replaces the
-                        // one that is here now.
-                        existing?.let { VmStore.remove(ctx, it) }
+                        // Each machine keeps a rootfs of its own, so a new preset joins the ones
+                        // already here; it is seeded from the shared runtime before it is used.
                         val created = VmStore.create(ctx, distro)
-                        if (created != null) onPick(created, true)
+                        if (created != null) {
+                            VmPreset.start(ctx, created)
+                            onPick(created, false)
+                        }
                     }
                 }
                 Text(

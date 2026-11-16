@@ -36,26 +36,39 @@ import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
 import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmPreset
 
-internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, RUNNING, DELETING, IMPORTED }
-
-internal fun vmStatus(s: FrontEndState, machine: VmMachine?): VmStatus = vmStatus(s, machine, false)
+internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
 
 /**
- * The status of a machine.
+ * The status of one machine among several that coexist.
  *
- * [desktopInMachine] says whether the machine's own rootfs holds a desktop. A machine the user
- * brought keeps its system to itself, so the shared runtime's desktop says nothing about it.
+ * [hasOwnRootfs] says whether the machine keeps a rootfs of its own; a machine without one runs on
+ * the shared runtime, so the shared desktop and driver say everything about it. For a machine with
+ * its own rootfs, [desktopInMachine] and [driverInMachine] are read from that rootfs alone: a
+ * desktop without the GPU driver runs in software, which is [VmStatus.DEGRADED] rather than ready.
+ * [runningHere] and [installingHere] name this machine specifically, so a session or an install on
+ * one machine does not paint every card busy.
  */
-internal fun vmStatus(s: FrontEndState, machine: VmMachine?, desktopInMachine: Boolean): VmStatus = when {
+internal fun vmStatus(
+    s: FrontEndState,
+    machine: VmMachine?,
+    desktopInMachine: Boolean,
+    hasOwnRootfs: Boolean,
+    driverInMachine: Boolean,
+    runningHere: Boolean,
+    installingHere: Boolean,
+): VmStatus = when {
     machine == null -> VmStatus.ABSENT
-    // A removal is also busy, so it has to be told apart before the install branch.
-    s.removalPending -> VmStatus.DELETING
-    s.busy -> VmStatus.INSTALLING
-    s.sessionRunning -> VmStatus.RUNNING
-    // A machine the user brought runs on a system of its own, so the shared runtime's desktop
-    // says nothing about it; its own desktop pack is not installed yet.
-    machine.imported -> if (desktopInMachine) VmStatus.READY else VmStatus.IMPORTED
+    installingHere || (s.busy && !hasOwnRootfs) -> VmStatus.INSTALLING
+    // A removal of the shared desktop is also busy, so it is told apart before the ready branch.
+    s.removalPending && !hasOwnRootfs -> VmStatus.DELETING
+    runningHere -> VmStatus.RUNNING
+    hasOwnRootfs -> when {
+        !desktopInMachine -> if (machine.imported) VmStatus.IMPORTED else VmStatus.NEW
+        driverInMachine -> VmStatus.READY
+        else -> VmStatus.DEGRADED
+    }
     s.desktopInstalled -> VmStatus.READY
     else -> VmStatus.NEW
 }
@@ -70,6 +83,14 @@ internal fun vmInstallReason(reason: VmDesktop.Reason): String = when (reason) {
     VmDesktop.Reason.NO_SETTINGS -> stringResource(R.string.vm_install_reason_settings)
 }
 
+/** Why the seeding of a preset machine did not finish, in words. */
+@Composable
+internal fun vmSeedReason(reason: VmPreset.Reason): String = when (reason) {
+    VmPreset.Reason.NONE -> ""
+    VmPreset.Reason.NO_RUNTIME -> stringResource(R.string.vm_seed_reason_runtime)
+    VmPreset.Reason.COPY_FAILED -> stringResource(R.string.vm_seed_reason_copy)
+}
+
 @Composable
 internal fun VmStateChip(status: VmStatus) {
     when (status) {
@@ -77,6 +98,7 @@ internal fun VmStateChip(status: VmStatus) {
         VmStatus.NEW -> Chip(stringResource(R.string.vm_state_new), ok = false)
         VmStatus.INSTALLING -> Chip(stringResource(R.string.vm_installing), ok = false)
         VmStatus.READY -> Chip(stringResource(R.string.vm_state_ready), ok = true)
+        VmStatus.DEGRADED -> Chip(stringResource(R.string.vm_state_degraded), ok = false)
         VmStatus.RUNNING -> Chip(stringResource(R.string.vm_state_running), ok = true)
         VmStatus.DELETING -> Chip(stringResource(R.string.vm_deleting), ok = false)
         VmStatus.IMPORTED -> Chip(stringResource(R.string.vm_state_imported), ok = false)
@@ -89,6 +111,7 @@ internal fun vmStateLabel(status: VmStatus): String = when (status) {
     VmStatus.NEW -> stringResource(R.string.vm_state_new)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.READY -> stringResource(R.string.vm_state_ready)
+    VmStatus.DEGRADED -> stringResource(R.string.vm_state_degraded)
     VmStatus.RUNNING -> stringResource(R.string.vm_state_running)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
     VmStatus.IMPORTED -> stringResource(R.string.vm_state_imported)
@@ -98,7 +121,7 @@ internal fun vmStateLabel(status: VmStatus): String = when (status) {
 internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.ABSENT -> stringResource(R.string.vm_new)
     VmStatus.NEW -> stringResource(R.string.vm_install)
-    VmStatus.READY -> stringResource(R.string.vm_start)
+    VmStatus.READY, VmStatus.DEGRADED -> stringResource(R.string.vm_start)
     VmStatus.RUNNING -> stringResource(R.string.vm_stop)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
@@ -108,14 +131,29 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
 internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
     VmStatus.ABSENT -> Icons.Filled.Add
     VmStatus.NEW -> Icons.Outlined.DesktopWindows
-    VmStatus.READY -> Icons.Filled.PlayArrow
+    VmStatus.READY, VmStatus.DEGRADED -> Icons.Filled.PlayArrow
     VmStatus.RUNNING -> Icons.Filled.Close
     VmStatus.IMPORTED -> Icons.Outlined.Download
     else -> null
 }
 
+/**
+ * The machines the user owns, one card each, plus a card that opens the new-machine wizard.
+ *
+ * Several machines coexist, so the dock lists them all; tapping a card selects the machine the
+ * page acts on. [statusOf] and [percentOf] are read per machine, so one busy machine does not paint
+ * the others busy.
+ */
 @Composable
-internal fun VmDock(s: FrontEndState, machine: VmMachine?, status: VmStatus, onPrimary: () -> Unit, onNew: () -> Unit) {
+internal fun VmDock(
+    s: FrontEndState,
+    machines: List<VmMachine>,
+    selectedId: String?,
+    statusOf: (VmMachine) -> VmStatus,
+    percentOf: (VmMachine) -> Int?,
+    onSelect: (VmMachine) -> Unit,
+    onNew: () -> Unit,
+) {
     val colors = MaterialTheme.colorScheme
     val narrow = LocalNarrowPane.current
     val start = if (narrow) 20.dp else 44.dp
@@ -129,17 +167,21 @@ internal fun VmDock(s: FrontEndState, machine: VmMachine?, status: VmStatus, onP
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
                 .padding(start = start, end = 20.dp, top = 2.dp, bottom = 4.dp),
         ) {
-            if (machine != null) DesktopCard(
-                "vm:" + machine.distro.id, machine.distro.name, vmStateLabel(status),
-                art = null, fallback = Icons.Outlined.DesktopWindows, first = true,
-                progress = if (status == VmStatus.INSTALLING) s.percent else null,
-            ) { if (!s.busy) onPrimary() }
+            for (machine in machines) {
+                val selected = machine.id == selectedId
+                DesktopCard(
+                    "vm:" + machine.id, machine.distro.name, vmStateLabel(statusOf(machine)),
+                    art = null, fallback = Icons.Outlined.DesktopWindows,
+                    first = machine.id == machines.firstOrNull()?.id,
+                    progress = percentOf(machine), accent = selected,
+                ) { onSelect(machine) }
+            }
             DesktopCard(
                 "vm:new", stringResource(R.string.vm_new), stringResource(R.string.vm_new_hint),
-                art = null, fallback = Icons.Filled.Add, first = machine == null,
+                art = null, fallback = Icons.Filled.Add, first = machines.isEmpty(),
             ) { onNew() }
         }
-        if (machine == null) Text(
+        if (machines.isEmpty()) Text(
             stringResource(R.string.vm_none), fontSize = 12.5.sp, lineHeight = 16.sp, color = colors.onSurfaceVariant,
             modifier = Modifier.padding(start = start, end = 20.dp, top = 8.dp),
         )

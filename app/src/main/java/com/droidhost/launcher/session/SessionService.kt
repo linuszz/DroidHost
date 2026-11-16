@@ -356,6 +356,7 @@ class SessionService : Service() {
             return START_NOT_STICKY
         }
         SessionState.mode = intent?.getStringExtra(EXTRA_MODE) ?: MODE_STEAM
+        SessionState.machineId = intent?.getStringExtra(EXTRA_MACHINE)
         SessionState.fpsLimit = 0
         suspendPolicy = SessionPrefs.suspendPolicy(this, SessionState.mode)
         steamDownloadsInBackground = SessionPrefs.steamDownloadsInBackground(this)
@@ -1063,9 +1064,14 @@ class SessionService : Service() {
     /**
      * The machine a desktop session runs for. Every other mode stays on the app's shared
      * runtime, because the games and the stores live there.
+     *
+     * The machine the caller named wins; without one the first machine stands in, so a launch
+     * that predates machine selection behaves as it did before.
      */
     private fun sessionMachineId(): String? =
-        if (SessionState.mode == MODE_DESKTOP) com.droidhost.launcher.vm.VmStore.load(this)?.id else null
+        if (SessionState.mode == MODE_DESKTOP)
+            SessionState.machineId ?: com.droidhost.launcher.vm.VmStore.load(this)?.id
+        else null
 
     /** The rootfs this session runs in: the machine's own when it has one, the shared runtime otherwise. */
     private fun sessionRootfs(): File = LinuxRuntime.rootDir(this, sessionMachineId())
@@ -2475,6 +2481,7 @@ class SessionService : Service() {
         const val MODE_STEAM = "steam"
         const val MODE_DESKTOP = "lxqt"
         const val MODE_RUN = "run"
+        const val EXTRA_MACHINE = "machine"
         const val EXTRA_PROGRAM = "program"
         private const val RUN_STATUS = "run-status"
         const val EXTRA_PROGRAM_ARGS = "programArgs"
@@ -2487,11 +2494,13 @@ class SessionService : Service() {
             steamUi: String? = null, steamUrl: String? = null, programArgs: Array<String>? = null,
             gameId: String? = null,
             displayId: Int = Display.DEFAULT_DISPLAY,
+            machineId: String? = null,
         ) {
             SessionState.activityDisplayId = displayId
             val intent = Intent(context, SessionService::class.java).putExtra(EXTRA_MODE, mode)
                 .putExtra(EXTRA_DISPLAY_ID, displayId)
                 .putExtra(EXTRA_ACTIVITY_DISPLAY_ID, displayId)
+            if (machineId != null) intent.putExtra(EXTRA_MACHINE, machineId)
             if (program != null) intent.putExtra(EXTRA_PROGRAM, program)
             if (programArgs != null) intent.putExtra(EXTRA_PROGRAM_ARGS, programArgs)
             if (steamUi != null) intent.putExtra(EXTRA_STEAM_UI, steamUi)

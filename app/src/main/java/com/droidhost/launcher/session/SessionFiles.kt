@@ -327,13 +327,14 @@ object SessionFiles {
             stagedRoot.delete()
             Log.e(TAG, "could not write root-socket")
         }
-        // Which rootfs the app's root service should run a command in: the machine's own
-        // when the session runs in one, the app's own runtime otherwise.
-        val machine = com.droidhost.launcher.vm.VmStore.load(context)?.id?.takeIf { id ->
+        // Which rootfs the app's root service should run a command in: the machine whose own
+        // rootfs is the one this session runs in, the app's own runtime otherwise. Several
+        // machines coexist, so the match is by rootfs rather than by the first machine.
+        val machine = com.droidhost.launcher.vm.VmStore.all(context).firstOrNull { m ->
             runCatching {
-                com.droidhost.launcher.vm.VmRuntime.ownRootfs(context, id)?.canonicalFile == root.canonicalFile
+                com.droidhost.launcher.vm.VmRuntime.ownRootfs(context, m.id)?.canonicalFile == root.canonicalFile
             }.getOrDefault(false)
-        }
+        }?.id
         val stagedTarget = File(droiddeckEtc, "root-target.staged")
         if (!FileUtils.writeString(stagedTarget, (machine ?: "") + "\n")
             || !stagedTarget.renameTo(File(droiddeckEtc, "root-target"))) {

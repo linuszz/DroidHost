@@ -22,6 +22,19 @@ object VmDriver {
     private const val SOURCE = "etc/apt/sources.list.d/droiddeck.list"
     private const val PIN = "etc/apt/preferences.d/droiddeck-built"
 
+    /** Left in a rootfs once the GPU driver is in it, so the page can tell GPU from software. */
+    private const val MARKER = "usr/share/droiddeck/driver-installed"
+
+    /** Whether this rootfs carries the GPU driver. A null rootfs (the shared runtime) is the app's own patched build. */
+    fun driverInstalled(root: File?): Boolean = root != null && File(root, MARKER).isFile
+
+    /** Records that the GPU driver is in this rootfs. */
+    fun markInstalled(root: File) {
+        val marker = File(root, MARKER)
+        marker.parentFile?.mkdirs()
+        runCatching { marker.writeText("installed ${System.currentTimeMillis()}\n") }
+    }
+
     /** The packages that carry the driver, as the runtime's own pin names them. */
     private val PACKAGES = listOf(
         "kwin-common", "kwin-data", "kwin-wayland", "libegl-mesa0", "libgbm1",

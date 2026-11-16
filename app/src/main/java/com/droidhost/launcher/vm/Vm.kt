@@ -61,8 +61,20 @@ object VmStore {
     private const val PREFS = "vm"
     private const val KEY = "machine"
     private const val KEY_MACHINES = "machines"
+    private const val KEY_CAP = "cap:"
+    private const val DEFAULT_CAP = 4L * 1024 * 1024 * 1024
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    /**
+     * The soft disk ceiling a machine shows against its usage. proot has no filesystem quota, so
+     * this warns rather than enforces; 0 means no ceiling.
+     */
+    fun capBytes(context: Context, id: String): Long = prefs(context).getLong(KEY_CAP + id, DEFAULT_CAP)
+
+    fun setCapBytes(context: Context, id: String, bytes: Long) {
+        prefs(context).edit().putLong(KEY_CAP + id, bytes).apply()
+    }
 
     /** Every machine the user has. */
     fun all(context: Context): List<VmMachine> {
@@ -78,18 +90,25 @@ object VmStore {
         return VmMachine(distro, parts.getOrNull(1)?.toLongOrNull() ?: 0L)
     }
 
-    /** The machine the desktop page acts on. */
+    /** The first machine, a fallback for callers that have not named one. */
     fun load(context: Context): VmMachine? = all(context).firstOrNull()
 
+    /** The machine with this id, or null when none carries it. */
+    fun get(context: Context, id: String?): VmMachine? =
+        if (id.isNullOrEmpty()) null else all(context).firstOrNull { it.id == id }
+
     /**
-     * Null when the system has no engine, or when a machine exists: the runtime owns one rootfs.
+     * Null when the system has no engine, or when a machine already carries [id].
      *
-     * [id] names the rootfs the machine keeps, so an import can say which one it unpacked into.
+     * Each machine keeps a rootfs of its own, so several coexist; [id] names the one this machine
+     * keeps, so an import can say which rootfs it unpacked into.
      */
     fun create(context: Context, distro: VmDistro, id: String = newId(), imported: Boolean = false): VmMachine? {
-        if (!distro.engine || load(context) != null) return null
+        if (!distro.engine) return null
+        val machines = all(context)
+        if (machines.any { it.id == id }) return null
         val machine = VmMachine(distro, System.currentTimeMillis(), id, imported)
-        write(context, listOf(machine))
+        write(context, machines + machine)
         return machine
     }
 
@@ -105,6 +124,7 @@ object VmStore {
      */
     fun remove(context: Context, machine: VmMachine) {
         write(context, all(context).filter { it.id != machine.id })
+        prefs(context).edit().remove(KEY_CAP + machine.id).apply()
         VmRuntime.ownRootfs(context, machine.id)?.parentFile?.let { VmRuntime.removeInBackground(it) }
     }
 
@@ -143,6 +163,8 @@ object VmStore {
         }.getOrDefault(emptyList())
     }
 
-    /** The id a machine gets when the user has not named one. */
-    fun newId(): String = "vm-" + System.currentTimeMillis().toString(36)
+    private val sequence = java.util.concurrent.atomic.AtomicInteger(0)
+
+    /** The id a machine gets when the user has not named one; the counter keeps two made in the same millisecond apart. */
+    fun newId(): String = "vm-" + System.currentTimeMillis().toString(36) + "-" + sequence.incrementAndGet().toString(36)
 }

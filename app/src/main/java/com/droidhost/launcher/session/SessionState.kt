@@ -138,6 +138,10 @@ object SessionState {
     @Volatile
     var mode = "steam"
 
+    /** The machine a desktop session runs for; null keeps the first machine or the shared runtime. */
+    @Volatile
+    var machineId: String? = null
+
     @Volatile
     var outputSize: Pair<Int, Int> = Pair(1920, 1080)
 

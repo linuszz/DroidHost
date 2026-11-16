@@ -114,6 +114,29 @@ class FileOpsCopyTest {
         assertEquals(permissions, Files.getPosixFilePermissions(dst.toPath()))
     }
 
+    @Test fun aNewCopyPreservesTheSourcesExecutablePermissions() {
+        assumeTrue(Files.getFileStore(tmp.root.toPath()).supportsFileAttributeView("posix"))
+        val src = tmp.newFile("source").apply { writeText("#!/bin/bash\n") }
+        val permissions = PosixFilePermissions.fromString("rwx--x--x")
+        Files.setPosixFilePermissions(src.toPath(), permissions)
+        val dst = File(tmp.root, "dest")
+        assertTrue(FileOps.copyWithProgress(src, dst, null))
+        assertEquals("#!/bin/bash\n", dst.readText())
+        assertEquals(permissions, Files.getPosixFilePermissions(dst.toPath()))
+    }
+
+    @Test fun aNewTreeCopyPreservesExecutablePermissions() {
+        assumeTrue(Files.getFileStore(tmp.root.toPath()).supportsFileAttributeView("posix"))
+        val src = tmp.newFolder("source")
+        val bin = File(src, "bin").apply { mkdir() }
+        val sh = File(bin, "bash").apply { writeText("#!/bin/bash\n") }
+        val permissions = PosixFilePermissions.fromString("rwx--x--x")
+        Files.setPosixFilePermissions(sh.toPath(), permissions)
+        val dst = File(tmp.root, "dest")
+        assertTrue(FileOps.copyWithProgress(src, dst, null))
+        assertEquals(permissions, Files.getPosixFilePermissions(File(dst, "bin/bash").toPath()))
+    }
+
     @Test fun anOverwriteStillRefusesAReadOnlyDestination() {
         assumeFilePermissionsEnforced()
         assumeTrue(Files.getFileStore(tmp.root.toPath()).supportsFileAttributeView("posix"))

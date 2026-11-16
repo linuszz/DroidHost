@@ -217,7 +217,7 @@ class FrontEndActions(
     val onCopyGameLink: (Library.SteamGame) -> Unit = {},
     val onEpicLauncher: () -> Unit = {},
     val onUninstallEpicLauncher: () -> Unit = {},
-    val onDesktop: () -> Unit,
+    val onDesktop: (String?) -> Unit = {},
     val onEmulator: (Library.Emulator) -> Unit,
     val onFlatpakApp: (String, String) -> Unit = { _, _ -> },
     val onUserApp: (com.droidhost.launcher.runtime.UserApps.App) -> Unit = {},

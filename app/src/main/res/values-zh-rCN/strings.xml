@@ -4087,7 +4087,7 @@
     <string name="vm_import_unreadable">压缩包无法读取。</string>
     <string name="vm_import_not_an_archive">请选择 tar 压缩包：.tar.zst、.tar.gz、.tar.xz、.tar.bz2 或 .tar。</string>
     <string name="vm_import_unpack_failed">压缩包无法解包。</string>
-    <string name="vm_import_machine_exists">已经有一台虚拟机了。请先删除它再导入。</string>
+    <string name="vm_import_machine_exists">已经有一台虚拟机用这个名字了。请先删除它再导入。</string>
     <string name="vm_import_not_usable">这个系统无法运行。</string>
     <string name="vm_probe_packaged">我们为这个发行版准备了驱动包，可以使用 GPU 加速。</string>
     <string name="vm_probe_configuration">还没有为这个发行版准备驱动包。</string>
@@ -4112,5 +4112,22 @@
     <string name="vm_install_reason_settings">桌面配置没能复制过去</string>
     <string name="vm_delete_machine">删除虚拟机</string>
     <string name="vm_delete_machine_title">删除这台虚拟机？</string>
-    <string name="vm_delete_machine_text">移除导入的系统及其全部内容。共享运行时不受影响。</string>
+    <string name="vm_delete_machine_text">移除这台机器的系统及其全部内容。其他虚拟机和共享运行时不受影响。</string>
+    <string name="vm_state_degraded">软件渲染</string>
+    <string name="vm_degraded_note">未安装 GPU 驱动，桌面以软件渲染运行。可用，但较慢。</string>
+    <string name="vm_preset_seeding">正在准备虚拟机</string>
+    <string name="vm_preset_seeding_running">正在从共享运行时准备虚拟机：%1$d%%</string>
+    <string name="vm_preset_failed">虚拟机准备失败：%1$s</string>
+    <string name="vm_seed_reason_runtime">应用运行时缺失</string>
+    <string name="vm_seed_reason_copy">系统文件复制失败</string>
+    <string name="vm_settings">虚拟机设置</string>
+    <string name="vm_settings_driver">驱动</string>
+    <string name="vm_settings_driver_gpu">GPU 加速</string>
+    <string name="vm_settings_driver_software">软件渲染</string>
+    <string name="vm_settings_storage">存储</string>
+    <string name="vm_settings_usage">已用：%1$s</string>
+    <string name="vm_settings_cap_none">无上限</string>
+    <string name="vm_settings_cap_note">磁盘上限超出时会提示，不强制配额。</string>
+    <string name="vm_settings_cap_over">已用空间超过磁盘上限。</string>
+    <string name="vm_settings_danger">危险操作</string>
 </resources>

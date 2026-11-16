@@ -25,6 +25,13 @@ class VmDesktopTest {
         assertTrue(VmDesktop.desktopInstalled(root))
     }
 
+    @Test fun aSeedRecordsTheDesktopItCopied() {
+        val root = folder.newFolder("rootfs")
+        assertFalse(VmDesktop.desktopInstalled(root))
+        VmDesktop.markInstalled(root)
+        assertTrue(VmDesktop.desktopInstalled(root))
+    }
+
     @Test fun theFilterAsksAptInAFormAptAccepts() {
         val script = VmDesktop.filterScript()
         // apt 2.8 rejects --no-show-versions on apt-cache show, and a query per package costs

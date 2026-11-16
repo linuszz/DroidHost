@@ -83,9 +83,27 @@ class VmStoreTest {
         assertNull(VmStore.load(ctx))
     }
 
-    @Test fun theRuntimeOwnsOneRootfsSoASecondMachineIsRefused() {
-        assertTrue(VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!) != null)
-        assertNull(VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!))
+    @Test fun severalMachinesCoexistEachWithItsOwnId() {
+        val first = VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!)!!
+        val second = VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!)!!
+        assertTrue(first.id != second.id)
+        assertEquals(2, VmStore.all(ctx).size)
+        assertEquals(first.id, VmStore.get(ctx, first.id)!!.id)
+        assertEquals(second.id, VmStore.get(ctx, second.id)!!.id)
+    }
+
+    @Test fun anIdAlreadyTakenIsRefused() {
+        assertTrue(VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!, "vm-x") != null)
+        assertNull(VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!, "vm-x"))
+        assertEquals(1, VmStore.all(ctx).size)
+    }
+
+    @Test fun removingOneMachineLeavesTheOthers() {
+        val first = VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!)!!
+        val second = VmStore.create(ctx, VmCatalog.of(VmCatalog.UBUNTU)!!)!!
+        VmStore.remove(ctx, first)
+        assertNull(VmStore.get(ctx, first.id))
+        assertEquals(second.id, VmStore.load(ctx)!!.id)
         assertEquals(1, VmStore.all(ctx).size)
     }
 

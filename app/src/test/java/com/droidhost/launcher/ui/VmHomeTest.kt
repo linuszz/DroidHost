@@ -3,6 +3,7 @@ package com.droidhost.launcher.ui
 import android.content.Context
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -66,8 +67,28 @@ class VmHomeTest {
 
     @Test fun aBroughtMachineWithADesktopOffersTheStart() {
         render(state(desktopInstalled = false, desktopPresent = false, machine = true, imported = true,
-            desktopInMachine = true))
+            desktopInMachine = true, driverInMachine = true))
         compose.onNodeWithText(ctx.getString(R.string.vm_start)).assertIsDisplayed()
+    }
+
+    @Test fun aDesktopWithoutTheDriverReadsAsSoftwareRatherThanReady() {
+        render(state(desktopInstalled = false, desktopPresent = false, machine = true, imported = true,
+            desktopInMachine = true, driverInMachine = false))
+        assertTrue(compose.onAllNodesWithText(ctx.getString(R.string.vm_state_degraded)).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    @Test fun aDesktopWithTheDriverReadsAsReady() {
+        render(state(desktopInstalled = false, desktopPresent = false, machine = true, imported = true,
+            desktopInMachine = true, driverInMachine = true))
+        assertTrue(compose.onAllNodesWithText(ctx.getString(R.string.vm_state_ready)).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    @Test fun severalMachinesEachGetACard() {
+        val distro = VmCatalog.distros.first { it.engine }
+        VmStore.create(ctx, distro, "vm-one", imported = true)
+        VmStore.create(ctx, distro, "vm-two", imported = true)
+        render(state(desktopInstalled = false, desktopPresent = false, machine = false))
+        assertTrue(compose.onAllNodesWithContentDescription(distro.name).fetchSemanticsNodes().size == 2)
     }
 
     @Test fun thePickerListsEverySystemAndGatesTheOnesWithoutAnEngine() {
@@ -100,6 +121,7 @@ class VmHomeTest {
         busy: Boolean = false,
         imported: Boolean = false,
         desktopInMachine: Boolean = false,
+        driverInMachine: Boolean = false,
     ): FrontEndState {
         if (machine) {
             val distro = VmCatalog.distros.first { it.engine }
@@ -109,6 +131,7 @@ class VmHomeTest {
                 val root = VmRuntime.allocateRootfs(ctx, created.id)
                 if (desktopInMachine) File(root, "usr/share/droiddeck").mkdirs()
                 if (desktopInMachine) File(root, "usr/share/droiddeck/desktop-installed").writeText("installed\n")
+                if (driverInMachine) File(root, "usr/share/droiddeck/driver-installed").writeText("installed\n")
             }
         }
         return FrontEndState(
@@ -121,7 +144,7 @@ class VmHomeTest {
     }
 
     private fun actions() = FrontEndActions(
-        onPlay = {}, onPlayDesktopUi = {}, onSteamGame = {}, onDesktop = {}, onEmulator = {}, onRom = {}, onResume = {},
+        onPlay = {}, onPlayDesktopUi = {}, onSteamGame = {}, onDesktop = { _ -> }, onEmulator = {}, onRom = {}, onResume = {},
         onSteamSettings = {}, onDesktopSettings = {}, onInstallPackage = {}, onRemovePackage = {},
         onRuntime = {}, onFrameGenPick = {}, onImportLossless = {}, onProtons = {}, onComponents = {},
         onPerformance = {}, onRoms = {}, onFiles = {}, onLogs = {}, onOffline = {},

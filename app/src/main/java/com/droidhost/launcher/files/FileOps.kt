@@ -69,6 +69,9 @@ object FileOps {
         if (isCancelled()) throw java.util.concurrent.CancellationException("Copy cancelled: $src")
         if (isSymlink(src)) return copyLink(src, dst)
         if (sameFile(src, dst)) return true
+        // A live runtime carries unix sockets and a FIFO (steam.pipe): opening a FIFO to copy it
+        // blocks forever and a socket fails. Skip special files; the guest recreates them on boot.
+        if (src.exists() && !src.isDirectory && !Files.isRegularFile(src.toPath())) return true
         if (src.isDirectory && isWithin(dst, src)) {
             Log.e(TAG, "Refusing to copy directory into itself: $src -> $dst")
             return false
@@ -78,6 +81,7 @@ object FileOps {
                 if (!dst.mkdirs()) return false
                 true
             }
+            if (created) copyPermissions(src, dst)
             try {
                 var allOk = true
                 src.list()?.forEach { name ->
@@ -140,6 +144,7 @@ object FileOps {
                     if (size > 0 && isCancelled()) throw CancellationException("Copy cancelled: $src")
                 }
             }
+            if (created) copyPermissions(src, dst)
             staging?.let { directory ->
                 val copied = File(directory, "file").toPath()
                 if (permissions != null) {
@@ -168,6 +173,16 @@ object FileOps {
                 File(directory, "file").delete()
                 directory.delete()
             }
+        }
+    }
+
+    // A fresh copy must carry the source's mode bits: mkdirs/CREATE_NEW default to owner-only,
+    // and a seeded rootfs whose executables lost the exec bit cannot boot (#!/bin/bash fails).
+    private fun copyPermissions(src: File, dst: File) {
+        try {
+            Files.setPosixFilePermissions(dst.toPath(), Files.getPosixFilePermissions(src.toPath()))
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to copy permissions: $src -> $dst", e)
         }
     }
 

@@ -4187,7 +4187,7 @@
     <string name="vm_import_unreadable">The archive could not be read.</string>
     <string name="vm_import_not_an_archive">Pick a tar archive: .tar.zst, .tar.gz, .tar.xz, .tar.bz2 or .tar.</string>
     <string name="vm_import_unpack_failed">The archive could not be unpacked.</string>
-    <string name="vm_import_machine_exists">A machine already exists. Delete it before importing another.</string>
+    <string name="vm_import_machine_exists">A machine already carries this name. Delete it before importing another.</string>
     <string name="vm_import_not_usable">This system cannot be run.</string>
     <string name="vm_probe_packaged">A driver package is built for this distribution, so the GPU can be used.</string>
     <string name="vm_probe_configuration">No driver package is built for this distribution yet.</string>
@@ -4214,5 +4214,22 @@
     <string name="vm_install_reason_settings">the desktop settings could not be copied</string>
     <string name="vm_delete_machine">Delete machine</string>
     <string name="vm_delete_machine_title">Delete this machine?</string>
-    <string name="vm_delete_machine_text">Removes the imported system and everything in it. The shared runtime is not touched.</string>
+    <string name="vm_delete_machine_text">Removes this machine\'s system and everything in it. Other machines and the shared runtime are not touched.</string>
+    <string name="vm_state_degraded">Software</string>
+    <string name="vm_degraded_note">No GPU driver is installed, so the desktop runs in software. It works, but slowly.</string>
+    <string name="vm_preset_seeding">Preparing the machine</string>
+    <string name="vm_preset_seeding_running">Preparing the machine from the shared runtime: %1$d%%</string>
+    <string name="vm_preset_failed">The machine could not be prepared: %1$s</string>
+    <string name="vm_seed_reason_runtime">the app runtime is missing</string>
+    <string name="vm_seed_reason_copy">the system files could not be copied</string>
+    <string name="vm_settings">Machine settings</string>
+    <string name="vm_settings_driver">Driver</string>
+    <string name="vm_settings_driver_gpu">GPU accelerated</string>
+    <string name="vm_settings_driver_software">Software rendered</string>
+    <string name="vm_settings_storage">Storage</string>
+    <string name="vm_settings_usage">Used: %1$s</string>
+    <string name="vm_settings_cap_none">No limit</string>
+    <string name="vm_settings_cap_note">The disk limit warns when exceeded; it does not enforce a quota.</string>
+    <string name="vm_settings_cap_over">Used space is over the disk limit.</string>
+    <string name="vm_settings_danger">Danger zone</string>
 </resources>

@@ -22,10 +22,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -68,10 +70,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.FileUtils
+import com.droidhost.launcher.files.FileOps
+import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.session.SessionService
+import com.droidhost.launcher.session.SessionState
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
+import com.droidhost.launcher.vm.VmDriver
 import com.droidhost.launcher.vm.VmMachine
+import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmRuntime
 import com.droidhost.launcher.vm.VmStore
 import kotlinx.coroutines.Dispatchers
@@ -94,53 +101,80 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         onSelect(page)
     }
 
-    var machine by remember { mutableStateOf(VmStore.load(ctx)) }
-    // A build that already carries the desktop predates any record; it is still the one machine.
-    val vm = machine ?: if (s.desktopPresent) VmCatalog.of(VmCatalog.UBUNTU)?.let { VmMachine(it, 0L) } else null
+    // Several machines coexist; the page acts on the one the user selected.
+    var recorded by remember { mutableStateOf(VmStore.all(ctx)) }
+    // A build that already carries the desktop predates any record; it stands in as one machine.
+    val machines = if (recorded.isEmpty() && s.desktopPresent)
+        listOfNotNull(VmCatalog.of(VmCatalog.UBUNTU)?.let { VmMachine(it, 0L) }) else recorded
+    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val vm = machines.firstOrNull { it.id == selectedId } ?: machines.firstOrNull()
+
     var install by remember { mutableStateOf(VmDesktop.state()) }
-    // A machine the user brought keeps its desktop in its own rootfs, so the shared one says
-    // nothing about it.
-    val desktopInMachine = VmDesktop.desktopInstalled(vm?.let { VmRuntime.ownRootfs(ctx, it.id) })
-    val status = vmStatus(s, vm, desktopInMachine)
-    LaunchedEffect(install.busy) {
-        while (install.busy) {
+    var seed by remember { mutableStateOf(VmPreset.state()) }
+    LaunchedEffect(install.busy, seed.busy) {
+        while (install.busy || seed.busy) {
             delay(1000)
             install = VmDesktop.state()
+            seed = VmPreset.state()
         }
+        // The rootfs a finished install or seed left behind changes what the cards say.
+        recorded = VmStore.all(ctx)
     }
     var picking by rememberSaveable { mutableStateOf(false) }
-    var everPresent by remember { mutableStateOf(s.desktopPresent) }
-    LaunchedEffect(s.desktopPresent) { if (s.desktopPresent) everPresent = true }
-    LaunchedEffect(s.desktopPresent, s.removalPending, vm?.imported) {
-        // The record outlives the install it describes only until the desktop is gone for good.
-        // A machine the user brought has a system of its own, so the shared desktop says nothing
-        // about it and its record stays.
-        if (everPresent && !s.desktopPresent && !s.removalPending && vm?.imported != true) {
-            VmStore.forget(ctx)
-            machine = null
-        }
+    var settings by rememberSaveable { mutableStateOf(false) }
+
+    // The machine the running session is for; without a named one the first stands in.
+    val runningMachineId = SessionState.machineId ?: VmStore.load(ctx)?.id
+    fun ownRootfs(m: VmMachine?) = m?.let { VmRuntime.ownRootfs(ctx, it.id) }
+    fun statusOf(m: VmMachine): VmStatus {
+        val own = ownRootfs(m)
+        val installingHere = (install.busy && install.machineId == m.id) || (seed.busy && seed.machineId == m.id)
+        return vmStatus(
+            s, m, VmDesktop.desktopInstalled(own), own != null, VmDriver.driverInstalled(own),
+            s.sessionRunning && runningMachineId == m.id, installingHere,
+        )
+    }
+    fun percentOf(m: VmMachine): Int? = when {
+        install.busy && install.machineId == m.id -> install.percent
+        seed.busy && seed.machineId == m.id -> seed.percent
+        s.busy && ownRootfs(m) == null -> s.percent
+        else -> null
     }
 
-    val primary: () -> Unit = when (status) {
-        VmStatus.ABSENT -> ({ picking = true })
-        VmStatus.NEW, VmStatus.READY -> a.onDesktop
-        VmStatus.RUNNING -> a.onVmStop
-        VmStatus.IMPORTED -> ({
-            vm?.let { machine ->
-                if (VmDesktop.start(ctx, machine)) install = VmDesktop.state()
-            }
+    val status = vm?.let { statusOf(it) } ?: VmStatus.ABSENT
+    val vmHasOwnRootfs = ownRootfs(vm) != null
+    val primary: () -> Unit = when {
+        status == VmStatus.ABSENT -> ({ picking = true })
+        status == VmStatus.RUNNING -> a.onVmStop
+        status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ a.onDesktop(vm?.id) })
+        // A machine with its own rootfs but no desktop yet gets one fitted in; the shared runtime
+        // installs its desktop through the session itself, as it always has.
+        status == VmStatus.IMPORTED || (status == VmStatus.NEW && vmHasOwnRootfs) -> ({
+            vm?.let { if (VmDesktop.start(ctx, it)) install = VmDesktop.state() }
         })
+        status == VmStatus.NEW -> ({ a.onDesktop(vm?.id) })
         else -> ({})
     }
     val primaryEnabled = when (status) {
         VmStatus.ABSENT -> !s.busy
-        VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked
-        VmStatus.READY, VmStatus.RUNNING -> !s.busy
-        VmStatus.IMPORTED -> !s.busy && !install.busy && !s.runtimeActionsBlocked
+        VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked && !install.busy && !seed.busy
+        VmStatus.READY, VmStatus.DEGRADED, VmStatus.RUNNING -> !s.busy
+        VmStatus.IMPORTED -> !s.busy && !install.busy && !seed.busy && !s.runtimeActionsBlocked
         else -> false
     }
     val label = vmPrimaryLabel(status)
     val head = vm?.distro?.name ?: stringResource(R.string.vm_title)
+    val note = when {
+        seed.busy && seed.machineId == vm?.id -> stringResource(R.string.vm_preset_seeding_running, seed.percent)
+        seed.stage == VmPreset.Stage.FAILED && seed.machineId == vm?.id ->
+            stringResource(R.string.vm_preset_failed, vmSeedReason(seed.reason))
+        install.busy && install.machineId == vm?.id -> stringResource(R.string.vm_install_desktop_running, install.percent)
+        install.stage == VmDesktop.Stage.FAILED && install.machineId == vm?.id ->
+            stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
+        status == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
+        vm?.imported == true -> stringResource(R.string.vm_imported_note)
+        else -> null
+    }
 
     LiftHero(
         key = "desktop", tabs = tabs,
@@ -151,7 +185,11 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         scrim = { lifted ->
             WallFade()
             Box(Modifier.graphicsLayer { val v = lifted(); alpha = 1f - v; translationY = -12.dp.toPx() * v }) {
-                VmDock(s, vm, status, onPrimary = primary, onNew = { picking = true })
+                VmDock(
+                    s, machines, vm?.id,
+                    statusOf = { statusOf(it) }, percentOf = { percentOf(it) },
+                    onSelect = { selectedId = it.id }, onNew = { picking = true },
+                )
             }
         },
         words = {
@@ -164,14 +202,8 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     VmStateChip(status)
                     BusyChip(s)
                 }
-                if (vm?.imported == true) Text(
-                    when {
-                        install.busy -> stringResource(R.string.vm_install_desktop_running, install.percent)
-                        install.stage == VmDesktop.Stage.FAILED ->
-                            stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
-                        else -> stringResource(R.string.vm_imported_note)
-                    },
-                    fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant,
+                if (note != null) Text(
+                    note, fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant,
                 )
             }
         },
@@ -185,14 +217,18 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             ) {
                 HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
                 HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
-                if (vm != null && vm.imported) VmRemoveMachine(
+                if (vm != null) HeroIconButton(Icons.Outlined.Settings, stringResource(R.string.vm_settings), null, "vm:settings") { settings = true }
+                // A machine with its own rootfs is deleted whole; the shared runtime only loses its
+                // desktop, the system image stays. Two different deletions, two different wordings.
+                if (vm != null && vmHasOwnRootfs) VmRemoveMachine(
                     label = stringResource(R.string.vm_delete_machine),
                     title = stringResource(R.string.vm_delete_machine_title),
                     note = stringResource(R.string.vm_delete_machine_text),
                     enabled = !s.busy && !s.runtimeActionsBlocked,
                     onRemove = {
                         VmStore.remove(ctx, vm)
-                        machine = null
+                        recorded = VmStore.all(ctx)
+                        selectedId = null
                     },
                 )
                 else if (vm != null) UninstallDesktop(
@@ -209,9 +245,113 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     )
     if (picking) VmSourceDialog(onDismiss = { picking = false }) { created, start ->
         picking = false
-        machine = created
-        if (start) a.onDesktop()
+        recorded = VmStore.all(ctx)
+        selectedId = created.id
+        // A preset machine starts seeding inside the wizard; take its state now so the progress
+        // poll below picks it up.
+        seed = VmPreset.state()
+        install = VmDesktop.state()
+        if (start) a.onDesktop(created.id)
     }
+    if (settings && vm != null) VmSettingsDialog(
+        machine = vm,
+        driverInstalled = VmDriver.driverInstalled(ownRootfs(vm)),
+        hasOwnRootfs = vmHasOwnRootfs,
+        onDismiss = { settings = false },
+        onRemoveMachine = {
+            VmStore.remove(ctx, vm)
+            recorded = VmStore.all(ctx)
+            selectedId = null
+        },
+        onRemoveDesktop = a.onRemoveDesktop,
+    )
+}
+
+/**
+ * What one machine is made of: the driver it runs on, the disk it uses against a soft ceiling, and
+ * the deletion that fits it. A machine with its own rootfs is deleted whole; the shared runtime
+ * only loses its desktop.
+ */
+@Composable
+private fun VmSettingsDialog(
+    machine: VmMachine,
+    driverInstalled: Boolean,
+    hasOwnRootfs: Boolean,
+    onDismiss: () -> Unit,
+    onRemoveMachine: () -> Unit,
+    onRemoveDesktop: () -> Unit,
+) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    val root = if (hasOwnRootfs) VmRuntime.ownRootfs(ctx, machine.id) else LinuxRuntime.rootDir(ctx)
+    val size by produceState<Long?>(null, root) {
+        value = withContext(Dispatchers.IO) { runCatching { FileOps.totalSize(root) }.getOrNull() }
+    }
+    var cap by remember { mutableStateOf(VmStore.capBytes(ctx, machine.id)) }
+    val caps = listOf(2L, 4L, 8L, 16L, 0L).map { it * 1024 * 1024 * 1024 }
+    val used = size ?: 0L
+    val fraction = if (cap > 0) (used.toFloat() / cap).coerceIn(0f, 1f) else 0f
+    val over = cap > 0 && used > cap
+    GlideAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.vm_settings)) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(machine.distro.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
+                Text(
+                    stringResource(R.string.vm_settings_driver), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),
+                )
+                // The shared runtime is the app's patched build, so it always carries the driver.
+                Text(
+                    stringResource(if (driverInstalled || !hasOwnRootfs) R.string.vm_settings_driver_gpu else R.string.vm_settings_driver_software),
+                    fontSize = 13.sp, color = colors.onBackground,
+                )
+                Text(
+                    stringResource(R.string.vm_settings_storage), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),
+                )
+                Text(
+                    stringResource(R.string.vm_settings_usage, FileUtils.sizeToString(used)),
+                    fontSize = 13.sp, color = colors.onBackground,
+                )
+                Box(Modifier.fillMaxWidth().padding(top = 8.dp).height(5.dp).clip(RoundedCornerShape(3.dp)).background(colors.surfaceVariant)) {
+                    Box(Modifier.fillMaxWidth(fraction).height(5.dp).clip(RoundedCornerShape(3.dp)).background(if (over) colors.error else colors.primary))
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 10.dp),
+                ) {
+                    for (option in caps) SecondaryButton(
+                        if (option == 0L) stringResource(R.string.vm_settings_cap_none) else FileUtils.sizeToString(option),
+                        compact = true,
+                    ) { cap = option; VmStore.setCapBytes(ctx, machine.id, option) }
+                }
+                Text(
+                    stringResource(if (over) R.string.vm_settings_cap_over else R.string.vm_settings_cap_note),
+                    fontSize = 12.sp, lineHeight = 17.sp,
+                    color = if (over) colors.error else colors.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp),
+                )
+                Text(
+                    stringResource(R.string.vm_settings_danger), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp, color = colors.error, modifier = Modifier.padding(top = 16.dp, bottom = 6.dp),
+                )
+                if (hasOwnRootfs) VmRemoveMachine(
+                    label = stringResource(R.string.vm_delete_machine),
+                    title = stringResource(R.string.vm_delete_machine_title),
+                    note = stringResource(R.string.vm_delete_machine_text),
+                    enabled = true,
+                    onRemove = { onRemoveMachine(); onDismiss() },
+                )
+                else UninstallDesktop(
+                    label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
+                    note = stringResource(R.string.vm_delete_text),
+                    enabled = true, onUninstall = { onRemoveDesktop(); onDismiss() },
+                )
+            }
+        },
+        confirmButton = { PadTextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
+    )
 }
 
 @Composable

@@ -42,22 +42,31 @@ object VmDesktop {
     /** Why the install did not finish. The page turns it into words. */
     enum class Reason { NONE, REPOSITORY_UNREACHABLE, NO_PACKAGES, INSTALL_FAILED, NO_SETTINGS }
 
-    /** What the page shows while the desktop is fitted in. */
-    data class State(val stage: Stage, val percent: Int, val reason: Reason = Reason.NONE) {
+    /** What the page shows while the desktop is fitted in. [machineId] names the machine it is for. */
+    data class State(val stage: Stage, val percent: Int, val reason: Reason = Reason.NONE, val machineId: String? = null) {
         val busy: Boolean
             get() = stage == Stage.UPDATING || stage == Stage.INSTALLING || stage == Stage.CONFIGURING
     }
 
     @Volatile
     private var progress = State(Stage.IDLE, 0)
+    @Volatile
+    private var currentMachine: String? = null
     private val running = AtomicBoolean(false)
     private val installed = AtomicInteger(0)
 
-    /** How the install is going. */
-    fun state(): State = progress
+    /** How the install is going, and which machine it is for. */
+    fun state(): State = progress.copy(machineId = currentMachine)
 
     /** Whether the machine's own rootfs holds a desktop already. */
     fun desktopInstalled(root: File?): Boolean = root != null && File(root, MARKER).isFile
+
+    /** Records that a desktop is in this rootfs, for a seed that copied one already fitted. */
+    fun markInstalled(root: File) {
+        val marker = File(root, MARKER)
+        marker.parentFile?.mkdirs()
+        runCatching { marker.writeText("installed ${System.currentTimeMillis()}\n") }
+    }
 
     /**
      * Starts fitting a desktop into the machine.
@@ -67,6 +76,7 @@ object VmDesktop {
      */
     fun start(context: Context, machine: VmMachine): Boolean {
         if (!running.compareAndSet(false, true)) return false
+        currentMachine = machine.id
         Thread({ install(context.applicationContext, machine) }, "vm-desktop").apply {
             isDaemon = true
             start()
@@ -130,6 +140,7 @@ object VmDesktop {
                     fail(Reason.INSTALL_FAILED)
                     return
                 }
+                VmDriver.markInstalled(root)
             }
 
             progress = State(Stage.CONFIGURING, 90)

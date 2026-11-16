@@ -31,7 +31,7 @@ object VmImport {
         /** The archive does not hold a system DroidHost can run; the probe says why. */
         NOT_USABLE,
 
-        /** A machine already exists; the runtime carries one at a time. */
+        /** A machine already carries this id, so the new one could not be registered. */
         MACHINE_EXISTS,
     }
 
@@ -125,11 +125,10 @@ object VmImport {
     /**
      * Registers a machine the user confirmed.
      *
-     * The runtime carries one machine at a time, so the one that is here now gives way to the
-     * system the user brought; it is removed only now, when the new system is known to be good.
+     * The machine joins the ones already here, each keeping a rootfs of its own; the system the
+     * user brought is added only now, when it is known to be good.
      */
     fun register(context: Context, staged: Staged): Result {
-        VmStore.load(context)?.let { VmStore.remove(context, it) }
         val machine = VmStore.create(context, staged.distro, staged.machineId, imported = true)
         if (machine == null) {
             staged.rootfs.deleteRecursively()

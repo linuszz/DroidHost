@@ -1349,9 +1349,10 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                             (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText(g.name, link))
                             android.widget.Toast.makeText(this, R.string.game_link_copied, android.widget.Toast.LENGTH_SHORT).show()
                         },
-                        onDesktop = {
+                        onDesktop = { machineId ->
                             startSession(Intent(this, SessionActivity::class.java)
-                                .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_DESKTOP))
+                                .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_DESKTOP)
+                                .putExtra(SessionService.EXTRA_MACHINE, machineId))
                         },
                         onEmulator = { e -> launchProgram(e.program) },
                         onUserApp = { app ->
