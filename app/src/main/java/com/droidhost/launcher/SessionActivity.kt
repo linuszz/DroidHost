@@ -867,7 +867,14 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             intent.removeExtra(EXTRA_REPAIR_RUNTIME)
             val needRuntime = repair || com.droidhost.launcher.runtime.LinuxRuntimeInstaller.installedVersion(this) == null
             val needResume = !needRuntime && com.droidhost.launcher.runtime.DesktopCatalog.interrupted(this).isNotEmpty()
-            val needDesktop = intent.getStringExtra(SessionService.EXTRA_MODE) == SessionService.MODE_DESKTOP &&
+            val desktopMode = intent.getStringExtra(SessionService.EXTRA_MODE) == SessionService.MODE_DESKTOP
+            // The desktop auto-install only fits the shared runtime. A VM machine runs in its own
+            // rootfs and carries its own desktop, so it must not trigger an install into the shared one.
+            val sessionMachine = if (desktopMode)
+                intent.getStringExtra(SessionService.EXTRA_MACHINE) ?: com.droidhost.launcher.vm.VmStore.load(this)?.id
+            else null
+            val needDesktop = desktopMode &&
+                com.droidhost.launcher.vm.VmRuntime.ownRootfs(this, sessionMachine) == null &&
                 (repair || !com.droidhost.launcher.runtime.DesktopCatalog.desktopInstalled(this))
             val program = intent.getStringExtra(SessionService.EXTRA_PROGRAM)
             val protonUser = (intent.getStringExtra(SessionService.EXTRA_MODE) ?: SessionService.MODE_STEAM) == SessionService.MODE_STEAM ||
