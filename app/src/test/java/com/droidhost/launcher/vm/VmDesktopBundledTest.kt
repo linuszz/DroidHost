@@ -19,6 +19,8 @@ class VmDesktopBundledTest {
 
     private val layout = "usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
     private val kickoff = "usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js"
+    private val sudo = "usr/local/bin/sudo"
+    private val root = "usr/local/bin/droiddeck-root"
 
     @Test fun theBundledSettingsReachTheMachineAheadOfTheRuntimesOwn() {
         val context = RuntimeEnvironment.getApplication()
@@ -26,7 +28,7 @@ class VmDesktopBundledTest {
         val old = File(root, kickoff)
         old.parentFile?.mkdirs()
         old.writeText("applet.writeConfig(\"icon\", \"distributor-logo-steamdeck\")\n")
-        assertEquals(2, VmDesktop.copyBundledSettings(context, root))
+        assertEquals(4, VmDesktop.copyBundledSettings(context, root))
         assertTrue(old.readText().contains("start-here-kde"))
         assertFalse(old.readText().contains("distributor-logo-steamdeck"))
         val layoutCopy = File(root, layout).readText()
@@ -74,7 +76,32 @@ class VmDesktopBundledTest {
     @Test fun theListNamesOnlyFilesTheForkCarries() {
         val list = File("src/main/assets/droidhost/vm/desktop-files.txt").readText().lines()
             .map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
-        assertEquals(listOf(layout, kickoff), list)
+        assertEquals(listOf(layout, kickoff, sudo, root), list)
         for (name in list) assertTrue(File("src/main/assets/droidhost/vm/desktop-files/$name").isFile)
+    }
+
+    @Test fun theGuestGetsASudoThatHandsTheCommandToTheAppsRootService() {
+        val context = RuntimeEnvironment.getApplication()
+        val rootfs = folder.newFolder("rootfs")
+        VmDesktop.copyBundledSettings(context, rootfs)
+        val wrapper = File(rootfs, sudo)
+        assertTrue("the guest has no sudo of its own", wrapper.isFile)
+        assertTrue("the guest's sudo cannot be run", wrapper.canExecute())
+        val text = wrapper.readText()
+        assertTrue("the guest's sudo does not hand the command over", text.contains("droiddeck-root"))
+    }
+
+    @Test fun theGuestsRootClientSaysWhichMachineItBelongsTo() {
+        val client = File("src/main/assets/droidhost/vm/desktop-files/$root").readText()
+        assertTrue("the client does not read the target", client.contains("root-target"))
+        assertTrue("the client does not tell the app the machine", client.contains("\"machine\""))
+    }
+
+    @Test fun theBundledSudoMatchesTheOneTheForkBuildsItsRuntimeWith() {
+        val asset = File("src/main/assets/droidhost/vm/desktop-files/$sudo")
+        val overlay = File("../tools/ubuntu/overlay-runtime/usr/local/bin/sudo")
+        assertTrue("missing asset $sudo", asset.isFile)
+        assertTrue("missing overlay $sudo", overlay.isFile)
+        assertEquals(overlay.readText().replace("\r\n", "\n"), asset.readText().replace("\r\n", "\n"))
     }
 }

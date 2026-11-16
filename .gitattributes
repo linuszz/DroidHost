@@ -13,3 +13,4 @@ app/src/main/assets/desktop-removal/*.txt text eol=lf
 
 app/src/main/resources/ea/graphql/*.gql -text
 app/src/main/assets/agent/* text eol=lf
+app/src/main/assets/droidhost/vm/desktop-files/usr/local/bin/* text eol=lf

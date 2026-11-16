@@ -109,7 +109,7 @@ object RootSpawner {
 
     private fun run(context: Context, request: JSONObject, fds: List<FileDescriptor>, client: LocalSocket,
                     input: DataInputStream, out: DataOutputStream, id: Int) {
-        val root = LinuxRuntime.rootDir(context)
+        val root = rootFor(context, request.optString("machine"))
         val argv = request.getJSONArray("argv").let { a -> (0 until a.length()).map { a.getString(it) } }
         if (argv.isEmpty()) throw IOException("no command")
         val cwd = request.optString("cwd", "/root").ifEmpty { "/root" }
@@ -176,6 +176,16 @@ object RootSpawner {
         } finally {
             streams.forEach { s -> runCatching { s.dup?.close() } }
         }
+    }
+
+    /**
+     * The rootfs a request names: the machine's own when it names one, the app's own
+     * runtime otherwise.
+     */
+    internal fun rootFor(context: Context, machineId: String): File {
+        val id = machineId.takeIf { it.isNotEmpty() && it.matches(Regex("[A-Za-z0-9_.-]+")) }
+            ?: return LinuxRuntime.rootDir(context)
+        return com.droidhost.launcher.vm.VmRuntime.ownRootfs(context, id) ?: LinuxRuntime.rootDir(context)
     }
 
     private fun signal(top: Int, signal: Int) {

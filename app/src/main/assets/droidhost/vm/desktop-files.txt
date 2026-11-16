@@ -1,5 +1,8 @@
-# Settings the fork carries itself, copied ahead of the installed runtime's own copies: a runtime
-# built before a fix still holds the old file, and a machine must not inherit the defect.
+# The settings and programs the fork carries itself, copied ahead of the installed
+# runtime's own copies: a runtime built before a fix still holds the old file, and a
+# machine must not inherit the defect.
 # Each path is read from desktop-files/<path> in the assets.
 usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/layouts/org.kde.plasma.desktop-layout.js
 usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js
+usr/local/bin/sudo
+usr/local/bin/droiddeck-root
