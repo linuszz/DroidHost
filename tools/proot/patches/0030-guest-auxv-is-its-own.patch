@@ -1,0 +1,174 @@
+--- a/src/compat.h
++++ b/src/compat.h
+@@ -57,6 +57,9 @@
+ #    ifndef AT_FDCWD
+ #        define AT_FDCWD		-100
+ #    endif
++#    ifndef PR_GET_AUXV
++#        define PR_GET_AUXV		0x41555856
++#    endif
+ #    ifndef AT_SYMLINK_FOLLOW
+ #        define AT_SYMLINK_FOLLOW	0x400
+ #    endif
+--- a/src/tracee/tracee.h
++++ b/src/tracee/tracee.h
+@@ -272,6 +272,9 @@
+ 	char *new_exe;
+ 	char *host_exe;
+ 
++	/* Address of the ELF auxiliary vectors of the current program.  */
++	word_t auxv_address;
++
+ 
+ 	/**********************************************************************
+ 	 * Shared or private resources, depending on the (re-)configuration   *
+--- a/src/execve/exit.c
++++ b/src/execve/exit.c
+@@ -205,6 +205,11 @@
+ 		page_mask = ~(page_size - 1);
+ 	}
+ 
++	/* Remember where the auxiliary vectors of this program live: the
++	 * loader rewrites them in place, and PR_GET_AUXV(2) has to report
++	 * them instead of the ones of the loader.  */
++	tracee->auxv_address = get_elf_aux_vectors_address(tracee);
++
+ 	needs_executable_stack = (tracee->load_info->needs_executable_stack
+ 				|| (   tracee->load_info->interp != NULL
+ 				    && tracee->load_info->interp->needs_executable_stack));
+--- a/src/syscall/seccomp.c
++++ b/src/syscall/seccomp.c
+@@ -236,6 +236,34 @@
+ 	return add_statements(program, LENGTH_TRACE_SYSCALL_IF_ARG, statements);
+ }
+ 
++/**
++ * Same as add_trace_syscall_if_arg(), but for two possible values of the
++ * same argument.
++ */
++static int add_trace_syscall_if_arg2(struct sock_fprog *program, word_t syscall,
++				size_t arg, uint32_t value1, uint32_t value2, int flag)
++{
++	const size_t arg_offset = offsetof(struct seccomp_data, args[arg]);
++
++	#define LENGTH_TRACE_SYSCALL_IF_ARG2 6
++	struct sock_filter statements[LENGTH_TRACE_SYSCALL_IF_ARG2] = {
++		/* A syscall that is not this one has to reach the next
++		 * section, that is right after the last statement of this
++		 * one.  */
++		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, syscall, 0, 5),
++		BPF_STMT(BPF_LD + BPF_W + BPF_ABS, arg_offset),
++		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, value1, 1, 0),
++		BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, value2, 0, 1),
++		BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRACE + flag),
++		BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
++	};
++
++	DEBUG_FILTER("FILTER:     trace if syscall == %ld and arg %zd == %u or %u\n",
++		syscall, arg, value1, value2);
++
++	return add_statements(program, LENGTH_TRACE_SYSCALL_IF_ARG2, statements);
++}
++
+ static int add_trace_prlimit_stack(struct sock_fprog *program, word_t syscall, int flag)
+ {
+ 	const size_t resource_offset = offsetof(struct seccomp_data, args[1]);
+@@ -311,6 +339,7 @@
+ {
+ 	switch (sysnum) {
+ 	case PR_prctl:
++		return LENGTH_TRACE_SYSCALL_IF_ARG2;
+ 	case PR_setrlimit:
+ 		return LENGTH_TRACE_SYSCALL_IF_ARG;
+ 	case PR_prlimit64:
+@@ -333,7 +362,8 @@
+ 
+ 	switch (sysnum) {
+ 	case PR_prctl:
+-		return add_trace_syscall_if_arg(program, syscall, 0, PR_SET_DUMPABLE, flag);
++		return add_trace_syscall_if_arg2(program, syscall, 0, PR_SET_DUMPABLE,
++						PR_GET_AUXV, flag);
+ 	case PR_setrlimit:
+ 		return add_trace_syscall_if_arg(program, syscall, 0, RLIMIT_STACK, flag);
+ 	case PR_prlimit64:
+--- a/src/syscall/enter.c
++++ b/src/syscall/enter.c
+@@ -49,6 +49,67 @@
+ #include "path/binding.h"
+ #include "arch.h"
+ 
++/**
++ * Copy the auxiliary vectors of the current program into the buffer given
++ * by the tracee, as PR_GET_AUXV(2) does.  The kernel answers with the
++ * vectors of the program it really executed -- under PRoot's loader that is
++ * the loader itself -- while the guest expects its own ones.
++ */
++static int translate_get_auxv(Tracee *tracee)
++{
++	unsigned char raw[512];
++	word_t buffer;
++	word_t size;
++	size_t word;
++	size_t length;
++	size_t offset;
++
++	buffer = peek_reg(tracee, CURRENT, SYSARG_2);
++	size = peek_reg(tracee, CURRENT, SYSARG_3);
++
++	if (tracee->auxv_address == 0)
++		return 0;
++
++	word = sizeof_word(tracee);
++	if (word > sizeof(raw))
++		return 0;
++
++	/* Read the vectors entry by entry: the last one ends the array, and
++	 * reading further would go past the top of the stack.  */
++	length = 0;
++	for (offset = 0; offset + 2 * word <= sizeof(raw); offset += 2 * word) {
++		word_t type;
++
++		if (read_data(tracee, raw + offset, tracee->auxv_address + offset, 2 * word) < 0)
++			return 0;
++
++		type = (word == sizeof(word_t))
++			? ((word_t *) raw)[offset / word]
++			: ((uint32_t *) raw)[offset / word];
++		if (type == AT_NULL) {
++			length = offset + 2 * word;
++			break;
++		}
++	}
++
++	if (length == 0)
++		return 0;
++
++	/* A too small buffer is reported as the length the caller needs.  */
++	if (length > size) {
++		set_sysnum(tracee, PR_void);
++		poke_reg(tracee, SYSARG_RESULT, (word_t) length);
++		return 0;
++	}
++
++	if (write_data(tracee, buffer, raw, length) < 0)
++		return 0;
++
++	set_sysnum(tracee, PR_void);
++	poke_reg(tracee, SYSARG_RESULT, (word_t) length);
++	return 0;
++}
++
+ static int translate_open_directory(Tracee *tracee, char path[PATH_MAX], int fd, struct stat *statl)
+ {
+ 	char guest[PATH_MAX];
+@@ -788,6 +849,10 @@
+ 			set_sysnum(tracee, PR_void);
+ 			status = 0;
+ 		}
++		/* Report the auxiliary vectors of the guest's own program, not
++		 * the ones of the program the kernel really executed.  */
++		else if (peek_reg(tracee, CURRENT, SYSARG_1) == PR_GET_AUXV)
++			status = translate_get_auxv(tracee);
+ 		break;
+ 
+ #ifdef __ANDROID__
