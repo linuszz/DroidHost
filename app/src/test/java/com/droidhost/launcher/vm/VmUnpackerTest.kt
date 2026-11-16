@@ -67,6 +67,25 @@ class VmUnpackerTest {
         assertTrue(File(root, "usr/bin/busybox").isFile)
     }
 
+    @Test fun aDotPrefixedArchiveIsUnpacked() {
+        // GNU tar -C dir . prefixes every member with ./; a standard rootfs tar arrives this way.
+        val archive = tar("system.tar") { tar ->
+            val dot = TarArchiveEntry("./")
+            dot.mode = 0b111_101_101
+            tar.putArchiveEntry(dot)
+            tar.closeArchiveEntry()
+            tar.file("./etc/os-release", "ID=debian\n")
+            tar.file("./usr/bin/busybox", "binary")
+            tar.link("./bin/sh", "./usr/bin/busybox", hard = false)
+        }
+        val root = folder.newFolder()
+        val written = VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        assertEquals(2, written)
+        assertEquals("ID=debian\n", File(root, "etc/os-release").readText())
+        assertTrue(File(root, "usr/bin/busybox").isFile)
+        assertTrue(Files.isSymbolicLink(File(root, "bin/sh").toPath()))
+    }
+
     @Test fun aCompressedArchiveIsUnpackedToo() {
         val archive = folder.newFile("system.tar.gz")
         GzipCompressorOutputStream(FileOutputStream(archive)).use { out ->
