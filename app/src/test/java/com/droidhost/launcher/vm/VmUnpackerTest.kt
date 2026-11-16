@@ -14,6 +14,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermission
 
 class VmUnpackerTest {
     @get:Rule val folder = TemporaryFolder()
@@ -224,5 +225,43 @@ class VmUnpackerTest {
         VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
         assertTrue(File(root, "usr/bin").isDirectory)
         assertTrue(File(root, "usr/bin").canExecute())
+    }
+
+    @Test fun aFileThatWasOpenToEverybodyIsTakenBack() {
+        val root = folder.newFolder()
+        // A file that is already open to everybody must not stay that way: the archive says who
+        // may write to it, and a package manager refuses to run in a directory that others may
+        // have changed.
+        val file = File(root, "etc/passwd")
+        file.parentFile?.mkdirs()
+        file.createNewFile()
+        file.setWritable(true, false)
+        val archive = tar("system.tar") { tar ->
+            tar.file("etc/passwd", "root:x:0:0", 0b110_100_100)
+        }
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val permissions = Files.getPosixFilePermissions(file.toPath())
+        assertFalse(permissions.contains(PosixFilePermission.OTHERS_WRITE))
+        assertFalse(permissions.contains(PosixFilePermission.GROUP_WRITE))
+        assertTrue(permissions.contains(PosixFilePermission.OWNER_WRITE))
+    }
+
+    @Test fun aDirectoryIsNotLeftOpenToEverybody() {
+        val root = folder.newFolder()
+        val dir = File(root, "usr/bin")
+        dir.mkdirs()
+        dir.setWritable(true, false)
+        val archive = tar("system.tar") { tar ->
+            val entry = TarArchiveEntry("usr/bin/")
+            entry.mode = 0b111_101_101
+            tar.putArchiveEntry(entry)
+            tar.closeArchiveEntry()
+            tar.file("usr/bin/tool", "binary", 0b111_101_101)
+        }
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val permissions = Files.getPosixFilePermissions(dir.toPath())
+        assertFalse(permissions.contains(PosixFilePermission.OTHERS_WRITE))
+        assertFalse(permissions.contains(PosixFilePermission.GROUP_WRITE))
+        assertTrue(permissions.contains(PosixFilePermission.OWNER_EXECUTE))
     }
 }

@@ -29,6 +29,8 @@ object VmUnpacker {
     private const val TAR_WRITE = 0b010_010_010
     private const val TAR_EXEC = 0b001_001_001
     private const val TAR_PERMISSIONS = 0b111_111_111
+    // The write bit of the group and of the others, which the owner does not hold alone.
+    private const val TAR_WRITE_SHARED = 0b000_010_010
 
     // The size from which a hard link is kept as a link instead of being written out again.
     private const val LINK_THRESHOLD = 1L shl 20
@@ -72,6 +74,9 @@ object VmUnpacker {
             return null
         }
         var written = 0
+        // A directory is given its own permissions once everything is written inside it: a
+        // directory that may not be written to cannot hold the files that come next.
+        val directories = ArrayList<Pair<File, Int>>()
         return try {
             decompress(archive, kind).use { input ->
                 TarArchiveInputStream(input).use { tar ->
@@ -85,7 +90,7 @@ object VmUnpacker {
                         }
                         if (entry.isDirectory) {
                             if (!file.isDirectory) file.mkdirs()
-                            applyMode(file, entry.mode)
+                            directories.add(file to entry.mode)
                             continue
                         }
                         if (entry.isSymbolicLink) {
@@ -93,7 +98,7 @@ object VmUnpacker {
                             continue
                         }
                         if (entry.isLink) {
-                            writeHardLink(destination, file, entry.linkName ?: continue)
+                            writeHardLink(destination, file, entry.linkName ?: continue, entry.mode)
                             continue
                         }
                         val parent = file.parentFile
@@ -108,6 +113,9 @@ object VmUnpacker {
                             progress?.onProgress(VmStage.UNPACKING, (written / 200 * 5).coerceAtMost(95))
                         }
                     }
+                    // The deepest directory first, so that a directory on the way up is still
+                    // there to be reached while it is given its own permissions.
+                    for ((directory, mode) in directories.asReversed()) applyMode(directory, mode)
                 }
             }
             progress?.onProgress(VmStage.UNPACKING, 100)
@@ -167,14 +175,29 @@ object VmUnpacker {
      * The permissions the archive gave the file.
      *
      * A distribution's programs have to keep their execute bit: the guest cannot run its own
-     * shell without it, and a session then dies before it writes a single line. Only what the
-     * archive asked for is added, so a data file stays a data file.
+     * shell without it, and a session then dies before it writes a single line. The archive is
+     * also the only thing that knows which permissions a file may have. A directory that is left
+     * writable for everybody makes a package manager refuse to run its own scripts, because it
+     * does not trust a path another user may have changed.
      */
     private fun applyMode(file: File, mode: Int) {
         val bits = mode and TAR_PERMISSIONS
+        // Everything is taken away first: a permission the archive did not ask for must not
+        // survive from the moment the file was created.
+        file.setReadable(false, false)
+        file.setWritable(false, false)
+        file.setExecutable(false, false)
+        file.setReadable(false, true)
+        file.setWritable(false, true)
+        file.setExecutable(false, true)
+        // And then only what the archive asked for is given back.
         if ((bits and TAR_EXEC) != 0) file.setExecutable(true, false)
         if ((bits and TAR_READ) != 0) file.setReadable(true, false)
-        if ((bits and TAR_WRITE) != 0) file.setWritable(true, false)
+        if ((bits and TAR_WRITE) != 0) {
+            // A file that others may write to is rare, and the host cannot tell the group from
+            // the others, so such a file is given to everybody rather than to its owner alone.
+            file.setWritable(true, (bits and TAR_WRITE_SHARED) == 0)
+        }
     }
 
     /**
@@ -187,7 +210,7 @@ object VmUnpacker {
      * relative link back to the one the archive wrote, which the guest follows and runs as it
      * would the original; anything smaller is still copied, so an applet stays a file of its own.
      */
-    private fun writeHardLink(destination: File, file: File, target: String) {
+    private fun writeHardLink(destination: File, file: File, target: String, mode: Int) {
         val source = ArchivePaths.inside(destination, target)
         if (source == null || !source.isFile) {
             Log.w(TAG, "skipping a hard link without its file: ${file.name}")
@@ -205,7 +228,7 @@ object VmUnpacker {
         }
         try {
             source.copyTo(file, overwrite = true)
-            if (source.canExecute()) file.setExecutable(true, false)
+            applyMode(file, mode)
         } catch (e: IOException) {
             Log.w(TAG, "cannot copy the hard link ${file.name}", e)
         }
