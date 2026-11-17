@@ -1483,7 +1483,7 @@ static long fp_utimens(int dirfd, const char *path, const struct timespec times[
   /* The file behind the descriptor: the kernel wants an empty name and AT_EMPTY_PATH, and glibc
    * refuses a null name without AT_EMPTY_PATH. */
   if (path && !path[0] && fp_ready()) {
-    rs = sc(SYS_utimensat, dirfd, "", (long)times, flags, 0);
+    rs = sc(SYS_utimensat, dirfd, (long)"", (long)times, flags, 0);
   } else {
     rs = flags & ~AT_SYMLINK_NOFOLLOW ? FP_SLOW : resolve(dirfd, path, (flags & AT_SYMLINK_NOFOLLOW ? 0 : 1) | MAY_BE_UNSEEN, &r);
     if (rs == 1) rs = -ENOENT;
