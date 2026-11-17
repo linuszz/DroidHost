@@ -1,10 +1,10 @@
 [KDE]
-LookAndFeelPackage=com.valve.vapor.desktop
+LookAndFeelPackage=com.droidhost.desktop
 SingleClick=false
 widgetStyle=Breeze
 
 [General]
-ColorScheme=Vapor
+ColorScheme=BreezeDark
 font=Noto Sans,11,-1,5,50,0,0,0,0,0
 menuFont=Noto Sans,11,-1,5,50,0,0,0,0,0
 smallestReadableFont=Noto Sans,9,-1,5,50,0,0,0,0,0

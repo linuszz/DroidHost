@@ -1,10 +1,10 @@
 Third-party files in DroidHost's Ubuntu runtime (tools/ubuntu/overlay):
 
-- Vapor (color scheme, Plasma theme, look-and-feel package, Konsole profile and color scheme):
-  Valve's steamdeck-kde-presets
-  (https://github.com/Jovian-Experiments/steamdeck-kde-presets), GPL-2.0-or-later (look-and-feel)
-  and GPL-3.0 (Plasma theme), as their metadata states. The look-and-feel package's defaults, setup
-  scripts and layout were adapted for DroidHost; its Plasma 5 splash screen was left out.
+- The com.droidhost.desktop look-and-feel package: its desktop layout and plasmoid setup scripts
+  were adapted from Valve's steamdeck-kde-presets
+  (https://github.com/Jovian-Experiments/steamdeck-kde-presets), GPL-2.0-or-later, as its metadata
+  states. It applies KDE Breeze Dark with the Kubuntu default wallpaper; the Vapor color scheme,
+  Plasma theme and Konsole profile are no longer shipped.
 - KWin (kwin-wayland and related packages, version +droiddeck): Kubuntu's KWin source package,
   GPL-2.0-or-later, rebuilt with tools/ubuntu/patches/kwin. Corresponding source: `apt source kwin`
   plus those patches (https://github.com/Droid-Deck/DroidDeck/tree/main/tools/ubuntu/patches/kwin).

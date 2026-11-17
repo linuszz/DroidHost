@@ -17,8 +17,8 @@ import java.io.File
 class VmDesktopBundledTest {
     @get:Rule val folder = TemporaryFolder()
 
-    private val layout = "usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
-    private val kickoff = "usr/share/plasma/look-and-feel/com.valve.vapor.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js"
+    private val layout = "usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/layouts/org.kde.plasma.desktop-layout.js"
+    private val kickoff = "usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js"
     private val sudo = "usr/local/bin/sudo"
     private val root = "usr/local/bin/droiddeck-root"
 
@@ -47,20 +47,6 @@ class VmDesktopBundledTest {
         val root = folder.newFolder("rootfs")
         assertTrue(VmDesktop.copySettings(context, root) >= 2)
         assertTrue(File(root, kickoff).readText().contains("start-here-kde"))
-    }
-
-    @Test fun theWallpaperGoesToTheMachineUnderTheForksName() {
-        val context = RuntimeEnvironment.getApplication()
-        val shared = File(context.filesDir, "linuxfs")
-        val oldName = "usr/share/wallpapers/DroidDeck/contents/images/1920x1080.svg"
-        File(shared, oldName).apply {
-            parentFile?.mkdirs()
-            writeText("<svg/>\n")
-        }
-        val root = folder.newFolder("rootfs")
-        VmDesktop.copySettings(context, root)
-        assertTrue(File(root, "usr/share/wallpapers/DroidHost/contents/images/1920x1080.svg").isFile)
-        assertFalse(File(root, oldName).exists())
     }
 
     @Test fun theBundledCopiesMatchTheOnesTheForkBuildsItsRuntimeWith() {

@@ -3,14 +3,14 @@
         "Authors": [
             {
                 "Email": "",
-                "Name": "Valve"
+                "Name": "DroidHost"
             }
         ],
         "Category": "",
-        "Description": "Vapor - SteamOS theme variant of KDE BreezeDark",
-        "Id": "com.valve.vapor.desktop",
+        "Description": "KDE Breeze Dark with the Kubuntu default wallpaper",
+        "Id": "com.droidhost.desktop",
         "License": "GPLv2+",
-        "Name": "Vapor",
+        "Name": "Breeze Dark",
         "ServiceTypes": [
             "Plasma/LookAndFeel"
         ],

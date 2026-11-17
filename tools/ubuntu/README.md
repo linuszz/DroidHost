@@ -1,8 +1,8 @@
 # The Linux runtime (Ubuntu)
 
 DroidHost's Linux runtime: Ubuntu 26.04 LTS for arm64, with Kubuntu's Plasma desktop as a separate download, set up as
-SteamOS's desktop mode (Valve's Vapor theme, the Steam Deck wallpaper, "Return to Gaming Mode" and
-Steam on the desktop). The app installs it into `files/linuxfs` and runs it under its patched proot.
+a SteamOS-style desktop mode (KDE Breeze Dark with the Kubuntu default wallpaper, "Return to Gaming
+Mode" and Steam on the desktop). The app installs it into `files/linuxfs` and runs it under its patched proot.
 
 - `build-debs.sh` (run in an `ubuntu:26.04` container on an arm64 runner) rebuilds two Ubuntu source
   packages: Mesa with `-Dfreedreno-kmds=msm,kgsl`, so Turnip and freedreno reach Android's
