@@ -12,7 +12,7 @@ known_user() {
   exit 1
 }
 
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/run/current-system/sw/bin:/run/wrappers/bin
 login=0 shell=0 edit=0 background=0 dir=
 [ "$me" = sudoedit ] && edit=1
 while [ $# -gt 0 ]; do
