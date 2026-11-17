@@ -581,12 +581,14 @@ def publish_catalog(source: GitHub, ci: GitHub, source_repo: str, ci_repo: str, 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source-repo", default="Droid-Deck/DroidDeck")
-    parser.add_argument("--ci-repo", default="Droid-Deck/DroidDeck-CI")
+    parser.add_argument("--source-repo", default=os.environ.get("GITHUB_REPOSITORY", "linuszz/DroidHost"))
+    parser.add_argument("--ci-repo", default=os.environ.get("CI_REPO"))
     parser.add_argument("--path", default="catalog.json")
     parser.add_argument("--branch", default="main")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+    if not args.ci_repo:
+        args.ci_repo = args.source_repo + "-CI"
 
     source = GitHub(os.environ.get("SOURCE_GITHUB_TOKEN", ""))
     ci = GitHub(os.environ.get("CI_GITHUB_TOKEN", os.environ.get("SOURCE_GITHUB_TOKEN", "")))

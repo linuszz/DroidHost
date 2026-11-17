@@ -946,7 +946,7 @@ jobs:
       contents: read
       pull-requests: read
     env:
-      CI_REPO: Droid-Deck/DroidDeck-CI
+      CI_REPO: ${{ github.repository }}-CI
       KEEP_DAYS: 14
     steps:
       - uses: actions/checkout@v4
@@ -964,15 +964,15 @@ jobs:
         with:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-CI
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-CI
 
       - name: Describe the change
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash tools/release/describe-build.sh
 
-      - name: Publish to DroidDeck-CI
+      - name: Publish to DroidHost-CI
         id: publish
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}
@@ -1009,10 +1009,10 @@ jobs:
       - uses: actions/create-github-app-token@v2
         id: ci-token
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-CI
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-CI
       - name: Delete the test builds this Preview build replaces
         env:
           SOURCE_GITHUB_TOKEN: ${{ github.token }}

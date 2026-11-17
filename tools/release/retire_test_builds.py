@@ -25,10 +25,12 @@ def retired(pull: dict, source: GitHub, repo: str, preview_commit: str | None) -
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source-repo", default=os.environ.get("GITHUB_REPOSITORY", "Droid-Deck/DroidDeck"))
-    parser.add_argument("--ci-repo", default="Droid-Deck/DroidDeck-CI")
+    parser.add_argument("--source-repo", default=os.environ.get("GITHUB_REPOSITORY", "linuszz/DroidHost"))
+    parser.add_argument("--ci-repo", default=os.environ.get("CI_REPO"))
     parser.add_argument("--pr", type=int, help="only this PR's test build")
     args = parser.parse_args()
+    if not args.ci_repo:
+        args.ci_repo = args.source_repo + "-CI"
     source = GitHub(os.environ.get("SOURCE_GITHUB_TOKEN", ""))
     ci = GitHub(os.environ["CI_GITHUB_TOKEN"])
     catalog = previous_catalog(current_file(ci, args.ci_repo, "catalog.json")) or {}

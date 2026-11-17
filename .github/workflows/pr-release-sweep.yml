@@ -24,8 +24,8 @@ jobs:
         with:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-CI
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-CI
       - uses: actions/checkout@v4
         with:
           ref: main

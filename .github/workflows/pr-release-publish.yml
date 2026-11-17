@@ -255,10 +255,10 @@ jobs:
             name=$(basename "$file" .tar.zst)
             sha=$(sha256sum "$file" | cut -d' ' -f1)
             tag="pack-$name-${sha:0:16}"
-            digest=$({ gh api "repos/Droid-Deck/DroidDeck-Components/releases/tags/$tag" 2>/dev/null || echo '{}'; } |
+            digest=$({ gh api "repos/${GITHUB_REPOSITORY}-Components/releases/tags/$tag" 2>/dev/null || echo '{}'; } |
               jq -r --arg n "$name.tar.zst" '.assets // [] | .[] | select(.name == $n) | .digest // empty')
             if [ "$digest" = "sha256:$sha" ]; then
-              echo "$name: served from DroidDeck-Components $tag"
+              echo "$name: served from DroidHost-Components $tag"
             else
               cp "$file" "pr-packs/$tag.tar.zst"
               echo "$name: attached to the PR release as $tag.tar.zst"
@@ -287,9 +287,9 @@ jobs:
         with:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-CI
-      - name: Publish to DroidDeck-CI
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-CI
+      - name: Publish to DroidHost-CI
         id: publish
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}
@@ -299,7 +299,7 @@ jobs:
           VERSION_CODE: ${{ needs.authorize.outputs.version_code }}
         run: |
           set -euo pipefail
-          repo=Droid-Deck/DroidDeck-CI
+          repo="${GITHUB_REPOSITORY}-CI"
           tag="pr-$PR_NUMBER"
           cat signed/SHA256SUMS-*.txt > signed/SHA256SUMS.txt
           rm signed/SHA256SUMS-*.txt
@@ -425,10 +425,10 @@ jobs:
       - uses: actions/create-github-app-token@v2
         id: ci-token
         with:
-          app-id: ${{ vars.DROIDDECK_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDDECK_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-CI
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-CI
       - name: Remove the previous push's files
         env:
           GH_TOKEN: ${{ steps.ci-token.outputs.token }}
@@ -436,7 +436,7 @@ jobs:
           KEEP: ${{ needs.publish.outputs.keep }}
         run: |
           set -euo pipefail
-          repo=Droid-Deck/DroidDeck-CI
+          repo="${GITHUB_REPOSITORY}-CI"
           tag="pr-$PR_NUMBER"
           # An app that read the catalog just before it changed may still be starting that download.
           sleep 300

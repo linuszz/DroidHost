@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO=Droid-Deck/DroidDeck
 ENVIRONMENTS=(signing-main release)
 ALIAS=droiddeck
 OUT=${DROIDHOST_KEY_DIR:-$HOME/droiddeck-release-key}
 here=$(cd "$(dirname "$0")" && pwd)
 repo=$(cd "$here/../.." && pwd)
+REPO=${DROIDHOST_RELEASE_REPO:-$(git -C "$repo" remote get-url origin | sed -E 's#.*github.com[:/]##; s#\.git$##')}
 
 die() { echo "error: $*" >&2; exit 1; }
 command -v keytool >/dev/null || die "keytool not found (Termux: pkg install openjdk-17)"

@@ -87,7 +87,7 @@ jobs:
           pending=()
           declare -A seen=()
           candidates() {
-            gh api --paginate "repos/Droid-Deck/DroidDeck-CI/releases?per_page=100" \
+            gh api --paginate "repos/${GITHUB_REPOSITORY}-CI/releases?per_page=100" \
               --jq '.[] | select(.tag_name | test("^pr-[0-9]+$")) | [(.tag_name | ltrimstr("pr-")), ((.body // "") | capture("(?m)^VersionCode: (?<v>[0-9]+)").v // "0")] | @tsv'
             # The latest build of every open PR: one that started before the bump and was still running at it
             # may have pinned the old main. This also covers a PR's first build and fork builds.

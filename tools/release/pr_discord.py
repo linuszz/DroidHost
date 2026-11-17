@@ -212,7 +212,7 @@ def main():
         raise RuntimeError("Invalid announcement mode")
     sha, apk, release = (os.environ.get(key, "") for key in ("HEAD_SHA", "APK", "RELEASE"))
     if mode == "publish":
-        prefix = f"https://github.com/Droid-Deck/DroidDeck-CI/releases/"
+        prefix = f"https://github.com/{repo}-CI/releases/"
         if (not re.fullmatch(r"[0-9a-f]{40}", sha)
                 or not apk.startswith(prefix + f"download/pr-{number}/")
                 or release != prefix + f"tag/pr-{number}"
