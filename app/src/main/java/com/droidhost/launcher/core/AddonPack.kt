@@ -147,10 +147,10 @@ internal class AddonPack(
 
     companion object {
         private const val TAG = "AddonPack"
-        // The fork publishes its own packs to this repo with the workflow's GITHUB_TOKEN;
-        // upstream's Components repo needs a GitHub App key this fork does not have.
-        private const val REPO = "linuszz/DroidHost"
-        private const val PR_REPO = "Droid-Deck/DroidDeck-CI"
+        // Packs are published to the Components repo by publish-packs.yml (GitHub App token),
+        // keeping component releases out of the app repo.
+        private const val REPO = "linuszz/DroidHost-Components"
+        private const val PR_REPO = "linuszz/DroidHost-CI"
         const val COMPLETE = ".complete"
         private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

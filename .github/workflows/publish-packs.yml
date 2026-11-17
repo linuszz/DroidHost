@@ -35,10 +35,17 @@ jobs:
           RUN: ${{ inputs.run_id }}
         run: gh run download "$RUN" -R "$GITHUB_REPOSITORY" -n droiddeck-packs -D packs
 
+      - uses: actions/create-github-app-token@v2
+        id: components-token
+        with:
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-Components
       - name: Publish
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          REPO: ${{ github.repository_owner }}/DroidHost-Components
           BUILD_RUN: ${{ inputs.run_id || github.run_id }}
         run: |
           set -euo pipefail
@@ -46,7 +53,7 @@ jobs:
             { gh api "repos/$REPO/releases/tags/$1" 2>/dev/null || echo '{}'; } |
               jq -r --arg n "$2" '.assets // [] | .[] | select(.name == $n) | .digest // empty'
           }
-          commit=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN" --jq .head_sha 2>/dev/null || echo "$GITHUB_SHA")
+          commit=$(GH_TOKEN="${{ github.token }}" gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN" --jq .head_sha 2>/dev/null || echo "$GITHUB_SHA")
           for name in proot directaudio tracking xbox comet butler powervr ubisoft; do
             file="packs/$name.tar.zst"
             [ -f "$file" ] || { echo "::error::$name.tar.zst is missing from Build APK run $BUILD_RUN"; exit 1; }
