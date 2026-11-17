@@ -339,7 +339,7 @@ private fun VmDistroRow(distro: VmDistro, onPick: (VmDistro) -> Unit) {
             .padding(horizontal = 14.dp, vertical = 11.dp),
     ) {
         Text(
-            distro.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
+            vmDistroLabel(LocalContext.current, distro), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
             modifier = Modifier.weight(1f).alpha(if (distro.engine) 1f else 0.45f),
         )
         if (distro.engine) Chip(stringResource(R.string.vm_install), ok = true)

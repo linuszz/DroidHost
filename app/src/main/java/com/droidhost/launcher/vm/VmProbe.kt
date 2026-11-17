@@ -134,6 +134,9 @@ object VmProbeReader {
         problem = problem,
     )
 
+    /** The os-release fields of a rootfs, or null when it has none. */
+    fun release(root: File): Map<String, String>? = readRelease(root)
+
     /** os-release, and the older /usr/lib/os-release a few distributions still keep. */
     private fun readRelease(root: File): Map<String, String>? {
         for (path in listOf("etc/os-release", "usr/lib/os-release")) {

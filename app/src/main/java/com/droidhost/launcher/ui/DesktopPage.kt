@@ -163,7 +163,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         else -> false
     }
     val label = vmPrimaryLabel(status)
-    val head = vm?.distro?.name ?: stringResource(R.string.vm_title)
+    val head = vm?.let { vmMachineLabel(ctx, it) } ?: stringResource(R.string.vm_title)
     val note = when {
         seed.busy && seed.machineId == vm?.id -> stringResource(R.string.vm_preset_seeding_running, seed.percent)
         seed.stage == VmPreset.Stage.FAILED && seed.machineId == vm?.id ->
@@ -297,7 +297,7 @@ private fun VmSettingsDialog(
         title = { Text(stringResource(R.string.vm_settings)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text(machine.distro.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
+                Text(vmMachineLabel(ctx, machine), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
                 Text(
                     stringResource(R.string.vm_settings_driver), fontSize = 11.sp, fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),

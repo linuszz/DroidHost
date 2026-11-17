@@ -1,5 +1,6 @@
 package com.droidhost.launcher.ui
 
+import android.content.Context
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,14 +30,18 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
+import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.vm.VmDesktop
+import com.droidhost.launcher.vm.VmDistro
 import com.droidhost.launcher.vm.VmMachine
 import com.droidhost.launcher.vm.VmPreset
+import com.droidhost.launcher.vm.VmProbeReader
 
 internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
 
@@ -138,6 +143,24 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
 }
 
 /**
+ * The name a built-in distribution shows: the installed runtime's own name with its major version,
+ * e.g. "Ubuntu 26.04 LTS". A distribution the app has no runtime for keeps the catalogue name.
+ */
+internal fun vmDistroLabel(ctx: Context, distro: VmDistro): String {
+    val release = VmProbeReader.release(LinuxRuntime.rootDir(ctx)) ?: return distro.name
+    if (release["ID"].orEmpty().lowercase() != distro.id) return distro.name
+    val name = release["NAME"] ?: return distro.name
+    val version = release["VERSION_ID"].orEmpty()
+    if (version.isEmpty()) return name
+    val lts = if (release["VERSION"].orEmpty().contains("LTS")) " LTS" else ""
+    return "$name $version$lts"
+}
+
+/** A machine's name: one the user brought keeps it; a built-in one takes the runtime's version. */
+internal fun vmMachineLabel(ctx: Context, machine: VmMachine): String =
+    if (machine.imported) machine.distro.name else vmDistroLabel(ctx, machine.distro)
+
+/**
  * The machines the user owns, one card each, plus a card that opens the new-machine wizard.
  *
  * Several machines coexist, so the dock lists them all; tapping a card selects the machine the
@@ -155,6 +178,7 @@ internal fun VmDock(
     onNew: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
+    val ctx = LocalContext.current
     val narrow = LocalNarrowPane.current
     val start = if (narrow) 20.dp else 44.dp
     Column(Modifier.fillMaxWidth().padding(top = if (compactDesktop()) 14.dp else 22.dp)) {
@@ -170,7 +194,7 @@ internal fun VmDock(
             for (machine in machines) {
                 val selected = machine.id == selectedId
                 DesktopCard(
-                    "vm:" + machine.id, machine.distro.name, vmStateLabel(statusOf(machine)),
+                    "vm:" + machine.id, vmMachineLabel(ctx, machine), vmStateLabel(statusOf(machine)),
                     art = null, fallback = Icons.Outlined.DesktopWindows,
                     first = machine.id == machines.firstOrNull()?.id,
                     progress = percentOf(machine), accent = selected,
