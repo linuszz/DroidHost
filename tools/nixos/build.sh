@@ -41,12 +41,18 @@ for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
 # The activation the container's init would run at boot, run once here instead. Its shebangs
 # point into the store, which the tarball already holds, so it needs no FHS of its own.
 sudo chroot "$root" "$toplevel/activate"
-sudo chroot "$root" /bin/sh -c "ln -sfn '$toplevel' /run/current-system"
-sudo chroot "$root" /bin/sh -c "ln -sfn '$toplevel' /run/booted-system"
-sudo chroot "$root" /bin/sh -c "mkdir -p /nix/var/nix/profiles && ln -sfn '$toplevel' /nix/var/nix/profiles/system"
+
+# The guest's /bin and /usr/bin hold only the FHS shim symlinks, not coreutils, so a bare chroot
+# shell cannot find ln/mkdir/nix-channel. Put the system path on PATH for the follow-up commands.
+guest() {
+  sudo chroot "$root" /bin/sh -c "export PATH='$toplevel/sw/bin:$toplevel/sw/sbin'; $1"
+}
+guest "ln -sfn '$toplevel' /run/current-system"
+guest "ln -sfn '$toplevel' /run/booted-system"
+guest "mkdir -p /nix/var/nix/profiles && ln -sfn '$toplevel' /nix/var/nix/profiles/system"
 # Register the closure in the guest's nix database, and give root a channel to install from.
-sudo chroot "$root" /bin/sh -c "NIX_REMOTE= '$toplevel/sw/bin/nix-store' --load-db < /nix-path-registration"
-sudo chroot "$root" /bin/sh -c "NIX_REMOTE= '$toplevel/sw/bin/nix-channel' --add https://nixos.org/channels/nixos-26.05 nixpkgs"
+guest "NIX_REMOTE= '$toplevel/sw/bin/nix-store' --load-db < /nix-path-registration"
+guest "NIX_REMOTE= '$toplevel/sw/bin/nix-channel' --add https://nixos.org/channels/nixos-26.05 nixpkgs"
 
 # proot runs the guest as the app's uid, which owns every unpacked file: the store directories
 # must let their owner add paths, or nix inside the machine cannot install anything. The files
