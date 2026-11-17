@@ -9,7 +9,7 @@ on:
         default: ''
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
@@ -35,18 +35,10 @@ jobs:
           RUN: ${{ inputs.run_id }}
         run: gh run download "$RUN" -R "$GITHUB_REPOSITORY" -n droiddeck-packs -D packs
 
-      - uses: actions/create-github-app-token@v2
-        id: components-token
-        with:
-          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
-          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
-          owner: Droid-Deck
-          repositories: DroidDeck-Components
-
       - name: Publish
         env:
-          GH_TOKEN: ${{ steps.components-token.outputs.token }}
-          REPO: Droid-Deck/DroidDeck-Components
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           BUILD_RUN: ${{ inputs.run_id || github.run_id }}
         run: |
           set -euo pipefail

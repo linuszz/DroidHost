@@ -932,7 +932,7 @@ jobs:
     needs: [build, checks]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     permissions:
-      contents: read
+      contents: write
       actions: read
     uses: ./.github/workflows/publish-packs.yml
     secrets: inherit
