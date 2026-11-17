@@ -22,7 +22,8 @@ mkdir -p "$root" "$out"
 
 toplevel=$(nix-build '<nixpkgs/nixos>' -A system -I "nixos-config=$here/configuration.nix" --no-out-link)
 nix-build '<nixpkgs/nixos>' -A config.system.build.tarball -I "nixos-config=$here/configuration.nix" --out-link "$work/tarball"
-archive=$(find "$work/tarball" -type f -name '*.tar.*' | head -n 1)
+# --out-link is a symlink into the store; find does not follow it without -L.
+archive=$(find -L "$work/tarball" -type f -name '*.tar.*' | head -n 1)
 [ -n "$archive" ] || { echo 'the tarball build left no archive' >&2; exit 1; }
 tar -xf "$archive" -C "$root"
 for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
