@@ -76,19 +76,22 @@ class LibraryVisibilityTest {
         LibraryView.focusFirst = false
     }
 
-    @Test fun uninstalledGamesAreHiddenUntilSelectedInTheFilterAndTheChoiceSurvivesReopeningLibrary() {
+    @Test fun addedGamesStayVisibleAndTheFilterChoiceSurvivesReopeningLibrary() {
         show()
-        compose.onNodeWithText("Installed Steam game").assertExists()
+        compose.onNodeWithText("Added game").assertExists()
+        compose.onNodeWithText("Steam client game").assertDoesNotExist()
         compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
         chooseVisibility(true)
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
         assertTrue(SessionPrefs.libraryShowUninstalled(ctx))
+        compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
+        compose.onNodeWithText("Added game").assertExists()
         compose.runOnIdle { generation++; Snapshot.sendApplyNotifications() }
         compose.mainClock.advanceTimeBy(2_000)
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
+        compose.onNodeWithContentDescription("Filter · All owned games").assertExists()
+        compose.onNodeWithText("Added game").assertExists()
         chooseVisibility(false)
-        compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
         assertFalse(SessionPrefs.libraryShowUninstalled(ctx))
+        compose.onNodeWithText("Added game").assertExists()
     }
 
     @Test fun theFilterExpandsBesideSortWithoutChangingTheSelectionOnOpen() {
@@ -101,6 +104,7 @@ class LibraryVisibilityTest {
         compose.onNodeWithText("Installed only").assertIsDisplayed()
         compose.onNodeWithText("All owned games").assertIsDisplayed()
         compose.onAllNodesWithText("Filter").assertCountEquals(1)
+        compose.onNodeWithText("Added game").assertExists()
         compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
         assertFalse(SessionPrefs.libraryShowUninstalled(ctx))
         compose.runOnIdle { Steps.fold(); Snapshot.sendApplyNotifications() }
@@ -112,65 +116,53 @@ class LibraryVisibilityTest {
     }
 
     @Test fun theXboxAccessChoicesShareTheLibraryFilter() {
-        StoreAccounts.write(ctx, Store.XBOX, JSONObject().put("username", "Library test"))
-        StoresState.accounts[Store.XBOX] = "Library test"
-        StoresState.library[Store.XBOX] = listOf(CatalogItem(Store.XBOX, "owned", "Uninstalled Xbox", null, owned = true))
         LibraryView.source = Store.XBOX.id
-        try {
-            show()
-            compose.onNodeWithContentDescription("Filter · Installed only").performClick()
-            compose.mainClock.advanceTimeBy(2_000)
-            compose.onNodeWithText("Installed only").assertIsDisplayed()
-            compose.onNodeWithText("All owned games").assertIsDisplayed()
-            compose.onNodeWithText("Game Pass").assertIsDisplayed().performClick()
-            compose.mainClock.advanceTimeBy(1_000)
-            assertEquals(XboxLibraryFilter.GAME_PASS, XboxLibraryFilter.current)
-            assertFalse(SessionPrefs.libraryShowUninstalled(ctx))
-        } finally {
-            StoreAccounts.clear(ctx, Store.XBOX)
-        }
-    }
-
-    @Test fun aSearchWithOnlyUninstalledMatchesOffersToRevealThem() {
-        LibraryView.query = "Uninstalled GOG"
         show()
-        compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
-        compose.onNodeWithTag("library-browse-owned").performClick()
+        compose.onNodeWithContentDescription("Filter · Installed only").performClick()
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.onNodeWithText("Installed only").assertIsDisplayed()
+        compose.onNodeWithText("All owned games").assertIsDisplayed()
+        compose.onNodeWithText("Game Pass").assertIsDisplayed().performClick()
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
-        assertEquals("Uninstalled GOG", LibraryView.query)
+        assertEquals(XboxLibraryFilter.GAME_PASS, XboxLibraryFilter.current)
+        assertFalse(SessionPrefs.libraryShowUninstalled(ctx))
     }
 
     @Test fun aHiddenStoreRemainsReachableInLibraryInItsConfiguredOrder() {
         SessionPrefs.setStoresTabOrder(ctx, listOf("epic", "gog"))
         SessionPrefs.setStoresTabHidden(ctx, setOf("gog"))
         show()
-        val steam = compose.onNodeWithTag("library-source-steam").fetchSemanticsNode().boundsInRoot.left
+        compose.onNodeWithTag("library-source-steam").assertDoesNotExist()
         val epic = compose.onNodeWithTag("library-source-epic").fetchSemanticsNode().boundsInRoot.left
         val gog = compose.onNodeWithTag("library-source-gog").fetchSemanticsNode().boundsInRoot.left
-        assertTrue(steam < epic && epic < gog)
+        assertTrue(epic < gog)
         compose.onNodeWithTag("library-source-gog").performClick()
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithTag("library-browse-owned").assertIsDisplayed().performClick()
-        compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
+        compose.onNodeWithText("Added GOG game").assertExists()
+        compose.onNodeWithText("Added Epic game").assertDoesNotExist()
+        compose.onNodeWithText("Added game").assertDoesNotExist()
     }
 
-    @Test fun theStoresOwnedGamesLinkRevealsOwnedGamesDespiteTheSavedInstalledOnlyView() {
+    @Test fun theStoresOwnedGamesLinkShowsThatStoresAddedGamesDespiteTheSavedInstalledOnlyView() {
         assertFalse(SessionPrefs.libraryShowUninstalled(ctx))
         LibraryView.showOwned(ctx, Store.GOG)
         show()
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
-        compose.onNodeWithText("Installed Steam game").assertDoesNotExist()
+        compose.onNodeWithText("Added GOG game").assertExists()
+        compose.onNodeWithText("Added game").assertDoesNotExist()
+        compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
+        assertTrue(SessionPrefs.libraryShowUninstalled(ctx))
     }
 
     @Test fun theStoresOwnedGamesLinkUpdatesALibraryPageThatIsStillComposed() {
         LibraryView.source = Store.GOG.id
         show()
-        compose.onNodeWithText("Uninstalled GOG").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Filter · Installed only").assertExists()
+        compose.onNodeWithText("Added GOG game").assertExists()
         compose.runOnIdle { LibraryView.showOwned(ctx, Store.GOG); Snapshot.sendApplyNotifications() }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Uninstalled GOG").assertExists()
+        compose.onNodeWithContentDescription("Filter · All owned games").assertExists()
+        compose.onNodeWithText("Added GOG game").assertExists()
+        assertTrue(SessionPrefs.libraryShowUninstalled(ctx))
     }
 
     private fun show() {
@@ -203,7 +195,14 @@ class LibraryVisibilityTest {
         installed = "r9", ready = true, available = null, busy = false, stage = "", percent = -1,
         desktopInstalled = true, offlineAccount = null, offline = false, frameGenLabel = "",
         romsDir = null, logsEnabled = false,
-        steamGames = listOf(Library.SteamGame(440, "Installed Steam game", null, "internal")),
+        // The library only renders manually-added entries; a store-linked one keeps its store as source.
+        steamGames = listOf(
+            Library.SteamGame(70, "Steam client game", null, "internal"),
+            Library.SteamGame(9000, "Added game", null, Library.ADDED, source = Library.ADDED),
+            Library.SteamGame(9001, "Added GOG game", null, Library.ADDED, source = Store.GOG.id, storeId = "owned"),
+            Library.SteamGame(9002, "Added Epic game", null, Library.ADDED, source = Store.EPIC.id, storeId = "owned"),
+            Library.SteamGame(9003, "Added Xbox game", null, Library.ADDED, source = Store.XBOX.id, storeId = "owned"),
+        ),
         emulators = emptyList(), running = null,
     )
 

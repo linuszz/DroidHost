@@ -33,37 +33,39 @@ class DesktopUninstallTest {
 
     @Test fun uninstallIsAvailableOnTheDesktopPageAndRequiresConfirmation() {
         show()
-        compose.onNodeWithText("Open desktop").assertIsDisplayed()
-        compose.onNodeWithText("Uninstall").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Start").assertIsDisplayed()
+        compose.onNodeWithText("Delete").assertIsDisplayed().performClick()
         settle()
         assertEquals(0, removals)
-        compose.onNodeWithText("Uninstall the desktop?").assertIsDisplayed()
-        compose.onAllNodesWithText("Uninstall").onLast().performClick()
+        compose.onNodeWithText("Delete this machine?").assertIsDisplayed()
+        compose.onAllNodesWithText("Delete").onLast().performClick()
         assertEquals(1, removals)
     }
 
     @Test fun uninstallIsDisabledWhileRuntimeChangesAreBlocked() {
         show(blocked = true)
-        compose.onNodeWithText("Uninstall").assertIsNotEnabled()
+        compose.onNodeWithText("Delete").assertIsNotEnabled()
     }
 
     @Test fun aPartialDesktopStillOffersUninstall() {
         show(installed = false)
-        compose.onNodeWithText("Uninstall").assertIsDisplayed()
+        compose.onNodeWithText("Install").assertIsDisplayed()
+        compose.onNodeWithText("Delete").assertIsDisplayed()
     }
 
     @Test fun anUninstalledDesktopNoLongerOffersUninstall() {
         show(installed = false, present = false)
-        compose.onNodeWithText("Uninstall").assertDoesNotExist()
+        compose.onNodeWithText("Delete").assertDoesNotExist()
+        compose.onNodeWithText("Virtual machines").assertIsDisplayed()
     }
 
     @Test fun startingRuntimeWorkWhileConfirmingDisablesUninstall() {
         show()
-        compose.onNodeWithText("Uninstall").performClick()
+        compose.onNodeWithText("Delete").performClick()
         settle()
         compose.runOnIdle { runtimeBlocked = true }
         settle()
-        compose.onAllNodesWithText("Uninstall").onLast().assertIsNotEnabled()
+        compose.onAllNodesWithText("Delete").onLast().assertIsNotEnabled()
         assertEquals(0, removals)
     }
 
