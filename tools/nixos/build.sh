@@ -13,9 +13,16 @@ runtime_id=${2:?runtime id, e.g. nixos-r1}
 command -v nix-build >/dev/null || { echo 'nix is required' >&2; exit 1; }
 work=$(mktemp -d)
 root=$work/root
+# Activation adds sub-mounts under /dev and /run (dev/shm, dev/mqueue, run/keys), so a plain
+# umount of the bind mount stays busy. Tear down deepest-first; --one-file-system then keeps rm
+# from ever following a still-live bind mount into the host.
+unmount_root() {
+  sudo awk -v p="$root/" 'index($2, p) == 1 { print $2 }' /proc/mounts | sort -r |
+    while read -r m; do sudo umount "$m" 2>/dev/null || true; done
+}
 cleanup() {
-  for m in dev/pts dev proc sys; do sudo umount "$root/$m" 2>/dev/null || true; done
-  sudo rm -rf "$work"
+  unmount_root
+  sudo rm -rf --one-file-system "$work"
 }
 trap cleanup EXIT
 mkdir -p "$root" "$out"
@@ -26,8 +33,9 @@ nix-build '<nixpkgs/nixos>' -A config.system.build.tarball -I "nixos-config=$her
 archive=$(find -L "$work/tarball" -type f -name '*.tar.*' | head -n 1)
 [ -n "$archive" ] || { echo 'the tarball build left no archive' >&2; exit 1; }
 tar -xf "$archive" -C "$root"
-# The tarball carries only the store; create the mount points and /run the chroot needs.
-mkdir -p "$root/dev/pts" "$root/proc" "$root/sys" "$root/run"
+# The tarball carries only the store. Create the FHS skeleton activation populates — /etc above
+# all, since setup-etc.pl and the users/hashes snippets write into it — plus the bind-mount points.
+mkdir -p "$root"/{etc,var/lib,var/log,tmp,root,home,run,bin,usr} "$root/dev/pts" "$root/proc" "$root/sys"
 for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
 
 # The activation the container's init would run at boot, run once here instead. Its shebangs
@@ -46,7 +54,7 @@ sudo chroot "$root" /bin/sh -c "NIX_REMOTE= '$toplevel/sw/bin/nix-channel' --add
 sudo find "$root/nix/store" "$root/nix/var" -type d -exec chmod u+w {} +
 
 # Seal the mounts away before packing, and leave a resolv.conf the terminal can use.
-for m in dev/pts dev proc sys; do sudo umount "$root/$m"; done
+unmount_root
 printf 'nameserver 1.1.1.1\nnameserver 8.8.8.8\n' | sudo tee "$root/etc/resolv.conf" >/dev/null
 
 nix-store -q --requisites "$toplevel" | sed 's|^/nix/store/[a-z0-9]\{32\}-||' | sort -u > "$out/$runtime_id.packages.txt"
