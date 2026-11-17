@@ -39,7 +39,7 @@
   # where droiddeck-desktop writes its own.
   services.pipewire.enable = false;
   services.pulseaudio.enable = false;
-  services.hardware.bluetooth.enable = false;
+  hardware.bluetooth.enable = false;
   services.printing.enable = false;
   # H.8: the guest's sudo is the app's own wrapper, delegating to the app's root service. A
   # setuid sudo cannot work under proot and has nothing to delegate to here.
