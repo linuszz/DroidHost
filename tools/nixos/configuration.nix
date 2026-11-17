@@ -149,4 +149,15 @@
       fi
     '';
   };
+
+  # 26.05 no longer exposes system.build.tarball by default, but keeps the builder. Wire it up:
+  # the whole closure plus the registration manifest nix-store --load-db reads. build.sh extracts
+  # this tarball and runs the activation offline, so the device never has to.
+  system.build.tarball = pkgs.callPackage (pkgs.path + "/nixos/lib/make-system-tarball.nix") {
+    fileName = "nixos-droidhost";
+    contents = [ ];
+    storeContents = [
+      { object = config.system.build.toplevel; symlink = "/nix/var/nix/profiles/system"; }
+    ];
+  };
 }
