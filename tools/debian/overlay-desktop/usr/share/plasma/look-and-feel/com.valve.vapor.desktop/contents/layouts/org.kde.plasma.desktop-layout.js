@@ -2,7 +2,7 @@ var desktops = desktopsForActivity(currentActivity());
 for (var i = 0; i < desktops.length; i++) {
     desktops[i].wallpaperPlugin = "org.kde.image";
     desktops[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
-    desktops[i].writeConfig("Image", "file:///usr/share/wallpapers/DroidHost");
+    desktops[i].writeConfig("Image", "file:///usr/share/wallpapers/ceratopsian");
 }
 
 var dock = new Panel;
@@ -15,7 +15,7 @@ kickoff.writeConfig("global", "Alt+F1");
 kickoff.currentConfigGroup = ["General"];
 kickoff.writeConfig("icon", "start-here-kde");
 kickoff.writeConfig("favorites", [
-    "preferred://browser",
+    "applications:firefox.desktop",
     "applications:org.kde.dolphin.desktop",
     "applications:org.kde.konsole.desktop",
     "applications:org.kde.kate.desktop",
@@ -27,7 +27,7 @@ var tasks = dock.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", [
     "preferred://filemanager",
-    "preferred://browser",
+    "applications:firefox.desktop",
     "applications:org.kde.konsole.desktop",
     "applications:org.kde.kate.desktop",
 ]);

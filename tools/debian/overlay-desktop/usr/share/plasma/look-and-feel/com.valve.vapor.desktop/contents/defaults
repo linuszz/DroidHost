@@ -2,13 +2,13 @@
 widgetStyle=Breeze
 
 [kdeglobals][General]
-ColorScheme=Vapor
+ColorScheme=BreezeDark
 
 [kdeglobals][Icons]
 Theme=breeze-dark
 
 [plasmarc][Theme]
-name=Vapor
+name=breeze-dark
 
 [kcminputrc][Mouse]
 cursorTheme=breeze_cursors

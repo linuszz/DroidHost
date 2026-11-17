@@ -37,6 +37,10 @@ if declare -f prepare >/dev/null; then
 else
   prepare() { _droiddeck_prepare; }
 fi
+if declare -f build >/dev/null; then
+  eval \"\$(declare -f build | sed 's/^build ()/_arch_build ()/')\"
+  build() { export LDFLAGS=\"\${LDFLAGS:-} -static-libstdc++\"; _arch_build; }
+fi
 PREP
 makepkg -A -s --noconfirm --skipchecksums --skippgpcheck
 meson test -C src/build --no-rebuild --print-errorlogs cursor_routing wayland_scaling

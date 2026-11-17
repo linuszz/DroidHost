@@ -40,7 +40,8 @@ stage runtime
 seal
 sudo mv "$root/tmp/droiddeck" "$work/src-keep"
 sudo chroot "$root" dpkg-query -W -f '${Package} ${Version}\n' > "$out/$runtime_id.packages.txt"
-sudo tar -C "$root" --numeric-owner -cf "$work/runtime.tar" .
+# DroidHost's VmUnpacker rejects members with a leading "./"; list top-level entries explicitly.
+sudo tar -C "$root" --numeric-owner -cf "$work/runtime.tar" $(ls -A "$root")
 sudo python3 "$here/desktop-pack.py" manifest "$root" "$work/runtime.manifest"
 unseal
 sudo mv "$work/src-keep" "$root/tmp/droiddeck"
@@ -56,7 +57,9 @@ sha256sum "$out/$desktop_id.tar.zst" | cut -d' ' -f1 > "$out/$desktop_id.sha256"
 mkdir -p "$work/stamp"
 python3 "$here/desktop-pack.py" describe "$out/$desktop_id.tar.zst" "$base_url/$desktop_id.tar.zst" "$desktop_id" \
   "$work/stamp/usr/share/droiddeck/desktop-pack.json"
-sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" ./usr/share/droiddeck/desktop-pack.json
+# DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
+printf '%s\n' "$desktop_id" > "$work/stamp/.droiddeck-pkg-desktop-kde"
+sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" usr/share/droiddeck/desktop-pack.json .droiddeck-pkg-desktop-kde
 sudo zstd -q -19 -T0 --rm "$work/runtime.tar" -o "$out/$runtime_id.tar.zst"
 sudo chown "$(id -u):$(id -g)" "$out/$runtime_id.tar.zst"
 sha256sum "$out/$runtime_id.tar.zst" | cut -d' ' -f1 > "$out/$runtime_id.sha256"

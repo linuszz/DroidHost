@@ -81,7 +81,8 @@ def pack(root, before_path, runtime_tar, out_tar, meta_root):
     if restore:
         listing = os.path.join(meta_root, "restore.list")
         with open(listing, "w") as f:
-            f.write("".join("./%s\n" % p for p in restore))
+            # Names must match runtime.tar, which is packed without a leading "./".
+            f.write("".join("%s\n" % p for p in restore))
         subprocess.run(["tar", "-xf", runtime_tar, "-C", originals, "--numeric-owner", "--no-recursion", "-T", listing], check=True)
         os.unlink(listing)
     with gzip.open(os.path.join(meta, "files.tsv.gz"), "wt") as f:
@@ -93,13 +94,14 @@ def pack(root, before_path, runtime_tar, out_tar, meta_root):
             f.write("R\t%s\t%s\n" % (describe(originals, p, before[p]) if before[p][0] != "d" else "D\t0\t-", p))
     listing = os.path.join(meta_root, "pack.list")
     with open(listing, "w") as f:
-        f.write("".join("./%s\n" % p for p in added + changed))
+        # DroidHost's VmUnpacker rejects members with a leading "./".
+        f.write("".join("%s\n" % p for p in added + changed))
     metalist = os.path.join(meta_root, "meta.list")
     with open(metalist, "w") as f:
         for top, dirs, files in os.walk(meta):
             for name in dirs + files:
-                f.write("./%s\n" % os.path.relpath(os.path.join(top, name), meta_root))
-        f.write("./%s\n" % META)
+                f.write("%s\n" % os.path.relpath(os.path.join(top, name), meta_root))
+        f.write("%s\n" % META)
     subprocess.run(["tar", "--numeric-owner", "--no-recursion", "--hard-dereference", "-cf", out_tar, "-C", root, "-T", listing,
                     "-C", meta_root, "-T", metalist], check=True)
     os.unlink(listing)
