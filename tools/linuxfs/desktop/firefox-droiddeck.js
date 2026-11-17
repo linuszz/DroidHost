@@ -1,7 +1,7 @@
 
 pref("network.manage-offline-status", false);
 pref("browser.offline", false);
-pref("security.sandbox.content.level", 0);
+pref("security.sandbox.content.level", 4);
 pref("media.cubeb.sandbox", false);
 pref("security.sandbox.socket.process.level", 0);
 pref("browser.shell.checkDefaultBrowser", false);
