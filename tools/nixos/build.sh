@@ -26,6 +26,8 @@ nix-build '<nixpkgs/nixos>' -A config.system.build.tarball -I "nixos-config=$her
 archive=$(find -L "$work/tarball" -type f -name '*.tar.*' | head -n 1)
 [ -n "$archive" ] || { echo 'the tarball build left no archive' >&2; exit 1; }
 tar -xf "$archive" -C "$root"
+# The tarball carries only the store; create the mount points and /run the chroot needs.
+mkdir -p "$root/dev/pts" "$root/proc" "$root/sys" "$root/run"
 for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
 
 # The activation the container's init would run at boot, run once here instead. Its shebangs
