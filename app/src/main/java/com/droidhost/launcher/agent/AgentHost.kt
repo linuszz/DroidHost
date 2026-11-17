@@ -55,7 +55,7 @@ object AgentHost {
 
     private const val TAG = "AgentHost"
     private const val WORKSPACE = "/root/DroidHost"
-    internal const val GUEST_PATH = "/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    internal const val GUEST_PATH = "/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/run/current-system/sw/bin:/run/wrappers/bin"
     private const val TICK_MS = 1_000L
     private const val IDLE_TICK_MS = 5_000L
 

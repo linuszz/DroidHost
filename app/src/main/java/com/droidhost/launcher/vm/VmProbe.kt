@@ -64,6 +64,7 @@ enum class VmPackageManager(val marker: String, val tool: String) {
     APK("apk", "/sbin/apk"),
     PACMAN("pacman", "/usr/bin/pacman"),
     ZYPPER("zypper", "/usr/bin/zypper"),
+    NIX("nix", "/run/current-system/sw/bin/nix"),
     ;
 
     companion object {
@@ -178,6 +179,12 @@ object VmProbeReader {
         for (path in listOf("lib/ld-linux-armhf.so.3", "lib/ld-linux.so.2", "usr/lib/ld-linux.so.2")) {
             if (File(root, path).isFile) return "arm"
         }
+        // NixOS keeps the loader in the store, under the glibc derivation that ships it.
+        for (dir in nixStore(root, "-glibc-")) {
+            if (File(dir, "lib/ld-linux-aarch64.so.1").isFile) return "aarch64"
+            if (File(dir, "lib/ld-linux-x86-64.so.2").isFile) return "x86-64"
+            if (File(dir, "lib/ld-linux-armhf.so.3").isFile) return "arm"
+        }
         return ""
     }
 
@@ -195,6 +202,17 @@ object VmProbeReader {
         )) {
             if (File(root, path).isFile) return true
         }
+        for (dir in nixStore(root, "-mesa-")) {
+            if (File(dir, "lib/dri/msm_dri.so").isFile) return true
+            if (File(dir, "lib/libvulkan_freedreno.so").isFile) return true
+        }
         return false
+    }
+
+    /** The store derivations whose name carries [mark], for a system that keeps everything in /nix/store. */
+    private fun nixStore(root: File, mark: String): List<File> {
+        val store = File(root, "nix/store")
+        if (!store.isDirectory) return emptyList()
+        return store.listFiles { file -> file.isDirectory && file.name.contains(mark) }.orEmpty().toList()
     }
 }

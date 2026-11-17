@@ -25,6 +25,7 @@ object VmCatalog {
     val distros = listOf(
         VmDistro(UBUNTU, "Ubuntu", VmFamily.LINUX, engine = true),
         VmDistro("debian", "Debian", VmFamily.LINUX, engine = false),
+        VmDistro("nixos", "NixOS", VmFamily.LINUX, engine = false),
         VmDistro("fedora", "Fedora", VmFamily.LINUX, engine = false),
         VmDistro("arch", "Arch Linux", VmFamily.LINUX, engine = false),
         VmDistro("alpine", "Alpine Linux", VmFamily.LINUX, engine = false),

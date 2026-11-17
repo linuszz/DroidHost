@@ -915,6 +915,9 @@ class SessionService : Service() {
         guest.add("HOME=/root")
         guest.add("USER=root")
         guest.add("PATH=" + LinuxRuntime.GUEST_PATH)
+        // NixOS ships its desktop files and defaults in the store, linked under /run/current-system.
+        guest.add("XDG_DATA_DIRS=/root/.local/share/flatpak/exports/share:/usr/local/share:/usr/share:/run/current-system/sw/share")
+        guest.add("XDG_CONFIG_DIRS=/etc/xdg:/run/current-system/sw/etc/xdg")
         guest.add("TERM=xterm-256color")
         if (SessionState.mode == MODE_DESKTOP) {
             val appLocale = com.droidhost.launcher.core.AppLanguage.effective(this)
