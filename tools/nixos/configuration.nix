@@ -25,6 +25,9 @@
   i18n.defaultLocale = "C.UTF-8";
 
   users.mutableUsers = false;
+  # No login surface under proot: the app writes passwd/group and delegates root through its own
+  # service, so the declarative root account needs no password.
+  users.allowNoPasswordLogin = true;
   users.users.root = {
     home = "/root";
     createHome = true;
