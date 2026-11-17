@@ -2,9 +2,9 @@
 # Builds the NixOS machine image on a native arm64 runner with nix installed.
 #
 # The configuration is evaluated against the nixos-26.05 release channel (the pin: the release
-# channel only takes backports). The LXC tarball it produces holds the whole closure plus
-# etc/os-release, nix-path-registration and sbin/init; /etc, /bin and /usr are filled by the
-# activation script, which this runs offline in a chroot so the device never has to.
+# channel only takes backports). The tarball it produces holds the whole closure plus the
+# nix-path-registration manifest; /etc, /bin and /usr are filled by the activation script, which
+# this runs offline in a chroot so the device never has to.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 out=$(realpath -m "${1:?out dir}")
@@ -21,7 +21,7 @@ trap cleanup EXIT
 mkdir -p "$root" "$out"
 
 toplevel=$(nix-build '<nixpkgs/nixos>' -A system -I "nixos-config=$here/configuration.nix" --no-out-link)
-nix-build '<nixpkgs/nixos>' -A system.build.tarball -I "nixos-config=$here/configuration.nix" --out-link "$work/tarball"
+nix-build '<nixpkgs/nixos>' -A config.system.build.tarball -I "nixos-config=$here/configuration.nix" --out-link "$work/tarball"
 archive=$(find "$work/tarball" -type f -name '*.tar.*' | head -n 1)
 [ -n "$archive" ] || { echo 'the tarball build left no archive' >&2; exit 1; }
 tar -xf "$archive" -C "$root"
