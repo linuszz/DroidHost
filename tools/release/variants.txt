@@ -1,4 +1,5 @@
+# DroidHost ships only the standard package; the benchmark/game variants are disabled.
 standard    com.droidhost.launcher       -
-pubg        com.tencent.ig               -pubg
-antutu      com.antutu.benchmark.full    -antutu
-ludashi     com.ludashi.benchmark        -ludashi
+#pubg        com.tencent.ig               -pubg
+#antutu      com.antutu.benchmark.full    -antutu
+#ludashi     com.ludashi.benchmark        -ludashi
