@@ -4154,8 +4154,6 @@
     <string name="vm_new_hint">Pick a system to install</string>
     <string name="vm_none">No machine yet. Pick a system to install.</string>
     <string name="vm_pick_title">Choose a system</string>
-    <string name="vm_pick_note">Only Ubuntu has an engine that boots today. The other systems stay disabled until the matching engine ships.</string>
-    <string name="vm_one_only">The runtime carries a single system image, so only one machine fits.</string>
     <string name="vm_needs_engine">Needs a new engine</string>
     <string name="vm_install">Install</string>
     <string name="vm_installing">Installing</string>
@@ -4173,7 +4171,6 @@
     <string name="vm_family_bsd">BSD</string>
     <string name="vm_family_dos">DOS</string>
     <string name="vm_source_note">Pick where the system comes from.</string>
-    <string name="vm_source_replace_note">A new system replaces the machine that is here now.</string>
     <string name="vm_source_preset">Systems we package</string>
     <string name="vm_source_preset_hint">DroidHost downloads and installs these for you.</string>
     <string name="vm_source_version_hint">Choose a version to download</string>
@@ -4191,7 +4188,7 @@
     <string name="vm_import_machine_exists">A machine already carries this name. Delete it before importing another.</string>
     <string name="vm_import_not_usable">This system cannot be run.</string>
     <string name="vm_probe_packaged">A driver package is built for this distribution, so the GPU can be used.</string>
-    <string name="vm_probe_configuration">No driver package is built for this distribution yet.</string>
+    <string name="vm_probe_configuration">No GPU driver is available for this system.</string>
     <string name="vm_probe_configuration_note">It runs with configuration only, so the graphics are software rendered.</string>
     <string name="vm_probe_not_a_system">This is not a Linux system: it has no /etc/os-release.</string>
     <string name="vm_probe_no_distribution">The system image does not say which distribution it is.</string>

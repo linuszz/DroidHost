@@ -48,7 +48,7 @@ class VmProbeTest {
         assertEquals("Debian GNU/Linux 13 (trixie)", probe.prettyName)
         assertEquals("apt", probe.packageManager)
         assertEquals("aarch64", probe.architecture)
-        assertEquals(VmDriverTier.PACKAGED, probe.driverTier)
+        assertEquals(VmDriverTier.CONFIGURATION, probe.driverTier)
     }
 
     @Test fun anUbuntuSystemIsReadToo() {
@@ -58,6 +58,15 @@ class VmProbeTest {
         ))
         assertTrue(probe.usable)
         assertEquals("ubuntu", probe.id)
+        assertEquals(VmDriverTier.CONFIGURATION, probe.driverTier)
+    }
+
+    @Test fun thePackagedDistributionReportsThePackagedTier() {
+        val probe = VmProbeReader.probe(rootfs(
+            "PRETTY_NAME=\"Ubuntu 26.04 LTS\"\nID=ubuntu\nVERSION_ID=\"26.04\"\n",
+            tools = listOf("/usr/bin/apt"),
+        ))
+        assertTrue(probe.usable)
         assertEquals(VmDriverTier.PACKAGED, probe.driverTier)
     }
 

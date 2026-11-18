@@ -87,10 +87,10 @@ enum class VmPackageManager(val marker: String, val tool: String) {
  */
 object VmProbeReader {
 
-    /** The distributions we build a driver package for. */
+    /** Import only delivers a driver when the system matches the shared runtime's
+     *  distribution and release, because VmDriver reuses that runtime's apt repository. */
     private val PACKAGED = mapOf(
-        "ubuntu" to setOf("20.04", "22.04", "24.04", "26.04"),
-        "debian" to setOf("11", "12", "13"),
+        "ubuntu" to setOf("26.04"),
     )
 
     fun probe(root: File): VmProbe {
