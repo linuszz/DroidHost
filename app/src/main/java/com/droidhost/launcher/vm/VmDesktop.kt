@@ -7,6 +7,7 @@ import com.droidhost.launcher.runtime.GuestCommand
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.runtime.RuntimeInstallService
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -55,6 +56,24 @@ object VmDesktop {
     private var currentMachine: String? = null
     private val running = AtomicBoolean(false)
     private val installed = AtomicInteger(0)
+    private val cancelled = ConcurrentHashMap<String, Boolean>()
+
+    /** Whether the live desktop job belongs to this machine. */
+    fun isRunningFor(machineId: String?): Boolean =
+        machineId != null && running.get() && currentMachine == machineId
+
+    /** Marks this machine's desktop install to stop; a delete waits for it then removes the rootfs. */
+    fun cancel(context: Context, machineId: String, forDelete: Boolean) {
+        if (isRunningFor(machineId)) cancelled[machineId] = true
+    }
+
+    /** Waits until this machine's desktop job has ended, so a delete does not race its writes. */
+    fun awaitIdle(machineId: String, timeoutMs: Long) {
+        val end = System.currentTimeMillis() + timeoutMs
+        while (isRunningFor(machineId) && System.currentTimeMillis() < end) {
+            runCatching { Thread.sleep(100) }
+        }
+    }
 
     /** How the install is going, and which machine it is for. */
     fun state(): State = progress.copy(machineId = currentMachine)
@@ -78,6 +97,8 @@ object VmDesktop {
     fun start(context: Context, machine: VmMachine): Boolean {
         if (!running.compareAndSet(false, true)) return false
         currentMachine = machine.id
+        cancelled.remove(machine.id)
+        VmStore.setLifecycle(context.applicationContext, machine.id, VmLife.INSTALLING.name)
         Thread({ install(context.applicationContext, machine) }, "vm-desktop").apply {
             isDaemon = true
             start()
@@ -88,7 +109,7 @@ object VmDesktop {
     private fun install(context: Context, machine: VmMachine) {
         val root = VmRuntime.ownRootfs(context, machine.id)
         if (root == null) {
-            fail(Reason.NO_PACKAGES)
+            fail(context, machine.id, Reason.NO_PACKAGES)
             return
         }
         val pacman = VmPackageManager.of(root) == VmPackageManager.PACMAN
@@ -108,20 +129,21 @@ object VmDesktop {
             // apt-get update only warns when it cannot reach a mirror, so the warnings are the
             // thing to look at rather than its exit status. pacman says it with its exit status.
             if (update.exitCode != 0 || (!pacman && update.output.contains("Failed to fetch"))) {
-                fail(Reason.REPOSITORY_UNREACHABLE)
+                fail(context, machine.id, Reason.REPOSITORY_UNREACHABLE)
                 return
             }
+            if (cancelled[machine.id] == true) { VmStore.setLifecycle(context, machine.id, VmLife.EMPTY.name); return }
 
             progress = State(Stage.INSTALLING, 10)
             report(context, Stage.INSTALLING, 10)
             val packages = if (pacman) archPrograms(context) else runtimePackages(context)
             if (packages.isEmpty()) {
-                fail(Reason.NO_PACKAGES)
+                fail(context, machine.id, Reason.NO_PACKAGES)
                 return
             }
             val wanted = packagesTheMachineHas(context, machine.id, packages, pacman)
             if (wanted.isEmpty()) {
-                fail(Reason.NO_PACKAGES)
+                fail(context, machine.id, Reason.NO_PACKAGES)
                 return
             }
 
@@ -132,9 +154,10 @@ object VmDesktop {
                 onInstallLine(context, line, wanted.size)
             }
             if (result.exitCode != 0) {
-                fail(Reason.INSTALL_FAILED)
+                fail(context, machine.id, Reason.INSTALL_FAILED)
                 return
             }
+            if (cancelled[machine.id] == true) { VmStore.setLifecycle(context, machine.id, VmLife.EMPTY.name); return }
 
             // The driver the app's own runtime has, for a machine that runs the same system.
             if (VmDriver.sameDistribution(context, root) && VmDriver.prepare(context, root)) {
@@ -144,7 +167,7 @@ object VmDesktop {
                     onInstallLine(context, line, wanted.size)
                 }
                 if (driver.exitCode != 0) {
-                    fail(Reason.INSTALL_FAILED)
+                    fail(context, machine.id, Reason.INSTALL_FAILED)
                     return
                 }
                 VmDriver.markInstalled(root)
@@ -154,16 +177,17 @@ object VmDesktop {
             report(context, Stage.CONFIGURING, 90)
             val copied = copySettings(context, root)
             if (copied == 0) {
-                fail(Reason.NO_SETTINGS)
+                fail(context, machine.id, Reason.NO_SETTINGS)
                 return
             }
             val marker = File(root, MARKER)
             marker.parentFile?.mkdirs()
             marker.writeText("installed ${System.currentTimeMillis()}\n")
             progress = State(Stage.READY, 100)
+            VmStore.setLifecycle(context, machine.id, VmLife.READY.name)
         } catch (e: Exception) {
             Log.w(TAG, "the desktop could not be fitted in", e)
-            fail(Reason.INSTALL_FAILED)
+            fail(context, machine.id, Reason.INSTALL_FAILED)
         } finally {
             hold()
             running.set(false)
@@ -295,9 +319,10 @@ object VmDesktop {
             }
         }.getOrDefault(emptyList())
 
-    private fun fail(reason: Reason) {
+    private fun fail(context: Context, machineId: String, reason: Reason) {
         Log.w(TAG, "the desktop could not be fitted in: $reason")
-        progress = State(Stage.FAILED, 0, reason)
+        VmStore.setLifecycle(context, machineId, VmLife.FAILED.name, "", reason.name)
+        progress = State(Stage.FAILED, 0, reason, machineId)
     }
 
     internal fun filterScript(pacman: Boolean = false): String = if (pacman) """

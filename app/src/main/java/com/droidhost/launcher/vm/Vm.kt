@@ -70,6 +70,11 @@ data class VmMachine(
     val createdAt: Long,
     val id: String = DEFAULT_ID,
     val imported: Boolean = false,
+    // The persisted lifecycle state (VmLife name); empty means "derive from the rootfs". It survives
+    // a restart so a paused or interrupted install is still known and can be resumed or deleted.
+    val lifecycle: String = "",
+    val failedStage: String = "",
+    val failReason: String = "",
 ) {
     companion object {
         /** The id of the machine a build made before machines had a rootfs of their own. */
@@ -148,6 +153,13 @@ object VmStore {
         VmRuntime.ownRootfs(context, machine.id)?.parentFile?.let { VmRuntime.removeInBackground(it) }
     }
 
+    /** Records a machine's lifecycle state so a paused or interrupted install survives a restart. */
+    fun setLifecycle(context: Context, id: String, lifecycle: String, failedStage: String = "", failReason: String = "") {
+        write(context, all(context).map {
+            if (it.id == id) it.copy(lifecycle = lifecycle, failedStage = failedStage, failReason = failReason) else it
+        })
+    }
+
     private fun write(context: Context, machines: List<VmMachine>) {
         val json = JSONArray()
         for (machine in machines) {
@@ -156,7 +168,10 @@ object VmStore {
                 .put("distro", machine.distro.id)
                 .put("name", machine.distro.name)
                 .put("imported", machine.imported)
-                .put("createdAt", machine.createdAt))
+                .put("createdAt", machine.createdAt)
+                .put("lifecycle", machine.lifecycle)
+                .put("failedStage", machine.failedStage)
+                .put("failReason", machine.failReason))
         }
         prefs(context).edit()
             .putString(KEY_MACHINES, json.toString())
@@ -178,7 +193,8 @@ object VmStore {
                     ?: if (imported) VmDistro(id, o.optString("name").ifEmpty { id }, VmFamily.LINUX, engine = true)
                     else return@mapNotNull null
                 VmMachine(distro, o.optLong("createdAt"),
-                    o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported)
+                    o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported,
+                    o.optString("lifecycle"), o.optString("failedStage"), o.optString("failReason"))
             }
         }.getOrDefault(emptyList())
     }

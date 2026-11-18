@@ -25,6 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Settings
@@ -77,6 +79,8 @@ import com.droidhost.launcher.session.SessionState
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmDriver
+import com.droidhost.launcher.vm.VmLife
+import com.droidhost.launcher.vm.VmLifecycle
 import com.droidhost.launcher.vm.VmMachine
 import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmRuntime
@@ -120,6 +124,13 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         // The rootfs a finished install or seed left behind changes what the cards say.
         recorded = VmStore.all(ctx)
     }
+    // A delete runs on its own thread; watch the record until the machine is gone.
+    LaunchedEffect(recorded.any { VmLife.of(it.lifecycle) == VmLife.DELETING }) {
+        while (recorded.any { VmLife.of(it.lifecycle) == VmLife.DELETING }) {
+            delay(500)
+            recorded = VmStore.all(ctx)
+        }
+    }
     var picking by rememberSaveable { mutableStateOf(false) }
     var settings by rememberSaveable { mutableStateOf(false) }
 
@@ -147,17 +158,29 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         status == VmStatus.ABSENT -> ({ picking = true })
         status == VmStatus.RUNNING -> a.onVmStop
         status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ a.onDesktop(vm?.id) })
+        // A paused, interrupted or failed install resumes from the partial it kept.
+        status == VmStatus.PAUSED || status == VmStatus.INTERRUPTED || status == VmStatus.FAILED -> ({
+            vm?.let { if (VmPreset.start(ctx, it)) seed = VmPreset.state() }
+        })
         // A machine with its own rootfs but no desktop yet gets one fitted in; the shared runtime
         // installs its desktop through the session itself, as it always has.
         status == VmStatus.IMPORTED || (status == VmStatus.NEW && vmHasOwnRootfs) -> ({
             vm?.let { if (VmDesktop.start(ctx, it)) install = VmDesktop.state() }
         })
-        status == VmStatus.NEW -> ({ a.onDesktop(vm?.id) })
+        // A built-in preset seeds its own rootfs; anything else installs through the session.
+        status == VmStatus.NEW -> ({
+            vm?.let {
+                if (VmCatalog.builtinFor(it.distro.id) != null) { if (VmPreset.start(ctx, it)) seed = VmPreset.state() }
+                else a.onDesktop(it.id)
+            }
+        })
         else -> ({})
     }
     val primaryEnabled = when (status) {
         VmStatus.ABSENT -> !s.busy
         VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked && !install.busy && !seed.busy
+        // Resume/retry run on the machine alone, so a busy shared runtime does not block them.
+        VmStatus.PAUSED, VmStatus.INTERRUPTED, VmStatus.FAILED -> !install.busy && !seed.busy
         VmStatus.READY, VmStatus.DEGRADED, VmStatus.RUNNING -> !s.busy
         VmStatus.IMPORTED -> !s.busy && !install.busy && !seed.busy && !s.runtimeActionsBlocked
         else -> false
@@ -171,6 +194,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         install.busy && install.machineId == vm?.id -> stringResource(R.string.vm_install_desktop_running, install.percent)
         install.stage == VmDesktop.Stage.FAILED && install.machineId == vm?.id ->
             stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
+        status == VmStatus.PAUSED -> stringResource(R.string.vm_paused_note)
+        status == VmStatus.INTERRUPTED -> stringResource(R.string.vm_interrupted_note)
+        status == VmStatus.FAILED -> stringResource(R.string.vm_failed_note)
         status == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
         status == VmStatus.IMPORTED -> stringResource(R.string.vm_imported_note)
         else -> null
@@ -218,15 +244,25 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                 HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
                 HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
                 if (vm != null) HeroIconButton(Icons.Outlined.Settings, stringResource(R.string.vm_settings), null, "vm:settings") { settings = true }
+                // While the preset downloads, the user can pause it; an installing or paused machine
+                // can cancel the install and keep the machine.
+                if (vm != null && seed.busy && seed.machineId == vm.id && seed.percent <= 25)
+                    HeroIconButton(Icons.Filled.Pause, stringResource(R.string.vm_pause), null, "vm:pause") { VmPreset.pause(ctx, vm.id) }
+                if (vm != null && vmHasOwnRootfs && (status == VmStatus.INSTALLING || status == VmStatus.PAUSED))
+                    HeroIconButton(Icons.Filled.Close, stringResource(R.string.vm_cancel_install), null, "vm:cancel") {
+                        VmPreset.cancel(ctx, vm.id, forDelete = false)
+                        VmDesktop.cancel(ctx, vm.id, forDelete = false)
+                    }
                 // A machine with its own rootfs is deleted whole; the shared runtime only loses its
                 // desktop, the system image stays. Two different deletions, two different wordings.
                 if (vm != null && vmHasOwnRootfs) VmRemoveMachine(
                     label = stringResource(R.string.vm_delete_machine),
                     title = stringResource(R.string.vm_delete_machine_title),
                     note = stringResource(R.string.vm_delete_machine_text),
-                    enabled = !s.busy && !s.runtimeActionsBlocked,
+                    // The delete cancels this machine's own install first, so that install cannot block it.
+                    enabled = status != VmStatus.RUNNING && status != VmStatus.DELETING,
                     onRemove = {
-                        VmStore.remove(ctx, vm)
+                        VmLifecycle.deleteMachine(ctx, vm)
                         recorded = VmStore.all(ctx)
                         selectedId = null
                     },
@@ -259,7 +295,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         hasOwnRootfs = vmHasOwnRootfs,
         onDismiss = { settings = false },
         onRemoveMachine = {
-            VmStore.remove(ctx, vm)
+            VmLifecycle.deleteMachine(ctx, vm)
             recorded = VmStore.all(ctx)
             selectedId = null
         },

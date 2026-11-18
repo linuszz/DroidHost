@@ -63,6 +63,8 @@ internal fun VmSourceDialog(
     val ctx = LocalContext.current
     var importing by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf<String?>(null) }
+    // One pick spawns one machine; a second tap before the dialog closes must not create another.
+    var spawned by remember { mutableStateOf(false) }
 
     if (importing) {
         VmImportDialog(onDismiss = { importing = false }) { machine ->
@@ -111,10 +113,12 @@ internal fun VmSourceDialog(
                                     modifier = Modifier.padding(start = 14.dp, top = 2.dp, bottom = 4.dp),
                                 )
                                 for (version in versions) VmVersionRow(version) {
+                                    if (spawned) return@VmVersionRow
                                     // Each machine keeps a rootfs of its own, downloaded for the
                                     // version picked, so several presets coexist.
                                     val created = VmStore.create(ctx, distro)
                                     if (created != null) {
+                                        spawned = true
                                         VmPreset.start(ctx, created)
                                         onPick(created, false)
                                     }

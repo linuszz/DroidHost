@@ -4064,6 +4064,9 @@
     <string name="vm_state_new">未安装</string>
     <string name="vm_state_ready">就绪</string>
     <string name="vm_state_running">运行中</string>
+    <string name="vm_state_paused">已暂停</string>
+    <string name="vm_state_interrupted">已中断</string>
+    <string name="vm_state_failed">失败</string>
     <string name="vm_delete_title">删除这台虚拟机？</string>
     <string name="vm_delete_text">移除桌面环境及其自带应用。系统镜像、设置和共享库会保留。</string>
     <string name="vm_family_linux">Linux</string>
@@ -4113,6 +4116,13 @@
     <string name="vm_delete_machine_text">移除这台机器的系统及其全部内容。其他虚拟机和共享运行时不受影响。</string>
     <string name="vm_state_degraded">软件渲染</string>
     <string name="vm_degraded_note">未安装 GPU 驱动，桌面以软件渲染运行。可用，但较慢。</string>
+    <string name="vm_resume">继续</string>
+    <string name="vm_retry">重试</string>
+    <string name="vm_pause">暂停下载</string>
+    <string name="vm_cancel_install">取消安装</string>
+    <string name="vm_paused_note">下载已暂停，继续会从上次停下的地方接着下载。</string>
+    <string name="vm_interrupted_note">重启中断了安装。可继续安装，或删除该虚拟机。</string>
+    <string name="vm_failed_note">安装未完成。可重试，或删除该虚拟机。</string>
     <string name="vm_preset_seeding">正在安装虚拟机</string>
     <string name="vm_preset_seeding_running">正在安装虚拟机：%1$d%%</string>
     <string name="vm_preset_failed">虚拟机安装失败：%1$s</string>

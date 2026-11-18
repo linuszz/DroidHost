@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material3.MaterialTheme
@@ -37,12 +38,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
 import com.droidhost.launcher.vm.VmDesktop
+import com.droidhost.launcher.vm.VmLife
 import com.droidhost.launcher.vm.VmMachine
 import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmProbeReader
 import com.droidhost.launcher.vm.VmRuntime
 
-internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
+internal enum class VmStatus { ABSENT, NEW, INSTALLING, PAUSED, INTERRUPTED, FAILED, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
 
 /**
  * The status of one machine among several that coexist.
@@ -67,7 +69,12 @@ internal fun vmStatus(
     installingHere || (s.busy && !hasOwnRootfs) -> VmStatus.INSTALLING
     // A removal of the shared desktop is also busy, so it is told apart before the ready branch.
     s.removalPending && !hasOwnRootfs -> VmStatus.DELETING
+    VmLife.of(machine.lifecycle) == VmLife.DELETING -> VmStatus.DELETING
     runningHere -> VmStatus.RUNNING
+    // Persisted control states survive a restart, so a paused/interrupted/failed install is known.
+    VmLife.of(machine.lifecycle) == VmLife.PAUSED -> VmStatus.PAUSED
+    VmLife.of(machine.lifecycle) == VmLife.INTERRUPTED -> VmStatus.INTERRUPTED
+    VmLife.of(machine.lifecycle) == VmLife.FAILED -> VmStatus.FAILED
     hasOwnRootfs -> when {
         !desktopInMachine -> if (machine.imported) VmStatus.IMPORTED else VmStatus.NEW
         driverInMachine -> VmStatus.READY
@@ -103,6 +110,9 @@ internal fun VmStateChip(status: VmStatus) {
         VmStatus.ABSENT -> Unit
         VmStatus.NEW -> Chip(stringResource(R.string.vm_state_new), ok = false)
         VmStatus.INSTALLING -> Chip(stringResource(R.string.vm_installing), ok = false)
+        VmStatus.PAUSED -> Chip(stringResource(R.string.vm_state_paused), ok = false)
+        VmStatus.INTERRUPTED -> Chip(stringResource(R.string.vm_state_interrupted), ok = false)
+        VmStatus.FAILED -> Chip(stringResource(R.string.vm_state_failed), ok = false)
         VmStatus.READY -> Chip(stringResource(R.string.vm_state_ready), ok = true)
         VmStatus.DEGRADED -> Chip(stringResource(R.string.vm_state_degraded), ok = false)
         VmStatus.RUNNING -> Chip(stringResource(R.string.vm_state_running), ok = true)
@@ -116,6 +126,9 @@ internal fun vmStateLabel(status: VmStatus): String = when (status) {
     VmStatus.ABSENT -> ""
     VmStatus.NEW -> stringResource(R.string.vm_state_new)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
+    VmStatus.PAUSED -> stringResource(R.string.vm_state_paused)
+    VmStatus.INTERRUPTED -> stringResource(R.string.vm_state_interrupted)
+    VmStatus.FAILED -> stringResource(R.string.vm_state_failed)
     VmStatus.READY -> stringResource(R.string.vm_state_ready)
     VmStatus.DEGRADED -> stringResource(R.string.vm_state_degraded)
     VmStatus.RUNNING -> stringResource(R.string.vm_state_running)
@@ -130,6 +143,8 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.READY, VmStatus.DEGRADED -> stringResource(R.string.vm_start)
     VmStatus.RUNNING -> stringResource(R.string.vm_stop)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
+    VmStatus.PAUSED, VmStatus.INTERRUPTED -> stringResource(R.string.vm_resume)
+    VmStatus.FAILED -> stringResource(R.string.vm_retry)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
     VmStatus.IMPORTED -> stringResource(R.string.vm_install_desktop)
 }
@@ -138,6 +153,8 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
     VmStatus.ABSENT -> Icons.Filled.Add
     VmStatus.NEW -> Icons.Outlined.DesktopWindows
     VmStatus.READY, VmStatus.DEGRADED -> Icons.Filled.PlayArrow
+    VmStatus.PAUSED, VmStatus.INTERRUPTED -> Icons.Filled.PlayArrow
+    VmStatus.FAILED -> Icons.Filled.Refresh
     VmStatus.RUNNING -> Icons.Filled.Close
     VmStatus.IMPORTED -> Icons.Outlined.Download
     else -> null

@@ -4164,6 +4164,9 @@
     <string name="vm_state_new">Not installed</string>
     <string name="vm_state_ready">Ready</string>
     <string name="vm_state_running">Running</string>
+    <string name="vm_state_paused">Paused</string>
+    <string name="vm_state_interrupted">Interrupted</string>
+    <string name="vm_state_failed">Failed</string>
     <string name="vm_delete_title">Delete this machine?</string>
     <string name="vm_delete_text">Removes the desktop environment and its bundled apps. The system image, settings and shared libraries stay.</string>
     <string name="vm_family_linux">Linux</string>
@@ -4215,6 +4218,13 @@
     <string name="vm_delete_machine_text">Removes this machine\'s system and everything in it. Other machines and the shared runtime are not touched.</string>
     <string name="vm_state_degraded">Software</string>
     <string name="vm_degraded_note">No GPU driver is installed, so the desktop runs in software. It works, but slowly.</string>
+    <string name="vm_resume">Resume</string>
+    <string name="vm_retry">Retry</string>
+    <string name="vm_pause">Pause download</string>
+    <string name="vm_cancel_install">Cancel install</string>
+    <string name="vm_paused_note">The download is paused. Resume continues it from where it stopped.</string>
+    <string name="vm_interrupted_note">A restart interrupted the install. Resume continues it, or delete the machine.</string>
+    <string name="vm_failed_note">The install did not finish. Retry tries again, or delete the machine.</string>
     <string name="vm_preset_seeding">Installing the machine</string>
     <string name="vm_preset_seeding_running">Installing the machine: %1$d%%</string>
     <string name="vm_preset_failed">The machine could not be installed: %1$s</string>
