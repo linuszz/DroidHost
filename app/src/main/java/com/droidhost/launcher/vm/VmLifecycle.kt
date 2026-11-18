@@ -38,6 +38,7 @@ object VmLifecycle {
             VmDesktop.cancel(app, machine.id, forDelete = true)
             VmPreset.awaitIdle(machine.id, AWAIT_MS)
             VmDesktop.awaitIdle(machine.id, AWAIT_MS)
+            VmPreset.discardArchives(app, machine.id)
             VmStore.remove(app, machine)
         }, "vm-delete").apply { isDaemon = true }.start()
     }

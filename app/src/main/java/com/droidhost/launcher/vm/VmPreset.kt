@@ -92,6 +92,14 @@ object VmPreset {
         }
     }
 
+    /** Discards the partial archives a cancelled install kept, so a delete leaves nothing behind. */
+    fun discardArchives(context: Context, machineId: String) {
+        for (name in listOf("vm-$machineId.tar.zst", "vm-desktop-$machineId.tar.zst")) {
+            File(context.cacheDir, name).delete()
+            File(context.cacheDir, "$name.resume.properties").delete()
+        }
+    }
+
     private fun install(context: Context, machine: VmMachine) {
         val token = tokens[machine.id]
         val builtin = VmCatalog.builtinFor(machine.distro.id)

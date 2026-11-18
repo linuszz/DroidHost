@@ -102,6 +102,10 @@ class NavTabsTest {
         assertFalse(railBadge(state(setupReady = false, installed = null, available = "r10"), "setup"))
     }
 
+    @Test fun aRuntimeWithoutAVersionMarkerDoesNotNagOnTheSetupTab() {
+        assertFalse(railBadge(state(setupReady = true, installed = null, available = "r10"), "setup"))
+    }
+
     @Test fun sideRailOffersMoreWhenATabIsShelved() {
         place("setup", TabPlace.MORE)
         val s = state()

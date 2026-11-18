@@ -154,6 +154,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
 
     val status = vm?.let { statusOf(it) } ?: VmStatus.ABSENT
     val vmHasOwnRootfs = ownRootfs(vm) != null
+    // A preset or imported machine is deleted whole even before its rootfs exists; only the
+    // shared-runtime stand-in (the legacy "default" machine) loses just its desktop.
+    val vmOwnsMachine = vm != null && vm.id != VmMachine.DEFAULT_ID
     val primary: () -> Unit = when {
         status == VmStatus.ABSENT -> ({ picking = true })
         status == VmStatus.RUNNING -> a.onVmStop
@@ -253,9 +256,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                         VmPreset.cancel(ctx, vm.id, forDelete = false)
                         VmDesktop.cancel(ctx, vm.id, forDelete = false)
                     }
-                // A machine with its own rootfs is deleted whole; the shared runtime only loses its
-                // desktop, the system image stays. Two different deletions, two different wordings.
-                if (vm != null && vmHasOwnRootfs) VmRemoveMachine(
+                // A preset or imported machine is deleted whole, even before its rootfs exists; the
+                // shared runtime only loses its desktop. Two different deletions, two different wordings.
+                if (vm != null && vmOwnsMachine) VmRemoveMachine(
                     label = stringResource(R.string.vm_delete_machine),
                     title = stringResource(R.string.vm_delete_machine_title),
                     note = stringResource(R.string.vm_delete_machine_text),
@@ -293,6 +296,8 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         machine = vm,
         driverInstalled = VmDriver.driverInstalled(ownRootfs(vm)),
         hasOwnRootfs = vmHasOwnRootfs,
+        ownsMachine = vmOwnsMachine,
+        deleteEnabled = status != VmStatus.RUNNING && status != VmStatus.DELETING,
         onDismiss = { settings = false },
         onRemoveMachine = {
             VmLifecycle.deleteMachine(ctx, vm)
@@ -305,7 +310,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
 
 /**
  * What one machine is made of: the driver it runs on, the disk it uses against a soft ceiling, and
- * the deletion that fits it. A machine with its own rootfs is deleted whole; the shared runtime
+ * the deletion that fits it. A preset or imported machine is deleted whole; the shared runtime
  * only loses its desktop.
  */
 @Composable
@@ -313,6 +318,8 @@ private fun VmSettingsDialog(
     machine: VmMachine,
     driverInstalled: Boolean,
     hasOwnRootfs: Boolean,
+    ownsMachine: Boolean,
+    deleteEnabled: Boolean,
     onDismiss: () -> Unit,
     onRemoveMachine: () -> Unit,
     onRemoveDesktop: () -> Unit,
@@ -320,8 +327,10 @@ private fun VmSettingsDialog(
     val ctx = LocalContext.current
     val colors = MaterialTheme.colorScheme
     val root = if (hasOwnRootfs) VmRuntime.ownRootfs(ctx, machine.id) else LinuxRuntime.rootDir(ctx)
-    val size by produceState<Long?>(null, root) {
-        value = withContext(Dispatchers.IO) { runCatching { FileOps.totalSize(root) }.getOrNull() }
+    val size by produceState<Long?>(null, root, hasOwnRootfs, ownsMachine) {
+        // A whole machine with no rootfs yet holds nothing; do not report the shared runtime size.
+        value = if (ownsMachine && !hasOwnRootfs) 0L
+            else withContext(Dispatchers.IO) { runCatching { FileOps.totalSize(root) }.getOrNull() }
     }
     var cap by remember { mutableStateOf(VmStore.capBytes(ctx, machine.id)) }
     val caps = listOf(2L, 4L, 8L, 16L, 0L).map { it * 1024 * 1024 * 1024 }
@@ -372,11 +381,11 @@ private fun VmSettingsDialog(
                     stringResource(R.string.vm_settings_danger), fontSize = 11.sp, fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp, color = colors.error, modifier = Modifier.padding(top = 16.dp, bottom = 6.dp),
                 )
-                if (hasOwnRootfs) VmRemoveMachine(
+                if (ownsMachine) VmRemoveMachine(
                     label = stringResource(R.string.vm_delete_machine),
                     title = stringResource(R.string.vm_delete_machine_title),
                     note = stringResource(R.string.vm_delete_machine_text),
-                    enabled = true,
+                    enabled = deleteEnabled,
                     onRemove = { onRemoveMachine(); onDismiss() },
                 )
                 else UninstallDesktop(
