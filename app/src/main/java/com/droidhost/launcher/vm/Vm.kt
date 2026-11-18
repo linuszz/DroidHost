@@ -23,6 +23,7 @@ data class VmDistro(val id: String, val name: String, val family: VmFamily, val 
 object VmCatalog {
     const val UBUNTU = "ubuntu"
     const val DEBIAN = "debian"
+    const val ARCH = "arch"
 
     /** The fork's component catalogue, where each built-in distribution keeps its rootfs release. */
     private const val COMPONENTS = "https://raw.githubusercontent.com/linuszz/DroidHost-Components/main/"
@@ -32,7 +33,7 @@ object VmCatalog {
         VmDistro(DEBIAN, "Debian", VmFamily.LINUX, engine = true),
         VmDistro("nixos", "NixOS", VmFamily.LINUX, engine = false),
         VmDistro("fedora", "Fedora", VmFamily.LINUX, engine = false),
-        VmDistro("arch", "Arch Linux", VmFamily.LINUX, engine = false),
+        VmDistro(ARCH, "Arch Linux", VmFamily.LINUX, engine = false),
         VmDistro("alpine", "Alpine Linux", VmFamily.LINUX, engine = false),
         VmDistro("windows-11", "Windows 11", VmFamily.WINDOWS, engine = false),
         VmDistro("windows-xp", "Windows XP", VmFamily.WINDOWS, engine = false),

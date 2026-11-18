@@ -199,6 +199,8 @@ object VmProbeReader {
         for (path in listOf(
             "usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so",
             "usr/lib64/libvulkan_freedreno.so",
+            // Arch Linux ARM keeps a flat /usr/lib, without a multiarch or lib64 directory.
+            "usr/lib/libvulkan_freedreno.so",
             "usr/lib/aarch64-linux-gnu/dri/msm_dri.so",
             "usr/lib/dri/msm_dri.so",
             "usr/lib/aarch64-linux-gnu/libgallium_drv_video.so",

@@ -41,6 +41,18 @@ object VmGuest {
     private const val APT_CONFIG_TEXT = "DPkg::Use-Pty \"false\";\n" +
         "DPkg::Options {\"--force-confdef\"; \"--force-confold\";};\n"
 
+    /** Where pacman keeps its configuration, its system hooks, and the overrides of them. */
+    private const val PACMAN_CONF = "etc/pacman.conf"
+    private const val PACMAN_HOOKS = "usr/share/libalpm/hooks"
+    private const val PACMAN_HOOK_OVERRIDE = "etc/pacman.d/hooks"
+
+    /**
+     * A hook whose Exec calls any of these wants an init, a kernel or a device manager the
+     * machine does not have. Matching the Exec rather than the hook's name survives the
+     * renames systemd gives its hooks between versions.
+     */
+    private val NEEDS_INIT = Regex("""Exec\s*=.*(systemd|systemctl|udevadm|mkinitcpio|depmod|kernel-install)""")
+
     /** What a program left behind: its exit status and everything it printed. */
     class Result(val exitCode: Int, val output: String, val timedOut: Boolean)
 
@@ -95,7 +107,7 @@ object VmGuest {
         return dir
     }
 
-    /** Takes the tar wrapper of ours away, and gives the guest an apt that does not want one. */
+    /** Takes the tar wrapper of ours away, and gives the guest's package manager what it needs. */
     internal fun prepare(root: File) {
         for (slot in TAR_SLOTS) {
             val shim = File(root, slot)
@@ -104,14 +116,45 @@ object VmGuest {
             runCatching { shim.delete() }
                 .onFailure { Log.w(TAG, "the guest kept a tar of ours", it) }
         }
-        val apt = File(root, APT_CONFIG)
-        val current = runCatching { apt.readText() }.getOrDefault("")
-        if (current != APT_CONFIG_TEXT) {
-            runCatching {
-                apt.parentFile?.mkdirs()
-                apt.writeText(APT_CONFIG_TEXT)
-            }.onFailure { Log.w(TAG, "the guest could not be given an apt that works", it) }
+        if (File(root, "usr/bin/apt").isFile) {
+            val apt = File(root, APT_CONFIG)
+            val current = runCatching { apt.readText() }.getOrDefault("")
+            if (current != APT_CONFIG_TEXT) {
+                runCatching {
+                    apt.parentFile?.mkdirs()
+                    apt.writeText(APT_CONFIG_TEXT)
+                }.onFailure { Log.w(TAG, "the guest could not be given an apt that works", it) }
+            }
         }
+        if (File(root, "usr/bin/pacman").isFile) preparePacman(root)
         VmGuestIndex.keepInside(root)
+    }
+
+    /**
+     * Gives pacman a configuration it can run under proot, and masks the hooks that want an init.
+     *
+     * The download sandbox pacman sets up with landlock and seccomp cannot be built under proot,
+     * so it is turned off. A hook is masked the way the desktop pipeline masks its own: a file
+     * of the same name in a later HookDir, holding nothing that parses as a hook.
+     */
+    private fun preparePacman(root: File) {
+        val conf = File(root, PACMAN_CONF)
+        val text = runCatching { conf.readText() }.getOrDefault("")
+        if (text.isNotEmpty() && !text.contains("DisableSandbox")) {
+            runCatching { conf.writeText(text.replaceFirst("[options]", "[options]\nDisableSandbox")) }
+                .onFailure { Log.w(TAG, "the guest could not be given a pacman that works", it) }
+        }
+        val overrides = File(root, PACMAN_HOOK_OVERRIDE)
+        File(root, PACMAN_HOOKS).listFiles { file -> file.isFile && file.name.endsWith(".hook") }
+            ?.forEach { hook ->
+                val body = runCatching { hook.readText() }.getOrDefault("")
+                if (!NEEDS_INIT.containsMatchIn(body)) return@forEach
+                val override = File(overrides, hook.name)
+                if (override.isFile) return@forEach
+                runCatching {
+                    overrides.mkdirs()
+                    override.writeText("/dev/null")
+                }.onFailure { Log.w(TAG, "the guest kept a hook that wants an init", it) }
+            }
     }
 }

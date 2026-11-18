@@ -139,6 +139,20 @@ class VmProbeTest {
         assertTrue(probe.hasGpuStack)
     }
 
+    @Test fun anArchLinuxArmGpuStackIsNoticedWhereItKeepsIt() {
+        // Arch Linux ARM keeps a flat /usr/lib and rolls without a VERSION_ID.
+        val probe = VmProbeReader.probe(rootfs(
+            "PRETTY_NAME=\"Arch Linux ARM\"\nID=arch\n",
+            tools = listOf("/usr/bin/pacman"),
+            extra = listOf("usr/lib/libvulkan_freedreno.so"),
+        ))
+        assertTrue(probe.usable)
+        assertTrue(probe.hasGpuStack)
+        assertEquals("pacman", probe.packageManager)
+        assertEquals("", probe.versionId)
+        assertEquals(VmDriverTier.CONFIGURATION, probe.driverTier)
+    }
+
     @Test fun theLoaderIsFoundWhereverTheDistributionKeepsIt() {
         assertEquals("aarch64", VmProbeReader.probe(rootfs(
             "ID=ubuntu\nVERSION_ID=\"24.04\"\n",

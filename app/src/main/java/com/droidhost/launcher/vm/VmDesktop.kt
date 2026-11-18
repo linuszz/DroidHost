@@ -26,6 +26,7 @@ object VmDesktop {
     private const val ASSETS = "droidhost/vm"
     private const val CONFIG_LIST = "$ASSETS/desktop-config.txt"
     private const val PROGRAM_LIST = "$ASSETS/desktop-programs.txt"
+    private const val ARCH_PROGRAM_LIST = "$ASSETS/desktop-programs-arch.txt"
     private const val EXCLUDE_LIST = "$ASSETS/desktop-excluded-packages.txt"
     private const val FILE_LIST = "$ASSETS/desktop-files.txt"
     private const val FILES = "$ASSETS/desktop-files"
@@ -90,29 +91,35 @@ object VmDesktop {
             fail(Reason.NO_PACKAGES)
             return
         }
+        val pacman = VmPackageManager.of(root) == VmPackageManager.PACMAN
         installed.set(0)
         // The system freezes an app that sits in the background, and this install takes an hour.
         val hold = RuntimeInstallService.holdForPackage(context, context.getString(R.string.vm_install_desktop))
         try {
             progress = State(Stage.UPDATING, 3)
             report(context, Stage.UPDATING, 3)
-            val update = VmGuest.run(context, machine.id,
-                listOf("/usr/bin/apt-get", "update"), guestRoot = true, timeoutMs = UPDATE_TIMEOUT_MS)
+            val update = if (pacman) {
+                VmGuest.run(context, machine.id,
+                    listOf("/bin/bash", "-c", pacmanUpdateScript()), guestRoot = true, timeoutMs = UPDATE_TIMEOUT_MS)
+            } else {
+                VmGuest.run(context, machine.id,
+                    listOf("/usr/bin/apt-get", "update"), guestRoot = true, timeoutMs = UPDATE_TIMEOUT_MS)
+            }
             // apt-get update only warns when it cannot reach a mirror, so the warnings are the
-            // thing to look at rather than its exit status.
-            if (update.exitCode != 0 || update.output.contains("Failed to fetch")) {
+            // thing to look at rather than its exit status. pacman says it with its exit status.
+            if (update.exitCode != 0 || (!pacman && update.output.contains("Failed to fetch"))) {
                 fail(Reason.REPOSITORY_UNREACHABLE)
                 return
             }
 
             progress = State(Stage.INSTALLING, 10)
             report(context, Stage.INSTALLING, 10)
-            val packages = runtimePackages(context)
+            val packages = if (pacman) archPrograms(context) else runtimePackages(context)
             if (packages.isEmpty()) {
                 fail(Reason.NO_PACKAGES)
                 return
             }
-            val wanted = packagesTheMachineHas(context, machine.id, packages)
+            val wanted = packagesTheMachineHas(context, machine.id, packages, pacman)
             if (wanted.isEmpty()) {
                 fail(Reason.NO_PACKAGES)
                 return
@@ -121,7 +128,7 @@ object VmDesktop {
             progress = State(Stage.INSTALLING, 15)
             report(context, Stage.INSTALLING, 15)
             val result = VmGuest.run(context, machine.id,
-                listOf("/bin/bash", "-c", installScript()), guestRoot = true, timeoutMs = INSTALL_TIMEOUT_MS) { line ->
+                listOf("/bin/bash", "-c", installScript(pacman)), guestRoot = true, timeoutMs = INSTALL_TIMEOUT_MS) { line ->
                 onInstallLine(context, line, wanted.size)
             }
             if (result.exitCode != 0) {
@@ -193,9 +200,9 @@ object VmDesktop {
         packages.map { it.trim() }.filter { it.isNotEmpty() && it !in excluded }.distinct()
 
     /** The packages of that list the machine's own repository holds. */
-    private fun packagesTheMachineHas(context: Context, machineId: String, packages: List<String>): List<String> {
+    private fun packagesTheMachineHas(context: Context, machineId: String, packages: List<String>, pacman: Boolean): List<String> {
         val filtered = VmGuest.run(context, machineId,
-            listOf("/bin/bash", "-c", filterScript(), "_") + packages,
+            listOf("/bin/bash", "-c", filterScript(pacman), "_") + packages,
             guestRoot = true, timeoutMs = 10 * 60 * 1000L)
         if (filtered.exitCode != 0) return emptyList()
         val listed = VmGuest.run(context, machineId,
@@ -203,9 +210,20 @@ object VmDesktop {
         return listed.output.lines().map { it.trim() }.filter { it.isNotEmpty() }
     }
 
+    /**
+     * The desktop programs for a pacman machine.
+     *
+     * The runtime's dpkg names mean nothing on Arch, so the list is the one the KDE desktop
+     * pipeline asks of Arch Linux ARM's repositories, kept here as an asset of the same shape.
+     */
+    private fun archPrograms(context: Context): List<String> =
+        installable(configPaths(context, ARCH_PROGRAM_LIST), configPaths(context, EXCLUDE_LIST).toSet())
+
     /** How many packages are set up so far, so the page can show how far it got. */
     private fun onInstallLine(context: Context, line: String, total: Int) {
-        if (!line.startsWith("Setting up ")) return
+        val settingUp = line.startsWith("Setting up ") ||
+            line.contains(") installing ") || line.contains(") upgrading ")
+        if (!settingUp) return
         val done = installed.incrementAndGet()
         val percent = if (total <= 0) 0 else (15 + done * 70 / total).coerceAtMost(85)
         progress = State(Stage.INSTALLING, percent)
@@ -282,13 +300,47 @@ object VmDesktop {
         progress = State(Stage.FAILED, 0, reason)
     }
 
-    internal fun filterScript(): String = """
+    internal fun filterScript(pacman: Boolean = false): String = if (pacman) """
+printf '%s\n' "${'$'}@" > /root/.droiddeck-wanted.txt
+pacman -Slq | sort -u > /root/.droiddeck-repo.txt
+grep -F -x -f /root/.droiddeck-wanted.txt /root/.droiddeck-repo.txt > $PACKAGE_LIST
+""" else """
 printf '%s\n' "${'$'}@" > /root/.droiddeck-wanted.txt
 apt-cache dumpavail | sed -n 's/^Package: //p' | sort -u > /root/.droiddeck-repo.txt
 grep -F -x -f /root/.droiddeck-wanted.txt /root/.droiddeck-repo.txt > $PACKAGE_LIST
 """
 
-    internal fun installScript(): String = """
+    /**
+     * Syncs a pacman machine the Arch way: a full upgrade before anything new is installed.
+     *
+     * A rolling release does not support partial upgrades, so new packages must not land
+     * against old libraries. The keyring is populated first when the image left it empty;
+     * which keyrings exist depends on the distribution (Arch Linux ARM carries its own).
+     */
+    internal fun pacmanUpdateScript(): String = """
+if [ ! -f /etc/pacman.d/gnupg/pubring.gpg ] && [ ! -f /etc/pacman.d/gnupg/pubring.kbx ]; then
+  pacman-key --init || exit 1
+  keys=""
+  for kr in archlinux archlinuxarm; do
+    [ -f "/usr/share/pacman/keyrings/${'$'}kr.gpg" ] && keys="${'$'}keys ${'$'}kr"
+  done
+  [ -n "${'$'}keys" ] && { pacman-key --populate ${'$'}keys || exit 1; }
+fi
+pacman -Syu --noconfirm
+"""
+
+    internal fun installScript(pacman: Boolean = false): String = if (pacman) """
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
+rc=1
+for attempt in 1 2 3; do
+  xargs -r pacman -S --noconfirm --needed < $PACKAGE_LIST 2>&1 | tee -a $INSTALL_LOG
+  rc=${'$'}{PIPESTATUS[0]}
+  [ "${'$'}rc" = 0 ] && break
+  echo "== attempt ${'$'}attempt left the machine at ${'$'}rc"
+done
+[ "${'$'}rc" = 0 ] && pacman -Scc --noconfirm
+exit ${'$'}rc
+""" else """
 export DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8
 printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d

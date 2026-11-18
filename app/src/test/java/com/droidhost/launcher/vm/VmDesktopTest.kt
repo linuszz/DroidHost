@@ -69,4 +69,29 @@ class VmDesktopTest {
         val wanted = VmDesktop.installable(listOf(" bash ", "", "bash", "dpkg"), emptySet())
         assertEquals(listOf("bash", "dpkg"), wanted)
     }
+
+    @Test fun thePacmanInstallAnswersNoQuestionsAndSkipsWhatIsAlreadyThere() {
+        val script = VmDesktop.installScript(pacman = true)
+        assertTrue(script.contains("pacman -S --noconfirm --needed"))
+        assertTrue(script.contains("for attempt in 1 2 3"))
+        assertTrue(script.contains("PIPESTATUS"))
+        assertTrue(script.contains("exit \$rc"))
+        // The hooks that would want an init are masked before pacman runs, not by a policy file.
+        assertFalse(script.contains("policy-rc.d"))
+    }
+
+    @Test fun thePacmanUpdateUpgradesTheWholeSystemBeforeAnythingNew() {
+        // A rolling release does not support partial upgrades: new packages must not land
+        // against old libraries.
+        val script = VmDesktop.pacmanUpdateScript()
+        assertTrue(script.contains("pacman -Syu --noconfirm"))
+        assertTrue(script.contains("pacman-key --init"))
+        assertTrue(script.contains("archlinuxarm"))
+    }
+
+    @Test fun thePacmanFilterAsksPacmanForItsRepository() {
+        val script = VmDesktop.filterScript(pacman = true)
+        assertTrue(script.contains("pacman -Slq"))
+        assertFalse(script.contains("apt-cache"))
+    }
 }
