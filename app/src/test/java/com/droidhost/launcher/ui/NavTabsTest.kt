@@ -93,9 +93,13 @@ class NavTabsTest {
 
     @Test fun moreCarriesTheBadgeOfAShelvedTabThatNeedsAttention() {
         place("setup", TabPlace.MORE)
-        assertTrue(railBadge(state(setupReady = false), NavTabs.MORE))
+        assertTrue(railBadge(state(available = "r10"), NavTabs.MORE))
         place("setup", TabPlace.BAR)
-        assertFalse(railBadge(state(setupReady = false), NavTabs.MORE))
+        assertFalse(railBadge(state(available = "r10"), NavTabs.MORE))
+    }
+
+    @Test fun anUninstalledOptionalRuntimeDoesNotNagOnTheSetupTab() {
+        assertFalse(railBadge(state(setupReady = false, installed = null, available = "r10"), "setup"))
     }
 
     @Test fun sideRailOffersMoreWhenATabIsShelved() {
@@ -218,8 +222,8 @@ class NavTabsTest {
         NavTabs.rearrange(ctx, s, rows.subList(0, split), rows.subList(split + 1, rows.size))
     }
 
-    private fun state(storesOn: Boolean = true, downloads: Int = 0, setupReady: Boolean = true) = FrontEndState(
-        installed = "r9", ready = setupReady, available = null, busy = false, stage = "", percent = -1,
+    private fun state(storesOn: Boolean = true, downloads: Int = 0, setupReady: Boolean = true, installed: String? = "r9", available: String? = null) = FrontEndState(
+        installed = installed, ready = setupReady, available = available, busy = false, stage = "", percent = -1,
         desktopInstalled = true, offlineAccount = null, offline = false, frameGenLabel = "", romsDir = null, logsEnabled = false,
         steamGames = emptyList(), emulators = emptyList(), running = null,
         gameStoresEnabled = storesOn, storeDownloadsActive = downloads,

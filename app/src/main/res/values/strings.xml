@@ -209,7 +209,7 @@
     <string name="app_fex_hint">FEX runs x86 Linux programs on this ARM64 device. Auto uses it when the program is built for x86.</string>
     <string name="app_fex_x86">%1$s through FEX</string>
     <string name="app_fex_not_ready">This program is built for %1$s PCs and runs through FEX, which is not set up yet. Open Steam once while signed in: DroidHost has it download FEX and the Steam Linux Runtime it needs, then this opens.</string>
-    <string name="session_proot_missing">DroidHost\'s proot could not be downloaded. Check the connection and try again. The session was not started, because the fallback proot is too slow to play on.</string>
+    <string name="session_proot_missing">DroidHost\'s proot could not be downloaded. Check the connection and try again. The session was not started, because the fallback proot is too slow to use.</string>
     <string name="session_powervr_missing">The PowerVR graphics runtime could not be downloaded. Check the connection and try again.</string>
     <string name="session_directaudio_missing">DirectAudio could not be downloaded, so game audio uses the slower path this session.</string>
     <string name="session_end_program">This program</string>
@@ -1898,8 +1898,8 @@
     <string name="session_proton_downloading_mb">downloading Proton Experimental (ARM64) · %1$d of %2$d MB</string>
     <string name="session_proton_checking">checking Proton Experimental (ARM64)</string>
     <string name="session_proton_unpacking">unpacking Proton Experimental (ARM64)</string>
-    <string name="session_runtime_catalog_unreachable">Could not reach the runtime catalog. Check the connection and press Play again.</string>
-    <string name="session_runtime_install_failed">The Linux runtime did not install. Check the runtime in Setup and press Play again.</string>
+    <string name="session_runtime_catalog_unreachable">Could not reach the runtime catalog. Check the connection and try again.</string>
+    <string name="session_runtime_install_failed">The Linux runtime did not install. Check the runtime in Setup and try again.</string>
     <string name="session_desktop_install_failed">The desktop did not install (%1$s). Check the connection and press Desktop again.</string>
     <string name="session_package_resume_failed">An install that was interrupted could not be finished (%1$s). Check the connection and space, then try again.</string>
     <plurals name="session_end_runtime_damaged">
@@ -3055,8 +3055,8 @@
     <string name="setup_tab_glasses">Smart glasses</string>
     <string name="setup_glasses_scope">Display and head-tracking settings are shared across DroidHost menus, games and desktop sessions.</string>
     <string name="setup_glasses_connect">Connect smart glasses to change their display and tracking settings. Your saved settings are kept when you disconnect.</string>
-    <string name="setup_ready">Ready to play</string>
-    <string name="setup_not_ready">Not ready to play yet</string>
+    <string name="setup_ready">Ready to use</string>
+    <string name="setup_not_ready">Not ready yet</string>
     <string name="setup_ready_runtime">runtime %1$s</string>
     <string name="setup_ready_limit_off">process limit off</string>
     <string name="setup_ready_signed_in">signed in as %1$s</string>

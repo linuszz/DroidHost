@@ -204,7 +204,8 @@ internal fun railLabelIcon(key: String): Pair<Int, ImageVector> = when (key) {
     else -> R.string.rail_updates to Icons.Outlined.SystemUpdate
 }
 
-internal fun setupNeedsAttention(s: FrontEndState): Boolean = !s.ready || (s.available != null && s.available != s.installed) ||
+// The runtime is optional: only flag an update to an installed runtime, never nag about its absence.
+internal fun setupNeedsAttention(s: FrontEndState): Boolean = (s.ready && s.available != null && s.available != s.installed) ||
     PhantomProcessLimit.blocksSteam(s.phantomProcessStatus) || com.droidhost.launcher.sync.Syncthing.needsAttention
 
 internal fun railBadge(s: FrontEndState, key: String, setupNeedsAttention: Boolean = setupNeedsAttention(s)): Boolean = when (key) {
