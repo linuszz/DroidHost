@@ -180,9 +180,10 @@ class VmUnpackerTest {
         assertFalse(File(root, "etc/passwd").exists())
     }
 
-    @Test fun aBigHardLinkBecomesALinkBackToTheFileItPointsAt() {
-        // Ubuntu ships coreutils once and hard links every applet of it: the archive holds one
-        // 10.5 MB binary and a name per applet. Copying each name costs a gigabyte of rootfs.
+    @Test fun aBigHardLinkTakesTheLink2SymlinkLayout() {
+        // A plain link back to the binary would leave /proc/self/exe named coreutils, and the
+        // applet's own name check (uutils) then refuses to run, so the shared installer's
+        // link2symlink layout is taken instead.
         val content = "x".repeat(2 shl 20)
         val archive = tar("system.tar") { tar ->
             tar.file("usr/lib/cargo/bin/coreutils", content)
@@ -192,8 +193,47 @@ class VmUnpackerTest {
         VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
         val link = File(root, "usr/bin/ls")
         assertTrue(Files.isSymbolicLink(link.toPath()))
-        assertEquals("../lib/cargo/bin/coreutils", Files.readSymbolicLink(link.toPath()).toString())
-        assertEquals(content.length, link.length().toInt())
+        val intermediate = Files.readSymbolicLink(link.toPath())
+        assertTrue(intermediate.fileName.toString().startsWith(".l2s."))
+        assertTrue(Files.isSymbolicLink(intermediate))
+        assertEquals(content.length, Files.size(Files.readSymbolicLink(intermediate)).toInt())
+        assertEquals(content, link.readText())
+        assertTrue(Files.isSymbolicLink(File(root, "usr/lib/cargo/bin/coreutils").toPath()))
+    }
+
+    @Test fun everyAppletOfABigBinarySharesOneRealFile() {
+        val content = "x".repeat(2 shl 20)
+        val archive = tar("system.tar") { tar ->
+            tar.file("usr/bin/coreutils", content)
+            tar.link("usr/bin/ls", "usr/bin/coreutils", hard = true)
+            tar.link("usr/bin/env", "usr/bin/coreutils", hard = true)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val bin = File(root, "usr/bin")
+        for (name in listOf("coreutils", "ls", "env")) {
+            assertTrue(Files.isSymbolicLink(File(bin, name).toPath()))
+            assertEquals(content, File(bin, name).readText())
+        }
+        val real = bin.listFiles()!!.filter { it.name.startsWith(".l2s.") && !Files.isSymbolicLink(it.toPath()) }
+        assertEquals(1, real.size)
+        assertEquals(content.length, real[0].length().toInt())
+    }
+
+    @Test fun aBigHardLinkThroughARelativeLinkIsCopiedUnderItsOwnName() {
+        // The layout cannot be taken through a relative tar symlink; the copy keeps the applet's
+        // own name, which the name check (uutils) needs.
+        val content = "x".repeat(2 shl 20)
+        val archive = tar("system.tar") { tar ->
+            tar.file("usr/bin/coreutils", content)
+            tar.link("usr/lib/cargo/bin/coreutils/env", "../../../../bin/coreutils", hard = false)
+            tar.link("usr/bin/env", "usr/lib/cargo/bin/coreutils/env", hard = true)
+        }
+        val root = folder.newFolder()
+        VmUnpacker.unpack(archive, root, VmUnpacker.Kind.TAR)
+        val env = File(root, "usr/bin/env")
+        assertFalse(Files.isSymbolicLink(env.toPath()))
+        assertEquals(content, env.readText())
     }
 
     @Test fun aHardLinkBecomesACopyOfTheFileItPointsAt() {

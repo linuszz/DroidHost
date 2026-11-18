@@ -728,7 +728,7 @@ public final class LinuxRuntimeInstaller {
         return l2sLink(target, link, null, null);
     }
 
-    static boolean l2sLink(File target, File link, File tree, File linkTree) {
+    public static boolean l2sLink(File target, File link, File tree, File linkTree) {
         java.nio.file.Path here = tree == null ? null : tree.toPath().toAbsolutePath().normalize();
         java.nio.file.Path there = linkTree == null ? here : linkTree.toPath().toAbsolutePath().normalize();
         java.util.function.UnaryOperator<java.nio.file.Path> shown = path -> {

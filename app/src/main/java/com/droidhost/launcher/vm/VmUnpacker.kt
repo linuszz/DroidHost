@@ -2,6 +2,7 @@ package com.droidhost.launcher.vm
 
 import android.util.Log
 import com.droidhost.launcher.core.ArchivePaths
+import com.droidhost.launcher.runtime.LinuxRuntimeInstaller
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
@@ -206,9 +207,10 @@ object VmUnpacker {
      * Android refuses to create a hard link, so the other name of a file has to be written some
      * other way. A distribution ships a multi-call binary once and hard links every applet of it:
      * Ubuntu 26.04's coreutils is 10.5 MB and arrives 115 times, so copying each one costs a
-     * gigabyte where the archive was a hundred megabytes. A file this large is written as a
-     * relative link back to the one the archive wrote, which the guest follows and runs as it
-     * would the original; anything smaller is still copied, so an applet stays a file of its own.
+     * gigabyte where the archive was a hundred megabytes. A file this large takes the shared
+     * installer's link2symlink layout instead, or a copy when the layout cannot be taken: a
+     * plain link back to the binary would leave /proc/self/exe named coreutils, and the
+     * applet's own name check (uutils) then refuses to run. Anything smaller is still copied.
      */
     private fun writeHardLink(destination: File, file: File, target: String, mode: Int) {
         val source = ArchivePaths.inside(destination, target)
@@ -219,13 +221,8 @@ object VmUnpacker {
         val parent = file.parentFile
         if (parent == null) return
         if (!parent.isDirectory && !parent.mkdirs()) return
-        if (source.length() >= LINK_THRESHOLD) {
-            val relative = parent.canonicalFile.toPath()
-                .relativize(source.canonicalFile.toPath())
-                .toString()
-            writeLink(destination, file, relative)
-            return
-        }
+        if (source.length() >= LINK_THRESHOLD &&
+            LinuxRuntimeInstaller.l2sLink(source, file, destination, null)) return
         try {
             source.copyTo(file, overwrite = true)
             applyMode(file, mode)
