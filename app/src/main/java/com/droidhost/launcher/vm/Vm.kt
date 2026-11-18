@@ -15,16 +15,21 @@ enum class VmFamily(val labelRes: Int) {
 
 /**
  * [engine] marks the systems a machine can boot today. A guest needs its own rootfs and desktop
- * pack, and the app ships one of each, so everything else stays listed but disabled.
+ * pack; the built-in distributions download one of each, so everything else stays listed but
+ * disabled.
  */
 data class VmDistro(val id: String, val name: String, val family: VmFamily, val engine: Boolean)
 
 object VmCatalog {
     const val UBUNTU = "ubuntu"
+    const val DEBIAN = "debian"
+
+    /** The fork's component catalogue, where each built-in distribution keeps its rootfs release. */
+    private const val COMPONENTS = "https://raw.githubusercontent.com/linuszz/DroidHost-Components/main/"
 
     val distros = listOf(
         VmDistro(UBUNTU, "Ubuntu", VmFamily.LINUX, engine = true),
-        VmDistro("debian", "Debian", VmFamily.LINUX, engine = false),
+        VmDistro(DEBIAN, "Debian", VmFamily.LINUX, engine = true),
         VmDistro("nixos", "NixOS", VmFamily.LINUX, engine = false),
         VmDistro("fedora", "Fedora", VmFamily.LINUX, engine = false),
         VmDistro("arch", "Arch Linux", VmFamily.LINUX, engine = false),
@@ -36,7 +41,20 @@ object VmCatalog {
         VmDistro("freedos", "FreeDOS", VmFamily.DOS, engine = false),
     )
 
+    /** A built-in distribution version: the rootfs the app downloads for a preset machine. */
+    data class Builtin(val distro: String, val version: String, val catalogUrl: String)
+
+    val builtins = listOf(
+        Builtin(UBUNTU, "26.04", COMPONENTS + "linuxfs-ubuntu.json"),
+        Builtin(DEBIAN, "13", COMPONENTS + "linuxfs-debian.json"),
+    )
+
     fun of(id: String?): VmDistro? = distros.firstOrNull { it.id == id }
+
+    /** The built-in versions of a distribution, empty when it has none. */
+    fun versionsFor(distroId: String): List<Builtin> = builtins.filter { it.distro == distroId }
+
+    fun builtinFor(distroId: String): Builtin? = builtins.firstOrNull { it.distro == distroId }
 }
 
 /**

@@ -36,12 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
-import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.vm.VmDesktop
-import com.droidhost.launcher.vm.VmDistro
 import com.droidhost.launcher.vm.VmMachine
 import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmProbeReader
+import com.droidhost.launcher.vm.VmRuntime
 
 internal enum class VmStatus { ABSENT, NEW, INSTALLING, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
 
@@ -88,12 +87,14 @@ internal fun vmInstallReason(reason: VmDesktop.Reason): String = when (reason) {
     VmDesktop.Reason.NO_SETTINGS -> stringResource(R.string.vm_install_reason_settings)
 }
 
-/** Why the seeding of a preset machine did not finish, in words. */
+/** Why the install of a preset machine did not finish, in words. */
 @Composable
 internal fun vmSeedReason(reason: VmPreset.Reason): String = when (reason) {
     VmPreset.Reason.NONE -> ""
-    VmPreset.Reason.NO_RUNTIME -> stringResource(R.string.vm_seed_reason_runtime)
-    VmPreset.Reason.COPY_FAILED -> stringResource(R.string.vm_seed_reason_copy)
+    VmPreset.Reason.NO_CATALOG -> stringResource(R.string.vm_seed_reason_catalog)
+    VmPreset.Reason.DOWNLOAD_FAILED -> stringResource(R.string.vm_seed_reason_download)
+    VmPreset.Reason.UNPACK_FAILED -> stringResource(R.string.vm_seed_reason_unpack)
+    VmPreset.Reason.NOT_USABLE -> stringResource(R.string.vm_seed_reason_usable)
 }
 
 @Composable
@@ -143,22 +144,19 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
 }
 
 /**
- * The name a built-in distribution shows: the installed runtime's own name with its major version,
- * e.g. "Ubuntu 26.04 LTS". A distribution the app has no runtime for keeps the catalogue name.
+ * A machine's name: one the user brought keeps it; a built-in one reads its own rootfs, e.g.
+ * "Ubuntu 26.04 LTS" or "Debian GNU/Linux 13". A machine without a rootfs yet keeps the catalogue name.
  */
-internal fun vmDistroLabel(ctx: Context, distro: VmDistro): String {
-    val release = VmProbeReader.release(LinuxRuntime.rootDir(ctx)) ?: return distro.name
-    if (release["ID"].orEmpty().lowercase() != distro.id) return distro.name
-    val name = release["NAME"] ?: return distro.name
+internal fun vmMachineLabel(ctx: Context, machine: VmMachine): String {
+    if (machine.imported) return machine.distro.name
+    val release = VmProbeReader.release(VmRuntime.rootFor(ctx, machine.id)) ?: return machine.distro.name
+    if (release["ID"].orEmpty().lowercase() != machine.distro.id) return machine.distro.name
+    val name = release["NAME"] ?: return machine.distro.name
     val version = release["VERSION_ID"].orEmpty()
     if (version.isEmpty()) return name
     val lts = if (release["VERSION"].orEmpty().contains("LTS")) " LTS" else ""
     return "$name $version$lts"
 }
-
-/** A machine's name: one the user brought keeps it; a built-in one takes the runtime's version. */
-internal fun vmMachineLabel(ctx: Context, machine: VmMachine): String =
-    if (machine.imported) machine.distro.name else vmDistroLabel(ctx, machine.distro)
 
 /**
  * The machines the user owns, one card each, plus a card that opens the new-machine wizard.

@@ -62,6 +62,7 @@ internal fun VmSourceDialog(
 ) {
     val ctx = LocalContext.current
     var importing by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf<String?>(null) }
 
     if (importing) {
         VmImportDialog(onDismiss = { importing = false }) { machine ->
@@ -95,13 +96,30 @@ internal fun VmSourceDialog(
                         letterSpacing = 1.4.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                     )
-                    for (distro in list) VmDistroRow(distro) {
-                        // Each machine keeps a rootfs of its own, so a new preset joins the ones
-                        // already here; it is seeded from the shared runtime before it is used.
-                        val created = VmStore.create(ctx, distro)
-                        if (created != null) {
-                            VmPreset.start(ctx, created)
-                            onPick(created, false)
+                    for (distro in list) {
+                        val versions = VmCatalog.versionsFor(distro.id)
+                        if (versions.isEmpty()) {
+                            VmDistroRow(distro) {}
+                        } else {
+                            VmDistroRow(distro, chevron = true) {
+                                expanded = if (expanded == distro.id) null else distro.id
+                            }
+                            if (expanded == distro.id) {
+                                Text(
+                                    stringResource(R.string.vm_source_version_hint), fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 14.dp, top = 2.dp, bottom = 4.dp),
+                                )
+                                for (version in versions) VmVersionRow(version) {
+                                    // Each machine keeps a rootfs of its own, downloaded for the
+                                    // version picked, so several presets coexist.
+                                    val created = VmStore.create(ctx, distro)
+                                    if (created != null) {
+                                        VmPreset.start(ctx, created)
+                                        onPick(created, false)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -326,9 +344,9 @@ private fun displayName(ctx: android.content.Context, uri: Uri): String {
     }.getOrNull() ?: uri.lastPathSegment.orEmpty().substringAfterLast('/')
 }
 
-/** A distribution row, the same one the picker shows. */
+/** A distribution row: a built-in one drills into its versions, the rest stay gated. */
 @Composable
-private fun VmDistroRow(distro: VmDistro, onPick: (VmDistro) -> Unit) {
+private fun VmDistroRow(distro: VmDistro, chevron: Boolean = false, onPick: (VmDistro) -> Unit) {
     val colors = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(12.dp)
     Row(
@@ -339,10 +357,31 @@ private fun VmDistroRow(distro: VmDistro, onPick: (VmDistro) -> Unit) {
             .padding(horizontal = 14.dp, vertical = 11.dp),
     ) {
         Text(
-            vmDistroLabel(LocalContext.current, distro), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
+            distro.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
             modifier = Modifier.weight(1f).alpha(if (distro.engine) 1f else 0.45f),
         )
-        if (distro.engine) Chip(stringResource(R.string.vm_install), ok = true)
+        if (chevron) Text("›", fontSize = 18.sp, color = colors.onSurfaceVariant)
+        else if (distro.engine) Chip(stringResource(R.string.vm_install), ok = true)
         else Chip(stringResource(R.string.vm_needs_engine), ok = false)
+    }
+}
+
+/** A version of a built-in distribution, the second level of the picker. */
+@Composable
+private fun VmVersionRow(version: VmCatalog.Builtin, onPick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(12.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(start = 18.dp, bottom = 3.dp).clip(shape)
+            .background(colors.surfaceVariant)
+            .clickable(role = Role.Button) { onPick() }
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+    ) {
+        Text(
+            version.version, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
+            modifier = Modifier.weight(1f),
+        )
+        Chip(stringResource(R.string.vm_install), ok = true)
     }
 }

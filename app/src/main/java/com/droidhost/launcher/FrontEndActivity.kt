@@ -115,7 +115,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var ready by mutableStateOf(false)
     private var removalPending by mutableStateOf(false)
     private var available by mutableStateOf<LinuxRuntimeInstaller.Release?>(null)
-    private var catalogFresh = false
     private var componentsQueueBusy by mutableStateOf(false)
     private var busy by mutableStateOf(false)
     private var stage by mutableStateOf("")
@@ -1991,7 +1990,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         drivers.checkOnOpen()
         resumeInterruptedPackages()
         protons.checkUpdates()
-        catalogFresh = false
         if (!SessionState.running && !componentsQueueBusy && !LinuxRuntimeInstaller.isBusy()) {
             componentsQueueBusy = true
             Thread({
@@ -2009,7 +2007,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                 ui.post {
                     componentsQueueBusy = false
                     if (showComponents) components.refreshComponents()
-                    autoUpdateRuntime()
                 }
             }, "components-queue").start()
         } else if (showComponents) components.refreshComponents()
@@ -3011,7 +3008,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         vkBridgeSafe = SessionPrefs.vkBridgeSafe(this)
         bridgeProtonDxvk = SessionPrefs.bridgeProtonDxvk(this)
         removalPending = LinuxRuntimeInstaller.hasRemovalPending(this)
-        ui.post { autoUpdateRuntime() }
         frameGenLabel = FrameGen.label(this)
         romsDir = SessionPrefs.romsDir(this).takeIf { it.isNotEmpty() }
         logsEnabled = SessionPrefs.logsEnabled(this)
@@ -3224,7 +3220,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private fun removeRuntime() {
         if (runtimeChangesBlocked()) return
         val removal = LinuxRuntimeInstaller.beginUninstall(this) ?: return
-        com.droidhost.launcher.runtime.RuntimeAutoUpdate.seed(this)
         ready = false
         com.droidhost.launcher.runtime.RuntimeInstallService.keepRemovalAlive(this)
         followRuntimeOperation { removal.run(it) }
@@ -3257,27 +3252,12 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         }, "runtime-operation").start()
     }
 
-    private fun autoUpdateRuntime() {
-        val release = available?.takeIf { catalogFresh } ?: return
-        if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED) || runtimeChangesBlocked() || removalPending) return
-        if (installed != null) com.droidhost.launcher.runtime.RuntimeAutoUpdate.seed(this)
-        if (release.version == installed) return
-        if (installed == null && (OfflineMode.enabled(this) || !com.droidhost.launcher.core.DeviceSupport.canDraw(this) ||
-                !com.droidhost.launcher.frontend.AutoComponents.online(this) || com.droidhost.launcher.frontend.AutoComponents.unfavourable(this))) return
-        if (com.droidhost.launcher.runtime.RuntimeAutoUpdate.claim(this, installed, release.version)) {
-            Log.i(TAG, "runtime: installing ${release.version} over ${installed ?: "nothing"} by itself")
-            install(release)
-        }
-    }
-
     private fun checkCatalog() {
         val release = LinuxRuntimeInstaller.fetchRelease()
         Log.i(TAG, "catalog: " + (release?.version ?: "unreachable"))
         ui.post {
             if (release == null) return@post
             available = release
-            catalogFresh = true
-            autoUpdateRuntime()
         }
     }
 

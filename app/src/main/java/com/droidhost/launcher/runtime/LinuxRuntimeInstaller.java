@@ -35,7 +35,7 @@ public final class LinuxRuntimeInstaller {
     private static final String TAG = "LinuxRuntimeInstaller";
 
     public static final String CATALOG_URL =
-            "https://raw.githubusercontent.com/Droid-Deck/DroidDeck-Components/main/linuxfs-ubuntu.json";
+            "https://raw.githubusercontent.com/linuszz/DroidHost-Components/main/linuxfs-ubuntu.json";
 
     private static final String VERSION_FILE = ".version";
 
@@ -114,7 +114,7 @@ public final class LinuxRuntimeInstaller {
 
     public static String catalogError() { return CATALOG_ERROR.get(); }
 
-    static Release fetchRelease(String catalogUrl) {
+    public static Release fetchRelease(String catalogUrl) {
         CATALOG_ERROR.remove();
         String body = Downloader.downloadString(catalogUrl);
         if (body == null) return catalogFailed(Downloader.lastFailure());
