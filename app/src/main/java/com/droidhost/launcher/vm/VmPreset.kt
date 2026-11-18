@@ -5,6 +5,7 @@ import android.util.Log
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.Downloader
 import com.droidhost.launcher.runtime.DesktopCatalog
+import com.droidhost.launcher.runtime.DesktopPack
 import com.droidhost.launcher.runtime.LinuxRuntimeInstaller
 import com.droidhost.launcher.runtime.RuntimeInstallService
 import com.droidhost.launcher.session.SessionFiles
@@ -60,6 +61,10 @@ object VmPreset {
         val builtin = VmCatalog.builtinFor(machine.distro.id)
         val root = VmRuntime.allocateRootfs(context, machine.id)
         val hold = RuntimeInstallService.holdForPackage(context, context.getString(R.string.vm_preset_seeding))
+        fun report(percent: Int) {
+            progress = State(Stage.INSTALLING, percent, machine.id)
+            RuntimeInstallService.packageProgress(context.getString(R.string.vm_preset_seeding), percent)
+        }
         try {
             val release = builtin?.let { LinuxRuntimeInstaller.fetchRelease(it.catalogUrl) }
             if (release == null) {
@@ -69,9 +74,7 @@ object VmPreset {
             }
             val archive = File(context.cacheDir, "vm-" + release.version.replace(Regex("[^A-Za-z0-9._-]"), "_") + ".tar.zst")
             val downloaded = Downloader.downloadFile(release.url, archive, true, release.sha256) { fraction ->
-                val percent = if (fraction < 0) 0 else (fraction * 60).toInt().coerceIn(0, 60)
-                progress = State(Stage.INSTALLING, percent, machine.id)
-                RuntimeInstallService.packageProgress(context.getString(R.string.vm_preset_seeding), percent)
+                report(if (fraction < 0) 0 else (fraction * 25).toInt().coerceIn(0, 25))
             }
             if (!downloaded) {
                 archive.delete()
@@ -81,9 +84,7 @@ object VmPreset {
             }
             val kind = VmUnpacker.Kind.of(archive.name) ?: VmUnpacker.Kind.TAR_ZST
             val written = VmUnpacker.unpack(archive, root, kind) { _, percent ->
-                val overall = 60 + (percent * 35 / 100).coerceIn(0, 35)
-                progress = State(Stage.INSTALLING, overall, machine.id)
-                RuntimeInstallService.packageProgress(context.getString(R.string.vm_preset_seeding), overall)
+                report(25 + (percent * 15 / 100).coerceIn(0, 15))
             }
             archive.delete()
             if (written == null) {
@@ -96,9 +97,14 @@ object VmPreset {
                 fail(machine.id, Reason.NOT_USABLE)
                 return
             }
+            val desktop = seedDesktop(context, root) { report(it) }
+            if (desktop != Reason.NONE) {
+                VmRuntime.removeInBackground(root)
+                fail(machine.id, desktop)
+                return
+            }
             runCatching { SessionFiles.stage(context, root, false) }
                 .onFailure { Log.w(TAG, "could not stage the session files", it) }
-            // The release ships the GPU driver and a fitted desktop, so the machine is ready.
             VmDriver.markInstalled(root)
             if (DesktopCatalog.desktopInstalled(root)) VmDesktop.markInstalled(root)
             progress = State(Stage.READY, 100, machine.id)
@@ -110,6 +116,34 @@ object VmPreset {
             hold()
             running.set(false)
         }
+    }
+
+    /**
+     * Fits the desktop pack the base rootfs names in desktop-pack.json.
+     *
+     * The release splits the desktop into its own archive: the base carries only the pointer and
+     * the package marker, so without this step the machine has no kwin or droiddeck-desktop and
+     * the session exits (status 66) before the desktop starts.
+     */
+    private fun seedDesktop(context: Context, root: File, report: (Int) -> Unit): Reason {
+        val pack = DesktopPack.info(root) ?: return Reason.NONE
+        if (DesktopCatalog.desktopInstalled(root)) return Reason.NONE
+        val archive = File(context.cacheDir, "vm-desktop-" + pack.tag.replace(Regex("[^A-Za-z0-9._-]"), "_") + ".tar.zst")
+        val downloaded = Downloader.downloadFile(pack.url, archive, true, pack.sha256) { fraction ->
+            report(40 + (if (fraction < 0) 0 else (fraction * 35).toInt()).coerceIn(0, 35))
+        }
+        if (!downloaded) {
+            archive.delete()
+            return Reason.DOWNLOAD_FAILED
+        }
+        report(78)
+        DesktopPack.prepareInstall(root)
+        val extracted = LinuxRuntimeInstaller.extract(context, archive, root, null)
+        archive.delete()
+        if (!extracted) return Reason.UNPACK_FAILED
+        DesktopPack.finishInstall(root)
+        report(95)
+        return if (DesktopCatalog.desktopInstalled(root)) Reason.NONE else Reason.UNPACK_FAILED
     }
 
     private fun fail(machineId: String, reason: Reason) {
