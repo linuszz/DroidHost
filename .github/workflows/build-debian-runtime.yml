@@ -12,6 +12,11 @@ on:
         required: false
         default: ''
 
+# Cancel superseded artifact-only push builds; a dispatch publish run is never cancelled.
+concurrency:
+  group: debian-runtime-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
 permissions:
   contents: read
 
