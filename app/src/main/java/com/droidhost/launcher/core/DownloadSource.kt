@@ -25,7 +25,7 @@ object DownloadSource {
     private const val KEY_PROXY = "proxy"
     private const val KEY_FASTEST = "fastest"
 
-    private const val PROBE = "https://raw.githubusercontent.com/Droid-Deck/DroidDeck/main/README.md"
+    private const val PROBE = "https://raw.githubusercontent.com/linuszz/DroidHost/main/README.md"
     private const val PROBE_TIMEOUT_MS = 4_000
     private const val PROBE_COOLDOWN_MS = 30_000L
     private const val UA = "DroidHost-Android"
@@ -39,7 +39,7 @@ object DownloadSource {
     )
 
     private val CATALOGS = listOf(
-        "https://raw.githubusercontent.com/Droid-Deck/DroidDeck-CI/",
+        "https://raw.githubusercontent.com/linuszz/DroidHost-CI/",
         "https://raw.githubusercontent.com/Droid-Deck/DroidDeck-Components/",
         "https://raw.githubusercontent.com/Droid-Deck/Drivers-CI/",
     )

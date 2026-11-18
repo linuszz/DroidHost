@@ -474,9 +474,9 @@ private fun ReleaseFacts(r: Release) {
     ).joinToString(" · ")
     Text(facts, fontSize = 12.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp))
     FlowRow(Modifier.padding(top = 2.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (r.linkedPr > 0) LinkPill(stringResource(R.string.upd_pr, r.linkedPr), "https://github.com/Droid-Deck/DroidDeck/pull/${r.linkedPr}")
-        if (r.commit.length >= 7) LinkPill(stringResource(R.string.upd_link_commit, r.shortCommit), "https://github.com/Droid-Deck/DroidDeck/commit/${r.commit}")
-        if (r.url.startsWith("https://github.com/Droid-Deck/")) LinkPill(stringResource(R.string.upd_link_release), r.url)
+        if (r.linkedPr > 0) LinkPill(stringResource(R.string.upd_pr, r.linkedPr), "https://github.com/linuszz/DroidHost/pull/${r.linkedPr}")
+        if (r.commit.length >= 7) LinkPill(stringResource(R.string.upd_link_commit, r.shortCommit), "https://github.com/linuszz/DroidHost/commit/${r.commit}")
+        if (r.url.startsWith("https://github.com/linuszz/")) LinkPill(stringResource(R.string.upd_link_release), r.url)
     }
 }
 
@@ -626,7 +626,7 @@ private fun TestRow(t: Release, selected: Boolean, tooOld: Boolean = false, onCl
 private fun buildDetails(me: AppUpdates.Installed, label: String): String = buildString {
     append("DroidHost ").append(me.version).append(" (versionCode ").append(me.versionCode).append(")\n")
     append(label)
-    if (me.pr > 0) append("\nPR #").append(me.pr).append(" https://github.com/Droid-Deck/DroidDeck/pull/").append(me.pr)
+    if (me.pr > 0) append("\nPR #").append(me.pr).append(" https://github.com/linuszz/DroidHost/pull/").append(me.pr)
     if (me.commit.length >= 7) append("\nCommit ").append(me.commit)
 }
 

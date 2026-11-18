@@ -14,7 +14,7 @@ object SteamDeckRepo {
     const val PAGE_SIZE = 12
     const val MAX_DOWNLOAD_BYTES = 120L shl 20
     private const val MAX_JSON_BYTES = 1 shl 20
-    private const val USER_AGENT = "DroidHost (+https://github.com/Droid-Deck/DroidDeck)"
+    private const val USER_AGENT = "DroidHost (+https://github.com/linuszz/DroidHost)"
     private const val CACHE_MS = 10 * 60 * 1000L
 
     enum class Sort(val key: String) {

@@ -16,8 +16,8 @@ import java.security.MessageDigest
 
 object AppUpdates {
     private const val TAG = "AppUpdates"
-    private const val REPO = "Droid-Deck/DroidDeck"
-    private const val CI_REPO = "Droid-Deck/DroidDeck-CI"
+    private const val REPO = "linuszz/DroidHost"
+    private const val CI_REPO = "linuszz/DroidHost-CI"
     private val CATALOG_URL = "https://raw.githubusercontent.com/$CI_REPO/${BuildConfig.UPDATE_CATALOG_BRANCH}/catalog.json"
     private const val PREFS = "app_updates"
     private const val KEY_CATALOG = "catalog"
