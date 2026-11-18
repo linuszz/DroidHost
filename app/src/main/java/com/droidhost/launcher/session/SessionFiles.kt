@@ -11,6 +11,7 @@ import com.droidhost.launcher.runtime.DesktopCatalog
 import com.droidhost.launcher.runtime.LegacyNames
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.runtime.ProotFastPath
+import com.droidhost.launcher.vm.VmDesktop
 import java.io.File
 
 object SessionFiles {
@@ -34,6 +35,16 @@ object SessionFiles {
     )
 
     private const val UBISOFT_SERVICE = "usr/local/lib/droiddeck-ubisoft/droiddeck-upc.exe"
+
+    /**
+     * Whether the rootfs holds a desktop whose launcher files must be staged.
+     *
+     * A preset machine or the shared runtime carries the desktop pack's marker; a machine the
+     * user brought is fitted by VmDesktop and carries only its own. Both run the same launcher,
+     * so both need the same files; without them the session exits at status 66.
+     */
+    internal fun wantsDesktopFiles(root: File): Boolean =
+        DesktopCatalog.desktopInstalled(root) || VmDesktop.desktopInstalled(root)
 
     /** Fetches the Ubisoft pack and, once it lands, stages the service so a running session gets it without restarting. */
     fun ensureUbisoftService(context: Context) {
@@ -235,7 +246,7 @@ object SessionFiles {
             val dir = asset.substringBeforeLast('/')
             runCatching { context.assets.list("linuxfs/$dir")?.contains(asset.substringAfterLast('/')) == true }.getOrDefault(false)
         }
-        val all = (if (DesktopCatalog.desktopInstalled(root)) files + DESKTOP_FILES else files) + optional
+        val all = (if (wantsDesktopFiles(root)) files + DESKTOP_FILES else files) + optional
         val ledger = StageLedger(File(root, STAGED_LEDGER), apkIdentity(context))
         for ((asset, relative) in all) {
             val target = File(root, relative)

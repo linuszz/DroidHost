@@ -6,3 +6,34 @@ usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/layouts/org.kde.pl
 usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/plasmoidsetupscripts/org.kde.plasma.kickoff.js
 usr/local/bin/sudo
 usr/local/bin/droiddeck-root
+# The desktop layer a fitted machine needs when the app's own runtime carries no desktop:
+# the settings, the services and the look the session runs with. Without them the launcher
+# starts a bare KDE, software-rendered and without the fork's services. Same files the fork
+# builds its Ubuntu desktop overlay from.
+etc/xdg/baloofilerc
+etc/xdg/fastfetch/config.jsonc
+etc/xdg/gtk-3.0/settings.ini
+etc/xdg/kcminputrc
+etc/xdg/kded6rc
+etc/xdg/kdeglobals
+etc/xdg/kscreenlockerrc
+etc/xdg/ksmserverrc
+etc/xdg/ksplashrc
+etc/xdg/kwalletrc
+etc/xdg/kwinrc
+etc/xdg/kwinrulesrc
+etc/xdg/plasmarc
+etc/xdg/powerdevilrc
+etc/xdg/startkderc
+usr/local/bin/droiddeck-polkitd
+usr/share/dbus-1/services/org.bluez.obex.service
+usr/share/droiddeck/fastfetch/logo.txt
+usr/share/droiddeck/kwin-compositor
+usr/share/droiddeck/system-services/org.freedesktop.PackageKit.service
+usr/share/droiddeck/system-services/org.freedesktop.PolicyKit1.service
+usr/share/licenses/droiddeck-desktop/NOTICE
+usr/share/plasma/look-and-feel/com.droidhost.desktop/metadata.json
+usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/defaults
+usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/plasmoidsetupscripts/org.kde.plasma.folder.js
+usr/share/plasma/look-and-feel/com.droidhost.desktop/contents/plasmoidsetupscripts/org.kde.plasma.systemtray.js
+usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/droiddeck-text-editor.js

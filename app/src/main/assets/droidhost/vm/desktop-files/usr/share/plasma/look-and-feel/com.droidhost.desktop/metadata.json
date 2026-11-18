@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "DroidHost"
+            }
+        ],
+        "Category": "",
+        "Description": "KDE Breeze Dark with the Kubuntu default wallpaper",
+        "Id": "com.droidhost.desktop",
+        "License": "GPLv2+",
+        "Name": "Breeze Dark",
+        "ServiceTypes": [
+            "Plasma/LookAndFeel"
+        ],
+        "Version": "0.01",
+        "Website": ""
+    },
+    "X-KDE-ParentApp": "",
+    "X-Plasma-MainScript": "defaults"
+}

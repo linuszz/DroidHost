@@ -1,0 +1,16 @@
+Third-party files in DroidHost's Ubuntu runtime (tools/ubuntu/overlay):
+
+- The com.droidhost.desktop look-and-feel package: its desktop layout and plasmoid setup scripts
+  were adapted from Valve's steamdeck-kde-presets
+  (https://github.com/Jovian-Experiments/steamdeck-kde-presets), GPL-2.0-or-later, as its metadata
+  states. It applies KDE Breeze Dark with the Kubuntu default wallpaper; the Vapor color scheme,
+  Plasma theme and Konsole profile are no longer shipped.
+- KWin (kwin-wayland and related packages, version +droiddeck): Kubuntu's KWin source package,
+  GPL-2.0-or-later, rebuilt with tools/ubuntu/patches/kwin. Corresponding source: `apt source kwin`
+  plus those patches (https://github.com/Droid-Deck/DroidDeck/tree/main/tools/ubuntu/patches/kwin).
+- Mesa (packages with version +droiddeck): Ubuntu's Mesa source package, MIT and others, rebuilt with
+  the freedreno KGSL kernel interface enabled (tools/ubuntu/build-debs.sh). Corresponding source:
+  `apt source mesa`.
+
+Everything else in the runtime is Ubuntu's own packages, under their own licenses
+(/usr/share/doc/*/copyright).

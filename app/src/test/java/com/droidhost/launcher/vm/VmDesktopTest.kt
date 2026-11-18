@@ -78,6 +78,8 @@ class VmDesktopTest {
         assertTrue(script.contains("exit \$rc"))
         // The hooks that would want an init are masked before pacman runs, not by a policy file.
         assertFalse(script.contains("policy-rc.d"))
+        // pacman 7 defaults the remove-all question to no; --noconfirm would keep the cache.
+        assertTrue(script.contains("yes | pacman -Scc"))
     }
 
     @Test fun thePacmanUpdateUpgradesTheWholeSystemBeforeAnythingNew() {
@@ -87,6 +89,13 @@ class VmDesktopTest {
         assertTrue(script.contains("pacman -Syu --noconfirm"))
         assertTrue(script.contains("pacman-key --init"))
         assertTrue(script.contains("archlinuxarm"))
+    }
+
+    @Test fun thePacmanUpdateDoesNotTrustTheDatabasesItFinds() {
+        // libalpm asks the mirror with the local database's time; one kept from another mirror
+        // can look newer while holding older names, and the mirror answers 304.
+        val script = VmDesktop.pacmanUpdateScript()
+        assertTrue(script.contains("rm -f /var/lib/pacman/sync/*.db"))
     }
 
     @Test fun thePacmanFilterAsksPacmanForItsRepository() {

@@ -95,6 +95,54 @@ class VmGuestTest {
         assertEquals(1, Regex("DisableSandbox").findAll(conf.readText()).count())
     }
 
+    @Test fun theSandboxSwitchIsSplitWhenTheConfigurationNamesTheHalves() {
+        // pacman 7 carries the switches commented out, and reads two halves rather than the
+        // single switch of pacman 6. A commented line is not a setting.
+        val root = rootWith("usr/bin/pacman")
+        val conf = File(root, "etc/pacman.conf")
+        conf.parentFile?.mkdirs()
+        conf.writeText("[options]\n#DisableSandboxFilesystem\n#DisableSandboxSyscalls\nArchitecture = aarch64\n")
+        VmGuest.prepare(root)
+        val text = conf.readText()
+        assertTrue(Regex("(?m)^DisableSandboxFilesystem$").containsMatchIn(text))
+        assertTrue(Regex("(?m)^DisableSandboxSyscalls$").containsMatchIn(text))
+        assertFalse(Regex("(?m)^DisableSandbox$").containsMatchIn(text))
+    }
+
+    @Test fun theSplitSandboxSwitchesAreNotDoubled() {
+        val root = rootWith("usr/bin/pacman")
+        val conf = File(root, "etc/pacman.conf")
+        conf.parentFile?.mkdirs()
+        conf.writeText("[options]\nDisableSandboxFilesystem\nDisableSandboxSyscalls\n")
+        VmGuest.prepare(root)
+        val text = conf.readText()
+        assertEquals(1, Regex("(?m)^DisableSandboxFilesystem$").findAll(text).count())
+        assertEquals(1, Regex("(?m)^DisableSandboxSyscalls$").findAll(text).count())
+        assertFalse(Regex("(?m)^DisableSandbox$").containsMatchIn(text))
+    }
+
+    @Test fun theDownloadUserIsCommentedOut() {
+        // proot cannot become another user, so the download must run as the guest's root.
+        val root = rootWith("usr/bin/pacman")
+        val conf = File(root, "etc/pacman.conf")
+        conf.parentFile?.mkdirs()
+        conf.writeText("[options]\nDownloadUser = alpm\n")
+        VmGuest.prepare(root)
+        val text = conf.readText()
+        assertTrue(text.contains("#DownloadUser = alpm"))
+        assertFalse(Regex("(?m)^DownloadUser").containsMatchIn(text))
+    }
+
+    @Test fun theDownloadUserIsNotCommentedTwice() {
+        val root = rootWith("usr/bin/pacman")
+        val conf = File(root, "etc/pacman.conf")
+        conf.parentFile?.mkdirs()
+        conf.writeText("[options]\nDownloadUser = alpm\n")
+        VmGuest.prepare(root)
+        VmGuest.prepare(root)
+        assertEquals(1, Regex("DownloadUser").findAll(conf.readText()).count())
+    }
+
     @Test fun hooksThatWantAnInitAreMasked() {
         val root = rootWith("usr/bin/pacman")
         val hooks = File(root, "usr/share/libalpm/hooks")
@@ -107,9 +155,24 @@ class VmGuestTest {
             "[Trigger]\nType = Package\nTarget = *\n\n[Action]\nExec = /usr/bin/echo done\n")
         VmGuest.prepare(root)
         val overrides = File(root, "etc/pacman.d/hooks")
-        assertEquals("/dev/null", File(overrides, "30-systemd-tmpfiles.hook").readText())
+        // libalpm 16 fails the transaction on a line it cannot parse, so the mask is empty.
+        assertEquals("", File(overrides, "30-systemd-tmpfiles.hook").readText())
         assertTrue(File(overrides, "90-mkinitcpio-install.hook").isFile)
         assertFalse(File(overrides, "20-harmless.hook").exists())
+    }
+
+    @Test fun theMaskOfAnEarlierBuildIsReplaced() {
+        // An earlier build wrote "/dev/null" as the mask's body; libalpm 16 reads that as an
+        // invalid option and fails the whole transaction.
+        val root = rootWith("usr/bin/pacman")
+        val hooks = File(root, "usr/share/libalpm/hooks")
+        hooks.mkdirs()
+        File(hooks, "30-systemd-tmpfiles.hook").writeText("[Action]\nExec = /usr/bin/systemd-tmpfiles --create\n")
+        val override = File(root, "etc/pacman.d/hooks/30-systemd-tmpfiles.hook")
+        override.parentFile?.mkdirs()
+        override.writeText("/dev/null")
+        VmGuest.prepare(root)
+        assertEquals("", override.readText())
     }
 
     @Test fun aHookMaskedByTheDistributionIsLeftAlone() {

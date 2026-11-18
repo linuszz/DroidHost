@@ -1,6 +1,9 @@
 # The desktop programs for a pacman machine, in Arch Linux ARM's names.
 # Same list as tools/desktop-kde/seeds.txt, which the KDE desktop pipeline asks of
 # Arch Linux ARM's repositories; the runtime's dpkg names mean nothing there.
+# mesa and vulkan-freedreno are the GPU stack the pipeline installs apart from the
+# seeds; a machine the user brought has no other place to get them from. Arch Linux
+# ARM ships the Vulkan driver as its own package, not inside mesa.
 kwin
 plasma-workspace
 plasma-desktop
@@ -24,6 +27,12 @@ xdg-desktop-portal-kde
 xorg-xwayland
 qt6-wayland
 wayland-utils
+mesa
+vulkan-freedreno
+# Named providers, because --noconfirm takes the first one listed: for tessdata
+# that would be Afrikaans, and the multimedia backend is kept at ffmpeg.
+tesseract-data-eng
+qt6-multimedia-ffmpeg
 noto-fonts
 noto-fonts-emoji
 xdg-utils

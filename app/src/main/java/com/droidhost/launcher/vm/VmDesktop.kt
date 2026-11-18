@@ -341,6 +341,10 @@ grep -F -x -f /root/.droiddeck-wanted.txt /root/.droiddeck-repo.txt > $PACKAGE_L
      * A rolling release does not support partial upgrades, so new packages must not land
      * against old libraries. The keyring is populated first when the image left it empty;
      * which keyrings exist depends on the distribution (Arch Linux ARM carries its own).
+     *
+     * The sync databases are fetched fresh: libalpm asks the mirror with the local file's
+     * time, and a database kept from another mirror can look newer than the server's while
+     * holding older names. The server then answers 304 and the stale names stay.
      */
     internal fun pacmanUpdateScript(): String = """
 if [ ! -f /etc/pacman.d/gnupg/pubring.gpg ] && [ ! -f /etc/pacman.d/gnupg/pubring.kbx ]; then
@@ -351,9 +355,16 @@ if [ ! -f /etc/pacman.d/gnupg/pubring.gpg ] && [ ! -f /etc/pacman.d/gnupg/pubrin
   done
   [ -n "${'$'}keys" ] && { pacman-key --populate ${'$'}keys || exit 1; }
 fi
+rm -f /var/lib/pacman/sync/*.db
 pacman -Syu --noconfirm
 """
 
+    /**
+     * Installs the packages the machine's repository holds, retrying a mirror that fails.
+     *
+     * The pacman cache is emptied with an explicit yes: pacman 7 asks whether to remove ALL
+     * cached files with a default of no, and --noconfirm takes the default, keeping the cache.
+     */
     internal fun installScript(pacman: Boolean = false): String = if (pacman) """
 export LC_ALL=C.UTF-8 LANG=C.UTF-8
 rc=1
@@ -363,7 +374,7 @@ for attempt in 1 2 3; do
   [ "${'$'}rc" = 0 ] && break
   echo "== attempt ${'$'}attempt left the machine at ${'$'}rc"
 done
-[ "${'$'}rc" = 0 ] && pacman -Scc --noconfirm
+[ "${'$'}rc" = 0 ] && yes | pacman -Scc
 exit ${'$'}rc
 """ else """
 export DEBIAN_FRONTEND=noninteractive LC_ALL=C.UTF-8 LANG=C.UTF-8

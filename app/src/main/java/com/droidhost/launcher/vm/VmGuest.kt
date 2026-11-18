@@ -46,6 +46,9 @@ object VmGuest {
     private const val PACMAN_HOOKS = "usr/share/libalpm/hooks"
     private const val PACMAN_HOOK_OVERRIDE = "etc/pacman.d/hooks"
 
+    /** The mask an earlier build wrote, which libalpm 16 rejects as an invalid option. */
+    private const val OLD_HOOK_MASK = "/dev/null"
+
     /**
      * A hook whose Exec calls any of these wants an init, a kernel or a device manager the
      * machine does not have. Matching the Exec rather than the hook's name survives the
@@ -134,15 +137,30 @@ object VmGuest {
      * Gives pacman a configuration it can run under proot, and masks the hooks that want an init.
      *
      * The download sandbox pacman sets up with landlock and seccomp cannot be built under proot,
-     * so it is turned off. A hook is masked the way the desktop pipeline masks its own: a file
-     * of the same name in a later HookDir, holding nothing that parses as a hook.
+     * so it is turned off. Pacman 7 split the switch into a filesystem half and a syscalls half;
+     * a configuration that names the halves is given both, an older one the single switch. Only
+     * an active line counts as set: the stock configuration carries the switches commented out.
+     * The download user is commented out too, because proot cannot become another user.
+     *
+     * A hook is masked with an empty file of the same name in a later HookDir. libalpm 16 treats
+     * a line it cannot parse as a fatal error, so the mask holds nothing at all.
      */
     private fun preparePacman(root: File) {
         val conf = File(root, PACMAN_CONF)
         val text = runCatching { conf.readText() }.getOrDefault("")
-        if (text.isNotEmpty() && !text.contains("DisableSandbox")) {
-            runCatching { conf.writeText(text.replaceFirst("[options]", "[options]\nDisableSandbox")) }
-                .onFailure { Log.w(TAG, "the guest could not be given a pacman that works", it) }
+        if (text.isNotEmpty()) {
+            var updated = text
+            if (!Regex("(?m)^\\s*DisableSandbox").containsMatchIn(updated)) {
+                val switches = if (updated.contains("DisableSandboxFilesystem"))
+                    "[options]\nDisableSandboxFilesystem\nDisableSandboxSyscalls"
+                else "[options]\nDisableSandbox"
+                updated = updated.replaceFirst("[options]", switches)
+            }
+            updated = updated.replace(Regex("(?m)^(\\s*)DownloadUser\\b"), "$1#DownloadUser")
+            if (updated != text) {
+                runCatching { conf.writeText(updated) }
+                    .onFailure { Log.w(TAG, "the guest could not be given a pacman that works", it) }
+            }
         }
         val overrides = File(root, PACMAN_HOOK_OVERRIDE)
         File(root, PACMAN_HOOKS).listFiles { file -> file.isFile && file.name.endsWith(".hook") }
@@ -150,10 +168,16 @@ object VmGuest {
                 val body = runCatching { hook.readText() }.getOrDefault("")
                 if (!NEEDS_INIT.containsMatchIn(body)) return@forEach
                 val override = File(overrides, hook.name)
-                if (override.isFile) return@forEach
+                if (override.isFile) {
+                    if (runCatching { override.readText() }.getOrDefault("") == OLD_HOOK_MASK) {
+                        runCatching { override.writeText("") }
+                            .onFailure { Log.w(TAG, "the guest kept a hook that wants an init", it) }
+                    }
+                    return@forEach
+                }
                 runCatching {
                     overrides.mkdirs()
-                    override.writeText("/dev/null")
+                    override.writeText("")
                 }.onFailure { Log.w(TAG, "the guest kept a hook that wants an init", it) }
             }
     }
