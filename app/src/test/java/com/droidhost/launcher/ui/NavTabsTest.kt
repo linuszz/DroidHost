@@ -93,9 +93,9 @@ class NavTabsTest {
 
     @Test fun moreCarriesTheBadgeOfAShelvedTabThatNeedsAttention() {
         place("setup", TabPlace.MORE)
-        assertTrue(railBadge(state(available = "r10"), NavTabs.MORE))
+        assertTrue(railBadge(state(phantomProcessStatus = com.droidhost.launcher.core.PhantomProcessStatus.ENABLED), NavTabs.MORE))
         place("setup", TabPlace.BAR)
-        assertFalse(railBadge(state(available = "r10"), NavTabs.MORE))
+        assertFalse(railBadge(state(phantomProcessStatus = com.droidhost.launcher.core.PhantomProcessStatus.ENABLED), NavTabs.MORE))
     }
 
     @Test fun anUninstalledOptionalRuntimeDoesNotNagOnTheSetupTab() {
@@ -104,6 +104,10 @@ class NavTabsTest {
 
     @Test fun aRuntimeWithoutAVersionMarkerDoesNotNagOnTheSetupTab() {
         assertFalse(railBadge(state(setupReady = true, installed = null, available = "r10"), "setup"))
+    }
+
+    @Test fun anAvailableRuntimeUpdateDoesNotNagOnTheSetupTab() {
+        assertFalse(railBadge(state(installed = "r9", available = "r10"), "setup"))
     }
 
     @Test fun sideRailOffersMoreWhenATabIsShelved() {
@@ -226,11 +230,15 @@ class NavTabsTest {
         NavTabs.rearrange(ctx, s, rows.subList(0, split), rows.subList(split + 1, rows.size))
     }
 
-    private fun state(storesOn: Boolean = true, downloads: Int = 0, setupReady: Boolean = true, installed: String? = "r9", available: String? = null) = FrontEndState(
+    private fun state(
+        storesOn: Boolean = true, downloads: Int = 0, setupReady: Boolean = true, installed: String? = "r9", available: String? = null,
+        phantomProcessStatus: com.droidhost.launcher.core.PhantomProcessStatus = com.droidhost.launcher.core.PhantomProcessStatus.NOT_APPLICABLE,
+    ) = FrontEndState(
         installed = installed, ready = setupReady, available = available, busy = false, stage = "", percent = -1,
         desktopInstalled = true, offlineAccount = null, offline = false, frameGenLabel = "", romsDir = null, logsEnabled = false,
         steamGames = emptyList(), emulators = emptyList(), running = null,
         gameStoresEnabled = storesOn, storeDownloadsActive = downloads,
+        phantomProcessStatus = phantomProcessStatus,
     )
 
     private fun actions() = FrontEndActions(

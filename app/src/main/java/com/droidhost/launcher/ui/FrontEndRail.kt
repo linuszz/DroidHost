@@ -204,8 +204,8 @@ internal fun railLabelIcon(key: String): Pair<Int, ImageVector> = when (key) {
     else -> R.string.rail_updates to Icons.Outlined.SystemUpdate
 }
 
-// The runtime is optional: only flag an update to an installed runtime, never nag about its absence.
-internal fun setupNeedsAttention(s: FrontEndState): Boolean = (s.installed != null && s.available != null && s.available != s.installed) ||
+// The shared runtime is optional legacy: its update is shown on the setup page, not as a rail badge.
+internal fun setupNeedsAttention(s: FrontEndState): Boolean =
     PhantomProcessLimit.blocksSteam(s.phantomProcessStatus) || com.droidhost.launcher.sync.Syncthing.needsAttention
 
 internal fun railBadge(s: FrontEndState, key: String, setupNeedsAttention: Boolean = setupNeedsAttention(s)): Boolean = when (key) {
