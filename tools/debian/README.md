@@ -66,6 +66,9 @@ Differences from the Ubuntu runtime (`tools/ubuntu`):
 - KWin is 6.3 (integer buffer scale), so the nested-scale patch is written against that model
   instead of 6.8's fractional one.
 
-`.github/workflows/build-debian-runtime.yml` builds it and, run with a new tag (`debian-rN`),
-publishes the runtime and its desktop pack in Droid-Deck/DroidDeck-Components; a `linuxfs-debian.json`
-catalog entry there (to be added) will name the release the app installs.
+`.github/workflows/build-debian-runtime.yml` builds it and, dispatched with a new revision (`rN`),
+publishes the runtime and its desktop pack in linuszz/DroidHost-Components. The release tag is composed
+as `<app>-debian<DEBIAN_VERSION>-<revision>` (e.g. `droidhost-debian13-r1`): the app name is
+`rootProject.name` from settings.gradle lower-cased, and the Debian major version is `DEBIAN_VERSION` in
+base.env, so a future Debian 14 only needs that pin bumped. A `linuxfs-debian.json` catalog entry there
+(to be added) will name the release the app installs.

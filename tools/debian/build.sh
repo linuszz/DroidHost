@@ -3,7 +3,7 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 debs=$(realpath "${1:?directory with the DroidHost-built .deb files}")
 out=$(realpath -m "${2:?out dir}")
-runtime_id=${3:?runtime id, e.g. debian-r1}
+runtime_id=${3:?runtime id, e.g. droidhost-debian13-r1}
 [ "$(uname -m)" = aarch64 ] || { echo 'the Debian runtime needs a native arm64 runner' >&2; exit 1; }
 command -v debootstrap >/dev/null || { echo 'debootstrap and debian-archive-keyring are required' >&2; exit 1; }
 source "$here/base.env"
@@ -21,7 +21,7 @@ for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
 sudo mkdir -p "$root/tmp/droiddeck/debs"
 sudo cp -r "$here/." "$root/tmp/droiddeck/src"
 sudo cp "$debs"/*.deb "$root/tmp/droiddeck/debs/"
-base_url=${DESKTOP_BASE_URL:-https://github.com/Droid-Deck/DroidDeck-Components/releases/download/$runtime_id}
+base_url=${DESKTOP_BASE_URL:-https://github.com/linuszz/DroidHost-Components/releases/download/$runtime_id}
 desktop_id=$runtime_id-desktop
 stage() {
   sudo chroot "$root" /bin/bash /tmp/droiddeck/src/setup.sh /tmp/droiddeck/debs "$runtime_id" "$1"
