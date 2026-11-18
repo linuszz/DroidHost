@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: 'Release revision, e.g. r1 (tag becomes droidhost-debian13-r1); empty = artifact only'
+        description: 'Release revision, e.g. r1 (tag becomes droidhost-debian13-arm64-r1); empty = artifact only'
         required: false
         default: ''
 
@@ -57,7 +57,8 @@ jobs:
           [ -n "$app" ] || { echo '::error::cannot read rootProject.name from settings.gradle'; exit 1; }
           . tools/debian/base.env
           [ -n "${DEBIAN_VERSION:-}" ] || { echo '::error::DEBIAN_VERSION missing from tools/debian/base.env'; exit 1; }
-          tag="${app}-debian${DEBIAN_VERSION}-${revision}"
+          case $(uname -m) in aarch64) arch=arm64 ;; x86_64) arch=amd64 ;; *) arch=$(uname -m) ;; esac
+          tag="${app}-debian${DEBIAN_VERSION}-${arch}-${revision}"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Release tag: $tag"
       - uses: actions/download-artifact@v4

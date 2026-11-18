@@ -68,7 +68,8 @@ Differences from the Ubuntu runtime (`tools/ubuntu`):
 
 `.github/workflows/build-debian-runtime.yml` builds it and, dispatched with a new revision (`rN`),
 publishes the runtime and its desktop pack in linuszz/DroidHost-Components. The release tag is composed
-as `<app>-debian<DEBIAN_VERSION>-<revision>` (e.g. `droidhost-debian13-r1`): the app name is
-`rootProject.name` from settings.gradle lower-cased, and the Debian major version is `DEBIAN_VERSION` in
-base.env, so a future Debian 14 only needs that pin bumped. A `linuxfs-debian.json` catalog entry there
+as `<app>-debian<DEBIAN_VERSION>-<arch>-<revision>` (e.g. `droidhost-debian13-arm64-r1`): the app name is
+`rootProject.name` from settings.gradle lower-cased, the Debian major version is `DEBIAN_VERSION` in
+base.env (a future Debian 14 only needs that pin bumped), and the architecture is the build runner's
+`uname -m` mapped to the Debian name (aarch64 -> arm64). A `linuxfs-debian.json` catalog entry there
 (to be added) will name the release the app installs.

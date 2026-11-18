@@ -3,7 +3,7 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 debs=$(realpath "${1:?directory with the DroidHost-built .deb files}")
 out=$(realpath -m "${2:?out dir}")
-runtime_id=${3:?runtime id, e.g. droidhost-debian13-r1}
+runtime_id=${3:?runtime id, e.g. droidhost-debian13-arm64-r1}
 [ "$(uname -m)" = aarch64 ] || { echo 'the Debian runtime needs a native arm64 runner' >&2; exit 1; }
 command -v debootstrap >/dev/null || { echo 'debootstrap and debian-archive-keyring are required' >&2; exit 1; }
 source "$here/base.env"
