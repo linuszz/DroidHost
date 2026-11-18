@@ -10,6 +10,9 @@ on:
       - '.gitignore'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
+      # Per-VM runtime trees only; the APK build reads other tools/ paths (app/build.gradle).
+      - 'tools/debian/**'
+      - 'tools/ubuntu/**'
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened, ready_for_review ]
@@ -19,6 +22,9 @@ on:
       - '.gitignore'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
+      # Per-VM runtime trees only; the APK build reads other tools/ paths (app/build.gradle).
+      - 'tools/debian/**'
+      - 'tools/ubuntu/**'
   workflow_dispatch:
     inputs:
       rebuild_preloads:
