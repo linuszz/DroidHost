@@ -1,5 +1,7 @@
 APT::Install-Recommends "true";
 APT::Sandbox::User "root";
+# Retry transient fetch failures: the CDN can reset a connection mid-download of the large desktop package set.
+Acquire::Retries "5";
 Dpkg::Options { "--force-confdef"; "--force-confold"; };
 DPkg::Post-Invoke { "[ ! -x /usr/share/droiddeck/apt/remember ] || /usr/share/droiddeck/apt/remember"; };
 APT::Update::Post-Invoke { "[ ! -x /usr/share/droiddeck/apt/remember ] || /usr/share/droiddeck/apt/remember"; };
