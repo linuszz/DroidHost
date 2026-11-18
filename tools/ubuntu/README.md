@@ -45,6 +45,10 @@ At run time:
 - The installer turns the image's hard links into proot's link2symlink layout, and proot shows the
   linked name as `/proc/self/exe` (patch 0020), so Ubuntu's multi-call coreutils work.
 
-`.github/workflows/build-ubuntu-runtime.yml` builds it and, run with a new tag (`ubuntu-rN`),
-publishes the runtime and its desktop pack in Droid-Deck/DroidDeck-Components; `linuxfs-ubuntu.json` there names the release the
-app installs.
+`.github/workflows/build-ubuntu-runtime.yml` builds it and, dispatched with a new revision (`rN`),
+publishes the runtime and its desktop pack in linuszz/DroidHost-Components. The release tag is composed
+as `<app>-ubuntu<UBUNTU_VERSION>-<arch>-<revision>` (e.g. `droidhost-ubuntu26.04-arm64-r1`): the app name is
+`rootProject.name` from settings.gradle lower-cased, the Ubuntu version is `UBUNTU_VERSION` in
+base.env (a future Ubuntu release only needs that pin bumped), and the architecture is the build runner's
+`uname -m` mapped to the Ubuntu name (aarch64 -> arm64). The publish step then writes `linuxfs-ubuntu.json`
+to the Components repo, naming the release the app installs.

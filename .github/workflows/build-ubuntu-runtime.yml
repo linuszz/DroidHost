@@ -7,8 +7,8 @@ on:
       - '.github/workflows/build-ubuntu-runtime.yml'
   workflow_dispatch:
     inputs:
-      tag:
-        description: 'Release tag to publish as (e.g. ubuntu-r1); empty = artifact only'
+      revision:
+        description: 'Release revision, e.g. r1 (tag becomes droidhost-ubuntu26.04-arm64-r1); empty = artifact only'
         required: false
         default: ''
 
@@ -42,32 +42,52 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Compose release tag
+        id: tag
+        run: |
+          set -euo pipefail
+          revision='${{ inputs.revision }}'
+          if [ -z "$revision" ]; then
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo 'Artifact-only build: no revision given.'
+            exit 0
+          fi
+          case $revision in *[!A-Za-z0-9._-]*) echo "::error::revision may only contain letters, digits, dot, underscore, hyphen"; exit 1 ;; esac
+          app=$(sed -n 's/^rootProject\.name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' settings.gradle | tr '[:upper:]' '[:lower:]')
+          [ -n "$app" ] || { echo '::error::cannot read rootProject.name from settings.gradle'; exit 1; }
+          . tools/ubuntu/base.env
+          [ -n "${UBUNTU_VERSION:-}" ] || { echo '::error::UBUNTU_VERSION missing from tools/ubuntu/base.env'; exit 1; }
+          case $(uname -m) in aarch64) arch=arm64 ;; x86_64) arch=amd64 ;; *) arch=$(uname -m) ;; esac
+          tag="${app}-ubuntu${UBUNTU_VERSION}-${arch}-${revision}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $tag"
       - uses: actions/download-artifact@v4
         with:
           name: ubuntu-runtime-debs
           path: out/debs
       - uses: actions/create-github-app-token@v2
         id: components-token
-        if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
         with:
           app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
           private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: DroidHost-Components
       - name: Refuse a published tag
-        if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
         env:
           GH_TOKEN: ${{ steps.components-token.outputs.token }}
         run: |
-          if gh release view '${{ inputs.tag }}' -R ${{ github.repository }}-Components >/dev/null 2>&1; then
-            echo "::error::${{ inputs.tag }} is already published, and published tags are never replaced: use a new tag"
+          if gh release view '${{ steps.tag.outputs.tag }}' -R ${{ github.repository }}-Components >/dev/null 2>&1; then
+            echo "::error::${{ steps.tag.outputs.tag }} is already published, and published tags are never replaced: use a new revision"
             exit 1
           fi
       - name: Build
         run: |
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zstd gpgv ubuntu-keyring >/dev/null
-          tag='${{ inputs.tag }}'
+          tag='${{ steps.tag.outputs.tag }}'
+          export DESKTOP_BASE_URL="https://github.com/${{ github.repository }}-Components/releases/download/${tag:-ubuntu-dev}"
           tools/ubuntu/build.sh out/debs out "${tag:-ubuntu-dev}"
       - uses: actions/upload-artifact@v4
         with:
@@ -79,13 +99,13 @@ jobs:
             out/*.sha256
             out/*.packages.txt
       - name: Publish
-        if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
         env:
           GH_TOKEN: ${{ steps.components-token.outputs.token }}
           GH_REPO: ${{ github.repository }}-Components
         run: |
           set -euo pipefail
-          TAG='${{ inputs.tag }}'
+          TAG='${{ steps.tag.outputs.tag }}'
           prerelease=false
           case $TAG in *-rc*) prerelease=true ;; esac
           gh release create "$TAG" --latest=false --prerelease="$prerelease" --title "$TAG" \
@@ -93,3 +113,38 @@ jobs:
             "out/$TAG.tar.zst" "out/$TAG.sha256" "out/$TAG.packages.txt" \
             "out/$TAG-desktop.tar.zst" "out/$TAG-desktop.sha256" "out/$TAG-desktop.packages.txt" out/debs/*.deb
           gh release edit "$TAG" --latest=false --prerelease="$prerelease"
+      - name: Update catalog
+        if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}-Components
+        run: |
+          set -euo pipefail
+          TAG='${{ steps.tag.outputs.tag }}'
+          # The app installs the release named here; write the catalog only after the assets are live.
+          python3 - "$TAG" <<'EOF' > linuxfs-ubuntu.json
+          import json, os, sys
+          tag = sys.argv[1]
+          size = os.path.getsize("out/%s.tar.zst" % tag)
+          sha = open("out/%s.sha256" % tag).read().strip()
+          repo = os.environ["GITHUB_REPOSITORY"]
+          print(json.dumps({
+              "schemaVersion": 1,
+              "category": "linux-runtime",
+              "release": tag,
+              "name": "Linux runtime (Ubuntu 26.04 LTS)",
+              "version": tag,
+              "url": "https://github.com/%s-Components/releases/download/%s/%s.tar.zst" % (repo, tag, tag),
+              "sha256": sha,
+              "size": size,
+              "file_size": size,
+              "note": "Ubuntu 26.04 LTS arm64 runtime for DroidHost, built by tools/ubuntu in %s (%s). Its Kubuntu Plasma desktop pack is %s-desktop.tar.zst in the same release, named inside the runtime at usr/share/droiddeck/desktop-pack.json." % (repo, os.environ["GITHUB_SHA"], tag),
+          }, indent=2))
+          EOF
+          content=$(base64 -w0 linuxfs-ubuntu.json)
+          file_sha=$(gh api "repos/$GH_REPO/contents/linuxfs-ubuntu.json" -q .sha 2>/dev/null || true)
+          if [ -n "$file_sha" ]; then
+            gh api "repos/$GH_REPO/contents/linuxfs-ubuntu.json" -X PUT -f message="linuxfs-ubuntu: $TAG" -f content="$content" -f sha="$file_sha" >/dev/null
+          else
+            gh api "repos/$GH_REPO/contents/linuxfs-ubuntu.json" -X PUT -f message="linuxfs-ubuntu: $TAG" -f content="$content" >/dev/null
+          fi

@@ -3,7 +3,7 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 debs=$(realpath "${1:?directory with the DroidHost-built .deb files}")
 out=$(realpath -m "${2:?out dir}")
-runtime_id=${3:?runtime id, e.g. ubuntu-r1}
+runtime_id=${3:?runtime id, e.g. droidhost-ubuntu26.04-arm64-r1}
 [ "$(uname -m)" = aarch64 ] || { echo 'the Ubuntu runtime needs a native arm64 runner' >&2; exit 1; }
 source "$here/base.env"
 fetch() { curl -fsSL --proto '=https' --proto-redir '=https' --retry 6 --retry-delay 5 --retry-all-errors -o "$1" "$2"; }
@@ -30,7 +30,7 @@ for m in dev dev/pts proc sys; do sudo mount --bind "/$m" "$root/$m"; done
 sudo mkdir -p "$root/tmp/droiddeck/debs"
 sudo cp -r "$here/." "$root/tmp/droiddeck/src"
 sudo cp "$debs"/*.deb "$root/tmp/droiddeck/debs/"
-base_url=${DESKTOP_BASE_URL:-https://github.com/Droid-Deck/DroidDeck-Components/releases/download/$runtime_id}
+base_url=${DESKTOP_BASE_URL:-https://github.com/linuszz/DroidHost-Components/releases/download/$runtime_id}
 desktop_id=$runtime_id-desktop
 stage() {
   sudo chroot "$root" /bin/bash /tmp/droiddeck/src/setup.sh /tmp/droiddeck/debs "$runtime_id" "$1"
@@ -49,7 +49,8 @@ stage runtime
 seal
 sudo mv "$root/tmp/droiddeck" "$work/src-keep"
 sudo chroot "$root" dpkg-query -W -f '${Package} ${Version}\n' > "$out/$runtime_id.packages.txt"
-sudo tar -C "$root" --numeric-owner -cf "$work/runtime.tar" .
+# DroidHost's VmUnpacker rejects members with a leading "./"; list top-level entries explicitly.
+sudo tar -C "$root" --numeric-owner -cf "$work/runtime.tar" $(ls -A "$root")
 sudo python3 "$here/desktop-pack.py" manifest "$root" "$work/runtime.manifest"
 unseal
 sudo mv "$work/src-keep" "$root/tmp/droiddeck"
@@ -65,7 +66,9 @@ sha256sum "$out/$desktop_id.tar.zst" | cut -d' ' -f1 > "$out/$desktop_id.sha256"
 mkdir -p "$work/stamp"
 python3 "$here/desktop-pack.py" describe "$out/$desktop_id.tar.zst" "$base_url/$desktop_id.tar.zst" "$desktop_id" \
   "$work/stamp/usr/share/droiddeck/desktop-pack.json"
-sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" ./usr/share/droiddeck/desktop-pack.json
+# DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
+printf '%s\n' "$desktop_id" > "$work/stamp/.droiddeck-pkg-desktop-kde"
+sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" usr/share/droiddeck/desktop-pack.json .droiddeck-pkg-desktop-kde
 sudo zstd -q -19 -T0 --rm "$work/runtime.tar" -o "$out/$runtime_id.tar.zst"
 sudo chown "$(id -u):$(id -g)" "$out/$runtime_id.tar.zst"
 sha256sum "$out/$runtime_id.tar.zst" | cut -d' ' -f1 > "$out/$runtime_id.sha256"
