@@ -144,20 +144,6 @@
     ],
     "ndk": true
   },
-  "comet": {
-    "script": "tools/components/recipes/comet.sh",
-    "inputs": [
-      "tools/comet",
-      "tools/components/recipes/comet.sh"
-    ],
-    "outputs": [
-      "app/src/main/assets/linuxfs/usr/local/lib/droiddeck-comet/comet",
-      "app/src/main/assets/linuxfs/usr/local/lib/droiddeck-comet/version"
-    ],
-    "packages": [
-      "gcc-aarch64-linux-gnu"
-    ]
-  },
   "arm64-preloads": {
     "script": "tools/components/recipes/arm64-preloads.sh",
     "inputs": [

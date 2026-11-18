@@ -70,7 +70,6 @@ class App : Application() {
         com.droidhost.launcher.runtime.RootSpawner.start(this)
         com.droidhost.launcher.frontend.GameFileSync.start(this)
         com.droidhost.launcher.stores.StoresState.init(this)
-        com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.gog.GogBackend)
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.epic.EpicBackend)
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.amazon.AmazonBackend)
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.itch.ItchBackend)
@@ -78,10 +77,8 @@ class App : Application() {
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.xbox.XboxBackend)
         com.droidhost.launcher.sync.Syncthing.init(this)
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.battlenet.BattleNetBackend)
-        com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.ubisoft.UbisoftBackend)
         com.droidhost.launcher.stores.ea.EaBackend.app = this
         com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.ea.EaBackend)
-        com.droidhost.launcher.stores.StoresState.register(com.droidhost.launcher.stores.rockstar.RockstarBackend)
     }
 
     private fun prefetchAddonPacks() {
@@ -92,11 +89,8 @@ class App : Application() {
                     com.droidhost.launcher.core.AddonPack.PROOT.ensure(app)
                     com.droidhost.launcher.core.AddonPack.DIRECTAUDIO.ensure(app)
                 }
-                if (com.droidhost.launcher.stores.gog.GogComet.enabled(app)) com.droidhost.launcher.core.AddonPack.COMET.ensure(app)
                 if (com.droidhost.launcher.stores.StoreAccounts.signedInAs(app, com.droidhost.launcher.stores.Store.XBOX) != null)
                     com.droidhost.launcher.core.AddonPack.XBOX.ensure(app)
-                if (com.droidhost.launcher.stores.StoreAccounts.signedInAs(app, com.droidhost.launcher.stores.Store.UBISOFT) != null)
-                    com.droidhost.launcher.session.SessionFiles.ensureUbisoftService(app)
                 com.droidhost.launcher.handtracking.HandTracking.load(app)
             }.onFailure { android.util.Log.w("App", "add-on pack prefetch failed", it) }
         }, "addon-packs").start()

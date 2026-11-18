@@ -33,9 +33,6 @@ class RuntimeInputsTest(unittest.TestCase):
         self.source = self.root / 'tools/linuxfs/preload/test.c'
         self.source.parent.mkdir(parents=True)
         self.source.write_text('current source')
-        service = self.root / 'app/src/main/assets/linuxfs/usr/local/lib/droiddeck-ubisoft/droiddeck-upc.exe'
-        service.parent.mkdir(parents=True)
-        service.write_bytes(b'MZ service')
         self.audio(['pactl', 'modules/arm64/module-aaudio-sink.so', 'modules/arm64/module-directaudio-native-sink.so'])
         self.packs()
 
@@ -182,13 +179,6 @@ class RuntimeInputsTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'xbox pack provides'):
             runtime.check_apk(apk, self.root)
 
-    def test_an_apk_still_carrying_the_ubisoft_service_is_rejected(self):
-        name = 'assets/linuxfs/usr/local/lib/droiddeck-ubisoft/droiddeck-upc.exe'
-        self.assertIn(name, runtime.outputs(self.root))
-        apk = self.current_apk(self.root / 'bundled.apk', {name: b'MZ service'})
-        with self.assertRaisesRegex(ValueError, 'ubisoft pack provides'):
-            runtime.check_apk(apk, self.root)
-
     def test_an_apk_still_carrying_the_powervr_runtime_is_rejected(self):
         apk = self.current_apk(self.root / 'bundled.apk', {'assets/hybris/runtime.tzst': b'runtime'})
         with self.assertRaisesRegex(ValueError, 'powervr pack provides'):
@@ -201,8 +191,8 @@ class RuntimeInputsTest(unittest.TestCase):
 
     def test_a_stale_pack_is_rejected(self):
         apk = self.current_apk(self.root / 'current.apk')
-        self.pack('comet', {'comet': b'old build', 'version': b'old'})
-        with self.assertRaisesRegex(ValueError, 'comet is missing or has a stale'):
+        self.pack('xbox', {'xodus-cli': b'old build'})
+        with self.assertRaisesRegex(ValueError, 'xbox is missing or has a stale'):
             runtime.check_apk(apk, self.root)
 
     def test_a_missing_pack_is_rejected(self):

@@ -56,6 +56,7 @@ git config branch.main.pushRemote origin
 | `app/src/test/java/com/droidhost/launcher/vm/VmRuntimeTest.kt` | rootfs 布局与机器存储测试 |
 | `app/src/test/java/com/droidhost/launcher/vm/VmProbeTest.kt` | 探测测试 |
 | `app/src/test/java/com/droidhost/launcher/vm/VmUnpackerTest.kt` | 解包测试 |
+| `app/src/main/java/com/droidhost/launcher/stores/StoreGating.kt` | 本 build 不提供的商店（门控集） |
 
 ```bash
 git diff --diff-filter=A --name-only upstream/main..main   # 新增：fork 层
@@ -112,3 +113,46 @@ bash tools/build_local.sh
 - `app/src/main/cpp/waylandcomp/src/wl_dmabuf.c` —— 反馈真实的渲染节点
 - `tools/linuxfs/desktop/droiddeck-desktop` —— 桌面启动脚本
 - `tools/ubuntu/build-debs.sh` —— Mesa 的 KGSL 支持
+- `stores/StoreTabs.kt` —— shown 判定并入 `StoreGating`（一行增量）
+- `runtime/LinuxRuntimeInstaller.java` —— `l2sLink` 提 public，`VmUnpacker` 复用同一套 link2symlink 布局
+
+## 游戏 launcher 的移除（门控失效，不删上游源码）
+
+GOG（comet）、Ubisoft Connect（upc.exe）、Rockstar 三家商店的 launcher 服务不再构建。
+移除的是**构建基础设施**，上游 Kotlin/Rust 源码一行不删，靠门控自然失效。
+
+**删掉的（构建面）**
+
+- `tools/comet/`、`tools/ubisoft-launcher/`、`tools/rockstar-launcher/` 源码树与 comet 配方
+- CI 里三家的构建/缓存/测试步骤（`build.yml`）、本地构建块（`build_local.sh`）
+- `tools/packs/build.sh` 的 comet/ubisoft 打包行；`publish-packs.yml` 的发布名
+- `runtime_inputs.py` 对 comet/ubisoft 产物的要求；`.gitattributes` 的 comet 规则
+
+**保留的（上游源码，零改动）**
+
+- `Store` 枚举全部成员（`LoginFlows` 等穷举 when 依赖它们）
+- 三家 backend、`SessionFiles` staging、`StoreLaunch`、Rust stores crate、
+  `resources/rockstar/legacy-cipher.bin`、guest 侧 `droiddeck-store-launch`
+- 全部 app 侧 Kotlin 测试与 stores crate 宿主测试
+
+**失效机制（三层）**
+
+1. `app/build.gradle`：comet/ubisoft pack 缺失不再抛错，落空 sha →
+   `PACK_COMET_SHA256`/`PACK_UBISOFT_SHA256` 为空 → `AddonPack.available=false`。
+   其余 pack 的 CI 缺失守卫不变。
+2. `App.kt`：三家 backend 不再注册（fork 重写文件），signIn/install 走
+   `StoresState` 的 "this build has no sign-in / cannot install" 兜底。
+3. `stores/StoreGating.kt`（fork 新增）＋ `StoreTabs.kt` 一行增量：
+   商店页 chips/面板硬隐藏三家。Steam 不在 `Store` 枚举，不受影响。
+
+运行期消费点全部已验证优雅降级（runCatching/状态兜底），不会崩溃。
+
+**拉上游时**：上游若改到三家源码，照常合并——门控仍然生效。
+要恢复某家商店：从 `StoreGating.disabled` 移除、恢复 `App.kt` 注册、
+恢复对应构建配方与 CI 步骤。
+
+**已知残留**
+
+- 非 CI 本地构建 `AddonPack.reuseDeviceCopy` 会复用设备旧副本（CI 构建严格失效）。
+- 商店页仍可经下载通知深链/存储页进入，只显示剩余商店。
+- GOG 成就开关在设置页显示 not-installed；`GogMaintenance.checkInstalled` 仍做磁盘扫描（无害）。

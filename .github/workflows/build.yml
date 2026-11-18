@@ -196,7 +196,6 @@ jobs:
         with:
           path: |
             app/src/main/assets/linuxfs
-            !app/src/main/assets/linuxfs/usr/local/lib/droiddeck-comet
             !app/src/main/assets/linuxfs/usr/local/lib/droiddeck-xbox
             !app/src/main/assets/linuxfs/i386/libblsession.so
             !app/src/main/assets/linuxfs/i386/libfakeinput.so
@@ -229,12 +228,6 @@ jobs:
             app/src/main/jniLibs/arm64-v8a/libproot.so
             app/src/main/jniLibs/arm64-v8a/libproot-loader.so
           key: proot-v2-${{ steps.plan.outputs.proot }}
-      - name: Cache GOG Galaxy companion
-        id: comet
-        uses: actions/cache@v4
-        with:
-          path: app/src/main/assets/linuxfs/usr/local/lib/droiddeck-comet
-          key: comet-v2-${{ steps.plan.outputs.comet }}
 
       - name: Restore verified preload snapshots
         id: component-preloads
@@ -249,7 +242,6 @@ jobs:
           COMPONENTS_TO_BUILD: >-
             ${{ steps.preloads.outputs.cache-hit != 'true' && 'runtime' || '' }}
             ${{ steps.component-preloads.outputs.arm64 != 'true' && 'arm64-preloads' || '' }}
-            ${{ steps.comet.outputs.cache-hit != 'true' && 'comet' || '' }}
             vkbridge
         run: python3 tools/components/prepare.py tools
 
@@ -314,10 +306,6 @@ jobs:
           VKB_NEED=$(readelf -d "$VKB" | sed -n 's/.*NEEDED.*\[\(.*\)\]/\1/p' | grep -vx 'libc.so.6' | grep -vx 'ld-linux-aarch64.so.1' || true)
           [ -z "$VKB_NEED" ] || { echo "::error::the bridge ICD needs $VKB_NEED"; exit 1; }
           [ "$(readelf -Ws "$VKB" | awk '$4 == "FUNC" && $5 == "GLOBAL" && $7 != "UND" {sub(/@.*/, "", $8); print $8}' | grep -c '^vk_icd')" = 3 ] || { echo "::error::the bridge ICD does not export the loader interface"; exit 1; }
-
-      - name: Build GOG Galaxy companion
-        if: steps.comet.outputs.cache-hit != 'true'
-        run: python3 tools/components/prepare.py comet
 
       - name: Build the DiRT 3 / DiRT Showdown ws2_32 stand-in
         run: python3 tools/components/prepare.py dirt-ws2
@@ -565,18 +553,6 @@ jobs:
           SOURCE_TREE: ${{ needs.source.outputs.tree-sha }}
         run: python3 tools/components/prepare.py unpack --tree "$SOURCE_TREE"
 
-      - name: Ubisoft launcher service (x86_64-pc-windows-gnu)
-        run: |
-          set -euo pipefail
-          command -v x86_64-w64-mingw32-gcc >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq gcc-mingw-w64-x86-64; }
-          bash tools/ubisoft-launcher/build.sh
-
-      - name: Rockstar launcher service (32-bit and 64-bit)
-        run: |
-          set -euo pipefail
-          command -v i686-w64-mingw32-gcc >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq gcc-mingw-w64-i686; }
-          bash tools/rockstar-launcher/build.sh
-
       - uses: actions/download-artifact@v4
         with:
           name: xbox-arm64
@@ -816,11 +792,6 @@ jobs:
           set -o pipefail
           cd app/src/main/rust/stores
           cargo test --locked 2>&1 | tail -60
-      - name: Windows launcher service host unit tests
-        timeout-minutes: 10
-        run: |
-          cargo test --locked --manifest-path tools/ubisoft-launcher/Cargo.toml
-          cargo test --locked --manifest-path tools/rockstar-launcher/Cargo.toml
 
   python-tests:
     name: Python and native regression tests
