@@ -75,7 +75,7 @@ jobs:
   packs:
     needs: find
     permissions:
-      contents: read
+      contents: write
       actions: read
     uses: ./.github/workflows/publish-packs.yml
     with:
