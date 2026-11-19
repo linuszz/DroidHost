@@ -43,12 +43,23 @@ object VmRuntime {
         ownRootfs(context, machineId) ?: LinuxRuntime.rootDir(context)
 
     /**
+     * Takes a rootfs tree away even when its directories carry read-only tar modes.
+     *
+     * A plain recursive delete cannot unlink inside a directory the archive made read-only
+     * (ca-certificates' cadir is 0555), so the tree survives and poisons the next unpack.
+     */
+    fun wipeTree(dir: File) {
+        dir.walkTopDown().forEach { if (it.isDirectory) it.setWritable(true, true) }
+        dir.deleteRecursively()
+    }
+
+    /**
      * Takes a directory away on its own thread.
      *
      * A rootfs holds tens of thousands of files, so the interface must not wait for it.
      */
     fun removeInBackground(dir: File) {
-        Thread({ dir.deleteRecursively() }, "vm-remove").apply { isDaemon = true }.start()
+        Thread({ wipeTree(dir) }, "vm-remove").apply { isDaemon = true }.start()
     }
 
     /**
