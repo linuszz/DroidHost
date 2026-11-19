@@ -1356,16 +1356,21 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         onEmulator = { e -> launchProgram(e.program) },
                         onUserApp = { app ->
                             app.args.firstOrNull()?.let { Library.flatpakNames[it] = app.name }
-                            startActivity(Intent(this, SessionActivity::class.java)
+                            val intent = Intent(this, SessionActivity::class.java)
                                 .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_RUN)
                                 .putExtra(SessionService.EXTRA_PROGRAM, app.program)
-                                .putExtra(SessionService.EXTRA_PROGRAM_ARGS, app.args.toTypedArray()))
+                                .putExtra(SessionService.EXTRA_PROGRAM_ARGS, app.args.toTypedArray())
+                            if (app.program == com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER) {
+                                intent.putExtra(SessionService.EXTRA_MACHINE, com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(this))
+                            }
+                            startActivity(intent)
                         },
                         onBattleNet = { openBattleNet() },
                         onFlatpakApp = { id, name ->
                             Library.flatpakNames[id] = name
                             startActivity(Intent(this, SessionActivity::class.java)
                                 .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_RUN)
+                                .putExtra(SessionService.EXTRA_MACHINE, com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(this))
                                 .putExtra(SessionService.EXTRA_PROGRAM, com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER)
                                 .putExtra(SessionService.EXTRA_PROGRAM_ARGS, arrayOf(id)))
                         },

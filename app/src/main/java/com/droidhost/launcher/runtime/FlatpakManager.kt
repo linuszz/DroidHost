@@ -21,12 +21,15 @@ object FlatpakManager {
 
     class App(val id: String, val name: String, val icon: File?, val branch: String, val summary: String?, val arch: String = "aarch64")
 
-    fun ready(context: Context): Boolean {
-        val root = LinuxRuntime.rootDir(context)
-        return File(root, FLATPAK.substring(1)).isFile &&
+    fun ready(context: Context): Boolean = readyIn(FlatpakHost.rootfs(context))
+
+    /** Whether [root] carries the flatpak binary at all; the eligibility probe for a candidate host. */
+    fun presentIn(root: File): Boolean = File(root, FLATPAK.substring(1)).isFile
+
+    fun readyIn(root: File): Boolean =
+        presentIn(root) &&
             File(root, "var/cache/droiddeck-flatpak/installed").isFile &&
             (FileUtils.readString(File(root, "$USER_DIR/repo/config"))?.contains("[remote \"flathub\"]") == true)
-    }
 
     private fun arch(): String = when (android.os.Build.SUPPORTED_ABIS.firstOrNull()) {
         "x86_64" -> "x86_64"
@@ -44,8 +47,12 @@ object FlatpakManager {
 
     fun launchArgs(app: App, native: String = arch()): List<String> = if (foreign(app, native)) listOf("--arch=${app.arch}", app.id) else listOf(app.id)
 
-    fun installedApps(context: Context): List<App> {
-        val apps = File(LinuxRuntime.rootDir(context), "$USER_DIR/app")
+    fun installedApps(context: Context): List<App> = installedAppsIn(FlatpakHost.rootfs(context))
+
+    fun appCountIn(root: File): Int = installedAppsIn(root).size
+
+    fun installedAppsIn(root: File): List<App> {
+        val apps = File(root, "$USER_DIR/app")
         return apps.listFiles()?.mapNotNull { dir ->
             val id = dir.name
             val (arch, branch) = installedBranch(dir) ?: return@mapNotNull null
@@ -59,7 +66,7 @@ object FlatpakManager {
     }
 
     fun isInstalled(context: Context, id: String): Boolean =
-        installedBranch(File(LinuxRuntime.rootDir(context), "$USER_DIR/app/$id")) != null
+        installedBranch(File(FlatpakHost.rootfs(context), "$USER_DIR/app/$id")) != null
 
     private fun entry(desktop: String, key: String): String? {
         var inMain = false
@@ -81,7 +88,7 @@ object FlatpakManager {
 
     private fun runGuest(context: Context, argv: List<String>, fakeRoot: Boolean, onLine: (String) -> Unit): Int {
         val name = "flatpak-" + (argv.getOrNull(2)?.takeIf { argv.getOrNull(1) == HELPER } ?: "setup")
-        return GuestCommand.run(context, argv, fakeRoot, name, onLine = onLine)
+        return GuestCommand.run(context, argv, fakeRoot, name, null, null, false, null, FlatpakHost.rootfs(context), false, onLine)
     }
 
     private inline fun <T> exclusive(what: String, ifBusy: () -> T, block: () -> T): T {
@@ -93,7 +100,7 @@ object FlatpakManager {
     }
 
     fun setup(context: Context, onProgress: (String, Int) -> Unit): String? {
-        if (!LinuxRuntime.isInstalled(context)) return context.getString(R.string.user_apps_runtime_required)
+        if (!FlatpakHost.available(context)) return context.getString(R.string.user_apps_runtime_required)
         return exclusive("setup", { context.getString(R.string.flatpakmgr_busy) }) {
             var failure: String? = null
             val status = runGuest(context, listOf("/bin/bash", SETUP), fakeRoot = true) { line ->

@@ -261,7 +261,7 @@ object StorageScan {
         val logBytes = logs.sumOf { walker.measure(it) }
 
         phase("logs")
-        val flatpakDir = File(rootfs, "root/.local/share/flatpak")
+        val flatpakDir = File(com.droidhost.launcher.runtime.FlatpakHost.rootfs(context), "root/.local/share/flatpak")
         val flatpakNames = runCatching { FlatpakManager.installedApps(context) }.getOrDefault(emptyList()).associate { it.id to it.name }
         val flatpakApps = File(flatpakDir, "app").listFiles().orEmpty().filter { it.isDirectory }.map { dir ->
             FlatpakUsage(dir.name, flatpakNames[dir.name] ?: dir.name.substringAfterLast('.'), walker.measure(dir))
