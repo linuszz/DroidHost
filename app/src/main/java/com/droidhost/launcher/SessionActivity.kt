@@ -722,6 +722,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             SessionState.program = intent.getStringExtra(SessionService.EXTRA_PROGRAM)
             SessionState.programArgs = intent.getStringArrayExtra(SessionService.EXTRA_PROGRAM_ARGS)?.toList().orEmpty()
             SessionState.machineId = intent.getStringExtra(SessionService.EXTRA_MACHINE)
+            SessionState.flatpakApp = intent.getStringExtra(SessionService.EXTRA_FLATPAK_APP)
             SessionState.steamUi = intent.getStringExtra(SessionService.EXTRA_STEAM_UI)
             SessionState.steamUrl = intent.getStringExtra(SessionService.EXTRA_STEAM_URL)
             SessionState.steamVr = intent.getBooleanExtra(EXTRA_STEAMVR, false)
@@ -871,7 +872,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             // The desktop auto-install only fits the shared runtime. A VM machine runs in its own
             // rootfs and carries its own desktop, so it must not trigger an install into the shared one.
             val sessionMachine = if (desktopMode)
-                intent.getStringExtra(SessionService.EXTRA_MACHINE) ?: com.droidhost.launcher.vm.VmStore.load(this)?.id
+                com.droidhost.launcher.runtime.FlatpakDesktop.desktopMachineId(this,
+                    intent.getStringExtra(SessionService.EXTRA_MACHINE), intent.getStringExtra(SessionService.EXTRA_FLATPAK_APP))
             else null
             val needDesktop = desktopMode &&
                 com.droidhost.launcher.vm.VmRuntime.ownRootfs(this, sessionMachine) == null &&

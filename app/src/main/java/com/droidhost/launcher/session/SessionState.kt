@@ -142,6 +142,10 @@ object SessionState {
     @Volatile
     var machineId: String? = null
 
+    /** The flatpak app a desktop session autostarts; then [machineId] is authoritative and null means the shared runtime. */
+    @Volatile
+    var flatpakApp: String? = null
+
     @Volatile
     var outputSize: Pair<Int, Int> = Pair(1920, 1080)
 

@@ -357,6 +357,7 @@ class SessionService : Service() {
         }
         SessionState.mode = intent?.getStringExtra(EXTRA_MODE) ?: MODE_STEAM
         SessionState.machineId = intent?.getStringExtra(EXTRA_MACHINE)
+        SessionState.flatpakApp = intent?.getStringExtra(EXTRA_FLATPAK_APP)
         SessionState.fpsLimit = 0
         suspendPolicy = SessionPrefs.suspendPolicy(this, SessionState.mode)
         steamDownloadsInBackground = SessionPrefs.steamDownloadsInBackground(this)
@@ -771,6 +772,10 @@ class SessionService : Service() {
                 .onFailure { Log.w(TAG, "desktop panel heal: $it") }
             runCatching { com.droidhost.launcher.runtime.DesktopLanguage.ensure(this, com.droidhost.launcher.core.AppLanguage.effective(this)) }
                 .onFailure { Log.w(TAG, "desktop language pack: $it") }
+            runCatching {
+                com.droidhost.launcher.runtime.FlatpakDesktop.prepareSession(root, SessionState.flatpakApp, SessionState.programArgs,
+                    SessionState.flatpakApp?.let { com.droidhost.launcher.frontend.Library.flatpakNames[it] })
+            }.onFailure { Log.w(TAG, "flatpak autostart: $it") }
         }
 
         val networkLink = LinuxNetworkLinkComponent(this, root)
@@ -1069,11 +1074,12 @@ class SessionService : Service() {
      * runtime, because the games and the stores live there.
      *
      * The machine the caller named wins; without one the first machine stands in, so a launch
-     * that predates machine selection behaves as it did before.
+     * that predates machine selection behaves as it did before. A flatpak autostart names its
+     * host exactly, so its null keeps the shared runtime instead of standing in a VM.
      */
     private fun sessionMachineId(): String? =
         if (SessionState.mode == MODE_DESKTOP)
-            SessionState.machineId ?: com.droidhost.launcher.vm.VmStore.load(this)?.id
+            com.droidhost.launcher.runtime.FlatpakDesktop.desktopMachineId(this, SessionState.machineId, SessionState.flatpakApp)
         else null
 
     /** The rootfs this session runs in: the machine's own when it has one, the shared runtime otherwise. */
@@ -2485,6 +2491,7 @@ class SessionService : Service() {
         const val MODE_DESKTOP = "lxqt"
         const val MODE_RUN = "run"
         const val EXTRA_MACHINE = "machine"
+        const val EXTRA_FLATPAK_APP = "flatpak-app"
         const val EXTRA_PROGRAM = "program"
         private const val RUN_STATUS = "run-status"
         const val EXTRA_PROGRAM_ARGS = "programArgs"
