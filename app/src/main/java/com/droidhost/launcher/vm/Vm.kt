@@ -33,7 +33,7 @@ object VmCatalog {
         VmDistro(DEBIAN, "Debian", VmFamily.LINUX, engine = true),
         VmDistro("nixos", "NixOS", VmFamily.LINUX, engine = false),
         VmDistro("fedora", "Fedora", VmFamily.LINUX, engine = false),
-        VmDistro(ARCH, "Arch Linux", VmFamily.LINUX, engine = false),
+        VmDistro(ARCH, "Arch Linux ARM", VmFamily.LINUX, engine = true),
         VmDistro("alpine", "Alpine Linux", VmFamily.LINUX, engine = false),
         VmDistro("windows-11", "Windows 11", VmFamily.WINDOWS, engine = false),
         VmDistro("windows-xp", "Windows XP", VmFamily.WINDOWS, engine = false),
@@ -48,6 +48,7 @@ object VmCatalog {
     val builtins = listOf(
         Builtin(UBUNTU, "26.04", COMPONENTS + "linuxfs-ubuntu.json"),
         Builtin(DEBIAN, "13", COMPONENTS + "linuxfs-debian.json"),
+        Builtin(ARCH, "rolling", COMPONENTS + "linuxfs-arch.json"),
     )
 
     fun of(id: String?): VmDistro? = distros.firstOrNull { it.id == id }

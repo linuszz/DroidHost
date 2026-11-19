@@ -100,7 +100,7 @@ internal fun VmSourceDialog(
                     )
                     for (distro in list) {
                         val versions = VmCatalog.versionsFor(distro.id)
-                        if (versions.isEmpty()) {
+                        if (versions.isEmpty() || !distro.engine) {
                             VmDistroRow(distro) {}
                         } else {
                             VmDistroRow(distro, chevron = true) {
