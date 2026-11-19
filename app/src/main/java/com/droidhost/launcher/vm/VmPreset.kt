@@ -148,6 +148,9 @@ object VmPreset {
                 return
             }
             VmStore.setLifecycle(context, machine.id, VmLife.INSTALLING.name)
+            // A retry may find the last attempt's rootfs with its final tar modes already set:
+            // a read-only directory refuses new files (EACCES), so the unpack starts empty.
+            root.listFiles()?.forEach { it.deleteRecursively() }
             val kind = VmUnpacker.Kind.of(archive.name) ?: VmUnpacker.Kind.TAR_ZST
             val written = VmUnpacker.unpack(archive, root, kind) { _, percent ->
                 report(25 + (percent * 15 / 100).coerceIn(0, 15))
