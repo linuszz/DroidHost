@@ -395,6 +395,7 @@ internal fun SetupPanel(
                             }
                         }
                         SettingsGroup(stringResource(R.string.setup_runtime)) { runtimeCheck(false) }
+                        FlatpakHostGroup(host)
                     }
                     1 -> {
                         val controller = s.controller

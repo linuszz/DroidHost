@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
+import com.droidhost.launcher.runtime.FlatpakHost
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDistro
 import com.droidhost.launcher.vm.VmDriverTier
@@ -58,6 +59,7 @@ import java.io.File
 @Composable
 internal fun VmSourceDialog(
     onDismiss: () -> Unit,
+    onStore: () -> Unit,
     onPick: (VmMachine, Boolean) -> Unit,
 ) {
     val ctx = LocalContext.current
@@ -82,6 +84,19 @@ internal fun VmSourceDialog(
                     stringResource(R.string.vm_source_note), fontSize = 13.sp, lineHeight = 18.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 12.dp),
                 )
+                if (FlatpakHost.anyEligible(ctx)) {
+                    Column(Modifier.padding(bottom = 12.dp)) {
+                        Text(
+                            stringResource(R.string.vm_source_apps), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 4.dp),
+                        )
+                        Text(
+                            stringResource(R.string.vm_source_apps_hint), fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 10.dp),
+                        )
+                        FlatpakAppRow(flatpakHostSummary(ctx)) { onStore() }
+                    }
+                }
                 Text(
                     stringResource(R.string.vm_source_preset), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 4.dp),
@@ -346,6 +361,27 @@ private fun displayName(ctx: android.content.Context, uri: Uri): String {
             if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
         }
     }.getOrNull() ?: uri.lastPathSegment.orEmpty().substringAfterLast('/')
+}
+
+/** The built-in-apps entry: opens the app store against the selected flatpak host. */
+@Composable
+private fun FlatpakAppRow(summary: String, onOpen: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(12.dp)
+    Row(
+        Modifier.fillMaxWidth().clip(shape).background(colors.surfaceVariant)
+            .clickable { onOpen() }.padding(horizontal = 14.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                stringResource(R.string.flathub_name),
+                fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onSurface,
+            )
+            Text(summary, fontSize = 12.sp, color = colors.onSurfaceVariant)
+        }
+        Text("›", fontSize = 20.sp, color = colors.onSurfaceVariant)
+    }
 }
 
 /** A distribution row: a built-in one drills into its versions, the rest stay gated. */

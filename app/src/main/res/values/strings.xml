@@ -3076,6 +3076,15 @@
     <string name="flathub_eyebrow">LINUX APPS</string>
     <string name="flathub_name">Flathub</string>
     <string name="flathub_line">Desktop apps for the Linux desktop, opened from Desktop.</string>
+    <string name="flatpak_host_title">Flatpak runtime</string>
+    <string name="flatpak_host">Host</string>
+    <string name="flatpak_host_hint">Where Flatpak apps are installed and run</string>
+    <string name="flatpak_host_shared">Shared runtime</string>
+    <string name="flatpak_host_vm">%1$s · VM</string>
+    <string name="flatpak_host_apps">%1$d apps installed</string>
+    <string name="flatpak_host_ready">Initialized</string>
+    <string name="flatpak_host_uninit">Not initialized</string>
+    <string name="flatpak_host_unsupported">Unsupported</string>
     <string name="flathub_setup">Set up Flathub</string>
     <string name="flathub_remove_title">Remove %1$s?</string>
     <string name="flathub_remove_note">Its settings and files are kept.</string>
@@ -4174,6 +4183,8 @@
     <string name="vm_family_bsd">BSD</string>
     <string name="vm_family_dos">DOS</string>
     <string name="vm_source_note">Pick where the system comes from.</string>
+    <string name="vm_source_apps">Built-in apps</string>
+    <string name="vm_source_apps_hint">Apps that run inside a Linux runtime</string>
     <string name="vm_source_preset">Systems we package</string>
     <string name="vm_source_preset_hint">DroidHost downloads and installs these for you.</string>
     <string name="vm_source_version_hint">Choose a version to download</string>

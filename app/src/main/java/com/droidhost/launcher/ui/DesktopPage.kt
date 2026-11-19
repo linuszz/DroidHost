@@ -282,7 +282,10 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             else a.modeSheet(mode, tab, SheetExtras())
         },
     )
-    if (picking) VmSourceDialog(onDismiss = { picking = false }) { created, start ->
+    if (picking) VmSourceDialog(
+        onDismiss = { picking = false },
+        onStore = { picking = false; openFrom(null, null, "store") },
+    ) { created, start ->
         picking = false
         recorded = VmStore.all(ctx)
         selectedId = created.id

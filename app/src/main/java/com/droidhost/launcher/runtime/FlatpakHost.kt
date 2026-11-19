@@ -40,4 +40,12 @@ object FlatpakHost {
         val id = hostMachineId(context)
         return if (id == null) LinuxRuntime.isInstalled(context) else VmRuntime.ownRootfs(context, id) != null
     }
+
+    /** Whether any host can run flatpak: the shared runtime installed, or a machine rootfs carrying the flatpak binary. */
+    fun anyEligible(context: Context): Boolean {
+        if (LinuxRuntime.isInstalled(context)) return true
+        return VmStore.all(context).any { machine ->
+            VmRuntime.ownRootfs(context, machine.id)?.let { FlatpakManager.presentIn(it) } == true
+        }
+    }
 }
