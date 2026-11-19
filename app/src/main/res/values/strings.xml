@@ -4158,6 +4158,7 @@
     <string name="hud_readings_shown">Shown</string>
     <string name="hud_readings_count">%1$d of %2$d</string>
     <string name="vm_title">Virtual machines</string>
+    <string name="flatpak_apps_section">Installed apps</string>
     <string name="vm_section">Machines</string>
     <string name="vm_new">New machine</string>
     <string name="vm_new_hint">Pick a system to install</string>

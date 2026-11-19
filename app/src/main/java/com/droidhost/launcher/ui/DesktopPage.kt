@@ -73,6 +73,7 @@ import coil.compose.AsyncImage
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.files.FileOps
+import com.droidhost.launcher.runtime.FlatpakManager
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.session.SessionService
 import com.droidhost.launcher.session.SessionState
@@ -130,6 +131,11 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             delay(500)
             recorded = VmStore.all(ctx)
         }
+    }
+    // Installed apps change over in the store, so re-read them while this page is shown.
+    var flatpakApps by remember { mutableStateOf(FlatpakManager.installedApps(ctx)) }
+    LaunchedEffect(Unit) {
+        while (true) { delay(3000); flatpakApps = FlatpakManager.installedApps(ctx) }
     }
     var picking by rememberSaveable { mutableStateOf(false) }
     var settings by rememberSaveable { mutableStateOf(false) }
@@ -210,14 +216,19 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         onOpen = a.onDesktopSettings, onPrimary = primary,
         modifier = modifier.clipToBounds(),
         start = if (narrow) 20.dp else 44.dp, bottom = 44.dp,
-        background = { DesktopWall(emptyList()) },
+        background = { DesktopWall(machines.mapNotNull { VmCatalog.logoRes(it.distro.id) }.distinct() + flatpakApps.mapNotNull { it.icon }) },
         scrim = { lifted ->
             WallFade()
-            Box(Modifier.graphicsLayer { val v = lifted(); alpha = 1f - v; translationY = -12.dp.toPx() * v }) {
+            Column(Modifier.graphicsLayer { val v = lifted(); alpha = 1f - v; translationY = -12.dp.toPx() * v }) {
                 VmDock(
                     s, machines, vm?.id,
                     statusOf = { statusOf(it) }, percentOf = { percentOf(it) },
                     onSelect = { selectedId = it.id }, onNew = { picking = true },
+                )
+                FlatpakAppStrip(
+                    flatpakApps,
+                    onOpen = { id, name -> a.onFlatpakApp(id, name) },
+                    onStore = { openFrom(null, null, "store") },
                 )
             }
         },

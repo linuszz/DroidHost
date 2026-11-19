@@ -4058,6 +4058,7 @@
     <string name="hud_readings_shown">已显示</string>
     <string name="hud_readings_count">%1$d / %2$d</string>
     <string name="vm_title">虚拟机</string>
+    <string name="flatpak_apps_section">已装应用</string>
     <string name="vm_section">我的虚拟机</string>
     <string name="vm_new">新建虚拟机</string>
     <string name="vm_new_hint">选择要安装的系统</string>

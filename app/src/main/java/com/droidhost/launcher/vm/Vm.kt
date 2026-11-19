@@ -57,6 +57,14 @@ object VmCatalog {
     fun versionsFor(distroId: String): List<Builtin> = builtins.filter { it.distro == distroId }
 
     fun builtinFor(distroId: String): Builtin? = builtins.firstOrNull { it.distro == distroId }
+
+    /** Card and wall art for the built-in distributions; artwork/README.md carries sources and licences. */
+    fun logoRes(id: String): Int? = when (id) {
+        UBUNTU -> R.drawable.distro_ubuntu
+        DEBIAN -> R.drawable.distro_debian
+        ARCH -> R.drawable.distro_arch
+        else -> null
+    }
 }
 
 /**

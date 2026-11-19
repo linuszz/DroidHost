@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
+import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmLife
 import com.droidhost.launcher.vm.VmMachine
@@ -210,7 +211,7 @@ internal fun VmDock(
                 val selected = machine.id == selectedId
                 DesktopCard(
                     "vm:" + machine.id, vmMachineLabel(ctx, machine), vmStateLabel(statusOf(machine)),
-                    art = null, fallback = Icons.Outlined.DesktopWindows,
+                    art = VmCatalog.logoRes(machine.distro.id), fallback = Icons.Outlined.DesktopWindows,
                     first = machine.id == machines.firstOrNull()?.id,
                     progress = percentOf(machine), accent = selected,
                 ) { onSelect(machine) }
