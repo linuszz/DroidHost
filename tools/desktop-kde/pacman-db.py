@@ -19,7 +19,7 @@ PKGINFO = {"pkgname": "NAME", "pkgbase": "BASE", "pkgver": "VERSION", "pkgdesc":
 BLOCKED = re.compile(r"^(sudo|opendoas|doas|mkinitcpio.*|linux|linux-.*|.*-firmware|firmware-.*|grub|uboot-.*|"
                      r"raspberrypi-.*|archlinuxarm-keyring|pacman|pacman-mirrorlist)$")
 ALARM = "http://mirror.archlinuxarm.org/aarch64"
-RELEASES = "https://github.com/Droid-Deck/DroidDeck-Components/releases/download"
+RELEASES = os.environ.get("DROIDHOST_RELEASES", "https://github.com/Droid-Deck/DroidDeck-Components/releases/download")
 BUILDER = "68B3537F39A313B3E574D06777193F152BDBE6A6"
 
 

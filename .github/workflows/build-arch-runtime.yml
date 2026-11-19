@@ -1,0 +1,172 @@
+name: Build Linux runtime (Arch Linux ARM)
+
+on:
+  push:
+    paths:
+      - 'tools/arch/**'
+      - '.github/workflows/build-arch-runtime.yml'
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Release revision, e.g. r1 (tag becomes droidhost-arch-arm64-r1); empty = artifact only'
+        required: false
+        default: ''
+      desktop_tag:
+        description: 'Release tag for the KDE desktop pack in DroidHost-Components (e.g. desktop-kde-r4); never reused once published'
+        required: false
+        default: 'desktop-kde-r4'
+
+permissions:
+  contents: read
+
+jobs:
+  base:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Compose release tag
+        id: tag
+        run: |
+          set -euo pipefail
+          revision='${{ inputs.revision }}'
+          if [ -z "$revision" ]; then
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo 'Artifact-only build: no revision given.'
+            exit 0
+          fi
+          case $revision in *[!A-Za-z0-9._-]*) echo "::error::revision may only contain letters, digits, dot, underscore, hyphen"; exit 1 ;; esac
+          app=$(sed -n 's/^rootProject\.name[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' settings.gradle | tr '[:upper:]' '[:lower:]')
+          [ -n "$app" ] || { echo '::error::cannot read rootProject.name from settings.gradle'; exit 1; }
+          tag="${app}-arch-arm64-${revision}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $tag"
+      - name: Build
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq gpgv xz-utils >/dev/null
+          tools/arch/build.sh out '${{ steps.tag.outputs.tag || 'arch-dev' }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-runtime-base
+          retention-days: 7
+          compression-level: 0
+          path: out/
+
+  desktop:
+    needs: base
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-desktop-kde.yml
+    with:
+      tag: ${{ (github.event_name == 'workflow_dispatch' && inputs.revision != '') && inputs.desktop_tag || '' }}
+      runtime_packages_artifact: arch-runtime-base
+    secrets: inherit
+
+  publish:
+    needs: [base, desktop]
+    if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: arch-runtime-base
+          path: out/base
+      - uses: actions/download-artifact@v4
+        with:
+          name: desktop-kde
+          path: out/desktop
+      - uses: actions/create-github-app-token@v2
+        id: components-token
+        with:
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-Components
+      - name: Refuse a published tag
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+        run: |
+          if gh release view '${{ needs.base.outputs.tag }}' -R ${{ github.repository }}-Components >/dev/null 2>&1; then
+            echo "::error::${{ needs.base.outputs.tag }} is already published, and published tags are never replaced: use a new revision"
+            exit 1
+          fi
+      - name: Assemble
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq zstd >/dev/null
+          TAG='${{ needs.base.outputs.tag }}'
+          DTAG='${{ inputs.desktop_tag }}'
+          mkdir -p stamp/usr/share/droiddeck
+          python3 tools/ubuntu/desktop-pack.py describe out/desktop/desktop-kde.tar.zst \
+            "https://github.com/${{ github.repository }}-Components/releases/download/$DTAG/desktop-kde.tar.zst" \
+            "$DTAG" stamp/usr/share/droiddeck/desktop-pack.json
+          # DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
+          printf '%s\n' "$DTAG" > stamp/.droiddeck-pkg-desktop-kde
+          sudo tar -C stamp --numeric-owner --owner=0 --group=0 -rf "out/base/$TAG.tar" \
+            usr/share/droiddeck/desktop-pack.json .droiddeck-pkg-desktop-kde
+          sudo zstd -q -19 -T0 --rm "out/base/$TAG.tar" -o "out/$TAG.tar.zst"
+          sudo chown "$(id -u):$(id -g)" "out/$TAG.tar.zst"
+          sha256sum "out/$TAG.tar.zst" | cut -d' ' -f1 > "out/$TAG.sha256"
+          cp "out/base/$TAG.packages.txt" "out/$TAG.packages.txt"
+          ls -l out
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}-Components
+        run: |
+          set -euo pipefail
+          TAG='${{ needs.base.outputs.tag }}'
+          DTAG='${{ inputs.desktop_tag }}'
+          prerelease=false
+          case $TAG in *-rc*) prerelease=true ;; esac
+          gh release create "$TAG" --latest=false --prerelease="$prerelease" --title "$TAG" \
+            --notes "Arch Linux ARM (rolling) aarch64 runtime for DroidHost ($GITHUB_REPOSITORY tools/arch, $GITHUB_SHA), from the signature-checked tarball pinned in tools/arch/base.env: size $(stat -c %s "out/$TAG.tar.zst"), sha256 $(cat "out/$TAG.sha256"). Its KDE Plasma desktop pack is desktop-kde.tar.zst in release $DTAG of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json. The .packages.txt file lists every installed package and version." \
+            "out/$TAG.tar.zst" "out/$TAG.sha256" "out/$TAG.packages.txt"
+          gh release edit "$TAG" --latest=false --prerelease="$prerelease"
+      - name: Update catalog
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}-Components
+        run: |
+          set -euo pipefail
+          TAG='${{ needs.base.outputs.tag }}'
+          DTAG='${{ inputs.desktop_tag }}'
+          # The app installs the release named here; write the catalog only after the assets are live.
+          python3 - "$TAG" "$DTAG" <<'EOF' > linuxfs-arch.json
+          import json, os, sys
+          tag, dtag = sys.argv[1:3]
+          size = os.path.getsize("out/%s.tar.zst" % tag)
+          sha = open("out/%s.sha256" % tag).read().strip()
+          repo = os.environ["GITHUB_REPOSITORY"]
+          print(json.dumps({
+              "schemaVersion": 1,
+              "category": "linux-runtime",
+              "release": tag,
+              "name": "Linux runtime (Arch Linux ARM)",
+              "version": tag,
+              "url": "https://github.com/%s-Components/releases/download/%s/%s.tar.zst" % (repo, tag, tag),
+              "sha256": sha,
+              "size": size,
+              "file_size": size,
+              "note": "Arch Linux ARM (rolling) aarch64 runtime for DroidHost, built by tools/arch in %s (%s) from the signature-checked Arch Linux ARM tarball. Its KDE Plasma desktop pack is desktop-kde.tar.zst in release %s of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json." % (repo, os.environ["GITHUB_SHA"], dtag),
+          }, indent=2))
+          EOF
+          content=$(base64 -w0 linuxfs-arch.json)
+          file_sha=$(gh api "repos/$GH_REPO/contents/linuxfs-arch.json" -q .sha 2>/dev/null || true)
+          if [ -n "$file_sha" ]; then
+            gh api "repos/$GH_REPO/contents/linuxfs-arch.json" -X PUT -f message="linuxfs-arch: $TAG" -f content="$content" -f sha="$file_sha" >/dev/null
+          else
+            gh api "repos/$GH_REPO/contents/linuxfs-arch.json" -X PUT -f message="linuxfs-arch: $TAG" -f content="$content" >/dev/null
+          fi

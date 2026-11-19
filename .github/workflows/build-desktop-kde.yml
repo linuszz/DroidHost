@@ -11,6 +11,20 @@ on:
         description: 'Release tag to publish as (e.g. desktop-kde-r1); empty = artifact only'
         required: false
         default: ''
+      runtime_packages_artifact:
+        description: 'Artifact holding runtime-packages.refreshed.txt, to fit the desktop to a runtime being published'
+        required: false
+        default: ''
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Release tag to publish as; empty = artifact only'
+        type: string
+        default: ''
+      runtime_packages_artifact:
+        description: 'Artifact holding runtime-packages.refreshed.txt, to fit the desktop to a runtime being published'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -37,6 +51,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
+        if: inputs.runtime_packages_artifact != ''
+        with:
+          name: ${{ inputs.runtime_packages_artifact }}
+          path: out/runtime-base
+      - name: Fit the desktop to the runtime being published
+        if: inputs.runtime_packages_artifact != ''
+        run: cp out/runtime-base/runtime-packages.refreshed.txt tools/desktop-kde/runtime-packages.txt
+      - uses: actions/download-artifact@v4
         with:
           name: desktop-kde-kwin
           path: out/kwin
@@ -58,6 +80,8 @@ jobs:
             exit 1
           fi
       - name: Build
+        env:
+          DROIDHOST_RELEASES: https://github.com/${{ github.repository }}-Components/releases/download
         run: |
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zstd xz-utils gpgv gcc-aarch64-linux-gnu >/dev/null

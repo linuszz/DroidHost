@@ -13,6 +13,7 @@ on:
       # Per-VM runtime trees only; the APK build reads other tools/ paths (app/build.gradle).
       - 'tools/debian/**'
       - 'tools/ubuntu/**'
+      - 'tools/arch/**'
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened, ready_for_review ]
@@ -25,6 +26,7 @@ on:
       # Per-VM runtime trees only; the APK build reads other tools/ paths (app/build.gradle).
       - 'tools/debian/**'
       - 'tools/ubuntu/**'
+      - 'tools/arch/**'
   workflow_dispatch:
     inputs:
       rebuild_preloads:
