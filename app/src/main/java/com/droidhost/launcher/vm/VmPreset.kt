@@ -212,7 +212,9 @@ object VmPreset {
         val extracted = LinuxRuntimeInstaller.extract(context, archive, root, null)
         archive.delete()
         if (!extracted) return Reason.UNPACK_FAILED
-        DesktopPack.finishInstall(root)
+        // The Arch pack overlays files without a dpkg manifest; finishing reads one, so
+        // only a pack that carries it is finished. The desktop marker decides readiness.
+        if (DesktopPack.installed(root)) DesktopPack.finishInstall(root)
         report(95)
         return if (DesktopCatalog.desktopInstalled(root)) Reason.NONE else Reason.UNPACK_FAILED
     }
