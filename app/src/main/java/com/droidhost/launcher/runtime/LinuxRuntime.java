@@ -126,9 +126,10 @@ public final class LinuxRuntime {
     public static boolean hasRootfs(Context context) {
         if (LinuxRuntimeInstaller.isRemoving() || LinuxRuntimeInstaller.hasRemovalPending(context)) return false;
         File root = rootDir(context);
-        return (new File(root, "usr/bin/gamescope").isFile() || new File(root, "usr/games/gamescope").isFile())
-                && (new File(root, SESSION_SCRIPT.substring(1)).isFile()
-                        || new File(root, LegacyNames.SESSION_SCRIPT.substring(1)).isFile());
+        // De-gamified: the desktop composites through KWin, so the session entry point gates the
+        // runtime; gamescope is a gaming-only compositor staged separately and must not be required.
+        return new File(root, SESSION_SCRIPT.substring(1)).isFile()
+                || new File(root, LegacyNames.SESSION_SCRIPT.substring(1)).isFile();
     }
 
     public static File vulkanIcd(Context context) {

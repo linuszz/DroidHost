@@ -175,7 +175,7 @@ class ProtonMenuAutoTest {
         menu.ensureAutoUpdates()
         assertTrue(attempts.isEmpty())
         install("GE-Proton11-11")
-        File(root, "usr/bin/gamescope").delete()
+        File(root, "usr/local/bin/droiddeck-session").delete()
         menu.ensureAutoUpdates()
         assertTrue(attempts.isEmpty())
         assertNull(menu.protonBusyId)
