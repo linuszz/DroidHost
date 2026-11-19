@@ -1359,7 +1359,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                                 val id = app.args.firstOrNull { !it.startsWith("-") }
                                 if (id != null) {
                                     Library.flatpakNames[id] = app.name
-                                    launchFlatpakDesktop(id, app.args)
+                                    launchFlatpakRun(app.args)
                                 }
                             } else {
                                 app.args.firstOrNull()?.let { Library.flatpakNames[it] = app.name }
@@ -1375,7 +1375,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                             val args = com.droidhost.launcher.runtime.FlatpakManager.installedApps(this)
                                 .firstOrNull { it.id == id }
                                 ?.let { com.droidhost.launcher.runtime.FlatpakManager.launchArgs(it) } ?: listOf(id)
-                            launchFlatpakDesktop(id, args)
+                            launchFlatpakRun(args)
                         },
                         onRom = { g ->
                             val e = emulatorList.first { it.id == g.emulatorId }
@@ -2415,22 +2415,19 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             .putExtra(SessionService.EXTRA_PROGRAM, path))
     }
 
-    private fun launchFlatpakDesktop(id: String, args: List<String>) {
-        val host = com.droidhost.launcher.runtime.FlatpakHost.rootfs(this)
-        val sessionRoot = com.droidhost.launcher.runtime.LinuxRuntime.rootDir(this,
-            com.droidhost.launcher.runtime.FlatpakDesktop.desktopMachineId(this, SessionState.machineId, SessionState.flatpakApp))
-        if (SessionState.running && SessionState.mode == SessionService.MODE_DESKTOP &&
-            SessionState.phase in setOf(SessionPhase.READY, SessionPhase.SUSPENDED) && sessionRoot == host &&
-            com.droidhost.launcher.runtime.FlatpakDesktop.queueLaunch(host, id, args)) {
+    private fun launchFlatpakRun(args: List<String>) {
+        val launcher = com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER
+        val host = com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(this)
+        if (SessionState.running && SessionState.mode == SessionService.MODE_RUN &&
+            SessionState.program == launcher && SessionState.programArgs == args && SessionState.machineId == host) {
             startActivity(Intent(this, SessionActivity::class.java).setAction(SessionService.ACTION_RESUME)
-                .putExtra(SessionActivity.EXTRA_RETURN_HOME, false)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
             return
         }
         startActivity(Intent(this, SessionActivity::class.java)
-            .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_DESKTOP)
-            .putExtra(SessionService.EXTRA_MACHINE, com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(this))
-            .putExtra(SessionService.EXTRA_FLATPAK_APP, id)
+            .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_RUN)
+            .putExtra(SessionService.EXTRA_MACHINE, host)
+            .putExtra(SessionService.EXTRA_PROGRAM, launcher)
             .putExtra(SessionService.EXTRA_PROGRAM_ARGS, args.toTypedArray()))
     }
 

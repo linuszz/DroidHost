@@ -138,13 +138,9 @@ object SessionState {
     @Volatile
     var mode = "steam"
 
-    /** The machine a desktop session runs for; null keeps the first machine or the shared runtime. */
+    /** The machine this session runs for; null keeps the shared runtime (a desktop falls back to the first machine). */
     @Volatile
     var machineId: String? = null
-
-    /** The flatpak app a desktop session autostarts; then [machineId] is authoritative and null means the shared runtime. */
-    @Volatile
-    var flatpakApp: String? = null
 
     @Volatile
     var outputSize: Pair<Int, Int> = Pair(1920, 1080)

@@ -1,2 +1,5 @@
 mesa
 vulkan-icd-loader
+# The APK stages gamescope without its libraries, so the runtime must carry its whole
+# NEEDED closure (SDL2, libseat, libinput, ...); seeding the package resolves it via pacman.
+gamescope

@@ -357,7 +357,6 @@ class SessionService : Service() {
         }
         SessionState.mode = intent?.getStringExtra(EXTRA_MODE) ?: MODE_STEAM
         SessionState.machineId = intent?.getStringExtra(EXTRA_MACHINE)
-        SessionState.flatpakApp = intent?.getStringExtra(EXTRA_FLATPAK_APP)
         SessionState.fpsLimit = 0
         suspendPolicy = SessionPrefs.suspendPolicy(this, SessionState.mode)
         steamDownloadsInBackground = SessionPrefs.steamDownloadsInBackground(this)
@@ -772,10 +771,6 @@ class SessionService : Service() {
                 .onFailure { Log.w(TAG, "desktop panel heal: $it") }
             runCatching { com.droidhost.launcher.runtime.DesktopLanguage.ensure(this, com.droidhost.launcher.core.AppLanguage.effective(this)) }
                 .onFailure { Log.w(TAG, "desktop language pack: $it") }
-            runCatching {
-                com.droidhost.launcher.runtime.FlatpakDesktop.prepareSession(root, SessionState.flatpakApp, SessionState.programArgs,
-                    SessionState.flatpakApp?.let { com.droidhost.launcher.frontend.Library.flatpakNames[it] })
-            }.onFailure { Log.w(TAG, "flatpak autostart: $it") }
         }
 
         val networkLink = LinuxNetworkLinkComponent(this, root)
@@ -1070,17 +1065,15 @@ class SessionService : Service() {
         SessionState.mode == MODE_RUN && SessionState.program in setOf(NoSteamLaunch.PROTON_RUN, NoSteamLaunch.EPIC, NoSteamLaunch.BATTLENET)
 
     /**
-     * The machine a desktop session runs for. Every other mode stays on the app's shared
-     * runtime, because the games and the stores live there.
-     *
-     * The machine the caller named wins; without one the first machine stands in, so a launch
-     * that predates machine selection behaves as it did before. A flatpak autostart names its
-     * host exactly, so its null keeps the shared runtime instead of standing in a VM.
+     * The machine this session runs for; null keeps the app's shared runtime, where the games
+     * and the stores live. A desktop launch without a named machine falls back to the first one,
+     * as it did before machine selection. A flatpak run-mode session names its host exactly, so
+     * its null keeps the shared runtime instead of standing in a VM.
      */
     private fun sessionMachineId(): String? =
         if (SessionState.mode == MODE_DESKTOP)
-            com.droidhost.launcher.runtime.FlatpakDesktop.desktopMachineId(this, SessionState.machineId, SessionState.flatpakApp)
-        else null
+            SessionState.machineId ?: com.droidhost.launcher.vm.VmStore.load(this)?.id
+        else SessionState.machineId
 
     /** The rootfs this session runs in: the machine's own when it has one, the shared runtime otherwise. */
     private fun sessionRootfs(): File = LinuxRuntime.rootDir(this, sessionMachineId())
@@ -2491,7 +2484,6 @@ class SessionService : Service() {
         const val MODE_DESKTOP = "lxqt"
         const val MODE_RUN = "run"
         const val EXTRA_MACHINE = "machine"
-        const val EXTRA_FLATPAK_APP = "flatpak-app"
         const val EXTRA_PROGRAM = "program"
         private const val RUN_STATUS = "run-status"
         const val EXTRA_PROGRAM_ARGS = "programArgs"

@@ -29,13 +29,13 @@ import org.robolectric.util.ReflectionHelpers.ClassParameter
 @Config(sdk = [28], application = Application::class, manifest = Config.NONE)
 @LooperMode(LooperMode.Mode.PAUSED)
 class GlassesSessionModesTest {
-    private data class Launch(val name: String, val mode: String, val program: String? = null, val args: Array<String>? = null, val flatpakApp: String? = null)
+    private data class Launch(val name: String, val mode: String, val program: String? = null, val args: Array<String>? = null)
     private val launches = listOf(
         Launch("Steam and store games", SessionService.MODE_STEAM),
         Launch("Desktop", SessionService.MODE_DESKTOP),
         Launch("Standalone", SessionService.MODE_RUN, "/usr/bin/example-game"),
         Launch("Emulator", SessionService.MODE_RUN, "/usr/bin/retroarch", arrayOf("/games/example.rom")),
-        Launch("Flatpak", SessionService.MODE_DESKTOP, args = arrayOf("org.example.Game"), flatpakApp = "org.example.Game"),
+        Launch("Flatpak", SessionService.MODE_RUN, com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER, arrayOf("org.example.Game")),
     )
     private lateinit var display: Display
     private lateinit var restore: () -> Unit
@@ -48,7 +48,6 @@ class GlassesSessionModesTest {
         val running = SessionState.running
         val steamVr = SessionState.steamVr
         val mode = SessionState.mode
-        val flatpakApp = SessionState.flatpakApp
         val fields = listOf("context", "publisherAttached").associateWith {
             SpatialTracking::class.java.getDeclaredField(it).apply { isAccessible = true }
         }
@@ -60,7 +59,6 @@ class GlassesSessionModesTest {
             SessionState.running = running
             SessionState.steamVr = steamVr
             SessionState.mode = mode
-            SessionState.flatpakApp = flatpakApp
         }
         val id = ShadowDisplayManager.addDisplay("w1920dp-h1080dp")
         display = RuntimeEnvironment.getApplication().getSystemService(DisplayManager::class.java).getDisplay(id)
@@ -124,9 +122,7 @@ class GlassesSessionModesTest {
             .putExtra(SessionService.EXTRA_MODE, launch.mode)
             .putExtra(SessionService.EXTRA_PROGRAM, launch.program)
             .putExtra(SessionService.EXTRA_PROGRAM_ARGS, launch.args)
-            .putExtra(SessionService.EXTRA_FLATPAK_APP, launch.flatpakApp)
         SessionState.mode = launch.mode
-        SessionState.flatpakApp = launch.flatpakApp
         return Robolectric.buildActivity(SessionActivity::class.java, intent).get().also {
             ReflectionHelpers.setField(it, "loading", LoadingState(it).apply { visible = false })
             ReflectionHelpers.setField(it, "started", true)
