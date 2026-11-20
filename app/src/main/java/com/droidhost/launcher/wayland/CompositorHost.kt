@@ -58,6 +58,7 @@ object CompositorHost {
         if (started) {
             attached = surface
             WaylandCompositor.nativeSetSurface(surface)
+            applySurfaceVote()
             resumeVsync()
             return false
         }
@@ -67,15 +68,32 @@ object CompositorHost {
         )
         attached = surface
         started = true
+        applySurfaceVote()
         resumeVsync()
         return true
     }
 
     private fun pace(refreshHz: Float, fpsLimit: Int) {
         WaylandCompositor.nativeSetFpsLimit(fpsLimit)
-        WaylandCompositor.nativeSetLayerFrameRate(if (fpsLimit > 0) fpsLimit.toFloat() else refreshHz)
+        val vote = if (fpsLimit > 0) fpsLimit.toFloat() else refreshHz
+        WaylandCompositor.nativeSetLayerFrameRate(vote)
         WaylandCompositor.nativeSetOutputRefreshRate(refreshHz)
         SessionState.refreshHz = refreshHz
+        surfaceVoteHz = vote
+        applySurfaceVote()
+    }
+
+    // The desktop renders through the SurfaceView's ANativeWindow, not the sc_layer SurfaceControl
+    // path games use, so nativeSetLayerFrameRate never reaches SurfaceFlinger here. Vote the paced
+    // rate explicitly (CHANGE_FRAME_RATE_ALWAYS) or content detection locks the static desktop at 60 Hz.
+    private fun applySurfaceVote() {
+        if (android.os.Build.VERSION.SDK_INT < 31) return
+        val surface = attached ?: return
+        val hz = surfaceVoteHz
+        if (hz <= 1f) return
+        runCatching {
+            surface.setFrameRate(hz, Surface.FRAME_RATE_COMPATIBILITY_DEFAULT, Surface.CHANGE_FRAME_RATE_ALWAYS)
+        }
     }
 
     @Synchronized
@@ -91,6 +109,7 @@ object CompositorHost {
         WaylandCompositor.nativeSetSurface(null)
         attached = surface
         WaylandCompositor.nativeSetSurface(surface)
+        applySurfaceVote()
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(rearm, 600)
     }
 
@@ -102,6 +121,9 @@ object CompositorHost {
     }
 
     private var attached: Surface? = null
+
+    @Volatile
+    private var surfaceVoteHz: Float = 0f
 
     @Synchronized
     fun attachXr() {

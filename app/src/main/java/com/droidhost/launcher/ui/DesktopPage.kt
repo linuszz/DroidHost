@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Settings
@@ -165,7 +166,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     val vmOwnsMachine = vm != null && vm.id != VmMachine.DEFAULT_ID
     val primary: () -> Unit = when {
         status == VmStatus.ABSENT -> ({ picking = true })
-        status == VmStatus.RUNNING -> a.onVmStop
+        // A running machine re-enters its live session; stopping moves to the beside row so the
+        // primary action is always "go into the desktop", never a dead end.
+        status == VmStatus.RUNNING -> a.onResume
         status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ a.onDesktop(vm?.id) })
         // A paused, interrupted or failed install resumes from the partial it kept.
         status == VmStatus.PAUSED || status == VmStatus.INTERRUPTED || status == VmStatus.FAILED -> ({
@@ -258,6 +261,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                 HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
                 HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
                 if (vm != null) HeroIconButton(Icons.Outlined.Settings, stringResource(R.string.vm_settings), null, "vm:settings") { settings = true }
+                if (status == VmStatus.RUNNING) HeroIconButton(Icons.Filled.Stop, stringResource(R.string.vm_stop), null, "vm:stop") { a.onVmStop() }
                 // While the preset downloads, the user can pause it; an installing or paused machine
                 // can cancel the install and keep the machine.
                 if (vm != null && seed.busy && seed.machineId == vm.id && seed.percent <= 25)

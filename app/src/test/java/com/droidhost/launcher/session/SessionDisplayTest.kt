@@ -146,6 +146,29 @@ class SessionDisplayTest {
         assertNull(SessionDisplay.followSize(720, 0, controlsBelow = true))
     }
 
+    @Test fun keyboardAreaTakesTheRegionAboveTheImeAndStaysEven() {
+        assertEquals(1080 to 1400, SessionDisplay.keyboardArea(1080, 2400, 1000))
+        assertEquals(1080 to 2400, SessionDisplay.keyboardArea(1080, 2400, 0))
+        assertEquals(1080 to 2400, SessionDisplay.keyboardArea(1080, 2400, -5))
+        assertEquals(1080 to 1398, SessionDisplay.keyboardArea(1080, 2400, 1001))
+        assertEquals(540 to 700, SessionDisplay.keyboardArea(1080, 2400, 1000, scale = 2f))
+    }
+
+    @Test fun keyboardAreaDeclinesWhenTooLittleRemainsAboveTheIme() {
+        assertNull(SessionDisplay.keyboardArea(1080, 2400, 2000))
+        assertNull(SessionDisplay.keyboardArea(1080, 2400, 2400))
+        assertNull(SessionDisplay.keyboardArea(1080, 2400, 3000))
+        assertNull(SessionDisplay.keyboardArea(0, 2400, 1000))
+    }
+
+    @Test fun keyboardAreaAlsoReservesTheExtraKeysToolbar() {
+        assertEquals(1080 to 1300, SessionDisplay.keyboardArea(1080, 2400, 1000, toolbarHeight = 100))
+        assertEquals(1080 to 2300, SessionDisplay.keyboardArea(1080, 2400, 0, toolbarHeight = 100))
+        assertEquals(1080 to 2400, SessionDisplay.keyboardArea(1080, 2400, 0, toolbarHeight = 0))
+        assertNull(SessionDisplay.keyboardArea(1080, 2400, 2000, toolbarHeight = 100))
+        assertEquals(540 to 650, SessionDisplay.keyboardArea(1080, 2400, 1000, toolbarHeight = 100, scale = 2f))
+    }
+
     @Test fun resolutionCapsPreserveTheSelectedShapeWithoutExceedingPanelHeight() {
         assertEquals(1280 to 720, SessionDisplay.resolve(1920 to 1080, 720, SessionPrefs.SHAPE_AUTO))
         assertEquals(960 to 720, SessionDisplay.resolve(1440 to 1080, 720, SessionPrefs.SHAPE_EXACT))

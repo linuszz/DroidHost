@@ -92,6 +92,14 @@ class SessionClipboard(context: Context, private val hasFocus: () -> Boolean) {
         publish(text)
     }
 
+    // Direct host→guest publish for IME-committed text. The guest X11 clipboard is served by
+    // droiddeck-clipboard, which watches this file via inotify and owns the X11 CLIPBOARD selection; a
+    // Wayland-only setClipboardText never reaches X11 apps. The rename gives a new inode so the watcher
+    // re-reads even when the text is unchanged, which is what lets Ctrl+V paste the typed string.
+    fun publishText(text: String) {
+        publish(text)
+    }
+
     private fun publish(text: String?) {
         published = true
         shared = text

@@ -49,9 +49,11 @@ class VmHomeTest {
         compose.onNodeWithText(ctx.getString(R.string.vm_start)).assertIsDisplayed()
     }
 
-    @Test fun aRunningMachineOffersTheStop() {
+    @Test fun aRunningMachineOffersResumeAndAStopIcon() {
         render(state(desktopInstalled = true, sessionRunning = true))
-        compose.onNodeWithText(ctx.getString(R.string.vm_stop)).assertIsDisplayed()
+        // The primary action re-enters the live session; stopping moved to the beside icon row.
+        compose.onNodeWithText(ctx.getString(R.string.vm_resume)).assertIsDisplayed()
+        compose.onNodeWithContentDescription(ctx.getString(R.string.vm_stop)).assertIsDisplayed()
     }
 
     @Test fun aRemovalInFlightReadsAsDeleting() {

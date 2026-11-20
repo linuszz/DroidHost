@@ -77,6 +77,18 @@ object SessionPrefs {
         else -> false
     }
 
+    fun keyToolbar(context: Context): Boolean = prefs(context).getBoolean("keyToolbar", true)
+
+    fun setKeyToolbar(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("keyToolbar", on).apply()
+    }
+
+    fun secureKeyboard(context: Context): Boolean = prefs(context).getBoolean("secureKeyboard", true)
+
+    fun setSecureKeyboard(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("secureKeyboard", on).apply()
+    }
+
     fun launcherFullscreen(context: Context): Boolean = prefs(context).getBoolean("launcherFullscreen", true)
 
     fun setLauncherFullscreen(context: Context, on: Boolean) {
@@ -1407,6 +1419,22 @@ object SessionPrefs {
             else -> minOf(mirrorRefreshLimit, sessionLimit)
         }
         return if (pip && mirrorRefreshLimit <= 0 && (limit <= 0 || limit > PIP_FPS)) PIP_FPS else limit
+    }
+
+    // Manual display-refresh ceiling set by the portrait toolbar's rate key; 0 = auto (panel peak).
+    fun refreshRateChoice(context: Context): Int = prefs(context).getInt("refreshRateChoice", 0)
+
+    fun setRefreshRateChoice(context: Context, hz: Int) {
+        prefs(context).edit().putInt("refreshRateChoice", hz).apply()
+    }
+
+    // Guest UI magnification (percent) from the portrait toolbar's quick-config panel. The guest is an
+    // X11 desktop with no live DPI knob, so this scales the compositor output resolution down instead:
+    // 150% renders the guest at 2/3 size, making its UI appear 1.5x larger. 100 = native (no-op).
+    fun guestUiScalePercent(context: Context): Int = prefs(context).getInt("guestUiScale", 100)
+
+    fun setGuestUiScalePercent(context: Context, percent: Int) {
+        prefs(context).edit().putInt("guestUiScale", percent).apply()
     }
 
     val upscalerChoices = listOf(

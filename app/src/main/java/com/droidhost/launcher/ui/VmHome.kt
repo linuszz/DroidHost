@@ -142,7 +142,7 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.ABSENT -> stringResource(R.string.vm_new)
     VmStatus.NEW -> stringResource(R.string.vm_install)
     VmStatus.READY, VmStatus.DEGRADED -> stringResource(R.string.vm_start)
-    VmStatus.RUNNING -> stringResource(R.string.vm_stop)
+    VmStatus.RUNNING -> stringResource(R.string.vm_resume)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.PAUSED, VmStatus.INTERRUPTED -> stringResource(R.string.vm_resume)
     VmStatus.FAILED -> stringResource(R.string.vm_retry)
@@ -156,7 +156,7 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
     VmStatus.READY, VmStatus.DEGRADED -> Icons.Filled.PlayArrow
     VmStatus.PAUSED, VmStatus.INTERRUPTED -> Icons.Filled.PlayArrow
     VmStatus.FAILED -> Icons.Filled.Refresh
-    VmStatus.RUNNING -> Icons.Filled.Close
+    VmStatus.RUNNING -> Icons.Filled.PlayArrow
     VmStatus.IMPORTED -> Icons.Outlined.Download
     else -> null
 }

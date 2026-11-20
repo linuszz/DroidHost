@@ -264,6 +264,13 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private var routedTouchMode = SessionPrefs.TOUCH_AUTO
     private var touchRoute: com.droidhost.launcher.input.TouchRouter.Route? = null
     private var keyboard: KeyboardHost? = null
+    private var imeHeightPx by mutableStateOf(0)
+    private var keyToolbarVisible by mutableStateOf(false)
+    private var keyToolbarHeightPx = 0
+    private var navBarHeightPx = 0
+    private var secureKeyboard by mutableStateOf(true)
+    private var refreshChoice by mutableStateOf(0)
+    private var guestUiScale by mutableStateOf(100)
     private var desktopKeyboardButton: com.droidhost.launcher.input.DesktopKeyboardButton? = null
     private var lastUserPressMs = 0L
     private var pressDownX = 0f
@@ -768,7 +775,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         surfaceView.holder.addCallback(this)
         root.addView(surfaceView)
         root.addOnLayoutChangeListener { _, l, t, r, b, ol, ot, or, ob ->
-            if (r - l != or - ol || b - t != ob - ot) uiHandler.post { applyUnfoldedControls() }
+            if (r - l != or - ol || b - t != ob - ot) uiHandler.post { applyUnfoldedControls(); refreshKeyToolbar() }
         }
 
         val bridge = PadBridge(File(LinuxRuntime.sessionRoot(this), "dev/input"))
@@ -809,6 +816,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         }
         keyboard = KeyboardHost(this).also { host ->
             host.onImeChanged = { updateDesktopKeyboardButton() }
+            host.onImeHeightChanged = { applyImeHeight(it) }
+            host.onCommitText = { deliverGuestText(it) }
+            secureKeyboard = SessionPrefs.secureKeyboard(this)
+            host.setSecureKeyboard(secureKeyboard)
             root.addView(host)
         }
         desktopKeyboardButton = com.droidhost.launcher.input.DesktopKeyboardButton(this) { keyboard?.show() }
@@ -1221,6 +1232,25 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 LaunchedEffect(pcKeyboardOpen, drawerOpen, achievementsOpen) {
                     if (pcKeyboardOpen || drawerOpen || achievementsOpen) padMouse.reset()
                 }
+                if (keyToolbarVisible && !pcKeyboardOpen && !drawerOpen) com.droidhost.launcher.ui.SessionKeyToolbar(
+                    bottomOffsetPx = toolbarBottomOffset(),
+                    sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
+                    onToggleIme = { keyboard?.toggle() },
+                    imeOpen = imeHeightPx > 0,
+                    secureKeyboard = secureKeyboard,
+                    onToggleSecureKeyboard = { toggleToolbarSecureKeyboard() },
+                    onPaste = { pasteToolbarText() },
+                    touchpadActive = touchMode.let { usingTouchpad() },
+                    onToggleTouchMode = { toggleToolbarTouchMode() },
+                    refreshHz = if (refreshChoice > 0) refreshChoice else refreshHz().toInt(),
+                    refreshAuto = refreshChoice == 0,
+                    onCycleRefreshRate = { toggleToolbarRefreshRate() },
+                    uiScalePercent = guestUiScale,
+                    onCycleUiScale = { toggleToolbarUiScale() },
+                    hudOn = hudOn,
+                    onToggleHud = { val on = !hudOn; SessionPrefs.setHudEnabled(this@SessionActivity, on); hudOn = on; hud.refresh() },
+                    onHeightChanged = { keyToolbarHeightPx = it; layoutOutputForKeyboard() },
+                )
                 if (pcKeyboardOpen) com.droidhost.launcher.ui.PcKeyboard(
                     sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
                     onAndroidKeyboard = { pcKeyboardOpen = false; keyboard?.toggle() },
@@ -2105,6 +2135,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         suspendPolicy = SessionPrefs.suspendPolicy(this, SessionState.mode)
         steamDownloadsInBackground = SessionPrefs.steamDownloadsInBackground(this)
         oscMode = SessionPrefs.oscMode(this)
+        refreshChoice = SessionPrefs.refreshRateChoice(this)
+        guestUiScale = SessionPrefs.guestUiScalePercent(this)
         backHold = SessionPrefs.backHold(this)
         backActionsInverted = SessionPrefs.backActionsInverted(this)
         physicalShortcuts.bindings = PhysicalShortcuts.read(this)
@@ -2399,6 +2431,13 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun windowOutputSize(width: Int, height: Int): Pair<Int, Int>? {
+        val base = baseWindowOutputSize(width, height) ?: return null
+        val scale = guestUiScale / 100f
+        if (scale <= 1f) return base
+        return (Math.round(base.first / scale) and 1.inv()) to (Math.round(base.second / scale) and 1.inv())
+    }
+
+    private fun baseWindowOutputSize(width: Int, height: Int): Pair<Int, Int>? {
         if (width <= 0 || height <= 0 || isInPictureInPictureMode) return null
         if (bottomGame != null) return when {
             SessionState.followScreen ->
@@ -2407,6 +2446,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 (width and 1.inv()) to (height and 1.inv())
             else -> null
         }
+        if (keyboardAdaptActive())
+            return com.droidhost.launcher.session.SessionDisplay.followSize(width, height, false,
+                if (SessionState.followScreen) SessionState.followScale else 1f)
         return if (SessionState.followScreen)
             com.droidhost.launcher.session.SessionDisplay.followSize(width, height, controlsBelowWanted(), SessionState.followScale)
         else if (glassesScreen == null) outputSize() else null
@@ -2421,6 +2463,134 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val panel = panelBounds()
         SessionState.upscaleRatio = maxOf(panel.width(), panel.height()).toFloat() / maxOf(size.first, size.second).coerceAtLeast(1)
         WaylandCompositor.nativeResizeOutput(size.first, size.second)
+    }
+
+    private fun keyToolbarWanted(): Boolean {
+        if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return false
+        if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_PORTRAIT) return false
+        if (glassesScreen != null || bottomGame != null || isInPictureInPictureMode || controlsBelowWanted()) return false
+        if (!SessionPrefs.keyToolbar(this)) return false
+        return displayMode() == SessionService.MODE_DESKTOP || imeHeightPx > 0
+    }
+
+    private fun refreshKeyToolbar() {
+        if (::sessionRoot.isInitialized) {
+            navBarHeightPx = androidx.core.view.ViewCompat.getRootWindowInsets(sessionRoot)
+                ?.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+        }
+        val wanted = keyToolbarWanted()
+        if (wanted != keyToolbarVisible) keyToolbarVisible = wanted
+        if (!wanted) keyToolbarHeightPx = 0
+        updateDesktopKeyboardButton()
+        layoutOutputForKeyboard()
+    }
+
+    private fun keyToolbarReserved(): Int = if (keyToolbarVisible) keyToolbarHeightPx else 0
+
+    // Bottom inset the output must clear: the soft keyboard, or — when the toolbar is up but the
+    // keyboard is hidden — the navigation/gesture bar, so the toolbar never sits on the gesture zone.
+    private fun toolbarBottomOffset(): Int =
+        if (keyToolbarVisible) maxOf(imeHeightPx, navBarHeightPx) else imeHeightPx
+
+    private fun keyboardAdaptActive(): Boolean {
+        if (toolbarBottomOffset() + keyToolbarReserved() <= 0 || !::surfaceView.isInitialized || !::sessionRoot.isInitialized) return false
+        if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_PORTRAIT) return false
+        if (glassesScreen != null || bottomGame != null || isInPictureInPictureMode || controlsBelowWanted()) return false
+        return com.droidhost.launcher.session.SessionDisplay.keyboardArea(sessionRoot.width, sessionRoot.height, toolbarBottomOffset(), keyToolbarReserved()) != null
+    }
+
+    private fun applyImeHeight(height: Int) {
+        imeHeightPx = height.coerceAtLeast(0)
+        refreshKeyToolbar()
+    }
+
+    // In portrait the soft keyboard and extra-keys toolbar overlay the fullscreen surface; shrink the
+    // output view to the area above them so the compositor draws there and the guest resolution follows.
+    private fun layoutOutputForKeyboard() {
+        if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return
+        val targetHeight = if (keyboardAdaptActive())
+            com.droidhost.launcher.session.SessionDisplay.keyboardArea(sessionRoot.width, sessionRoot.height, toolbarBottomOffset(), keyToolbarReserved())!!.second
+        else android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+        val params = surfaceView.layoutParams as? android.widget.FrameLayout.LayoutParams ?: return
+        if (params.height != targetHeight) {
+            params.height = targetHeight
+            surfaceView.layoutParams = params
+        }
+    }
+
+    private fun pasteToolbarText() {
+        val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val text = cm.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() ?: return
+        if (text.isNotEmpty()) deliverGuestText(text)
+    }
+
+    // The guest desktop is X11 (QT_QPA_PLATFORM=xcb): its apps never bind text-input-v3, so a commit
+    // string is dropped ("no program accepts text input"). Deliver CJK/emoji and pasted text through the
+    // guest clipboard + Ctrl+V instead, which any paste-capable X11/Wayland client accepts.
+    private val guestTextQueue = ArrayDeque<String>()
+    private var guestTextPumping = false
+
+    private fun deliverGuestText(text: String) {
+        if (text.isEmpty() || !CompositorHost.isStarted) return
+        guestTextQueue.addLast(text)
+        if (!guestTextPumping) pumpGuestText()
+    }
+
+    // The guest X11 clipboard is owned by droiddeck-clipboard, which serves the android-clipboard file
+    // (inotify-driven); a Wayland-only setClipboardText never reaches X11 apps, so publish through
+    // SessionClipboard to write that file, then wait for the watcher to re-read it before Ctrl+V. Commits
+    // are serialized: the clipboard is one shared buffer, so overlapping set+paste pairs from a fast IME
+    // would otherwise race and paste a later string twice.
+    private fun pumpGuestText() {
+        if (!CompositorHost.isStarted) { guestTextPumping = false; guestTextQueue.clear(); return }
+        val text = guestTextQueue.removeFirstOrNull()
+        if (text == null) { guestTextPumping = false; return }
+        guestTextPumping = true
+        sessionClipboard.publishText(text)
+        uiHandler.postDelayed({
+            if (CompositorHost.isStarted) {
+                sendGuestKey(29, true, 16); sendGuestKey(47, true, 16)
+                sendGuestKey(47, false, 16); sendGuestKey(29, false, 16)
+            }
+            uiHandler.postDelayed({ pumpGuestText() }, 40)
+        }, 150)
+    }
+
+    private fun toggleToolbarTouchMode() {
+        val next = if (usingTouchpad()) SessionPrefs.TOUCH_DIRECT else SessionPrefs.TOUCH_PAD
+        SessionPrefs.setTouchMode(this, next)
+        readPrefs()
+    }
+
+    private fun toggleToolbarSecureKeyboard() {
+        secureKeyboard = !secureKeyboard
+        SessionPrefs.setSecureKeyboard(this, secureKeyboard)
+        keyboard?.setSecureKeyboard(secureKeyboard)
+    }
+
+    private fun toggleToolbarRefreshRate() {
+        val display = if (Build.VERSION.SDK_INT >= 30) display else windowManager.defaultDisplay
+        val cur = display?.mode
+        val rates = display?.supportedModes
+            ?.filter { cur != null && it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight }
+            ?.map { it.refreshRate.toInt() }?.distinct()?.sortedDescending()
+            ?: emptyList()
+        if (rates.isEmpty()) return
+        // Auto (0) plus every supported rate including the peak, so the panel's top rate stays an
+        // explicit choice rather than hidden behind auto; each tap steps down one rate, then wraps.
+        val sequence = listOf(0) + rates
+        val idx = sequence.indexOf(refreshChoice).coerceAtLeast(0)
+        val next = sequence[(idx + 1) % sequence.size]
+        SessionPrefs.setRefreshRateChoice(this, next)
+        refreshChoice = next
+        applyOutputPacing()
+    }
+
+    private fun toggleToolbarUiScale() {
+        val next = when (guestUiScale) { 100 -> 150; 150 -> 200; else -> 100 }
+        SessionPrefs.setGuestUiScalePercent(this, next)
+        guestUiScale = next
+        resizeOutputForWindow(surfaceW, surfaceH)
     }
 
     private fun followScale(): Float {
@@ -2508,10 +2678,19 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val display = if (Build.VERSION.SDK_INT >= 30) display else windowManager.defaultDisplay
         val wanted = window.attributes.preferredDisplayModeId
         val requested = display?.supportedModes?.firstOrNull { wanted != 0 && it.modeId == wanted }?.refreshRate
+        // Aim at the requested mode, else the panel's highest supported rate — never its instantaneous
+        // rate: voting that back to SurfaceControl feedback-locks the panel at its start rate (60 Hz).
+        val peakSupported = display?.let { d ->
+            val cur = d.mode
+            d.supportedModes
+                .filter { it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight }
+                .maxOfOrNull { it.refreshRate }
+        }
         val running = display?.refreshRate?.takeIf { it > 1f }
-        val hz = listOfNotNull(requested, running).minOrNull() ?: 60f
+        val hz = requested ?: peakSupported ?: running ?: 60f
         val mirrorCap = mirrorRefreshLimit().takeIf { it > 0 }?.toFloat() ?: Float.POSITIVE_INFINITY
-        val capped = minOf(hz, PerfMode.peakRefreshCap(this), mirrorCap)
+        val manualCap = SessionPrefs.refreshRateChoice(this).takeIf { it > 0 }?.toFloat() ?: Float.POSITIVE_INFINITY
+        val capped = minOf(hz, PerfMode.peakRefreshCap(this), mirrorCap, manualCap)
         return if (capped > 1f) capped else 60f
     }
 
@@ -3076,6 +3255,13 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             if (down && event.repeatCount > 0) return true
             val owner = if (event.deviceId <= 0) 16 else 8
             if (com.droidhost.launcher.input.GuestKeys.send(event) { code, pressed -> sendGuestKey(code, pressed, owner) }) return true
+            // evdev carries only physical-key scancodes; CJK/emoji committed by a soft IME have none,
+            // so deliver them through the Wayland text-input path (the same one toolbar Paste uses).
+            val ch = event.unicodeChar
+            if (down && ch > 0) {
+                WaylandCompositor.textInputCommit(String(Character.toChars(ch)))
+                return true
+            }
         }
         return super.dispatchKeyEvent(event)
     }
@@ -4633,6 +4819,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 
     private fun updateOnScreenControls() {
         updateOnScreenPad()
+        refreshKeyToolbar()
         val c = onScreenControls
         glassesSlot = when {
             c == null || c.visibility != View.VISIBLE || c.isPinnedOnly -> 0
@@ -4769,14 +4956,15 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             val tapped = android.os.SystemClock.uptimeMillis() - lastUserPressMs < TEXT_FIELD_TAP_MS
             if (focused && tapped && resumed && !pcKeyboardOpen &&
                 resources.configuration.hardKeyboardHidden != android.content.res.Configuration.HARDKEYBOARDHIDDEN_NO) host.show()
-            else if (!focused && host.shown) host.hide()
+            // No auto-hide on focus loss: hiding resized the guest output and dismissed transient
+            // popups (e.g. the Firefox search-engine menu). The keyboard stays until closed via the toolbar.
         }
         updateDesktopKeyboardButton()
     }
 
     private fun updateDesktopKeyboardButton() {
         val button = desktopKeyboardButton ?: return
-        val show = desktopTextInput() && AgentGuest.desktopTextField && !pcKeyboardOpen &&
+        val show = desktopTextInput() && AgentGuest.desktopTextField && !pcKeyboardOpen && !keyToolbarVisible &&
             !(keyboard?.let { it.shown && (Build.VERSION.SDK_INT < 30 || it.imeShowing) } ?: false)
         val visibility = if (show) View.VISIBLE else View.GONE
         if (button.visibility == visibility) return

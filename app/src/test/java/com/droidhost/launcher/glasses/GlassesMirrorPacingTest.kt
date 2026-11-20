@@ -66,10 +66,13 @@ class GlassesMirrorPacingTest {
         expect(3, 120f, SessionPrefs.FPS_UNPACED)
     }
 
-    @Test fun pacingFollowsThePanelWhenTheSystemKeepsALowerRateThanRequested() {
+    // Voting the panel's current rate back at it latched a 144 Hz panel at 60: the vote kept
+    // the panel low and the low panel kept the vote low. Request the selected peak instead so
+    // the system can raise the panel; deliberate caps still arrive via peak_refresh_rate.
+    @Test fun pacingRequestsThePeakEvenWhenThePanelIsCurrentlyLower() {
         Shadow.extract<ModeDisplay>(activity.display).current = mode(2, 90f)
         apply(GlassesState(), settings)
-        expect(3, 90f, SessionPrefs.FPS_UNPACED)
+        expect(3, 120f, SessionPrefs.FPS_UNPACED)
     }
 
     @Test fun aHigherRefreshSettingChoosesTheFasterModeAgain() {

@@ -30,12 +30,13 @@ import kotlin.math.sqrt
 @Config(sdk = [33], qualifiers = "xhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class DroidHostHudPanelTest {
+    // The shipped HUD docks right by default; these tests render the undocked panel.
     @Test fun minimalIsTheSizeTheHudStartsWith() {
-        assertEquals(DroidHostHudSize.MINIMAL, DroidHostHudSize.from(DroidHostHudConfig.DEFAULTS["hudSize"]))
+        assertEquals(DroidHostHudSize.MINIMAL, DroidHostHudSize.from((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none"))["hudSize"]))
     }
 
     @Test fun theHudStartsLocked() {
-        assertEquals("1", DroidHostHudConfig.DEFAULTS["hudLocked"])
+        assertEquals("1", (DroidHostHudConfig.DEFAULTS + ("hudDock" to "none"))["hudLocked"])
     }
 
     @Test fun lowMetricsCanBeHiddenIndependentlyInEveryLayoutThatShowsThem() {
@@ -50,7 +51,7 @@ class DroidHostHudPanelTest {
                 val settings = metrics.mapIndexed { index, (key, _) ->
                     key to if (mask and (1 shl index) != 0) "1" else "0"
                 }.toMap()
-                view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS +
+                view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) +
                     DroidHostHudConfig.ORDER.associateWith { "0" } + settings + mapOf(
                     "hudSize" to size.token, "showFPSGraph" to "0", "showClock" to "0")))
                 view.showForTest(SNAPSHOT, "DXVK", 0L)
@@ -77,7 +78,7 @@ class DroidHostHudPanelTest {
         for (size in DroidHostHudSize.values()) {
             if (size == DroidHostHudSize.STRIP) continue
             val view = DroidHostHudView(RuntimeEnvironment.getApplication())
-            view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to size.token)))
+            view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to size.token)))
             view.setFrameStats(stats)
             view.showForTest(snapshot, "DXVK", now)
             val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -103,7 +104,7 @@ class DroidHostHudPanelTest {
 
     @Test fun aSwitchTurnsItsRowOff() {
         fun full(vararg settings: Pair<String, String>): List<String> {
-            val values = LinkedHashMap(DroidHostHudConfig.DEFAULTS)
+            val values = LinkedHashMap((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")))
             values["hudSize"] = DroidHostHudSize.FULL.token
             for ((key, value) in settings) values[key] = value
             val view = DroidHostHudView(RuntimeEnvironment.getApplication())
@@ -122,7 +123,7 @@ class DroidHostHudPanelTest {
             val off = DroidHostHudConfig.ORDER.associateWith { "0" }
             val view = DroidHostHudView(RuntimeEnvironment.getApplication())
             view.applyConfig(DroidHostHudConfig.encode(
-                DroidHostHudConfig.DEFAULTS + off + mapOf(
+                (DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + off + mapOf(
                     "hudSize" to DroidHostHudSize.FULL.token,
                     "showPower" to "1", "showFPS" to "1", "showRAM" to "1",
                     "showFPSGraph" to "0", "showClock" to "0", "hudOrder" to order,
@@ -149,7 +150,7 @@ class DroidHostHudPanelTest {
             val off = DroidHostHudConfig.ORDER.associateWith { "0" }
             val view = DroidHostHudView(RuntimeEnvironment.getApplication())
             view.applyConfig(DroidHostHudConfig.encode(
-                DroidHostHudConfig.DEFAULTS + off + mapOf(
+                (DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + off + mapOf(
                     "hudSize" to DroidHostHudSize.PILL.token,
                     "showFPS" to "1", "showRAM" to "1", "showPower" to "1",
                     "showFPSGraph" to "0", "showClock" to "0",
@@ -172,7 +173,7 @@ class DroidHostHudPanelTest {
         parent.addView(view, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
         parent.measure(View.MeasureSpec.makeMeasureSpec(2400, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY))
         parent.layout(0, 0, 2400, 1080)
-        view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to DroidHostHudSize.STRIP.token) +
+        view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to DroidHostHudSize.STRIP.token) +
             ("showBattery" to "1")))
         view.showForTest(SNAPSHOT, "DXVK", 0L)
         val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -200,7 +201,7 @@ class DroidHostHudPanelTest {
         parent.addView(view, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
         parent.measure(View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY))
         parent.layout(0, 0, 700, 400)
-        view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to DroidHostHudSize.STRIP.token)))
+        view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to DroidHostHudSize.STRIP.token)))
         view.showForTest(SNAPSHOT, "DXVK", 0L)
         val line = view.linesForTest().single()
         assertTrue(line, "fps" in line)
@@ -217,7 +218,7 @@ class DroidHostHudPanelTest {
         var now = 1_000_000_000L
         repeat(300) { now += 25_000_000L; stats.add(25_000_000L, now) }
         view.setFrameStats(stats)
-        view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS +
+        view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) +
             ("hudSize" to "strip") + ("showFPSGraph" to "1") + ("hudOpacity" to "100")))
         view.showForTest(SNAPSHOT, "DXVK", now)
         val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -246,7 +247,7 @@ class DroidHostHudPanelTest {
         parent.layout(0, 0, 2400, 1080)
         fun render(theme: String): Bitmap {
             SessionPrefs.setTheme(app, theme)
-            view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to "strip")))
+            view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to "strip")))
             view.showForTest(SNAPSHOT, "DXVK", 0L)
             val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             view.measure(unspecified, unspecified)
@@ -279,7 +280,7 @@ class DroidHostHudPanelTest {
         parent.measure(View.MeasureSpec.makeMeasureSpec(2400, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY))
         parent.layout(0, 0, 2400, 1080)
         fun at(scale: Int): Pair<Float, Float> {
-            view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to DroidHostHudSize.STRIP.token) +
+            view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to DroidHostHudSize.STRIP.token) +
                 ("hudScale" to scale.toString())))
             view.showForTest(SNAPSHOT, "DXVK", 0L)
             val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -299,7 +300,7 @@ class DroidHostHudPanelTest {
     @Test fun pillShowsEachBatteryPartOnItsOwnSwitch() {
         fun pill(vararg settings: Pair<String, String>): String {
             val view = DroidHostHudView(RuntimeEnvironment.getApplication())
-            view.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to DroidHostHudSize.PILL.token) + settings))
+            view.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to DroidHostHudSize.PILL.token) + settings))
             view.showForTest(SNAPSHOT, "DXVK", 0L)
             return view.linesForTest().toString()
         }
@@ -331,7 +332,7 @@ class DroidHostHudPanelTest {
         hud.passesTouchAt = { _, _ -> control }
         val locks = ArrayList<Boolean>()
         hud.setOnLockChangedListener { locks += it }
-        hud.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudLocked" to "0")))
+        hud.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudLocked" to "0")))
         hud.showForTest(SNAPSHOT, "DXVK", 0L)
         val exactly = View.MeasureSpec.makeMeasureSpec(2000, View.MeasureSpec.EXACTLY)
         parent.measure(exactly, exactly)
@@ -348,7 +349,7 @@ class DroidHostHudPanelTest {
         control = true
         touch()
         assertEquals("an unlocked HUD keeps the touch (tap, drag, long press)", 0, reached)
-        hud.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudLocked" to "1")))
+        hud.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudLocked" to "1")))
         touch()
         assertEquals("a locked HUD passes it to the control under it", 1, reached)
         control = false
@@ -361,7 +362,7 @@ class DroidHostHudPanelTest {
     @Test fun aDockedHudIsJustTheFpsTabAndATapBringsItBack() {
         val app = RuntimeEnvironment.getApplication()
         val hud = DroidHostHudView(app)
-        hud.applyConfig(DroidHostHudConfig.encode(DroidHostHudConfig.DEFAULTS + ("hudSize" to "full") + ("hudDock" to "left")))
+        hud.applyConfig(DroidHostHudConfig.encode((DroidHostHudConfig.DEFAULTS + ("hudDock" to "none")) + ("hudSize" to "full") + ("hudDock" to "left")))
         hud.showForTest(SNAPSHOT, "DXVK", 0L)
         val unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         hud.measure(unspecified, unspecified)

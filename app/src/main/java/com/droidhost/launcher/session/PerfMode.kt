@@ -19,7 +19,8 @@ object PerfMode {
             val display = if (Build.VERSION.SDK_INT >= 30) a.display else @Suppress("DEPRECATION") a.windowManager.defaultDisplay
             if (display == null || Build.VERSION.SDK_INT < 23) "display mode unchanged" else {
                 val cur = display.mode
-                val cap = minOf(peakRefreshCap(a), refreshLimit.takeIf { it > 0 }?.toFloat() ?: Float.POSITIVE_INFINITY)
+                val manual = SessionPrefs.refreshRateChoice(a).takeIf { it > 0 }?.toFloat() ?: Float.POSITIVE_INFINITY
+                val cap = minOf(peakRefreshCap(a), manual, refreshLimit.takeIf { it > 0 }?.toFloat() ?: Float.POSITIVE_INFINITY)
                 val best = selectMode(display.supportedModes, cur, fpsLimit, cap)
                 if (best != null && needsChange(display.supportedModes, a.window.attributes.preferredDisplayModeId, best)) {
                     a.window.attributes = a.window.attributes.apply { preferredDisplayModeId = best.modeId }

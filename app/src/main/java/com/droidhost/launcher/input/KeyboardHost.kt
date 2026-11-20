@@ -25,7 +25,16 @@ class KeyboardHost(
         private set
     var imeShowing = false
         private set
+    // A password input type forces the OEM "secure" IME and blocks switching; normal text lets any
+    // installed keyboard show and be switched. Toggle re-creates the input connection to apply.
+    var secureKeyboard = true
+        private set
     var onImeChanged: ((Boolean) -> Unit)? = null
+    var onImeHeightChanged: ((Int) -> Unit)? = null
+    // Whole-string delivery for text the virtual keyboard cannot map to scancodes (CJK/emoji). The host
+    // routes it through the guest clipboard + paste, since X11 clients never bind text-input-v3.
+    var onCommitText: ((String) -> Unit)? = null
+    private var imeHeight = 0
 
     init {
         isFocusable = false
@@ -38,8 +47,10 @@ class KeyboardHost(
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
         if (!shown) return null
-        outAttrs.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
-            InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        outAttrs.inputType = if (secureKeyboard)
+            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        else InputType.TYPE_CLASS_TEXT
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE or EditorInfo.IME_FLAG_NO_FULLSCREEN or
             EditorInfo.IME_FLAG_NO_EXTRACT_UI
         return KeyConnection()
@@ -48,6 +59,11 @@ class KeyboardHost(
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val visible = insets.isVisible(WindowInsets.Type.ime())
+            val height = if (visible) insets.getInsets(WindowInsets.Type.ime()).bottom else 0
+            if (height != imeHeight) {
+                imeHeight = height
+                onImeHeightChanged?.invoke(height)
+            }
             if (visible != imeShowing) {
                 imeShowing = visible
                 onImeChanged?.invoke(visible)
@@ -68,6 +84,12 @@ class KeyboardHost(
     }
 
     fun toggle() = if (shown && imeVisible()) hide() else show()
+
+    fun setSecureKeyboard(secure: Boolean) {
+        if (secureKeyboard == secure) return
+        secureKeyboard = secure
+        if (shown) imm.restartInput(this)
+    }
 
     private fun imeVisible() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R ||
         rootWindowInsets?.isVisible(WindowInsets.Type.ime()) != false
@@ -95,6 +117,7 @@ class KeyboardHost(
         if (events != null) {
             for (event in events) sendKeyEvent(event)
         } else {
+            onCommitText?.let { it(text.toString()); return }
             for (ch in text) {
                 val t = System.currentTimeMillis()
                 val down = KeyEvent(t, t, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_UNKNOWN, 0, 0,

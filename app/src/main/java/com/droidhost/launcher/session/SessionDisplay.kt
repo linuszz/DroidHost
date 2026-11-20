@@ -59,6 +59,10 @@ object SessionDisplay {
             (if (controlsBelow) width else minOf(width, height)) < FOLLOW_MIN_SIDE) null
         else scaledDown(width to height, scale)
 
+    // The output area left above the soft keyboard (and the extra-keys toolbar); null when too little remains.
+    fun keyboardArea(width: Int, height: Int, imeHeight: Int, toolbarHeight: Int = 0, scale: Float = 1f): Pair<Int, Int>? =
+        followSize(width, height - imeHeight.coerceAtLeast(0) - toolbarHeight.coerceAtLeast(0), controlsBelow = false, scale = scale)
+
     private fun scaledDown(size: Pair<Int, Int>, scale: Float): Pair<Int, Int> =
         (Math.round(size.first / scale) and 1.inv()) to (Math.round(size.second / scale) and 1.inv())
 
