@@ -303,6 +303,14 @@ internal fun Storefront(s: FrontEndState, a: FrontEndActions) {
     }
     BackHandler(enabled = openApp != null) { openApp = null }
     LaunchedEffect(StoreState.openRequest) { StoreState.openRequest?.let { openApp = it; StoreState.openRequest = null } }
+    LaunchedEffect(StoreState.launchRequest) {
+        val req = StoreState.launchRequest ?: return@LaunchedEffect
+        StoreState.launchRequest = null
+        val host = com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(ctx)
+        // Installing an app must not silently kick off the long desktop fit on a host that lacks one.
+        val needsDesktop = host != null && !com.droidhost.launcher.vm.VmDesktop.desktopInstalled(com.droidhost.launcher.runtime.FlatpakHost.rootfs(ctx))
+        if (!needsDesktop) a.onFlatpakApp(req.first, req.second)
+    }
     val covering = detail != null && !leaving
     val sink by animateFloatAsState(if (covering) 0.95f else 1f, if (covering) Motion.tw(480) else Motion.tw(460, 40), label = "flathubSink")
     val fade by animateFloatAsState(if (covering) 0f else 1f, if (covering) Motion.tw(320, 80) else Motion.tw(300, 100), label = "flathubFade")

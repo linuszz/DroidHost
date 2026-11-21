@@ -468,7 +468,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         SessionState.program in setOf(
             com.droidhost.launcher.session.NoSteamLaunch.PROTON_RUN, com.droidhost.launcher.session.NoSteamLaunch.EPIC,
             com.droidhost.launcher.session.NoSteamLaunch.BATTLENET,
-        )) || SessionState.mode == SessionService.MODE_DESKTOP
+        )) || SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()
     private val drawerGameInventory = GameProfileInventoryCache<Library.SteamGame>()
     @Volatile private var drawerGameInventoryRevision = 0L
     private var drawerGameFexPresetSaving by mutableStateOf(false)
@@ -1310,7 +1310,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         SessionDrawer(drawerOpen || (docked && drawerPinned), drawerPage, drawerControllerActive, onPageChange = { drawerPage = it }, docked = docked,
             backRequest = drawerBackRequests, onLayerChange = { drawerLayerOpen = it }, a = DrawerActions(
             steam = SessionState.mode == SessionService.MODE_STEAM,
-            desktop = SessionState.mode == SessionService.MODE_DESKTOP,
+            desktop = SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop(),
             systemPowerVr = com.droidhost.launcher.gpu.SystemVulkanDriver.usesDefault(
                 SessionPrefs.linuxDriver(this@SessionActivity)),
             direct = noSteamSession(),
@@ -2470,7 +2470,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_PORTRAIT) return false
         if (glassesScreen != null || bottomGame != null || isInPictureInPictureMode || controlsBelowWanted()) return false
         if (!SessionPrefs.keyToolbar(this)) return false
-        return displayMode() == SessionService.MODE_DESKTOP || imeHeightPx > 0
+        return displayMode() == SessionService.MODE_DESKTOP || userAppDesktop() || imeHeightPx > 0
     }
 
     private fun refreshKeyToolbar() {
@@ -2663,8 +2663,13 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private fun resolutionChoice(): String {
         val mode = displayMode()
         val program = intent.getStringExtra(SessionService.EXTRA_PROGRAM)
-        return if (intent.getStringExtra(SessionService.EXTRA_MODE) == SessionService.MODE_RUN &&
-            Library.drawsAtPanel(program) && !SessionPrefs.resolutionChosen(this, mode))
+        // A flatpak app routed into the KWin desktop draws at the panel like the desktop does,
+        // so it fills the screen and follows keyboard resize instead of a fixed gamescope size.
+        val flatpakDesktop = intent.getStringExtra(SessionService.EXTRA_MODE) == SessionService.MODE_DESKTOP &&
+            program == com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER
+        return if (!SessionPrefs.resolutionChosen(this, mode) &&
+            ((intent.getStringExtra(SessionService.EXTRA_MODE) == SessionService.MODE_RUN &&
+                Library.drawsAtPanel(program)) || flatpakDesktop))
             com.droidhost.launcher.session.SessionDisplay.MATCH_SCREEN
         else SessionPrefs.resolutionChoice(this, mode, com.droidhost.launcher.session.SessionDisplay.panelSize(this))
     }
@@ -3840,7 +3845,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         dualControlsProvisional = ::loading.isInitialized && loading.visible
     }
 
-    private val desktopSession get() = loadingMode() == SessionService.MODE_DESKTOP
+    private val desktopSession get() = loadingMode() == SessionService.MODE_DESKTOP || userAppDesktop()
 
     private fun leaveDeckPanel() {
         if (secondScreenMode == SecondScreenMode.DECK_CONTROLS && !SessionState.deckPad) selectSecondScreenMode(secondScreenMode)
@@ -4022,9 +4027,16 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         if (started && displayId !in inputWindowDisplays && secondScreenMode != SecondScreenMode.NONE && secondScreenPresentation == null) showSecondScreen(secondScreenMode)
     }
 
+    /** A flatpak/AppImage/script app runs in its own X11 session (MODE_RUN) but is a
+     *  desktop app: it shares the VM desktop's touchpad cursor, mouse buttons and
+     *  two-row key toolbar rather than the game pad. */
+    private fun userAppDesktop(): Boolean =
+        SessionState.mode == SessionService.MODE_RUN &&
+            com.droidhost.launcher.runtime.UserApps.launches(intent.getStringExtra(SessionService.EXTRA_PROGRAM))
+
     private fun refreshInputProfile() {
         val library = com.droidhost.launcher.input.InputLibraries.read(this)
-        val desktop = loadingMode() == SessionService.MODE_DESKTOP
+        val desktop = loadingMode() == SessionService.MODE_DESKTOP || userAppDesktop()
         inputProfile = library.compileActive(desktop, secondScreenMode.panel(this))
         primaryInputLayout = library.activeLayout(desktop, InputRole.PRIMARY)
         adaptiveSticks = primaryInputLayout?.adaptiveSticks
@@ -4545,7 +4557,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                         if (fresh) touchpad.place(rect.centerX(), rect.centerY())
                     }
                     if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                        touchpad.desktop = SessionState.mode == SessionService.MODE_DESKTOP
+                        touchpad.desktop = SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()
                         placeTouchpadAtGuest(rect)
                     }
                     touchpad.onTouch(event)
@@ -4584,7 +4596,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) ignoreGameTouch = false
             return true
         }
-        if (SessionState.mode == SessionService.MODE_DESKTOP && twoFingerGestures.onTouch(event)) return true
+        if ((SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()) && twoFingerGestures.onTouch(event)) return true
         return forwardTouch(event, rect)
     }
 
@@ -4677,10 +4689,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun programLocksPointer(): Boolean =
-        pointerLocked && SessionState.mode != SessionService.MODE_DESKTOP
+        pointerLocked && SessionState.mode != SessionService.MODE_DESKTOP && !userAppDesktop()
 
     private fun desktopMouseGrabAllowed(): Boolean =
-        SessionState.mode == SessionService.MODE_DESKTOP && relativeMouseAttached() && !bottomOutputActive
+        (SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()) && relativeMouseAttached() && !bottomOutputActive
 
     private fun tapDesktopGrabKey() {
         val now = android.os.SystemClock.uptimeMillis()
@@ -4705,7 +4717,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun releaseDesktopMouseGrab() {
-        if (pointerLocked && SessionState.mode == SessionService.MODE_DESKTOP && !desktopMouseGrabAllowed()) tapDesktopGrabKey()
+        if (pointerLocked && (SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()) && !desktopMouseGrabAllowed()) tapDesktopGrabKey()
     }
 
     private fun dropMouseCursor() {
@@ -4872,9 +4884,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             SessionPrefs.OSC_STEAM_QAM -> true
             SessionPrefs.OSC_NEVER -> false
             SessionPrefs.OSC_STEAM_TOUCH -> SessionState.mode == SessionService.MODE_STEAM ||
-                (!PadBridge.anyControllerConnected() && SessionState.mode != SessionService.MODE_DESKTOP)
+                (!PadBridge.anyControllerConnected() && SessionState.mode != SessionService.MODE_DESKTOP && !userAppDesktop())
             else -> !PadBridge.anyControllerConnected() && !SteamControllerBle.connected &&
-                SessionState.mode != SessionService.MODE_DESKTOP
+                SessionState.mode != SessionService.MODE_DESKTOP && !userAppDesktop()
         }
         onScreenButtonsVisible = show
         val drawn = show && !keyboardCoversPad()
@@ -4918,7 +4930,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun desktopTextInput() =
-        SessionState.mode == SessionService.MODE_DESKTOP && SessionState.running && !pipUi
+        (SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop()) && SessionState.running && !pipUi
 
     private fun notePress(event: MotionEvent) {
         val touch = event.isFromSource(InputDevice.SOURCE_TOUCHSCREEN)
@@ -4984,7 +4996,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 
     private fun sendGuestKey(key: Int, down: Boolean, owner: Int = 1) {
         if (down && pipUi) return
-        val code = if (key == KEY_RIGHTCTRL && SessionState.mode == SessionService.MODE_DESKTOP) KEY_LEFTCTRL else key
+        val code = if (key == KEY_RIGHTCTRL && (SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop())) KEY_LEFTCTRL else key
         if (owner == 1) { if (down) guestKeysDown.add(code) else guestKeysDown.remove(code) }
         heldKeys.set(owner, code, down)
     }

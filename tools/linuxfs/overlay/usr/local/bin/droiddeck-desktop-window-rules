@@ -1,29 +1,69 @@
 #!/bin/bash
 set -euo pipefail
 config=${XDG_CONFIG_HOME:-$HOME/.config}
-marker=$config/droiddeck-window-rules-v1
+marker=$config/droiddeck-window-rules-v4
 [ ! -e "$marker" ] || exit 0
+mkdir -p "$config"
 rules=$(kreadconfig6 --file kwinrulesrc --group General --key rules)
 IFS=, read -ra groups <<< "$rules"
-for group in "${groups[@]}"; do
-    title=$(kreadconfig6 --file kwinrulesrc --group "$group" --key title)
-    wmclass=$(kreadconfig6 --file kwinrulesrc --group "$group" --key wmclass)
-    case ${title,,}${wmclass,,} in
-        *melonds*) mkdir -p "$config"; touch "$marker"; exit 0 ;;
-    esac
+# Keep unrelated rules; re-append ours (melonDS) in a fixed order.
+kept=()
+for g in "${groups[@]}"; do
+    case $g in droiddeck-melonds|droiddeck-maximize) ;; *) kept+=("$g") ;; esac
 done
-write() { kwriteconfig6 --file kwinrulesrc --group droiddeck-melonds --key "$1" "$2"; }
-write Description 'melonDS desktop window'
-write title '^melonDS.*'
-write titlematch 3
-write types 1
-write size 800,600
-write sizerule 3
-write placement Centered
-write placementrule 2
-write ignoregeometry true
-write ignoregeometryrule 3
-kwriteconfig6 --file kwinrulesrc --group General --key rules "${rules:+$rules,}droiddeck-melonds"
-kwriteconfig6 --file kwinrulesrc --group General --key count "$(( ${#groups[@]} + 1 ))"
-mkdir -p "$config"
+m() { kwriteconfig6 --file kwinrulesrc --group droiddeck-melonds --key "$1" "$2"; }
+m Description 'melonDS desktop window'
+m title '^melonDS.*'
+m titlematch 3
+m types 1
+m size 800,600
+m sizerule 3
+m placement Centered
+m placementrule 2
+m ignoregeometry true
+m ignoregeometryrule 3
+# Force un-maximized so melonDS keeps its fixed size; a forced maximize state also
+# makes the window non-maximizable, which is what we want for melonDS.
+m maximizevert false
+m maximizevertrule 2
+m maximizehoriz false
+m maximizehorizrule 2
+order=("${kept[@]}" droiddeck-melonds)
+list=$(IFS=,; echo "${order[*]}")
+kwriteconfig6 --file kwinrulesrc --group General --key rules "$list"
+kwriteconfig6 --file kwinrulesrc --group General --key count "${#order[@]}"
+# No maximize rule here: a Force maximize rule makes KWin treat the window as already
+# forced-maximized, clearing isMaximizable() and blocking manual AND scripted maximize.
+# The KWin script below calls setMaximize on Normal windows (Wayland and X11) instead.
+scriptdir=${XDG_DATA_HOME:-$HOME/.local/share}/kwin/scripts/droiddeck-maximize
+mkdir -p "$scriptdir/contents/code"
+cat > "$scriptdir/metadata.json" <<'EOF'
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Id": "droiddeck-maximize",
+        "Name": "DroidHost Maximize",
+        "EnabledByDefault": true
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
+EOF
+cat > "$scriptdir/contents/code/main.js" <<'EOF'
+function droiddeckApply(w) {
+    if (!w.normalWindow || w.skipTaskbar) return;
+    if (/^melonDS/.test(w.caption)) {
+        w.setMaximize(false, false);
+    } else {
+        w.setMaximize(true, true);
+    }
+}
+function droiddeckWatch(w) {
+    droiddeckApply(w);
+    w.captionChanged.connect(function() { droiddeckApply(w); });
+}
+workspace.windowAdded.connect(droiddeckWatch);
+workspace.windowList().forEach(droiddeckWatch);
+EOF
+kwriteconfig6 --file kwinrc --group Plugins --key droiddeck-maximizeEnabled true
 touch "$marker"

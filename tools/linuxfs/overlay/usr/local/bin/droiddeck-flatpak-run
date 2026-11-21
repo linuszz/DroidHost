@@ -1,7 +1,6 @@
 #!/bin/bash
 set -u
 export FLATPAK_BWRAP=/usr/local/bin/droiddeck-bwrap
-unset MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER LIBGL_KOPPER_DRI2 VK_ICD_FILENAMES VK_DRIVER_FILES
 case ":${XDG_DATA_DIRS:-}:" in
   *"/flatpak/exports/share:"*) ;;
   *) export XDG_DATA_DIRS=$HOME/.local/share/flatpak/exports/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share} ;;
@@ -20,6 +19,70 @@ gpu=("${BASH_SOURCE[0]%/*}/droiddeck-game-gpu")
 location=
 [ -n "$app" ] && location=$(flatpak info --show-location "$app" 2>/dev/null)
 [ -n "$location" ] && gpu+=(--for "$location/files")
+# An auto-launched app must ride the same environment as a manual KDE launch.
+# The watcher sits outside the desktop's dbus-run-session, so plasmashell (else
+# KWin) is the source of truth: the shared session bus, the session manager and
+# the working host GPU driver (Turnip v0.8.0 + zink). Stripping these leaves the
+# app on the flatpak runtime's broken Turnip v0.9.0 and a private bus, which
+# crashes Qt apps like VLC. Games (BL_INSIDE/gamescope) keep their own setup.
+if [ -z "${BL_INSIDE:-}" ] && [ -z "${GAMESCOPE_WAYLAND_DISPLAY:-}" ]; then
+  deskpid=$(pgrep -x plasmashell | head -1)
+  [ -z "$deskpid" ] && deskpid=$(pgrep -x kwin_wayland | head -1)
+  if [ -n "$deskpid" ] && [ -r "/proc/$deskpid/environ" ]; then
+    for var in DBUS_SESSION_BUS_ADDRESS SESSION_MANAGER \
+               MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER LIBGL_KOPPER_DRI2 \
+               VK_ICD_FILENAMES VK_DRIVER_FILES TU_DEBUG MESA_NO_ERROR QT_QPA_PLATFORM GDK_BACKEND; do
+      val=$(tr '\0' '\n' < "/proc/$deskpid/environ" | grep -m1 "^$var=" | cut -d= -f2-)
+      [ -n "$val" ] && export "$var=$val"
+    done
+  fi
+  # KWin is a client of the outer nested compositor, so the desktop shell's
+  # WAYLAND_DISPLAY names that outer compositor. An app launched with it lands
+  # outside the desktop KWin manages: no taskbar entry, no maximize. Point the
+  # app at KWin's own XDG shell socket: the wayland-* socket in the runtime dir
+  # that is not the outer one KWin connects to. Socket fds readlink to
+  # socket:[inode] rather than a path, so derive the name from the directory.
+  kwinpid=
+  for p in /proc/[0-9]*; do
+    c=$(cat "$p/comm" 2>/dev/null) || continue
+    case "$c" in kwin_wayland*) kwinpid=${p#/proc/}; break ;; esac
+  done
+  if [ -n "$kwinpid" ]; then
+    client_socket=$(tr '\0' '\n' < "/proc/$kwinpid/environ" 2>/dev/null | grep -m1 '^WAYLAND_DISPLAY=' | cut -d= -f2-)
+    for s in "${XDG_RUNTIME_DIR:-/run/droiddeck}"/wayland-*; do
+      case "$s" in *.lock) continue ;; esac
+      [ -S "$s" ] || continue
+      name=${s##*/}
+      [ "$name" = "$client_socket" ] && continue
+      export WAYLAND_DISPLAY="$name"
+      break
+    done
+  fi
+  # KWin's Xwayland listens on a dynamic display with an auth cookie; recover
+  # both from the server so every X11 app connects (the number is not fixed).
+  xpid=$(pgrep -x Xwayland | head -1)
+  if [ -n "$xpid" ]; then
+    xcmd=$(tr '\0' '\n' < "/proc/$xpid/cmdline")
+    xd=$(printf '%s\n' "$xcmd" | grep -m1 '^:[0-9]')
+    [ -n "$xd" ] && export DISPLAY="$xd"
+    xa=$(printf '%s\n' "$xcmd" | grep -A1 '^-auth$' | tail -1)
+    [ -n "$xa" ] && export XAUTHORITY="$xa"
+  fi
+fi
+# Chromium's Wayland ozone aborts on proot's fake DRM render node; a manual KDE
+# launch rides Xwayland too. Mirror that on X11 and leave GPU to chromium itself
+# (its ANGLE falls back to software here exactly as a manual launch does).
+if [ -n "$location" ] && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  for marker in chrome-sandbox chrome_100_percent.pak v8_context_snapshot.bin; do
+    if find "$location/files" -maxdepth 3 -name "$marker" 2>/dev/null | grep -q .; then
+      unset WAYLAND_DISPLAY
+      export XDG_SESSION_TYPE=x11
+      socket=(--nosocket=wayland --socket=x11)
+      set -- "$@" --no-sandbox --ozone-platform=x11
+      break
+    fi
+  done
+fi
 echo "== flatpak run ${socket[*]} $*"
 if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && command -v dbus-run-session >/dev/null 2>&1; then
   exec "${gpu[@]}" -- dbus-run-session -- flatpak run "${socket[@]}" "$@"

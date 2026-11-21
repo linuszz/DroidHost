@@ -164,7 +164,7 @@ public final class LinuxRuntime {
                                        File externalStorage, List<String> extraBinds,
                                        List<String> guestCommand, boolean fakeRoot) {
         List<String> binds = binds(context, root, sessionRoot, runtimeDir, externalStorage, extraBinds);
-        if (sessionRoot != null) lastBinds = binds;
+        if (sessionRoot != null) { lastBinds = binds; lastRootfs = root; }
         return commandWithBinds(context, root, binds, guestCommand, fakeRoot);
     }
 
@@ -182,16 +182,26 @@ public final class LinuxRuntime {
     }
 
     private static volatile List<String> lastBinds;
+    private static volatile File lastRootfs;
 
     /** The mounts of a session started without proot, which sandboxes and root helpers see too. */
-    public static void rememberSessionBinds(List<String> binds) {
+    public static void rememberSessionBinds(List<String> binds, File rootfs) {
         lastBinds = binds;
+        lastRootfs = rootfs;
     }
 
     public static List<String> lastBinds(Context context) {
         List<String> binds = lastBinds;
         if (binds != null) return binds;
         return binds(context, null, null, android.os.Environment.getExternalStorageDirectory(), null);
+    }
+
+    /** The session's own rootfs: a machine's when it brings one, the shared runtime otherwise.
+     *  Sandboxes translate guest paths through this, not the shared runtime, or a VM session's
+     *  files (Flatpak's per-app ld.so dir among them) resolve to the wrong root. */
+    public static File lastRootfs(Context context) {
+        File root = lastRootfs;
+        return root != null ? root : rootDir(context);
     }
 
     public static List<String> prootPrefix(Context context, File root, String cwd) {

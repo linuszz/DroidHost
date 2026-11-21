@@ -113,7 +113,10 @@ object BwrapSpawner {
     }
 
     internal fun plan(context: Context, request: JSONObject, dir: File): Plan {
+        // rootfs holds the runtime's own assets (GPU driver, preloads); sessionRootfs is the root the
+        // session actually runs in, which guest paths fall back to. They differ for a machine session.
         val rootfs = LinuxRuntime.rootDir(context).path
+        val sessionRootfs = LinuxRuntime.lastRootfs(context).path
         val session = LinuxRuntime.lastBinds(context).map { Bind.parse(it) }
         val root = File(dir, "root").apply { mkdirs() }
         val binds = ArrayList<Bind>()
@@ -136,15 +139,15 @@ object BwrapSpawner {
             when (op.getString("t")) {
                 "bind" -> {
                     val src = op.getString("src")
-                    val all = bindsFor(session, rootfs, src, dest)
+                    val all = bindsFor(session, sessionRootfs, src, dest)
                     if (!File(all.first().host).exists()) {
                         if (!op.optBoolean("try")) Log.w(TAG, "sandbox source $src is missing; left out")
                         continue
                     }
                     all.forEach { addBind(it) }
                 }
-                "proc" -> bindsFor(session, rootfs, "/proc", dest).forEach { addBind(it) }
-                "dev" -> bindsFor(session, rootfs, "/dev", dest).forEach { addBind(it) }
+                "proc" -> bindsFor(session, sessionRootfs, "/proc", dest).forEach { addBind(it) }
+                "dev" -> bindsFor(session, sessionRootfs, "/dev", dest).forEach { addBind(it) }
                 "dir" -> {
                     val perms = op.optInt("perms", 0x1ed)
                     val here = writable(dest)
@@ -320,7 +323,9 @@ object BwrapSpawner {
         env.putIfAbsent("ZYPAK_ZYGOTE_STRATEGY_SPAWN", "0")
         env.putIfAbsent("QTWEBENGINE_DISABLE_SANDBOX", "1")
         if (env.containsKey("DISPLAY")) env["XDG_SESSION_TYPE"] = "x11"
-        for (name in listOf("MOZ_DISABLE_CONTENT_SANDBOX", "MOZ_DISABLE_GMP_SANDBOX", "MOZ_DISABLE_RDD_SANDBOX",
+        // The content sandbox stays enabled: proot passes the guest's tagged SIGSYS through (0027),
+        // so Firefox's seccomp-bpf filter installs. The rest need kernel features proot blocks.
+        for (name in listOf("MOZ_DISABLE_GMP_SANDBOX", "MOZ_DISABLE_RDD_SANDBOX",
                             "MOZ_DISABLE_SOCKET_PROCESS_SANDBOX", "MOZ_DISABLE_UTILITY_SANDBOX",
                             "MOZ_SHM_NO_SEALS")) {
             env.putIfAbsent(name, "1")

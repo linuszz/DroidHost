@@ -43,6 +43,8 @@ object StoreState {
         private set
 
     var openRequest by mutableStateOf<String?>(null)
+    // id to name of a just-installed app the storefront should open in the desktop.
+    var launchRequest by mutableStateOf<Pair<String, String>?>(null)
     private var searchSeq = 0
 
     val SECTIONS = listOf("popular" to R.string.store_section_popular, "trending" to R.string.store_section_trending, "recently-added" to R.string.store_section_new, "recently-updated" to R.string.store_section_updated)
@@ -90,7 +92,7 @@ object StoreState {
 
     fun clearSearch() { searchSeq++; searchResults = null; searching = false }
 
-    private fun run(context: Context, what: String, label: String, work: (Context, (String, Int) -> Unit) -> String?) {
+    private fun run(context: Context, what: String, label: String, onOk: () -> Unit = {}, work: (Context, (String, Int) -> Unit) -> String?) {
         if (busy != null) return
         val app = context.applicationContext
         busy = what; stage = app.getString(R.string.store_starting); percent = -1
@@ -105,7 +107,7 @@ object StoreState {
             main.post {
                 busy = null; stage = null; percent = -1
                 ready = r; installed = list
-                if (problem != null) Toast.makeText(app, app.getString(R.string.store_problem, label, problem), Toast.LENGTH_LONG).show()
+                if (problem != null) Toast.makeText(app, app.getString(R.string.store_problem, label, problem), Toast.LENGTH_LONG).show() else onOk()
             }
         }, "store-$what").start()
     }
@@ -113,7 +115,7 @@ object StoreState {
     fun setup(context: Context) = run(context, "setup", context.getString(R.string.store_flatpak_setup)) { c, p -> FlatpakManager.setup(c, p) }
 
     fun install(context: Context, id: String, name: String) =
-        run(context, id, name) { c, p -> FlatpakManager.install(c, id, p) }
+        run(context, id, name, onOk = { launchRequest = id to name }) { c, p -> FlatpakManager.install(c, id, p) }
 
     fun uninstall(context: Context, id: String, name: String) =
         run(context, id, name) { c, p -> FlatpakManager.uninstall(c, id, p).also { if (it == null) main.post { updates = updates - id } } }

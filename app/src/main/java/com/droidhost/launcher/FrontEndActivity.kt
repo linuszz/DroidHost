@@ -2418,6 +2418,33 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private fun launchFlatpakRun(args: List<String>) {
         val launcher = com.droidhost.launcher.runtime.FlatpakManager.LAUNCHER
         val host = com.droidhost.launcher.runtime.FlatpakHost.hostMachineId(this)
+        val root = com.droidhost.launcher.runtime.FlatpakHost.rootfs(this)
+        // A flatpak desktop app runs inside the machine's KWin desktop rather than gamescope:
+        // KWin gives panel resolution, real keyboard resize, the droiddeck-ime auto keyboard and
+        // the firefox content sandbox. The app is pulled into the desktop through remote-run.
+        if (host != null && com.droidhost.launcher.vm.VmDesktop.desktopInstalled(root)) {
+            stageDesktopApp(root, launcher, args)
+            if (SessionState.running && SessionState.mode == SessionService.MODE_DESKTOP &&
+                SessionState.program == launcher && SessionState.machineId == host) {
+                startActivity(Intent(this, SessionActivity::class.java).setAction(SessionService.ACTION_RESUME)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+                return
+            }
+            startActivity(Intent(this, SessionActivity::class.java)
+                .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_DESKTOP)
+                .putExtra(SessionService.EXTRA_MACHINE, host)
+                .putExtra(SessionService.EXTRA_PROGRAM, launcher)
+                .putExtra(SessionService.EXTRA_PROGRAM_ARGS, args.toTypedArray()))
+            return
+        }
+        if (host != null) {
+            // The host has no desktop fitted yet; fit one before the app can run in it.
+            val machine = com.droidhost.launcher.vm.VmStore.get(this, host)
+            if (machine != null && com.droidhost.launcher.vm.VmDesktop.start(this, machine)) {
+                android.widget.Toast.makeText(this, getString(R.string.vm_install_desktop), android.widget.Toast.LENGTH_LONG).show()
+            }
+            return
+        }
         if (SessionState.running && SessionState.mode == SessionService.MODE_RUN &&
             SessionState.program == launcher && SessionState.programArgs == args && SessionState.machineId == host) {
             startActivity(Intent(this, SessionActivity::class.java).setAction(SessionService.ACTION_RESUME)
@@ -2426,9 +2453,31 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         }
         startActivity(Intent(this, SessionActivity::class.java)
             .putExtra(SessionService.EXTRA_MODE, SessionService.MODE_RUN)
-            .putExtra(SessionService.EXTRA_MACHINE, host)
+            .putExtra(SessionService.EXTRA_MACHINE, host as String?)
             .putExtra(SessionService.EXTRA_PROGRAM, launcher)
             .putExtra(SessionService.EXTRA_PROGRAM_ARGS, args.toTypedArray()))
+    }
+
+    // Writes the remote-run flag and a one-shot launch script into the machine's home; the desktop's
+    // existing watcher (droiddeck-desktop) runs it on wayland-1 once KWin is up.
+    private fun stageDesktopApp(root: java.io.File, launcher: String, args: List<String>) {
+        val home = java.io.File(root, "root")
+        val runDir = java.io.File(home, ".cache/droiddeck/run")
+        runDir.mkdirs()
+        runCatching { java.io.File(home, ".droiddeck-remote-run").writeText("") }
+        val cmd = (listOf(launcher) + args).joinToString(" ") { "'" + it.replace("'", "'\\''") + "'" }
+        val name = "launch-" + args.joinToString("-").replace(Regex("[^A-Za-z0-9._-]"), "_") + ".sh"
+        val script = java.io.File(runDir, name)
+        runCatching {
+            script.writeText(
+                "#!/bin/bash\n" +
+                "for i in \$(seq 1 90); do\n" +
+                "  [ -S \"\${XDG_RUNTIME_DIR:-/run/droiddeck}/wayland-1\" ] && break\n" +
+                "  sleep 1\n" +
+                "done\n" +
+                "exec $cmd\n")
+            script.setExecutable(true, false)
+        }
     }
 
     private fun resumeInterruptedPackages() {
