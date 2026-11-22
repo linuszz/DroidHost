@@ -49,7 +49,7 @@ class SessionFilesTest {
     @Test fun thePackMarkerWithTheCurrentTagWantsTheFiles() {
         val root = folder.newFolder("rootfs")
         compositor(root)
-        write(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}", BuildConfig.DESKTOP_KDE_TAG)
+        write(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}", BuildConfig.DESKTOP_KDE_TAG)
         assertTrue(SessionFiles.wantsDesktopFiles(root))
     }
 
@@ -58,16 +58,16 @@ class SessionFilesTest {
         compositor(root)
         write(root, DesktopPack.INFO,
             "{\"tag\":\"custom-r9\",\"url\":\"https://example.invalid/pack.tar\",\"sha256\":\"0\",\"size\":1}")
-        write(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}", "custom-r9")
+        write(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}", "custom-r9")
         assertTrue(SessionFiles.wantsDesktopFiles(root))
-        write(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}", "stale-r8")
+        write(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}", "stale-r8")
         assertFalse(SessionFiles.wantsDesktopFiles(root))
     }
 
     @Test fun aRemovalInProgressStopsThePackPath() {
         val root = folder.newFolder("rootfs")
         compositor(root)
-        write(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}", BuildConfig.DESKTOP_KDE_TAG)
+        write(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}", BuildConfig.DESKTOP_KDE_TAG)
         write(root, DesktopRemoval.PENDING, "")
         assertFalse(SessionFiles.wantsDesktopFiles(root))
     }

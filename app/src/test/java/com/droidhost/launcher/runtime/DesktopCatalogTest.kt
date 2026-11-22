@@ -21,7 +21,7 @@ class DesktopCatalogTest {
             parentFile.mkdirs()
             writeText("fixture")
         }
-        val marker = File(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}")
+        val marker = File(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}")
         assertFalse(DesktopCatalog.desktopInstalled(root))
         marker.writeText("older-package")
         assertFalse(DesktopCatalog.desktopInstalled(root))
@@ -42,9 +42,9 @@ class DesktopCatalogTest {
             "https://example.invalid/desktop-kde.tar.zst", "a".repeat(64), 846933224L, "", "", "",
         )
         assertTrue(DesktopCatalog.interrupted(root).isEmpty())
-        File(root, ".droiddeck-pkg-${entry.id}.installing").writeText(DesktopCatalog.entryJson(entry).toString())
-        File(root, ".droiddeck-pkg-emulators.installing").writeText("not json")
-        File(root, ".droiddeck-pkg-emulators").writeText("1")
+        File(root, ".droidhost-pkg-${entry.id}.installing").writeText(DesktopCatalog.entryJson(entry).toString())
+        File(root, ".droidhost-pkg-emulators.installing").writeText("not json")
+        File(root, ".droidhost-pkg-emulators").writeText("1")
 
         val found = DesktopCatalog.interrupted(root).single()
 

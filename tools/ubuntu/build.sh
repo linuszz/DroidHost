@@ -67,8 +67,8 @@ mkdir -p "$work/stamp"
 python3 "$here/desktop-pack.py" describe "$out/$desktop_id.tar.zst" "$base_url/$desktop_id.tar.zst" "$desktop_id" \
   "$work/stamp/usr/share/droiddeck/desktop-pack.json"
 # DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
-printf '%s\n' "$desktop_id" > "$work/stamp/.droiddeck-pkg-desktop-kde"
-sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" usr/share/droiddeck/desktop-pack.json .droiddeck-pkg-desktop-kde
+printf '%s\n' "$desktop_id" > "$work/stamp/.droidhost-pkg-desktop-kde"
+sudo tar -C "$work/stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" usr/share/droiddeck/desktop-pack.json .droidhost-pkg-desktop-kde
 sudo zstd -q -19 -T0 --rm "$work/runtime.tar" -o "$out/$runtime_id.tar.zst"
 sudo chown "$(id -u):$(id -g)" "$out/$runtime_id.tar.zst"
 sha256sum "$out/$runtime_id.tar.zst" | cut -d' ' -f1 > "$out/$runtime_id.sha256"

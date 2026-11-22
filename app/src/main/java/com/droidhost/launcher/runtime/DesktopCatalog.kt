@@ -47,16 +47,16 @@ object DesktopCatalog {
         }
     }
 
-    private fun marker(context: Context, id: String) = File(LinuxRuntime.rootDir(context), ".droiddeck-pkg-$id")
+    private fun marker(context: Context, id: String) = File(LinuxRuntime.rootDir(context), ".droidhost-pkg-$id")
 
     private const val JOURNAL_SUFFIX = ".installing"
 
-    private fun journal(root: File, id: String) = File(root, ".droiddeck-pkg-$id$JOURNAL_SUFFIX")
+    private fun journal(root: File, id: String) = File(root, ".droidhost-pkg-$id$JOURNAL_SUFFIX")
 
     fun interrupted(context: Context): List<Entry> = interrupted(LinuxRuntime.rootDir(context))
 
     fun interrupted(root: File): List<Entry> =
-        root.listFiles { f -> f.name.startsWith(".droiddeck-pkg-") && f.name.endsWith(JOURNAL_SUFFIX) }.orEmpty()
+        root.listFiles { f -> f.name.startsWith(".droidhost-pkg-") && f.name.endsWith(JOURNAL_SUFFIX) }.orEmpty()
             .sortedBy { it.name }
             .mapNotNull { f -> FileUtils.readString(f)?.let { runCatching { entryFrom(JSONObject(it)) }.getOrNull() } }
 
@@ -139,7 +139,7 @@ object DesktopCatalog {
             ?: if (niri) BuildConfig.DESKTOP_NIRI_TAG else BuildConfig.DESKTOP_KDE_TAG
         return !File(root, DesktopRemoval.PENDING).exists() &&
             File(root, binary).isFile &&
-            FileUtils.readString(File(root, ".droiddeck-pkg-$id"))?.trim() == tag
+            FileUtils.readString(File(root, ".droidhost-pkg-$id"))?.trim() == tag
     }
 
     /** The pack a desktop seeds from: the base's per-DE pointer, else the build's pinned fallback. */

@@ -21,7 +21,7 @@ class DesktopRemovalTest {
         override fun getCacheDir() = File(dir, "cache").apply { mkdirs() }
     }
     private val root = LinuxRuntime.rootDir(context).apply { mkdirs() }
-    private val marker = File(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}")
+    private val marker = File(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}")
     private val journal = File(root, marker.name + ".installing")
     private val pending = File(root, DesktopRemoval.PENDING)
     private val listener = LinuxRuntimeInstaller.ProgressListener { _, _ -> }
@@ -50,7 +50,7 @@ class DesktopRemovalTest {
         journal.writeText(DesktopCatalog.entryJson(entry).toString())
         val download = File(context.cacheDir, "pkg-${entry.id}-${entry.sha256.take(12)}.download").apply { writeText("download") }
         val resume = File(download.path + ".resume.properties").apply { writeText("resume") }
-        val unrelated = file(".droiddeck-pkg-emulators.installing", DesktopCatalog.entryJson(DesktopCatalog.Entry(
+        val unrelated = file(".droidhost-pkg-emulators.installing", DesktopCatalog.entryJson(DesktopCatalog.Entry(
             "emulators", "Emulators", 1, "1", "tar", "https://example.invalid/emulators", "a".repeat(64), 1L, "", "", "",
         )).toString())
         assertTrue(DesktopCatalog.desktopPresent(context))

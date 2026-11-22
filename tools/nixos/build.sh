@@ -72,7 +72,7 @@ nix-store -q --requisites "$toplevel" | sed 's|^/nix/store/[a-z0-9]\{32\}-||' | 
 desktop_id=$runtime_id-desktop
 stamp=$work/stamp
 mkdir -p "$stamp/usr/share/droiddeck"
-printf '%s\n' "$desktop_id" > "$stamp/.droiddeck-pkg-desktop-kde"
+printf '%s\n' "$desktop_id" > "$stamp/.droidhost-pkg-desktop-kde"
 printf 'installed %s\n' "$(date +%s%3N)" > "$stamp/usr/share/droiddeck/desktop-installed"
 cat > "$stamp/usr/share/droiddeck/desktop-pack.json" <<JSON
 {
@@ -86,7 +86,7 @@ JSON
 # DroidHost's VmUnpacker rejects members with a leading "./"; list top-level entries explicitly.
 sudo tar -C "$root" --numeric-owner -cf "$work/runtime.tar" $(ls -A "$root")
 sudo tar -C "$stamp" --numeric-owner --owner=0 --group=0 -rf "$work/runtime.tar" \
-  usr/share/droiddeck/desktop-pack.json usr/share/droiddeck/desktop-installed .droiddeck-pkg-desktop-kde
+  usr/share/droiddeck/desktop-pack.json usr/share/droiddeck/desktop-installed .droidhost-pkg-desktop-kde
 sudo zstd -q -19 -T0 --rm "$work/runtime.tar" -o "$out/$runtime_id.tar.zst"
 sudo chown "$(id -u):$(id -g)" "$out/$runtime_id.tar.zst"
 sha256sum "$out/$runtime_id.tar.zst" | cut -d' ' -f1 > "$out/$runtime_id.sha256"

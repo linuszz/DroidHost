@@ -74,9 +74,11 @@ git diff --diff-filter=M --name-only upstream/main..main   # 修改：合并成�
    合并时上游新增的调用点自动走新的实现。
 4. **改动自包含。** 一行只做一件事（`LinuxRuntime.rootDir(this)` → `sessionRootfs()`），
    这样上游改同一文件的别处时，三方合并不会把两处改动搅在一起。
-5. **命名分层。** 本 fork 自己产出的东西叫 DroidHost；指向上游或第三方、
-   运行时里的名字、设备上 fork 未创建的文件，保持原名
-   （`droiddeck-desktop`、`kwin_wayland_wrapper`、`.droiddeck-pkg-*`）。
+5. **命名分层。** 本 fork 自己产出或改过的东西叫 DroidHost；纯上游未改、
+   指向上游或第三方、设备上 fork 未创建的文件，保持原名
+   （`droiddeck-desktop`、`kwin_wayland_wrapper`）。VM 包 marker 属 fork 改过，
+   已统一为 `.droidhost-pkg-*`；其余 guest 基建（pacman wrappers、会话脚本、
+   `usr/share/droiddeck` 等）按同一原则后续逐步改名。
 
 ## 拉上游的流程
 

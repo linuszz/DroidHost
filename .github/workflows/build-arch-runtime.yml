@@ -142,9 +142,9 @@ jobs:
             "https://github.com/${{ github.repository }}-Components/releases/download/$DTAG/$PACK.tar.zst" \
             "$DTAG" stamp/usr/share/droiddeck/desktop-pack.json
           # DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
-          printf '%s\n' "$DTAG" > "stamp/.droiddeck-pkg-$PACK"
+          printf '%s\n' "$DTAG" > "stamp/.droidhost-pkg-$PACK"
           sudo tar -C stamp --numeric-owner --owner=0 --group=0 -rf "out/base/$TAG.tar" \
-            usr/share/droiddeck/desktop-pack.json ".droiddeck-pkg-$PACK"
+            usr/share/droiddeck/desktop-pack.json ".droidhost-pkg-$PACK"
           sudo zstd -q -19 -T0 --rm "out/base/$TAG.tar" -o "out/$TAG.tar.zst"
           sudo chown "$(id -u):$(id -g)" "out/$TAG.tar.zst"
           sha256sum "out/$TAG.tar.zst" | cut -d' ' -f1 > "out/$TAG.sha256"

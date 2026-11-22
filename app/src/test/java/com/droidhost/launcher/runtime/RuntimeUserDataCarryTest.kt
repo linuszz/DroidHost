@@ -32,7 +32,7 @@ class RuntimeUserDataCarryTest {
         put(old, "usr/local/share/applications/other.desktop")
         put(old, "opt/appimages/dolphin.AppImage")
         put(old, "usr/share/applications/droiddeck-dolphin.desktop")
-        put(old, ".droiddeck-pkg-dolphin", "1.0")
+        put(old, ".droidhost-pkg-dolphin", "1.0")
         put(old, "usr/bin/tool", "old system file")
     }
 
@@ -47,7 +47,7 @@ class RuntimeUserDataCarryTest {
         for (rel in listOf("opt/appimages/user/app1/app.AppImage", "opt/droiddeck-apps/game/run.sh",
                 "opt/droiddeck/wincomponents/d3dx9/component.json",
                 "usr/local/share/applications/droiddeck-app-game.desktop", "usr/local/share/applications/droiddeck-appimage-app1.desktop",
-                "opt/appimages/dolphin.AppImage", "usr/share/applications/droiddeck-dolphin.desktop", ".droiddeck-pkg-dolphin")) {
+                "opt/appimages/dolphin.AppImage", "usr/share/applications/droiddeck-dolphin.desktop", ".droidhost-pkg-dolphin")) {
             assertTrue(rel, File(staging, rel).exists())
             assertTrue(rel, rel in moved || moved.any { rel.startsWith("$it/") })
         }
@@ -133,13 +133,13 @@ class RuntimeUserDataCarryTest {
         put(root, "opt/appimages/dolphin.AppImage", "user app")
         put(staging, LinuxRuntimeInstaller.CARRY_MARKER, "1")
         put(staging, "usr/share/applications/droiddeck-dolphin.desktop", "menu")
-        put(staging, ".droiddeck-pkg-dolphin", "version")
-        put(staging, ".droiddeck-pkg-desktop-kde", "system package marker")
+        put(staging, ".droidhost-pkg-dolphin", "version")
+        put(staging, ".droidhost-pkg-desktop-kde", "system package marker")
 
         LinuxRuntimeInstaller.recoverInterruptedSwap(root, staging, old)
         assertEquals("menu", File(root, "usr/share/applications/droiddeck-dolphin.desktop").readText())
-        assertEquals("version", File(root, ".droiddeck-pkg-dolphin").readText())
-        assertFalse(File(root, ".droiddeck-pkg-desktop-kde").exists())
+        assertEquals("version", File(root, ".droidhost-pkg-dolphin").readText())
+        assertFalse(File(root, ".droidhost-pkg-desktop-kde").exists())
         assertEquals("user app", File(root, "opt/appimages/dolphin.AppImage").readText())
     }
 

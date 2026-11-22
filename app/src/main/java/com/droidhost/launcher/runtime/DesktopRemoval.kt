@@ -27,7 +27,7 @@ internal object DesktopRemoval {
     fun cleanLegacy(context: Context, listener: LinuxRuntimeInstaller.ProgressListener? = null) {
         val root = LinuxRuntime.rootDir(context)
         if (FileUtils.readString(File(root, CLEANED))?.trim() == "1") return
-        if (!File(root, CLEANING).exists() && !File(root, ".droiddeck-pkg-desktop").exists() && !File(root, "usr/bin/lxqt-session").exists()) return
+        if (!File(root, CLEANING).exists() && !File(root, ".droidhost-pkg-desktop").exists() && !File(root, "usr/bin/lxqt-session").exists()) return
         listener?.onProgress(context.getString(R.string.desktop_cleaning_legacy), -1)
         val keep = protected(context, root) + lines(context, "kde-keep.txt.gzip")
         val pending = File(root, CLEANING)
@@ -38,7 +38,7 @@ internal object DesktopRemoval {
         }
         FileUtils.writeString(File(root, CLEANED), "1")
         check(FileUtils.readString(File(root, CLEANED))?.trim() == "1") { "Could not finish LXQt cleanup" }
-        File(root, ".droiddeck-pkg-desktop").delete()
+        File(root, ".droidhost-pkg-desktop").delete()
         pending.delete()
         Log.i("DesktopRemoval", "LXQt: $result")
     }
@@ -50,7 +50,7 @@ internal object DesktopRemoval {
 
     private fun removeLegacy(context: Context, root: File, listener: LinuxRuntimeInstaller.ProgressListener): String? = try {
         val pending = File(root, PENDING)
-        val marker = File(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}")
+        val marker = File(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}")
         val installing = DesktopCatalog.interrupted(root).firstOrNull { it.id == DesktopCatalog.DESKTOP_ID }
         val version = FileUtils.readString(pending)?.trim() ?: installing?.version ?: FileUtils.readString(marker)?.trim()
         val versions = context.assets.open("desktop-removal/versions.txt").bufferedReader().use { it.readLines() }
@@ -85,7 +85,7 @@ internal object DesktopRemoval {
 
     private fun removePack(context: Context, root: File, listener: LinuxRuntimeInstaller.ProgressListener): String? = try {
         val pending = File(root, PENDING)
-        val marker = File(root, ".droiddeck-pkg-${DesktopCatalog.DESKTOP_ID}")
+        val marker = File(root, ".droidhost-pkg-${DesktopCatalog.DESKTOP_ID}")
         FileUtils.writeString(pending, DesktopPack.info(root)!!.tag)
         check(pending.isFile) { "Could not reserve desktop removal" }
         if (marker.exists() && !marker.delete()) error("Could not clear desktop marker")

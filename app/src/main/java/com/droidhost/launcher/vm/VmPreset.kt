@@ -225,7 +225,7 @@ object VmPreset {
         if (DesktopPack.installed(root)) DesktopPack.finishInstall(root)
         // The base stamps KDE's marker; niri's is written here once its pack is in place.
         val id = if (desktop == VmDesktops.NIRI) DesktopCatalog.NIRI_DESKTOP_ID else DesktopCatalog.DESKTOP_ID
-        val marker = File(root, ".droiddeck-pkg-$id")
+        val marker = File(root, ".droidhost-pkg-$id")
         if (desktop == VmDesktops.NIRI || !marker.exists()) FileUtils.writeString(marker, pack.tag + "\n")
         report(95)
         return if (DesktopCatalog.desktopInstalled(root, desktop)) Reason.NONE else Reason.UNPACK_FAILED

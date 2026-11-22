@@ -84,7 +84,7 @@ public final class RuntimeFileTree {
             if (!n.endsWith(".AppImage")) continue;
             String id = n.substring(0, n.length() - ".AppImage".length());
             java.util.Collections.addAll(paths, "opt/appimages/" + n,
-                    "usr/share/applications/droiddeck-" + id + ".desktop", ".droiddeck-pkg-" + id);
+                    "usr/share/applications/droiddeck-" + id + ".desktop", ".droidhost-pkg-" + id);
         }
         for (String n : children(new File(tree, "usr/share/applications"))) {
             if (!n.startsWith("droiddeck-") || !n.endsWith(".desktop")) continue;
@@ -93,8 +93,8 @@ public final class RuntimeFileTree {
                 paths.add("usr/share/applications/" + n);
         }
         for (String n : children(tree)) {
-            if (!n.startsWith(".droiddeck-pkg-")) continue;
-            String id = n.substring(".droiddeck-pkg-".length());
+            if (!n.startsWith(".droidhost-pkg-")) continue;
+            String id = n.substring(".droidhost-pkg-".length());
             boolean hasMenu = exists(new File(tree, "usr/share/applications/droiddeck-" + id + ".desktop").toPath());
             if (hasMenu && !exists(new File(tree, "opt/appimages/" + id + ".AppImage").toPath()))
                 paths.add(n);
