@@ -67,6 +67,14 @@ object VmCatalog {
     }
 }
 
+/** Desktop environments a machine can be fitted with (MI12P-003). Fixed at install; changing it refits. */
+object VmDesktops {
+    const val KDE = "kde"
+    const val GNOME = "gnome"
+    const val NIRI = "niri"
+    val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri)
+}
+
 /**
  * A machine the user owns. [id] names its rootfs under files/vms, so a machine that brings its
  * own distribution keeps it to itself.
@@ -84,6 +92,9 @@ data class VmMachine(
     val lifecycle: String = "",
     val failedStage: String = "",
     val failReason: String = "",
+    val desktop: String = VmDesktops.KDE,
+    // The fitted desktop's own version, read from the guest after install; empty until known.
+    val desktopVersion: String = "",
 ) {
     companion object {
         /** The id of the machine a build made before machines had a rootfs of their own. */
@@ -137,11 +148,11 @@ object VmStore {
      * Each machine keeps a rootfs of its own, so several coexist; [id] names the one this machine
      * keeps, so an import can say which rootfs it unpacked into.
      */
-    fun create(context: Context, distro: VmDistro, id: String = newId(), imported: Boolean = false): VmMachine? {
+    fun create(context: Context, distro: VmDistro, id: String = newId(), imported: Boolean = false, desktop: String = VmDesktops.KDE): VmMachine? {
         if (!distro.engine) return null
         val machines = all(context)
         if (machines.any { it.id == id }) return null
-        val machine = VmMachine(distro, System.currentTimeMillis(), id, imported)
+        val machine = VmMachine(distro, System.currentTimeMillis(), id, imported, desktop = desktop)
         write(context, machines + machine)
         return machine
     }
@@ -169,6 +180,11 @@ object VmStore {
         })
     }
 
+    /** Records the fitted desktop's version once the guest has been asked for it. */
+    fun setDesktopVersion(context: Context, id: String, version: String) {
+        write(context, all(context).map { if (it.id == id) it.copy(desktopVersion = version) else it })
+    }
+
     private fun write(context: Context, machines: List<VmMachine>) {
         val json = JSONArray()
         for (machine in machines) {
@@ -180,7 +196,9 @@ object VmStore {
                 .put("createdAt", machine.createdAt)
                 .put("lifecycle", machine.lifecycle)
                 .put("failedStage", machine.failedStage)
-                .put("failReason", machine.failReason))
+                .put("failReason", machine.failReason)
+                .put("desktop", machine.desktop)
+                .put("desktopVersion", machine.desktopVersion))
         }
         prefs(context).edit()
             .putString(KEY_MACHINES, json.toString())
@@ -203,7 +221,9 @@ object VmStore {
                     else return@mapNotNull null
                 VmMachine(distro, o.optLong("createdAt"),
                     o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported,
-                    o.optString("lifecycle"), o.optString("failedStage"), o.optString("failReason"))
+                    o.optString("lifecycle"), o.optString("failedStage"), o.optString("failReason"),
+                    o.optString("desktop").ifEmpty { VmDesktops.KDE },
+                    o.optString("desktopVersion"))
             }
         }.getOrDefault(emptyList())
     }

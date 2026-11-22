@@ -633,6 +633,9 @@ class SessionService : Service() {
         guest.add("BL_REFRESH=" + Math.round(SessionState.refreshHz))
         guest.add("BL_LOG=" + sessionLog.path)
         guest.add("BL_DEBUG_DIR=" + sessionDir.path)
+        // droiddeck-desktop dispatches the session on this; machines without a choice keep KDE.
+        guest.add("DD_DESKTOP=" + (com.droidhost.launcher.vm.VmStore.get(this, sessionMachineId())?.desktop
+            ?: com.droidhost.launcher.vm.VmDesktops.KDE))
         if (EnhancedDiagnostics.isActive(this, sessionDir)) guest.add("DROIDHOST_ENHANCED_DIAGNOSTICS=1")
 
         val fakeInputDir = File(sessionRoot, "dev/input").apply { mkdirs() }
@@ -771,6 +774,14 @@ class SessionService : Service() {
                 .onFailure { Log.w(TAG, "desktop panel heal: $it") }
             runCatching { com.droidhost.launcher.runtime.DesktopLanguage.ensure(this, com.droidhost.launcher.core.AppLanguage.effective(this)) }
                 .onFailure { Log.w(TAG, "desktop language pack: $it") }
+            // A session can start without the machine page ever opening, so label the desktop here too.
+            val backfillId = sessionMachineId()
+            SessionEvents.record("desktop.version_backfill", mapOf("machineId" to backfillId, "stage" to "setup"))
+            backfillId?.let { id ->
+                com.droidhost.launcher.vm.VmStore.get(this, id)?.let {
+                    com.droidhost.launcher.vm.VmDesktop.backfillDesktopVersion(this, it)
+                }
+            }
         }
 
         val networkLink = LinuxNetworkLinkComponent(this, root)
@@ -828,6 +839,16 @@ class SessionService : Service() {
         if (pid > 1) {
             raiseTracer(pid, gen)
             SessionEvents.guestStarted(pid)
+            // The setup-time attempt can race the runtime staging; retry once the guest process is up.
+            if (SessionState.mode == MODE_DESKTOP) {
+                val backfillId = sessionMachineId()
+                SessionEvents.record("desktop.version_backfill", mapOf("machineId" to backfillId, "stage" to "guest-started"))
+                backfillId?.let { id ->
+                    com.droidhost.launcher.vm.VmStore.get(this, id)?.let {
+                        com.droidhost.launcher.vm.VmDesktop.backfillDesktopVersion(this, it)
+                    }
+                }
+            }
         } else {
             SessionEvents.record("guest.start_failed", mapOf("pid" to pid))
             failSession(gen, "GUEST_START_FAILED", "The guest process could not be started", pid)

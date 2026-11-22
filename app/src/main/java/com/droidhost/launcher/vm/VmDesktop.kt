@@ -136,7 +136,11 @@ object VmDesktop {
 
             progress = State(Stage.INSTALLING, 10)
             report(context, Stage.INSTALLING, 10)
-            val packages = if (pacman) archPrograms(context) else runtimePackages(context)
+            val packages = when {
+                pacman -> archPrograms(context, machine.desktop)
+                machine.desktop == VmDesktops.KDE -> runtimePackages(context)
+                else -> bundledPrograms(context, machine.desktop)
+            }
             if (packages.isEmpty()) {
                 fail(context, machine.id, Reason.NO_PACKAGES)
                 return
@@ -175,7 +179,7 @@ object VmDesktop {
 
             progress = State(Stage.CONFIGURING, 90)
             report(context, Stage.CONFIGURING, 90)
-            val copied = copySettings(context, root)
+            val copied = copySettings(context, root, machine.desktop)
             if (copied == 0) {
                 fail(context, machine.id, Reason.NO_SETTINGS)
                 return
@@ -183,6 +187,8 @@ object VmDesktop {
             val marker = File(root, MARKER)
             marker.parentFile?.mkdirs()
             marker.writeText("installed ${System.currentTimeMillis()}\n")
+            val version = readDesktopVersion(context, machine)
+            if (version.isNotEmpty()) VmStore.setDesktopVersion(context, machine.id, version)
             progress = State(Stage.READY, 100)
             VmStore.setLifecycle(context, machine.id, VmLife.READY.name)
         } catch (e: Exception) {
@@ -237,11 +243,17 @@ object VmDesktop {
     /**
      * The desktop programs for a pacman machine.
      *
-     * The runtime's dpkg names mean nothing on Arch, so the list is the one the KDE desktop
-     * pipeline asks of Arch Linux ARM's repositories, kept here as an asset of the same shape.
+     * The runtime's dpkg names mean nothing on Arch, so each desktop keeps its own list of the
+     * names Arch Linux ARM's repositories carry, as assets of the same shape.
      */
-    private fun archPrograms(context: Context): List<String> =
-        installable(configPaths(context, ARCH_PROGRAM_LIST), configPaths(context, EXCLUDE_LIST).toSet())
+    private fun archPrograms(context: Context, desktop: String): List<String> {
+        val list = if (desktop == VmDesktops.KDE) ARCH_PROGRAM_LIST else "$ASSETS/desktop-programs-arch-$desktop.txt"
+        return installable(configPaths(context, list), configPaths(context, EXCLUDE_LIST).toSet())
+    }
+
+    /** The programs of a non-KDE desktop on an apt machine, from the list the fork bundles for it. */
+    private fun bundledPrograms(context: Context, desktop: String): List<String> =
+        installable(configPaths(context, "$ASSETS/desktop-programs-$desktop.txt"), configPaths(context, EXCLUDE_LIST).toSet())
 
     /** How many packages are set up so far, so the page can show how far it got. */
     private fun onInstallLine(context: Context, line: String, total: Int) {
@@ -254,14 +266,72 @@ object VmDesktop {
         report(context, Stage.INSTALLING, percent)
     }
 
+    private val versionBackfill = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** Labels a machine fitted before versions were recorded, off the caller's thread. */
+    fun backfillDesktopVersion(context: Context, machine: VmMachine) {
+        val known = machine.desktopVersion
+        fun ev(stage: String, extra: Map<String, Any?> = emptyMap()) =
+            com.droidhost.launcher.session.SessionEvents.record("desktop.version_backfill",
+                mapOf("machineId" to machine.id, "stage" to stage) + extra)
+        ev("entry", mapOf("known" to known.take(40), "desktop" to machine.desktop))
+        if (known.isNotEmpty() && !known.startsWith("proot")) { ev("skip-clean"); return }
+        val root = VmRuntime.ownRootfs(context, machine.id) ?: run { ev("skip-no-rootfs"); return }
+        if (!File(root, MARKER).isFile) { ev("skip-no-marker"); return }
+        if (!versionBackfill.add(machine.id)) { ev("skip-in-flight"); return }
+        Thread({
+            try {
+                // The guest only answers once its session is up; the page can open mid-boot,
+                // so wait for the runtime rather than recording a failure as the version.
+                var v = ""
+                var attempt = 0
+                while (v.isEmpty() && attempt < 12) {
+                    v = readDesktopVersion(context.applicationContext, machine)
+                    if (v.isEmpty()) { Thread.sleep(3000); attempt++ }
+                }
+                if (v.isNotEmpty()) {
+                    VmStore.setDesktopVersion(context.applicationContext, machine.id, v)
+                    ev("recorded", mapOf("version" to v, "attempts" to attempt))
+                } else {
+                    ev("gave-up", mapOf("attempts" to attempt))
+                }
+            } finally {
+                versionBackfill.remove(machine.id)
+            }
+        }, "vm-de-version").apply { isDaemon = true; start() }
+    }
+
+    /** Asks the fitted guest for its desktop's own version, so the card can name what it runs. */
+    private fun readDesktopVersion(context: Context, machine: VmMachine): String {
+        // plasmashell initializes a Qt platform plugin even for --version; a freshly spawned proot
+        // has no display, so it aborts on xcb before printing. The minimal plugin works headless.
+        val cmd = when (machine.desktop) {
+            VmDesktops.GNOME -> "gnome-shell --version 2>/dev/null | head -n1"
+            VmDesktops.NIRI -> "niri --version 2>/dev/null | head -n1"
+            else -> "QT_QPA_PLATFORM=minimal plasmashell --version 2>/dev/null | head -n1"
+        }
+        return runCatching {
+            val r = VmGuest.run(context, machine.id, listOf("/bin/bash", "-c", cmd),
+                guestRoot = true, timeoutMs = 30_000)
+            if (r.exitCode != 0) return@runCatching ""
+            // proot prints binding warnings into the same stream ahead of the real answer.
+            r.output.lineSequence().map { it.trim() }
+                .firstOrNull { it.isNotEmpty() && !it.startsWith("proot") && !it.contains("warning", ignoreCase = true) }
+                .orEmpty()
+        }.getOrDefault("")
+    }
+
     /**
      * The desktop programs and settings, taken from the app's own runtime.
      *
      * They are the same for every distribution: the Plasma layout, the colours and the shortcuts
      * are ours, not the system's.
      */
-    internal fun copySettings(context: Context, root: File): Int {
+    internal fun copySettings(context: Context, root: File, desktop: String = VmDesktops.KDE): Int {
         var copied = copyBundledSettings(context, root)
+        // The shared runtime's configs are Plasma's; another desktop does not read them, so only
+        // the bundled, desktop-agnostic launcher files go to a non-KDE machine.
+        if (desktop != VmDesktops.KDE) return copied
         val shared = LinuxRuntime.rootDir(context)
         val bundled = configPaths(context, FILE_LIST).toSet()
         for (entry in configPaths(context, CONFIG_LIST) + configPaths(context, PROGRAM_LIST)) {

@@ -1,0 +1,7 @@
+gnome-shell
+gnome-session
+gnome-control-center
+nautilus
+gnome-terminal
+gnome-backgrounds
+gnome-keyring

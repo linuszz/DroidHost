@@ -2,6 +2,12 @@
 set -u
 export XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma
 export KDE_FULL_SESSION=true KDE_SESSION_VERSION=6 KDE_APPLICATIONS_AS_SCOPE=0
+# Per-VM desktop (MI12P-003): kde keeps the Plasma exports above; other DEs override session identity.
+DD_DESKTOP="${DD_DESKTOP:-kde}"
+case "$DD_DESKTOP" in
+  gnome) export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome; unset KDE_FULL_SESSION KDE_SESSION_VERSION KDE_APPLICATIONS_AS_SCOPE ;;
+  niri) export XDG_CURRENT_DESKTOP=niri XDG_SESSION_DESKTOP=niri DESKTOP_SESSION=niri; unset KDE_FULL_SESSION KDE_SESSION_VERSION KDE_APPLICATIONS_AS_SCOPE ;;
+esac
 export QT_QPA_PLATFORM="wayland;xcb" GDK_BACKEND=wayland,x11 SDL_VIDEODRIVER=wayland,x11
 unset QT_QPA_PLATFORMTHEME
 export QT_FORCE_STDERR_LOGGING=1
@@ -74,12 +80,9 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 desktop_dir=$(xdg-user-dir DESKTOP 2>/dev/null); [ -n "$desktop_dir" ] && [ "$desktop_dir" != "$HOME" ] || desktop_dir=$HOME/Desktop
 if [ ! -e "$HOME/.config/droiddeck-desktop-icons" ]; then
   mkdir -p "$desktop_dir" "$HOME/.config"
-  cp -f /usr/share/applications/droiddeck-return-gaming.desktop "$desktop_dir/Return.desktop" 2>/dev/null
-  cp -f /usr/share/applications/steamdeck-steam.desktop "$desktop_dir/steam.desktop" 2>/dev/null
   chmod +x "$desktop_dir"/*.desktop 2>/dev/null
   touch "$HOME/.config/droiddeck-desktop-icons"
 fi
-[ -f "$desktop_dir/Return.desktop" ] && cp -f /usr/share/applications/droiddeck-return-gaming.desktop "$desktop_dir/Return.desktop" 2>/dev/null
 if command -v flatpak >/dev/null 2>&1 && [ ! -d /var/lib/pacman ]; then
   FLATPAK_BWRAP=/usr/local/bin/droiddeck-bwrap flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo >/dev/null 2>&1 &
 fi
@@ -128,7 +131,11 @@ if [ "$(cat /usr/share/droiddeck/kwin-compositor 2>/dev/null)" = opengl ]; then
   export PATH=/run/droiddeck/kwin:$PATH
 fi
 echo "== droiddeck-desktop: Plasma on $WAYLAND_DISPLAY (node ${KWIN_RENDER_NODES:-none}, compose ${KWIN_COMPOSE:-default})"
-dbus-run-session -- startplasma-wayland
+case "$DD_DESKTOP" in
+  gnome) dbus-run-session -- gnome-session ;;
+  niri) dbus-run-session -- niri --session ;;
+  *) dbus-run-session -- startplasma-wayland ;;
+esac
 rc=$?
 echo "== droiddeck-desktop: Plasma ended ($rc)"
 if [ "$rc" -eq 0 ] && [ -z "${BL_BOTTOM_DESKTOP:-}" ]; then

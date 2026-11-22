@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
 import com.droidhost.launcher.runtime.FlatpakHost
 import com.droidhost.launcher.vm.VmCatalog
+import com.droidhost.launcher.vm.VmDesktops
 import com.droidhost.launcher.vm.VmDistro
 import com.droidhost.launcher.vm.VmDriverTier
 import com.droidhost.launcher.vm.VmFamily
@@ -65,6 +66,8 @@ internal fun VmSourceDialog(
     val ctx = LocalContext.current
     var importing by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf<String?>(null) }
+    // The version whose desktop choices are open; picking a desktop is what creates the machine.
+    var pendingVersion by remember { mutableStateOf<VmCatalog.Builtin?>(null) }
     // One pick spawns one machine; a second tap before the dialog closes must not create another.
     var spawned by remember { mutableStateOf(false) }
 
@@ -120,6 +123,7 @@ internal fun VmSourceDialog(
                         } else {
                             VmDistroRow(distro, chevron = true) {
                                 expanded = if (expanded == distro.id) null else distro.id
+                                pendingVersion = null
                             }
                             if (expanded == distro.id) {
                                 Text(
@@ -127,15 +131,27 @@ internal fun VmSourceDialog(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(start = 14.dp, top = 2.dp, bottom = 4.dp),
                                 )
-                                for (version in versions) VmVersionRow(version) {
-                                    if (spawned) return@VmVersionRow
-                                    // Each machine keeps a rootfs of its own, downloaded for the
-                                    // version picked, so several presets coexist.
-                                    val created = VmStore.create(ctx, distro)
-                                    if (created != null) {
-                                        spawned = true
-                                        VmPreset.start(ctx, created)
-                                        onPick(created, false)
+                                for (version in versions) {
+                                    VmVersionRow(version, chevron = true) {
+                                        pendingVersion = if (pendingVersion == version) null else version
+                                    }
+                                    if (pendingVersion == version) {
+                                        Text(
+                                            stringResource(R.string.vm_source_desktop_hint), fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(start = 32.dp, top = 2.dp, bottom = 4.dp),
+                                        )
+                                        for ((desktop, labelRes) in VmDesktops.options) VmDesktopRow(labelRes) {
+                                            if (spawned) return@VmDesktopRow
+                                            // Each machine keeps a rootfs of its own, downloaded for the
+                                            // version picked, so several presets coexist.
+                                            val created = VmStore.create(ctx, distro, desktop = desktop)
+                                            if (created != null) {
+                                                spawned = true
+                                                VmPreset.start(ctx, created)
+                                                onPick(created, false)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -406,9 +422,9 @@ private fun VmDistroRow(distro: VmDistro, chevron: Boolean = false, onPick: (VmD
     }
 }
 
-/** A version of a built-in distribution, the second level of the picker. */
+/** A version of a built-in distribution, the second level of the picker; it opens the desktop choices. */
 @Composable
-private fun VmVersionRow(version: VmCatalog.Builtin, onPick: () -> Unit) {
+private fun VmVersionRow(version: VmCatalog.Builtin, chevron: Boolean = false, onPick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(12.dp)
     Row(
@@ -420,6 +436,27 @@ private fun VmVersionRow(version: VmCatalog.Builtin, onPick: () -> Unit) {
     ) {
         Text(
             version.version, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
+            modifier = Modifier.weight(1f),
+        )
+        if (chevron) Text("›", fontSize = 18.sp, color = colors.onSurfaceVariant)
+        else Chip(stringResource(R.string.vm_install), ok = true)
+    }
+}
+
+/** A desktop environment for the picked version, the third level of the picker. */
+@Composable
+private fun VmDesktopRow(labelRes: Int, onPick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(12.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(start = 36.dp, bottom = 3.dp).clip(shape)
+            .background(colors.surfaceVariant)
+            .clickable(role = Role.Button) { onPick() }
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+    ) {
+        Text(
+            stringResource(labelRes), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground,
             modifier = Modifier.weight(1f),
         )
         Chip(stringResource(R.string.vm_install), ok = true)

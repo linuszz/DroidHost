@@ -66,6 +66,24 @@ object SessionPrefs {
         prefs(context).edit().putInt("orientation", orientation).apply()
     }
 
+    const val SAFE_AREA_FULL = 0
+    const val SAFE_AREA_INSET = 1
+
+    val safeAreaModeOptions = listOf(
+        SAFE_AREA_FULL to R.string.safe_area_full,
+        SAFE_AREA_INSET to R.string.safe_area_inset,
+    )
+
+    fun safeAreaMode(context: Context): Int =
+        prefs(context).getInt("safeAreaMode", SAFE_AREA_INSET)
+            .takeIf { value -> safeAreaModeOptions.any { it.first == value } }
+            ?: SAFE_AREA_INSET
+
+    fun setSafeAreaMode(context: Context, mode: Int) {
+        require(safeAreaModeOptions.any { it.first == mode })
+        prefs(context).edit().putInt("safeAreaMode", mode).apply()
+    }
+
     fun windowOrientation(context: Context, followScreen: Boolean, smallestWidthDp: Int): Int =
         if (followScreen && smallestWidthDp >= SessionDisplay.UNFOLDED_MIN_DP && !prefs(context).contains("orientation"))
             ActivityInfo.SCREEN_ORIENTATION_USER else orientation(context)
@@ -81,6 +99,11 @@ object SessionPrefs {
 
     fun setKeyToolbar(context: Context, on: Boolean) {
         prefs(context).edit().putBoolean("keyToolbar", on).apply()
+    }
+
+    fun landscapeKeyBarExpanded(context: Context): Boolean = prefs(context).getBoolean("landscapeKeyBarExpanded", false)
+    fun setLandscapeKeyBarExpanded(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("landscapeKeyBarExpanded", on).apply()
     }
 
     fun secureKeyboard(context: Context): Boolean = prefs(context).getBoolean("secureKeyboard", true)

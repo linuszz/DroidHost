@@ -1,0 +1,9 @@
+# No display manager (gdm3): proot has no systemd/logind; droiddeck-desktop starts the session.
+gnome-shell
+gnome-session
+gnome-settings-daemon
+gnome-control-center
+nautilus
+gnome-terminal
+gnome-backgrounds
+gnome-keyring

@@ -12,8 +12,10 @@ import androidx.compose.runtime.setValue
 import com.droidhost.launcher.files.FileOps
 import com.droidhost.launcher.runtime.FlatpakManager
 import com.droidhost.launcher.session.ComponentsManager
+import com.droidhost.launcher.session.SessionService
 import com.droidhost.launcher.session.SessionState
 import com.droidhost.launcher.stores.StoreGameSidecar
+import com.droidhost.launcher.vm.VmStore
 
 enum class CleanItem { OLD_TOOLS, LEFTOVERS, LEFTOVERS_UNSURE, LOGS, UNUSED_CUSTOM, UNUSED_COMPONENTS, SHADERS }
 
@@ -143,6 +145,37 @@ object StorageState {
             Log.i(TAG, "cleaned ${items.joinToString()} and freed $freed bytes")
             finish(app, freed, onDone)
         }, "storage-clean").start()
+    }
+
+    /** The machine a live session writes into; a desktop with no named machine falls back to the first one. */
+    fun liveMachineId(context: Context): String? {
+        if (!SessionState.running) return null
+        return SessionState.machineId
+            ?: if (SessionState.mode == SessionService.MODE_DESKTOP) VmStore.load(context)?.id else null
+    }
+
+    fun cleanVmCache(context: Context, machineId: String, onDone: (Long?) -> Unit = {}) {
+        val app = context.applicationContext
+        if (busy || liveMachineId(app) == machineId) { onDone(null); return }
+        appContext = app
+        cleaning = true
+        lastError = null
+        Thread({
+            val before = freeBytes(app)
+            val fresh = runCatching { StorageScan.scan(app) }.getOrNull()
+            val usage = fresh?.vms?.firstOrNull { it.machineId == machineId }
+            val done = usage != null && liveMachineId(app) != machineId && runCatching {
+                usage.cacheDirs.forEach { dir ->
+                    // Keep the directory itself: the guest expects /tmp and /var/log to exist with their original modes.
+                    dir.walkTopDown().forEach { if (it.isDirectory) it.setWritable(true, true) }
+                    dir.listFiles()?.forEach { it.deleteRecursively() }
+                }
+            }.onFailure { Log.w(TAG, "could not clean caches of $machineId", it); main.post { lastError = it.message } }.isSuccess
+            val freed = if (done) (freeBytes(app) - before).coerceAtLeast(0) else null
+            Log.i(TAG, "vm-cache-$machineId: freed $freed bytes")
+            main.post { progress = null }
+            finish(app, freed, onDone)
+        }, "storage-vm-cache").start()
     }
 
     fun removeTool(context: Context, tool: ToolUsage, onDone: (Long?) -> Unit) {

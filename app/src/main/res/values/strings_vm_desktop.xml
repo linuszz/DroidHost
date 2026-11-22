@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vm_desktop_kde">KDE Plasma</string>
+    <string name="vm_desktop_gnome">GNOME</string>
+    <string name="vm_desktop_niri">niri</string>
+    <string name="vm_source_desktop_hint">Choose a desktop environment (fixed at install)</string>
+</resources>

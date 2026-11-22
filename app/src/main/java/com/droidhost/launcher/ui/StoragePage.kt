@@ -43,6 +43,7 @@ import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Monitor
 import androidx.compose.material.icons.outlined.SaveAlt
 import androidx.compose.material.icons.outlined.ShoppingBag
@@ -95,6 +96,7 @@ import com.droidhost.launcher.storage.StorageState
 import com.droidhost.launcher.storage.ToolReason
 import com.droidhost.launcher.storage.ToolState
 import com.droidhost.launcher.storage.ToolUsage
+import com.droidhost.launcher.storage.VmUsage
 import com.droidhost.launcher.stores.StoreInstallRoot
 import java.io.File
 import java.text.DateFormat
@@ -107,6 +109,7 @@ private val BucketColors = mapOf(
     Bucket.COMPONENTS to Color(0xFF9BD65B),
     Bucket.STORES to Color(0xFFF0B44C),
     Bucket.DESKTOP to Color(0xFFE57FB1),
+    Bucket.VMS to Color(0xFFF28B66),
     Bucket.SYSTEM to Color(0xFF7D8796),
     Bucket.DROIDDECK to Color(0xFF6FD08C),
 )
@@ -152,6 +155,7 @@ internal fun StoragePanel(s: FrontEndState, a: FrontEndActions) {
         "data" -> GameDataView(report, s.sessionRunning) { view = "overview" }
         "components" -> ComponentsView(report, s.sessionRunning) { view = "overview" }
         "desktop" -> DesktopView(report, s.sessionRunning) { view = "overview" }
+        "vms" -> VmsView(report, s.sessionRunning) { view = "overview" }
         "stores" -> StoreGamesView(report, s.sessionRunning) { view = "overview" }
         "tools" -> ToolsView(report, s.sessionRunning) { view = "overview" }
         else -> Overview(report, s.sessionRunning, onCleanUp = { cleanup = true }, onOpen = { view = it })
@@ -364,6 +368,13 @@ private fun OverviewContent(report: StorageReport, sessionRunning: Boolean, wide
                 report.buckets.getValue(Bucket.DESKTOP), m) { onOpen("desktop") }
         },
         { m ->
+            val vmCache = report.vms.sumOf { it.cacheBytes }
+            BucketCard(Bucket.VMS, Icons.Outlined.Memory, stringResource(R.string.storage_vms),
+                pluralStringResource(R.plurals.storage_vms_count, report.vms.size, report.vms.size) +
+                    " · " + stringResource(R.string.storage_vms_caches, gb(vmCache)),
+                report.buckets.getValue(Bucket.VMS), m, attention = vmCache >= ONE_MB) { onOpen("vms") }
+        },
+        { m ->
             BucketCard(Bucket.SYSTEM, Icons.Outlined.Storage, stringResource(R.string.storage_system),
                 stringResource(R.string.storage_system_hint), report.buckets.getValue(Bucket.SYSTEM), m, locked = true)
         },
@@ -391,6 +402,7 @@ private fun bucketLabel(bucket: Bucket) = stringResource(when (bucket) {
     Bucket.COMPONENTS -> R.string.storage_legend_components
     Bucket.STORES -> R.string.storage_legend_stores
     Bucket.DESKTOP -> R.string.storage_legend_desktop
+    Bucket.VMS -> R.string.storage_legend_vms
     Bucket.SYSTEM -> R.string.storage_legend_system
     Bucket.DROIDDECK -> R.string.storage_legend_app
 })
@@ -1258,4 +1270,33 @@ private fun DesktopView(report: StorageReport, sessionRunning: Boolean, onBack: 
     }
     if (confirmPrune) ConfirmDialog(stringResource(R.string.storage_desktop_prune), stringResource(R.string.storage_desktop_prune_body),
         stringResource(R.string.storage_desktop_prune), danger = false, onConfirm = { StorageState.pruneFlatpak(ctx) }, onDismiss = { confirmPrune = false })
+}
+
+@Composable
+private fun VmsView(report: StorageReport, sessionRunning: Boolean, onBack: () -> Unit) {
+    val ctx = LocalContext.current
+    val liveId = StorageState.liveMachineId(ctx)
+    var confirm by remember { mutableStateOf<VmUsage?>(null) }
+    val vms = report.vms.sortedByDescending { it.bytes }
+    SubHeader(stringResource(R.string.storage_vms),
+        stringResource(R.string.storage_vms_detail, gb(vms.sumOf { it.bytes }), gb(vms.sumOf { it.cacheBytes })), onBack)
+    ActionStatus()
+    if (sessionRunning) { Note(stringResource(R.string.storage_session_running)); Spacer(Modifier.height(4.dp)) }
+    ListCard {
+        if (vms.isEmpty()) Text(stringResource(R.string.storage_vms_none), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
+        vms.forEachIndexed { i, vm ->
+            ItemRow(vm.name, stringResource(R.string.storage_vm_detail, vm.distro, gb(vm.cacheBytes)), vm.bytes, i == vms.lastIndex,
+                pill = if (liveId == vm.machineId) { { Pill(stringResource(R.string.storage_vm_running), AttentionAmber) } } else null,
+                action = {
+                    SecondaryButton(stringResource(R.string.storage_vm_clean_cache), compact = true,
+                        enabled = !StorageState.busy && liveId != vm.machineId && vm.cacheBytes >= ONE_MB) { confirm = vm }
+                })
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    Note(stringResource(R.string.storage_vms_note))
+    confirm?.let { vm ->
+        ConfirmDialog(stringResource(R.string.storage_vm_clean_title, vm.name), stringResource(R.string.storage_vm_clean_body, gb(vm.cacheBytes)),
+            stringResource(R.string.storage_vm_clean_cache), danger = false, onConfirm = { StorageState.cleanVmCache(ctx, vm.machineId) }, onDismiss = { confirm = null })
+    }
 }

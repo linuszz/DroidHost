@@ -54,6 +54,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +71,7 @@ fun PcKeyboard(
     sendKey: (Int, Boolean) -> Unit,
     onAndroidKeyboard: () -> Unit,
     onClose: () -> Unit,
+    onHeightChanged: (Int) -> Unit = {},
 ) {
     val pal = LocalPalette.current
     val colors = MaterialTheme.colorScheme
@@ -98,7 +101,10 @@ fun PcKeyboard(
         releaseOnceModifiers()
     }
     androidx.compose.runtime.DisposableEffect(Unit) {
-        onDispose { for ((code, state) in mods.toMap()) if (state != MOD_OFF) sendKey(code, false) }
+        onDispose {
+            for ((code, state) in mods.toMap()) if (state != MOD_OFF) sendKey(code, false)
+            onHeightChanged(0)
+        }
     }
     LaunchedEffect(Unit) { runCatching { firstKey.requestFocus() } }
 
@@ -107,11 +113,15 @@ fun PcKeyboard(
     val hiddenCodes = PcKeyboardPrefs.hiddenKeys.flatMap { PC_KEY_HIDDEN_GROUPS[it].orEmpty() }.toSet()
     val rows = PC_KEY_ROWS.map { row -> row.filter { it.code !in hiddenCodes } }.filter { it.isNotEmpty() }
 
+    val landscape = LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    // Landscape height is scarce: cap the PC keyboard at ~40% so the desktop keeps the majority.
+    val sizePercent = if (landscape) minOf(PcKeyboardPrefs.size, 40) else PcKeyboardPrefs.size
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        val rowHeight = ((maxHeight * (PcKeyboardPrefs.size / 100f) - 24.dp - 3.dp * rows.size - 10.dp) / rows.size)
+        val rowHeight = ((maxHeight * (sizePercent / 100f) - 24.dp - 3.dp * rows.size - 10.dp) / rows.size)
             .coerceIn(20.dp, 56.dp)
         Box(
             Modifier.fillMaxWidth()
+                .onGloballyPositioned { onHeightChanged(it.size.height) }
                 .graphicsLayer { alpha = PcKeyboardPrefs.opacity / 100f }
                 .background(Color(0xE6101418), RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
                 .border(1.dp, pal.line2, RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))

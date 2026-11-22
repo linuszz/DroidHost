@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
+import com.droidhost.launcher.vm.VmDesktops
 import com.droidhost.launcher.vm.VmLife
 import com.droidhost.launcher.vm.VmMachine
 import com.droidhost.launcher.vm.VmPreset
@@ -176,6 +177,14 @@ internal fun vmMachineLabel(ctx: Context, machine: VmMachine): String {
     return "$name $version$lts"
 }
 
+/** The fitted desktop's name and own version, e.g. "KDE Plasma 6.3.4"; the name alone until known. */
+internal fun vmDesktopLabel(ctx: Context, machine: VmMachine): String {
+    val nameRes = VmDesktops.options.firstOrNull { it.first == machine.desktop }?.second ?: return ""
+    val name = ctx.getString(nameRes)
+    val ver = machine.desktopVersion.trim().split(Regex("\\s+")).lastOrNull().orEmpty()
+    return if (ver.isEmpty()) name else "$name $ver"
+}
+
 /**
  * The machines the user owns, one card each, plus a card that opens the new-machine wizard.
  *
@@ -209,8 +218,10 @@ internal fun VmDock(
         ) {
             for (machine in machines) {
                 val selected = machine.id == selectedId
+                val de = vmDesktopLabel(ctx, machine)
+                val sub = vmStateLabel(statusOf(machine)) + if (de.isEmpty()) "" else " · $de"
                 DesktopCard(
-                    "vm:" + machine.id, vmMachineLabel(ctx, machine), vmStateLabel(statusOf(machine)),
+                    "vm:" + machine.id, vmMachineLabel(ctx, machine), sub,
                     art = VmCatalog.logoRes(machine.distro.id), fallback = Icons.Outlined.DesktopWindows,
                     first = machine.id == machines.firstOrNull()?.id,
                     progress = percentOf(machine), accent = selected,

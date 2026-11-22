@@ -226,6 +226,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private val guestButtonsDown = mutableMapOf<Int, Boolean>()
     private lateinit var surfaceView: SurfaceView
     private lateinit var sessionOverlay: ComposeView
+    private var safeAreaMask: SafeAreaCornerMask? = null
     private lateinit var loading: LoadingState
     private lateinit var hud: DroidHostHudHost
     private lateinit var memoryHud: com.droidhost.launcher.session.MemoryHud
@@ -267,6 +268,11 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private var imeHeightPx by mutableStateOf(0)
     private var keyToolbarVisible by mutableStateOf(false)
     private var keyToolbarHeightPx = 0
+    private var pcKeyboardHeightPx = 0
+    private var landscapeFabVisible by mutableStateOf(false)
+    private var landscapeKeyBarVisible by mutableStateOf(false)
+    private var landscapeKeyBarExpanded by mutableStateOf(false)
+    private var landscapeKeyBarWidthPx = 0
     private var navBarHeightPx = 0
     private var secureKeyboard by mutableStateOf(true)
     private var refreshChoice by mutableStateOf(0)
@@ -383,8 +389,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         if (pointerLocked || !CompositorHost.isStarted) return false
         if (!WaylandCompositor.nativeCursorInputPos(cursorPosBuf)) return false
         if (outputView().width <= 0 || outputView().height <= 0) return false
-        val x = cursorPosBuf[0] / InputSpace.WIDTH.toFloat() * outputView().width
-        val y = cursorPosBuf[1] / InputSpace.HEIGHT.toFloat() * outputView().height
+        val rect = pointerSurfaceRect() ?: return false
+        val x = rect.left + cursorPosBuf[0] / InputSpace.WIDTH.toFloat() * rect.width()
+        val y = rect.top + cursorPosBuf[1] / InputSpace.HEIGHT.toFloat() * rect.height()
         if (kotlin.math.abs(x - cursorPos.x) < 0.75f && kotlin.math.abs(y - cursorPos.y) < 0.75f) return false
         cursorPos = androidx.compose.ui.geometry.Offset(x, y)
         return true
@@ -507,6 +514,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private var hudConfig by mutableStateOf<Map<String, String>>(emptyMap())
     private var hudColor by mutableStateOf(SessionPrefs.HUD_COLOR_MINT)
     private var hudOpacity by mutableStateOf(SessionPrefs.HUD_OPACITY_DEFAULT)
+    private var orientation by mutableStateOf(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+    private var safeAreaMode by mutableStateOf(SessionPrefs.SAFE_AREA_INSET)
     private var upscaler by mutableStateOf(0)
     private var upscaleSharpness by mutableStateOf(75)
     private var effects by mutableStateOf(ScreenEffects.OFF)
@@ -777,6 +786,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         root.addOnLayoutChangeListener { _, l, t, r, b, ol, ot, or, ob ->
             if (r - l != or - ol || b - t != ob - ot) uiHandler.post { applyUnfoldedControls(); refreshKeyToolbar() }
         }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            uiHandler.post { applySafeArea("insets-change") }
+            androidx.core.view.ViewCompat.onApplyWindowInsets(v, insets)
+        }
 
         val bridge = PadBridge(File(LinuxRuntime.sessionRoot(this), "dev/input"))
         bridge.setStickDeadZone(ControllerPrefs.deadZone(this))
@@ -858,7 +871,18 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 false
             } else if (!gestureTouchStreamGate.accepts(GestureTouchStreamGate.Source.SURFACE, event)) {
                 false
-            } else onTouchEvent(event)
+            } else {
+                // The listener receives surface-local coordinates, but onTouchEvent and the
+                // picture rect work in the root frame; shift to root for the call, then restore
+                // so the dispatcher's coordinate bookkeeping stays intact. Gesture detectors
+                // copy the event during the call, so they keep the root-framed coordinates.
+                val dx = surfaceView.left.toFloat()
+                val dy = surfaceView.top.toFloat()
+                event.offsetLocation(dx, dy)
+                val handled = onTouchEvent(event)
+                event.offsetLocation(-dx, -dy)
+                handled
+            }
         }
         padMouse = PadMouse(padMouseListener)
         bridge.setTouchRoute(object : PadBridge.TouchRoute {
@@ -907,6 +931,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             memoryHud.start()
         }
         readPrefs()
+        safeAreaMask = SafeAreaCornerMask(this).also { root.addView(it) }
+        applySafeArea("session-enter")
 
         intent.getIntExtra(com.droidhost.launcher.ui.EXTRA_FLOOD, 0).takeIf { it != 0 && loading.visible }?.let {
             floodColor = it
@@ -1237,24 +1263,46 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                     sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
                     onToggleIme = { keyboard?.toggle() },
                     imeOpen = imeHeightPx > 0,
-                    secureKeyboard = secureKeyboard,
-                    onToggleSecureKeyboard = { toggleToolbarSecureKeyboard() },
                     onPaste = { pasteToolbarText() },
-                    touchpadActive = touchMode.let { usingTouchpad() },
-                    onToggleTouchMode = { toggleToolbarTouchMode() },
-                    refreshHz = if (refreshChoice > 0) refreshChoice else refreshHz().toInt(),
-                    refreshAuto = refreshChoice == 0,
-                    onCycleRefreshRate = { toggleToolbarRefreshRate() },
-                    uiScalePercent = guestUiScale,
-                    onCycleUiScale = { toggleToolbarUiScale() },
-                    hudOn = hudOn,
-                    onToggleHud = { val on = !hudOn; SessionPrefs.setHudEnabled(this@SessionActivity, on); hudOn = on; hud.refresh() },
+                    config = quickConfigState(),
+                    configActions = quickConfigActions(),
                     onHeightChanged = { keyToolbarHeightPx = it; layoutOutputForKeyboard() },
                 )
+                if (landscapeFabVisible && !landscapeKeyBarExpanded && !pcKeyboardOpen && !drawerOpen && !loading.visible && !SessionState.suspended) {
+                    val fabSafe = currentSafeInsets()
+                    com.droidhost.launcher.ui.LandscapeControlsFab(
+                        config = quickConfigState(),
+                        actions = quickConfigActions(),
+                        safeInsetRightPx = fabSafe.right,
+                        safeInsetBottomPx = fabSafe.bottom,
+                    )
+                }
+                if (landscapeKeyBarVisible && !pcKeyboardOpen && !drawerOpen && !loading.visible && !SessionState.suspended) {
+                    val barSafe = currentSafeInsets()
+                    com.droidhost.launcher.ui.SessionKeyBarVertical(
+                        expanded = landscapeKeyBarExpanded,
+                        onToggleExpanded = {
+                            landscapeKeyBarExpanded = !landscapeKeyBarExpanded
+                            SessionPrefs.setLandscapeKeyBarExpanded(this@SessionActivity, landscapeKeyBarExpanded)
+                            refreshKeyToolbar()
+                        },
+                        sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
+                        onToggleIme = { keyboard?.toggle() },
+                        imeOpen = imeHeightPx > 0,
+                        onPaste = { pasteToolbarText() },
+                        config = quickConfigState(),
+                        configActions = quickConfigActions(),
+                        safeInsetTopPx = barSafe.top,
+                        safeInsetBottomPx = maxOf(barSafe.bottom, imeHeightPx),
+                        safeInsetRightPx = barSafe.right,
+                        onWidthChanged = { landscapeKeyBarWidthPx = it; layoutOutputForKeyboard() },
+                    )
+                }
                 if (pcKeyboardOpen) com.droidhost.launcher.ui.PcKeyboard(
                     sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
                     onAndroidKeyboard = { pcKeyboardOpen = false; keyboard?.toggle() },
                     onClose = { pcKeyboardOpen = false },
+                    onHeightChanged = { pcKeyboardHeightPx = it; layoutOutputForKeyboard() },
                 )
                 if (!drawerDocked) SessionMenu(docked = false)
                 LaunchedEffect(achievementsOpen) {
@@ -1320,7 +1368,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             androidApps = androidApps,
             hudOn = hudOn,
             hudConfig = hudConfig,
-            upscaler = upscaler, upscaleSharpness = upscaleSharpness,
+            orientation = orientation, upscaler = upscaler, upscaleSharpness = upscaleSharpness,
+            safeAreaMode = safeAreaMode,
             effects = effects,
             cardboard = cardboard,
             cardboardSensor = hasRotationSensor,
@@ -1373,6 +1422,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             onHudReset = { hudConfig = DroidHostHudConfig.reset(this@SessionActivity); hud.applyConfig() },
             onHudOrderReset = { hudConfig = DroidHostHudConfig.clearOrder(this@SessionActivity); hud.applyConfig() },
             onHudExport = { exportHudDiagnostics() },
+            onOrientation = { o -> applyOrientationChoice(o) },
+            onSafeAreaMode = { m -> applySafeAreaChoice(m) },
             onUpscaler = { m ->
                 SessionPrefs.setUpscaler(this@SessionActivity, m); upscaler = m
                 WaylandCompositor.nativeSetUpscaler(m)
@@ -2101,6 +2152,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         hudConfig = DroidHostHudConfig.load(this)
         hudColor = SessionPrefs.hudColor(this)
         hudOpacity = SessionPrefs.hudOpacity(this)
+        orientation = SessionPrefs.orientation(this)
+        safeAreaMode = SessionPrefs.safeAreaMode(this)
         upscaler = SessionPrefs.upscaler(this)
         upscaleSharpness = SessionPrefs.upscaleSharpness(this)
         effects = SessionPrefs.screenEffects(this)
@@ -2137,6 +2190,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         oscMode = SessionPrefs.oscMode(this)
         refreshChoice = SessionPrefs.refreshRateChoice(this)
         guestUiScale = SessionPrefs.guestUiScalePercent(this)
+        landscapeKeyBarExpanded = SessionPrefs.landscapeKeyBarExpanded(this)
         backHold = SessionPrefs.backHold(this)
         backActionsInverted = SessionPrefs.backActionsInverted(this)
         physicalShortcuts.bindings = PhysicalShortcuts.read(this)
@@ -2473,6 +2527,15 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         return displayMode() == SessionService.MODE_DESKTOP || userAppDesktop() || imeHeightPx > 0
     }
 
+    // Landscape counterpart of the portrait extra-keys bar: a zero-height gear FAB instead of a bar,
+    // because landscape height is scarce. Reactive drawer/keyboard/loading guards live at the call site.
+    private fun landscapeFabWanted(): Boolean {
+        if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return false
+        if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE) return false
+        if (glassesScreen != null || bottomGame != null || isInPictureInPictureMode || controlsBelowWanted()) return false
+        return displayMode() == SessionService.MODE_DESKTOP || userAppDesktop()
+    }
+
     private fun refreshKeyToolbar() {
         if (::sessionRoot.isInitialized) {
             navBarHeightPx = androidx.core.view.ViewCompat.getRootWindowInsets(sessionRoot)
@@ -2481,6 +2544,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val wanted = keyToolbarWanted()
         if (wanted != keyToolbarVisible) keyToolbarVisible = wanted
         if (!wanted) keyToolbarHeightPx = 0
+        val barWanted = landscapeFabWanted()
+        if (barWanted != landscapeKeyBarVisible) landscapeKeyBarVisible = barWanted
+        if (!barWanted) landscapeKeyBarWidthPx = 0
+        if (barWanted != landscapeFabVisible) landscapeFabVisible = barWanted
         updateDesktopKeyboardButton()
         layoutOutputForKeyboard()
     }
@@ -2490,11 +2557,12 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     // Bottom inset the output must clear: the soft keyboard, or — when the toolbar is up but the
     // keyboard is hidden — the navigation/gesture bar, so the toolbar never sits on the gesture zone.
     private fun toolbarBottomOffset(): Int =
-        if (keyToolbarVisible) maxOf(imeHeightPx, navBarHeightPx) else imeHeightPx
+        maxOf(if (keyToolbarVisible) maxOf(imeHeightPx, navBarHeightPx) else imeHeightPx, pcKeyboardHeightPx)
 
     private fun keyboardAdaptActive(): Boolean {
         if (toolbarBottomOffset() + keyToolbarReserved() <= 0 || !::surfaceView.isInitialized || !::sessionRoot.isInitialized) return false
-        if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_PORTRAIT) return false
+        val ori = resources.configuration.orientation
+        if (ori != android.content.res.Configuration.ORIENTATION_PORTRAIT && ori != android.content.res.Configuration.ORIENTATION_LANDSCAPE) return false
         if (glassesScreen != null || bottomGame != null || isInPictureInPictureMode || controlsBelowWanted()) return false
         return com.droidhost.launcher.session.SessionDisplay.keyboardArea(sessionRoot.width, sessionRoot.height, toolbarBottomOffset(), keyToolbarReserved()) != null
     }
@@ -2508,14 +2576,171 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     // output view to the area above them so the compositor draws there and the guest resolution follows.
     private fun layoutOutputForKeyboard() {
         if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return
-        val targetHeight = if (keyboardAdaptActive())
-            com.droidhost.launcher.session.SessionDisplay.keyboardArea(sessionRoot.width, sessionRoot.height, toolbarBottomOffset(), keyToolbarReserved())!!.second
-        else android.widget.FrameLayout.LayoutParams.MATCH_PARENT
-        val params = surfaceView.layoutParams as? android.widget.FrameLayout.LayoutParams ?: return
-        if (params.height != targetHeight) {
-            params.height = targetHeight
-            surfaceView.layoutParams = params
+        applySafeArea("keyboard")
+    }
+
+    // Single writer of the output surface layout: safe-area margins compose with the keyboard and
+    // unfolded-controls height paths so the three never overwrite each other. Follow/screen resolutions
+    // track the inset surface via surfaceChanged; fixed presets keep their resolution and letterbox.
+    private fun applySafeArea(trigger: String) {
+        if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return
+        val inPip = pipUi || isInPictureInPictureMode
+        val snap = safeAreaSnapshot()
+        val applied = if (safeAreaMode == SessionPrefs.SAFE_AREA_INSET && !inPip) appliedSafeInset(snap) else android.graphics.Rect()
+        // The landscape right-edge key bar overlays the output; reserve its measured width on top of the
+        // safe-area inset (0 when the bar is collapsed-away/disposed, so the reserve tracks visibility).
+        if (landscapeKeyBarVisible) applied.right += landscapeKeyBarWidthPx
+        val rootLoc = IntArray(2)
+        sessionRoot.getLocationOnScreen(rootLoc)
+        val before = android.graphics.Rect(surfaceView.left + rootLoc[0], surfaceView.top + rootLoc[1], surfaceView.right + rootLoc[0], surfaceView.bottom + rootLoc[1])
+        val rel = layoutOutputSurface(applied)
+        val after = android.graphics.Rect(rel.left + rootLoc[0], rel.top + rootLoc[1], rel.right + rootLoc[0], rel.bottom + rootLoc[1])
+        updateCornerMask(snap, inPip)
+        recordInsetsProbe(trigger, snap, applied, before, after)
+        if (::pip.isInitialized) pip.refresh()
+    }
+
+    private fun applyOrientationChoice(o: Int) {
+        SessionPrefs.setOrientation(this, o); orientation = o
+        applyFollowOrientation(resources.configuration)
+    }
+
+    private fun applySafeAreaChoice(m: Int) {
+        SessionPrefs.setSafeAreaMode(this, m); safeAreaMode = m
+        goFullscreen()
+        applySafeArea("mode-change")
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun quickConfigState() = com.droidhost.launcher.ui.QuickConfigState(
+        secureKeyboard = secureKeyboard,
+        touchpadActive = touchMode.let { usingTouchpad() },
+        refreshHz = if (refreshChoice > 0) refreshChoice else refreshHz().toInt(),
+        refreshAuto = refreshChoice == 0,
+        uiScalePercent = guestUiScale,
+        hudOn = hudOn,
+        orientationLabel = androidx.compose.ui.res.stringResource(SessionPrefs.orientationOptions.firstOrNull { it.first == orientation }?.second ?: R.string.setup_orientation_auto),
+        safeAreaLabel = androidx.compose.ui.res.stringResource(SessionPrefs.safeAreaModeOptions.firstOrNull { it.first == safeAreaMode }?.second ?: R.string.safe_area_inset),
+    )
+
+    private fun quickConfigActions() = com.droidhost.launcher.ui.QuickConfigActions(
+        onToggleSecureKeyboard = { toggleToolbarSecureKeyboard() },
+        onToggleTouchMode = { toggleToolbarTouchMode() },
+        onCycleRefreshRate = { toggleToolbarRefreshRate() },
+        onCycleUiScale = { toggleToolbarUiScale() },
+        onToggleHud = { val on = !hudOn; SessionPrefs.setHudEnabled(this, on); hudOn = on; hud.refresh() },
+        onCycleOrientation = {
+            val opts = SessionPrefs.orientationOptions
+            applyOrientationChoice(opts[(opts.indexOfFirst { it.first == orientation } + 1) % opts.size].first)
+        },
+        onCycleSafeArea = {
+            val opts = SessionPrefs.safeAreaModeOptions
+            applySafeAreaChoice(opts[(opts.indexOfFirst { it.first == safeAreaMode } + 1) % opts.size].first)
+        },
+    )
+
+    private fun layoutOutputSurface() = layoutOutputSurface(currentSafeInsets())
+
+    private fun layoutOutputSurface(safe: android.graphics.Rect): android.graphics.Rect {
+        val rootW = sessionRoot.width
+        val rootH = sessionRoot.height
+        val tabRow = unfoldedColumn?.getChildAt(0)?.height?.let {
+            it - (com.droidhost.launcher.ui.BAR_HEIGHT.value * resources.displayMetrics.density + 0.5f).toInt()
+        } ?: 0
+        val pathHeight = when {
+            controlsBelowWanted() -> com.droidhost.launcher.session.SessionDisplay.unfoldedGameHeight(rootW, rootH, tabRow)
+            keyboardAdaptActive() -> com.droidhost.launcher.session.SessionDisplay.keyboardArea(rootW, rootH, toolbarBottomOffset(), keyToolbarReserved())!!.second
+            else -> FrameLayout.LayoutParams.MATCH_PARENT
         }
+        // Fixed-height paths end at the keyboard/controls top edge (pathHeight), which already covers
+        // the bottom corners, so only safe.top is subtracted — not safe.bottom (F-7).
+        val targetHeight = if (pathHeight == FrameLayout.LayoutParams.MATCH_PARENT) FrameLayout.LayoutParams.MATCH_PARENT
+            else (pathHeight - safe.top).coerceAtLeast(0)
+        val params = surfaceView.layoutParams as? FrameLayout.LayoutParams
+        if (params == null || params.width != FrameLayout.LayoutParams.MATCH_PARENT || params.height != targetHeight ||
+            params.leftMargin != safe.left || params.topMargin != safe.top || params.rightMargin != safe.right ||
+            params.bottomMargin != safe.bottom || params.gravity != Gravity.TOP) {
+            surfaceView.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, targetHeight, Gravity.TOP).apply {
+                setMargins(safe.left, safe.top, safe.right, safe.bottom)
+            }
+        }
+        val w = (rootW - safe.left - safe.right).coerceAtLeast(0)
+        val h = (if (targetHeight == FrameLayout.LayoutParams.MATCH_PARENT) rootH - safe.top - safe.bottom else targetHeight).coerceAtLeast(0)
+        return android.graphics.Rect(safe.left, safe.top, safe.left + w, safe.top + h)
+    }
+
+    private fun currentSafeInsets(): android.graphics.Rect {
+        if (pipUi || isInPictureInPictureMode || safeAreaMode != SessionPrefs.SAFE_AREA_INSET) return android.graphics.Rect()
+        return appliedSafeInset(safeAreaSnapshot())
+    }
+
+    // B-mode visual inset = per-edge max(cutout safeInset, rounded-corner inset). The corner inset is
+    // r*(1-1/sqrt2) so a square clears the quarter-circle; the navigation bar is deliberately excluded
+    // (immersive mode hides it, F-6). Cutout safeInsets are already in the current rotation's frame.
+    private fun appliedSafeInset(snap: InsetsSnapshot): android.graphics.Rect {
+        val f = 1f - 1f / kotlin.math.sqrt(2f)
+        val r = snap.cornerRadii
+        fun corner(a: Int, b: Int) = Math.ceil(f * maxOf(r[a], r[b]).toDouble()).toInt()
+        return android.graphics.Rect(
+            maxOf(snap.cutout.left, corner(0, 2)),
+            maxOf(snap.cutout.top, corner(0, 1)),
+            maxOf(snap.cutout.right, corner(1, 3)),
+            maxOf(snap.cutout.bottom, corner(2, 3)),
+        )
+    }
+
+    private fun safeAreaSnapshot(): InsetsSnapshot {
+        val insets = if (::sessionRoot.isInitialized) androidx.core.view.ViewCompat.getRootWindowInsets(sessionRoot) else null
+        val cut = insets?.displayCutout
+        val cutout = android.graphics.Rect(cut?.safeInsetLeft ?: 0, cut?.safeInsetTop ?: 0, cut?.safeInsetRight ?: 0, cut?.safeInsetBottom ?: 0)
+        val nav = insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars())
+        val ges = insets?.getInsets(androidx.core.view.WindowInsetsCompat.Type.mandatorySystemGestures())
+        val navBars = android.graphics.Rect(nav?.left ?: 0, nav?.top ?: 0, nav?.right ?: 0, nav?.bottom ?: 0)
+        val gestures = android.graphics.Rect(ges?.left ?: 0, ges?.top ?: 0, ges?.right ?: 0, ges?.bottom ?: 0)
+        val radii = IntArray(4)
+        if (Build.VERSION.SDK_INT >= 31) {
+            @Suppress("DEPRECATION")
+            val d = (if (Build.VERSION.SDK_INT >= 30) display else null) ?: windowManager.defaultDisplay
+            radii[0] = d.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT)?.radius ?: 0
+            radii[1] = d.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_RIGHT)?.radius ?: 0
+            radii[2] = d.getRoundedCorner(android.view.RoundedCorner.POSITION_BOTTOM_LEFT)?.radius ?: 0
+            radii[3] = d.getRoundedCorner(android.view.RoundedCorner.POSITION_BOTTOM_RIGHT)?.radius ?: 0
+        }
+        return InsetsSnapshot(cutout, navBars, gestures, radii)
+    }
+
+    private fun updateCornerMask(snap: InsetsSnapshot, pip: Boolean) {
+        val mask = safeAreaMask ?: return
+        val radius = snap.cornerRadii.maxOrNull() ?: 0
+        mask.radius = radius
+        mask.visibility = if (safeAreaMode == SessionPrefs.SAFE_AREA_INSET && !pip && radius > 0) View.VISIBLE else View.GONE
+    }
+
+    private fun recordInsetsProbe(trigger: String, snap: InsetsSnapshot, applied: android.graphics.Rect,
+                                  before: android.graphics.Rect, after: android.graphics.Rect) {
+        fun rect(r: android.graphics.Rect) = org.json.JSONObject()
+            .put("left", r.left).put("top", r.top).put("right", r.right).put("bottom", r.bottom)
+        val corners = org.json.JSONObject()
+            .put("topLeft", snap.cornerRadii[0]).put("topRight", snap.cornerRadii[1])
+            .put("bottomLeft", snap.cornerRadii[2]).put("bottomRight", snap.cornerRadii[3])
+        val payload = org.json.JSONObject()
+            .put("rotation", currentRotation())
+            .put("safeAreaMode", safeAreaMode)
+            .put("reported", org.json.JSONObject()
+                .put("cutout", rect(snap.cutout))
+                .put("navigationBars", rect(snap.navBars))
+                .put("mandatorySystemGestures", rect(snap.gestures))
+                .put("roundedCorner", corners))
+            .put("appliedInset", rect(applied))
+            .put("appliedRect", rect(after))
+            .put("before", rect(before))
+            .put("after", rect(after))
+        com.droidhost.launcher.session.InsetsProbe.record(this, trigger, payload)
+    }
+
+    private fun currentRotation(): Int {
+        @Suppress("DEPRECATION")
+        return (if (Build.VERSION.SDK_INT >= 30) display else null)?.rotation ?: windowManager.defaultDisplay.rotation
     }
 
     private fun pasteToolbarText() {
@@ -2619,6 +2844,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         applyFollowOrientation(newConfig)
         applyUnfoldedControls()
         resizeOutputForWindow(surfaceW, surfaceH)
+        applySafeArea("orientation-change")
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -3594,7 +3820,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             val rect = pointerSurfaceRect() ?: return
             val cx = x.coerceIn(rect.left, rect.right)
             val cy = y.coerceIn(rect.top, rect.bottom)
-            WaylandCompositor.nativeSendPointer(1, InputSpace.x(cx, outputView().width), InputSpace.y(cy, outputView().height))
+            WaylandCompositor.nativeSendPointer(1, InputSpace.x(cx - rect.left, rect.width()), InputSpace.y(cy - rect.top, rect.height()))
             cursorVisible = false
         }
         override fun onButton(button: Int, pressed: Boolean) {
@@ -3622,7 +3848,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             scrollRestY = 0f
             val rect = pointerSurfaceRect() ?: return
             val x = rect.left + rect.width() * PAD_SCROLL_POINTER_X
-            WaylandCompositor.nativeSendPointer(1, InputSpace.x(x, outputView().width), InputSpace.y(rect.centerY(), outputView().height))
+            WaylandCompositor.nativeSendPointer(1, InputSpace.x(x - rect.left, rect.width()), InputSpace.y(rect.centerY() - rect.top, rect.height()))
             cursorVisible = false
         }
         override fun onScroll(dx: Float, dy: Float) = scrollListener.onScroll(dx, dy)
@@ -3677,8 +3903,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     private fun placeTouchpadAtGuest(rect: android.graphics.RectF) {
         if (pointerLocked || !CompositorHost.isStarted || outputView().width <= 0 || outputView().height <= 0) return
         if (!WaylandCompositor.nativeCursorInputPos(cursorPosBuf)) return
-        val x = cursorPosBuf[0] / InputSpace.WIDTH.toFloat() * outputView().width
-        val y = cursorPosBuf[1] / InputSpace.HEIGHT.toFloat() * outputView().height
+        val x = rect.left + cursorPosBuf[0] / InputSpace.WIDTH.toFloat() * rect.width()
+        val y = rect.top + cursorPosBuf[1] / InputSpace.HEIGHT.toFloat() * rect.height()
         touchpad.place(x.coerceIn(rect.left, rect.right), y.coerceIn(rect.top, rect.bottom))
     }
 
@@ -3694,7 +3920,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val rect = pointerSurfaceRect() ?: return
         val cx = x.coerceIn(rect.left, rect.right)
         val cy = y.coerceIn(rect.top, rect.bottom)
-        WaylandCompositor.nativeSendPointer(1, InputSpace.x(cx, outputView().width), InputSpace.y(cy, outputView().height))
+        WaylandCompositor.nativeSendPointer(1, InputSpace.x(cx - rect.left, rect.width()), InputSpace.y(cy - rect.top, rect.height()))
         showCursor(cx, cy, fromMouse)
     }
 
@@ -4106,12 +4332,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         } ?: 0
         val gameHeight = if (wanted) com.droidhost.launcher.session.SessionDisplay.unfoldedGameHeight(width, height, tabRow)
             else FrameLayout.LayoutParams.MATCH_PARENT
-        val params = surfaceView.layoutParams as FrameLayout.LayoutParams
-        if (params.height != gameHeight) {
-            surfaceView.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, gameHeight, Gravity.TOP)
-            Log.i(TAG, if (wanted) "unfolded controls: game ${width}x$gameHeight, controls ${width}x${height - gameHeight}"
-                else "unfolded controls: game full screen")
-        }
+        applySafeArea("unfolded")
         val portrait = !com.droidhost.launcher.session.SessionDisplay.foldable(this)
         val dock = if (SessionState.deckPad) com.droidhost.launcher.input.OnScreenLayout.Dock.deck(portrait, deckPanelLayouts[com.droidhost.launcher.input.DeckPanel.GAMEPAD])
             else com.droidhost.launcher.input.OnScreenLayout.Dock(portrait, false)
@@ -4436,8 +4657,14 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun drawnRect(): android.graphics.RectF? {
-        val width = outputView().width.takeIf { it > 0 } ?: return null
-        val height = outputView().height.takeIf { it > 0 } ?: return null
+        val view = outputView()
+        val width = view.width.takeIf { it > 0 } ?: return null
+        val height = view.height.takeIf { it > 0 } ?: return null
+        // Touch/mouse events and the cursor overlay are in the root view's frame, while the
+        // surface is inset by the safe-area margins; express the picture rect in root
+        // coordinates so input mapping and cursor placement share one frame.
+        val viewLeft = view.left.toFloat()
+        val viewTop = view.top.toFloat()
         topPictureMapped = CompositorHost.isStarted && WaylandCompositor.nativeGamePictureRect(gamePictureBounds)
         if (topPictureMapped) {
             val rect = android.graphics.RectF(
@@ -4453,13 +4680,14 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 val scaleY = height.toFloat() / outputHeight
 
                 return android.graphics.RectF(
-                    rect.left * scaleX,
-                    rect.top * scaleY,
-                    rect.right * scaleX,
-                    rect.bottom * scaleY
+                    rect.left * scaleX + viewLeft,
+                    rect.top * scaleY + viewTop,
+                    rect.right * scaleX + viewLeft,
+                    rect.bottom * scaleY + viewTop
                 )
             }
 
+            rect.offset(viewLeft, viewTop)
             return rect
         }
         val out = SessionState.outputSize
@@ -4468,7 +4696,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val drawnH = out.second * scale
         val left = (width - drawnW) / 2f
         val top = (height - drawnH) / 2f
-        return android.graphics.RectF(left, top, left + drawnW, top + drawnH)
+        return android.graphics.RectF(left + viewLeft, top + viewTop, left + drawnW + viewLeft, top + drawnH + viewTop)
     }
 
     /**
@@ -4478,7 +4706,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
      */
     private fun pointerSurfaceRect(): android.graphics.RectF? {
         val view = outputView()
-        return PointerSpace.area(view.width, view.height, glassesOutputActive, drawnRect())
+        val area = PointerSpace.area(view.width, view.height, glassesOutputActive, drawnRect())
+        // drawnRect() is root-framed already; the glasses full-view rect is surface-local.
+        if (glassesOutputActive) area?.offset(view.left.toFloat(), view.top.toFloat())
+        return area
     }
 
     private var ignoreGameTouch = false
@@ -4580,7 +4811,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val cx = x.coerceIn(rect.left, rect.right)
         val cy = y.coerceIn(rect.top, rect.bottom)
         WaylandCompositor.nativeSendTouch(action, pointerId,
-            InputSpace.x(cx, outputView().width), InputSpace.y(cy, outputView().height))
+            InputSpace.x(cx - rect.left, rect.width()), InputSpace.y(cy - rect.top, rect.height()))
         showCursor(cx, cy)
     }
 
@@ -5060,6 +5291,14 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val fittedW = (w * scale).toInt()
         val fittedH = (h * scale).toInt()
         rect.inset((rect.width() - fittedW) / 2, (rect.height() - fittedH) / 2)
+        // F-3: nudge the PiP source hint clear of the cutout per edge in the current rotation. The hint
+        // is advisory only; HyperOS picks the actual landing rect (verify on device, T-07).
+        val cut = safeAreaSnapshot().cutout
+        rect.left += cut.left
+        rect.top += cut.top
+        rect.right -= cut.right
+        rect.bottom -= cut.bottom
+        if (rect.left >= rect.right || rect.top >= rect.bottom) rect.setEmpty()
         return rect
     }
 
@@ -5859,10 +6098,14 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         if (Build.VERSION.SDK_INT >= 28) {
+            // Both modes render edge-to-edge; inset mode additionally shrinks the surface in
+            // applySafeArea. NEVER would double the cutout avoidance (system + manual) and shift the
+            // corner mask off the physical screen corners.
             window.attributes = window.attributes.apply {
                 layoutInDisplayCutoutMode = if (Build.VERSION.SDK_INT >= 30)
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                else WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                else
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             }
         }
     }
@@ -5880,6 +6123,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 settleDualScreenControls()
                 openDualScreenControls()
             }
+            applySafeArea("first-frame")
         }
     }
 
@@ -6064,3 +6308,55 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 }
 
 private class AchievementsInFront(val game: StoreAchievements.Game, val title: String, val progress: Pair<Int, Int>?)
+
+private class InsetsSnapshot(
+    val cutout: android.graphics.Rect,
+    val navBars: android.graphics.Rect,
+    val gestures: android.graphics.Rect,
+    val cornerRadii: IntArray,
+)
+
+// Black inverse-rounded-corner mask over the panel corners; passes touch through like BuildWatermark.
+private class SafeAreaCornerMask(context: android.content.Context) : View(context) {
+    var radius = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+            }
+        }
+    private val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = android.graphics.Color.BLACK
+        style = android.graphics.Paint.Style.FILL
+    }
+    private val path = android.graphics.Path()
+
+    init {
+        isClickable = false
+        isFocusable = false
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+    }
+
+    override fun onTouchEvent(event: MotionEvent) = false
+
+    override fun onDraw(canvas: android.graphics.Canvas) {
+        val r = radius.toFloat()
+        if (r <= 0f) return
+        val w = width.toFloat()
+        val h = height.toFloat()
+        path.reset()
+        path.moveTo(0f, 0f); path.lineTo(r, 0f)
+        path.arcTo(android.graphics.RectF(0f, 0f, 2 * r, 2 * r), 270f, -90f)
+        path.lineTo(0f, 0f); path.close()
+        path.moveTo(w, 0f); path.lineTo(w - r, 0f)
+        path.arcTo(android.graphics.RectF(w - 2 * r, 0f, w, 2 * r), 270f, 90f)
+        path.lineTo(w, 0f); path.close()
+        path.moveTo(0f, h); path.lineTo(r, h)
+        path.arcTo(android.graphics.RectF(0f, h - 2 * r, 2 * r, h), 90f, 90f)
+        path.lineTo(0f, h); path.close()
+        path.moveTo(w, h); path.lineTo(w - r, h)
+        path.arcTo(android.graphics.RectF(w - 2 * r, h - 2 * r, w, h), 90f, -90f)
+        path.lineTo(w, h); path.close()
+        canvas.drawPath(path, paint)
+    }
+}

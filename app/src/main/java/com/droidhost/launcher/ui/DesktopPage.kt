@@ -114,6 +114,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         listOfNotNull(VmCatalog.of(VmCatalog.UBUNTU)?.let { VmMachine(it, 0L) }) else recorded
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val vm = machines.firstOrNull { it.id == selectedId } ?: machines.firstOrNull()
+    LaunchedEffect(vm?.id) { vm?.let { VmDesktop.backfillDesktopVersion(ctx, it) } }
 
     var install by remember { mutableStateOf(VmDesktop.state()) }
     var seed by remember { mutableStateOf(VmPreset.state()) }
@@ -361,6 +362,10 @@ private fun VmSettingsDialog(
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(vmMachineLabel(ctx, machine), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
+                if (vmDesktopLabel(ctx, machine).isNotEmpty()) Text(
+                    vmDesktopLabel(ctx, machine), fontSize = 13.sp, color = colors.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
                 Text(
                     stringResource(R.string.vm_settings_driver), fontSize = 11.sp, fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),

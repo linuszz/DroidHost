@@ -1000,6 +1000,11 @@
     <string name="setup_orientation_auto">Automatic landscape</string>
     <string name="setup_orientation_landscape">Landscape</string>
     <string name="setup_orientation_reverse">Reverse landscape</string>
+    <string name="safe_area_mode">Safe area</string>
+    <string name="safe_area_mode_hint">Inset keeps the picture clear of the display cutout and rounded corners. Full screen fills the panel for games and full-screen content.</string>
+    <string name="safe_area_full">Full screen</string>
+    <string name="safe_area_inset">Inset</string>
+    <string name="session_quick_config">Quick config</string>
     <string name="setup_fullscreen">Fullscreen</string>
     <string name="setup_fullscreen_on">Hides the Android status and navigation bars</string>
     <string name="setup_fullscreen_off">Shows the Android status and navigation bars</string>
@@ -3568,6 +3573,21 @@
     <plurals name="storage_desktop_apps">
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>
+    </plurals>
+    <string name="storage_vms">Virtual machines</string>
+    <string name="storage_legend_vms">Machines</string>
+    <string name="storage_vms_detail">%1$s in machines · %2$s in reclaimable caches</string>
+    <string name="storage_vms_caches">caches %1$s</string>
+    <string name="storage_vms_none">No machine keeps a rootfs of its own yet.</string>
+    <string name="storage_vm_detail">%1$s · caches %2$s</string>
+    <string name="storage_vm_running">Running</string>
+    <string name="storage_vm_clean_cache">Clean caches</string>
+    <string name="storage_vm_clean_title">Clean caches of %1$s?</string>
+    <string name="storage_vm_clean_body">Removes package caches, logs and temporary files (%1$s). Installed programs and your files stay.</string>
+    <string name="storage_vms_note">Caches are package downloads, logs and temporary files inside each machine. They build up again as you use it. A running machine is locked.</string>
+    <plurals name="storage_vms_count">
+        <item quantity="one">%d machine</item>
+        <item quantity="other">%d machines</item>
     </plurals>
     <string name="glasses_hands">Bare-hand controllers</string>
     <string name="glasses_hands_hint">Use the glasses cameras to aim with your hands, pinch to click and close your hand to grab in VR. Gamepad sticks move and turn. Replaces Joy-Con position tracking. May lag or lose tracking during games.</string>

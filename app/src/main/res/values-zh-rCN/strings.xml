@@ -935,6 +935,11 @@
     <string name="setup_orientation_auto">自动横屏</string>
     <string name="setup_orientation_landscape">横屏</string>
     <string name="setup_orientation_reverse">反向横屏</string>
+    <string name="safe_area_mode">安全区</string>
+    <string name="safe_area_mode_hint">内缩让画面避开挖孔和屏幕圆角；铺满填满整块屏幕，适合游戏和满屏内容。</string>
+    <string name="safe_area_full">铺满</string>
+    <string name="safe_area_inset">内缩</string>
+    <string name="session_quick_config">快捷设置</string>
     <string name="setup_fullscreen">全屏</string>
     <string name="setup_fullscreen_on">隐藏 Android 状态栏和导航栏</string>
     <string name="setup_fullscreen_off">显示 Android 状态栏和导航栏</string>
@@ -3352,6 +3357,21 @@
     <plurals name="storage_desktop_apps">
         <item quantity="one">%d 个应用</item>
         <item quantity="other">%d 个应用</item>
+    </plurals>
+    <string name="storage_vms">虚拟机</string>
+    <string name="storage_legend_vms">虚拟机</string>
+    <string name="storage_vms_detail">虚拟机共 %1$s · 可回收缓存 %2$s</string>
+    <string name="storage_vms_caches">缓存 %1$s</string>
+    <string name="storage_vms_none">还没有自带 rootfs 的虚拟机。</string>
+    <string name="storage_vm_detail">%1$s · 缓存 %2$s</string>
+    <string name="storage_vm_running">运行中</string>
+    <string name="storage_vm_clean_cache">清理缓存</string>
+    <string name="storage_vm_clean_title">清理 %1$s 的缓存？</string>
+    <string name="storage_vm_clean_body">将删除包缓存、日志和临时文件（%1$s）。已安装的程序和你的文件会保留。</string>
+    <string name="storage_vms_note">缓存是每台虚拟机里的包下载、日志和临时文件，使用过程中会重新产生。正在运行的虚拟机会被锁定。</string>
+    <plurals name="storage_vms_count">
+        <item quantity="one">%d 台虚拟机</item>
+        <item quantity="other">%d 台虚拟机</item>
     </plurals>
     <string name="boot_movie">开机动画</string>
     <string name="boot_movie_video">视频</string>

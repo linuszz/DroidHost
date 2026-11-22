@@ -166,7 +166,9 @@ object VmPreset {
                 aborted("PROBE", Reason.NOT_USABLE)
                 return
             }
-            val desktop = seedDesktop(context, machine.id, root, token) { report(it) }
+            // The pack is KDE-only; another desktop is fitted later by VmDesktop, so the rootfs
+            // stays without a desktop marker and the machine shows as new until then.
+            val desktop = if (machine.desktop == VmDesktops.KDE) seedDesktop(context, machine.id, root, token) { report(it) } else Reason.NONE
             if (desktop != Reason.NONE) {
                 if (token?.asBoolean != true) VmRuntime.removeInBackground(root)
                 aborted("SEED", desktop)

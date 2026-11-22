@@ -12,9 +12,11 @@ import com.droidhost.launcher.session.ComponentsManager
 import com.droidhost.launcher.session.SecondaryLibrary
 import com.droidhost.launcher.session.SessionPaths
 import com.droidhost.launcher.session.SessionPrefs
+import com.droidhost.launcher.vm.VmRuntime
+import com.droidhost.launcher.vm.VmStore
 import java.io.File
 
-enum class Bucket { GAMES, GAME_DATA, TOOLS, COMPONENTS, STORES, DESKTOP, SYSTEM, DROIDDECK }
+enum class Bucket { GAMES, GAME_DATA, TOOLS, COMPONENTS, STORES, DESKTOP, VMS, SYSTEM, DROIDDECK }
 
 class GameUsage(
     val appId: Int, val name: String, val art: File?, val library: String, val internal: Boolean, val lastPlayed: Long,
@@ -51,6 +53,11 @@ class ComponentUsage(
 
 class FlatpakUsage(val id: String, val name: String, val bytes: Long)
 
+class VmUsage(
+    val machineId: String, val name: String, val distro: String, val rootfs: File,
+    val bytes: Long, val cacheBytes: Long, val cacheDirs: List<File>,
+)
+
 class StorageReport(
     val at: Long,
     val total: Long,
@@ -71,6 +78,7 @@ class StorageReport(
     val kept: List<KeptPrefix>,
     val leftoversChecked: Boolean,
     val storeGames: List<StoreGameUsage> = emptyList(),
+    val vms: List<VmUsage> = emptyList(),
 ) {
     val otherPrefixes: Long get() = kept.sumOf { it.bytes }
     val droiddeck: Long get() = buckets.values.sum()
@@ -103,6 +111,9 @@ object StorageScan {
     fun steamRoot(context: Context) = SessionPrefs.steamRoot(context, "arm64")
 
     fun measure(file: File): Long = Walker().measure(file)
+
+    /** Guest caches the host can take without touching the distribution itself. */
+    val VM_CACHE_DIRS = listOf("var/cache/apt/archives", "var/lib/apt/lists", "var/cache/pacman/pkg", "tmp", "var/log", "root/.cache")
 
     fun scan(context: Context): StorageReport {
         val phases = ArrayList<String>()
@@ -340,6 +351,14 @@ object StorageScan {
             }.sortedByDescending { it.bytes }
 
         phase("store games")
+        // Measured before m(files) so the totals walk reuses these cached sizes instead of walking each rootfs twice.
+        val vms = runCatching { VmStore.all(context) }.getOrDefault(emptyList()).mapNotNull { machine ->
+            val dir = VmRuntime.ownRootfs(context, machine.id) ?: return@mapNotNull null
+            val cacheDirs = VM_CACHE_DIRS.map { File(dir, it) }.filter { it.isDirectory }
+            val cacheBytes = cacheDirs.sumOf { walker.measure(it) }
+            VmUsage(machine.id, machine.distro.name, machine.distro.id, dir, walker.measure(dir), cacheBytes, cacheDirs)
+        }
+        val vmBytes = vms.sumOf { it.bytes }
         val clientRoots = listOfNotNull(steamRoot, x64Root)
         val apps = clientRoots.map { File(it, "steamapps") }
         val privateRoots = File(files, "steam-libraries").listFiles().orEmpty().filter { it.isDirectory }
@@ -362,7 +381,7 @@ object StorageScan {
         val system = rootfsBytes - installs - inApps("compatdata") - inApps("shadercache") - workshop -
             compatTools - stores - flatpak
         val componentBytes = m(componentsDir)
-        val droiddeck = m(files) + m(context.cacheDir) - rootfsBytes - privateBytes - componentBytes +
+        val droiddeck = m(files) + m(context.cacheDir) - rootfsBytes - privateBytes - componentBytes - vmBytes +
             (privateBytes - toolsPrivate - privatePrefixes - privateShaders)
         phase("totals")
         Log.i("StorageScan", "scan ms: " + phases.joinToString(", "))
@@ -376,12 +395,13 @@ object StorageScan {
                 Bucket.COMPONENTS to componentBytes,
                 Bucket.STORES to stores,
                 Bucket.DESKTOP to flatpak,
+                Bucket.VMS to vmBytes,
                 Bucket.SYSTEM to system.coerceAtLeast(0),
                 Bucket.DROIDDECK to droiddeck.coerceAtLeast(0),
             ),
             prefixes, shaders, workshop, flatpak,
             games.sortedByDescending { it.total }, tools.values.toList(), leftovers, logs, logBytes,
-            components, flatpakApps, flatpakRuntimes, kept, everyLibraryRead, storeGames,
+            components, flatpakApps, flatpakRuntimes, kept, everyLibraryRead, storeGames, vms,
         )
     }
 }
