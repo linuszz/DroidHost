@@ -26,10 +26,11 @@ class FileManagerActivity : ComponentActivity() {
             requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
         }
         val initialDir = intent.getStringExtra(EXTRA_START_DIR)?.let(::File)
+        val homeDir = intent.getStringExtra(EXTRA_HOME_DIR)?.let(::File)
         setContent {
             DroidHostTheme(appScale = com.droidhost.launcher.core.AppUiPrefs.scale(this)) {
                 Surface(modifier = Modifier.fillMaxSize().systemBarsPadding(), color = MaterialTheme.colorScheme.background) {
-                    FileManagerScreen(initialDir = initialDir, onExit = { finish() })
+                    FileManagerScreen(initialDir = initialDir, homeDir = homeDir, onExit = { finish() })
                 }
             }
         }
@@ -42,5 +43,6 @@ class FileManagerActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_START_DIR = "com.droidhost.launcher.files.START_DIR"
+        const val EXTRA_HOME_DIR = "com.droidhost.launcher.files.HOME_DIR"
     }
 }

@@ -130,19 +130,16 @@ def log(t, what): events_log.append((round(t, 3), what))
 
 tsamp = np.arange(N) / SR
 
-ai = drops['archDrop']['impacts']
-put(ai[0]['t'], pan(tock(D3, .40, decay=.5, sub=.8), .1)); log(ai[0]['t'], 'legs land: D')
+fi = drops['frameDrop']['impacts']
+put(fi[0]['t'], pan(tock(D3, .40, decay=.5, sub=.8), .1)); log(fi[0]['t'], 'frame lands: D')
 
-bi = drops['ballDrop']['impacts']
-for k, imp in enumerate(bi[:2]):
-    a = .32 * (imp['v'] / bi[0]['v']) ** .9
-    put(imp['t'], pan(tock(A3, a, decay=.36, sub=.3 * a / .32), 0)); log(imp['t'], f'ball: A {a:.2f}')
-
-di = drops['domeDrop']['impacts']
-put(di[0]['t'], pan(tock(Fs4, .28, decay=.45, sub=.45), -.05)); log(di[0]['t'], 'bowl lands: F#')
+ci = drops['coreDrop']['impacts']
+for k, imp in enumerate(ci[:2]):
+    a = .32 * (imp['v'] / ci[0]['v']) ** .9
+    put(imp['t'], pan(tock(A3, a, decay=.36, sub=.3 * a / .32), 0)); log(imp['t'], f'core: A {a:.2f}')
 
 
-put(LOCK, pan(tock(D3, .24, decay=.28, sub=.8), 0)); log(LOCK, 'lock: soft landing in the stack voice')
+put(LOCK, pan(tock(D3, .24, decay=.28, sub=.8), 0)); log(LOCK, 'lock: soft landing in the host voice')
 for f, a, p, off in ((D3, .24, -.1, 0), (A3, .28, .2, .02), (D4, .30, -.2, .04), (Fs4, .26, .15, .06)):
     put(LOCK + .018 + off, pan(epiano(f, a, decay=1.3 if f < 300 else 1.1), p))
 log(LOCK + .018, 'D chord')

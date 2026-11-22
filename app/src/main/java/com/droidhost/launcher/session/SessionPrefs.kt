@@ -51,9 +51,7 @@ object SessionPrefs {
     val orientationOptions = listOf(
         ActivityInfo.SCREEN_ORIENTATION_USER to R.string.setup_launcher_orientation_auto,
         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT to R.string.setup_orientation_portrait,
-        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE to R.string.setup_orientation_auto,
-        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE to R.string.setup_orientation_landscape,
-        ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE to R.string.setup_orientation_reverse,
+        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE to R.string.setup_orientation_landscape,
     )
 
     fun orientation(context: Context): Int =

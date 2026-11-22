@@ -48,17 +48,18 @@ import com.droidhost.launcher.runtime.FlatpakManager
 
 /**
  * Installed Flathub apps as a launch strip beneath the machine dock: one tap opens an app in the
- * host desktop. A supplement to the machines, not a replacement — the strip renders nothing when
- * no app is installed, so a machine-only setup looks exactly as before.
+ * host desktop. A supplement to the machines, not a replacement — with no app installed the strip
+ * renders only the store entry when [showStore] asks for it, and nothing otherwise.
  */
 @Composable
 internal fun FlatpakAppStrip(
     apps: List<FlatpakManager.App>,
     onOpen: (String, String) -> Unit,
     onStore: () -> Unit,
+    showStore: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    if (apps.isEmpty()) return
+    if (apps.isEmpty() && !showStore) return
     val colors = MaterialTheme.colorScheme
     val start = if (LocalNarrowPane.current) 20.dp else 44.dp
     Column(modifier.fillMaxWidth().padding(top = 14.dp)) {

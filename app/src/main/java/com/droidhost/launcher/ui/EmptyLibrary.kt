@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -140,7 +142,7 @@ private class MarkFrame(size: Size, val centre: Offset) {
     val s = height / LogoShape.HEIGHT
     val halfWidth = (LogoShape.CX - LogoShape.LEFT) * s
     val halfHeight = LogoShape.CY * s
-    val ball = LogoShape.BALL * s
+    val ball = LogoShape.CORE * s
     val k = height / 460f
     val ringFrom = ball
     val ringTo = hypot(size.width, size.height) * 1.05f
@@ -256,8 +258,7 @@ private fun Mark(clock: MarkClock) {
     val bg = pal.background
     val slabEdge = lerp(bg, ink, 0.4f)
     val rim = lerp(bg, pal.signal, 0.55f)
-    val left = remember { Path() }
-    val right = remember { Path() }
+    val frame = remember { Path() }
     val piece = remember { Path() }
     val measure = remember { PathMeasure() }
     Canvas(
@@ -298,27 +299,21 @@ private fun Mark(clock: MarkClock) {
             if (fill > 0f) {
                 val lift = 8f * k * (1f - fill)
                 val edge = 5f * f.s
-                LogoShape.left(left, 0f) { x, y -> f.px(x, y) + Offset(0f, lift + edge) }
-                LogoShape.right(right) { x, y -> f.px(x, y) + Offset(0f, lift + edge) }
-                drawPath(left, slabEdge.copy(alpha = fill))
-                drawPath(right, slabEdge.copy(alpha = fill))
-                LogoShape.left(left, 0f) { x, y -> f.px(x, y) + Offset(0f, lift) }
-                LogoShape.right(right) { x, y -> f.px(x, y) + Offset(0f, lift) }
-                drawPath(left, ink.copy(alpha = fill))
-                drawPath(right, ink.copy(alpha = fill))
+                val sw = LogoShape.STROKE * f.s
+                LogoShape.frame(frame) { x, y -> f.px(x, y) + Offset(0f, lift + edge) }
+                drawPath(frame, slabEdge.copy(alpha = fill), style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                LogoShape.frame(frame) { x, y -> f.px(x, y) + Offset(0f, lift) }
+                drawPath(frame, ink.copy(alpha = fill), style = Stroke(sw, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
 
             if (intro < TRACE_MS) {
                 val drawn = TraceEase.transform(clamp01(intro / 775f))
                 val alpha = if (intro < 775f) 1f else 1f - (intro - 775f) / 475f
-                LogoShape.left(left, 0f, f::px)
-                LogoShape.right(right, f::px)
-                for (half in listOf(left, right)) {
-                    measure.setPath(half, false)
-                    piece.reset()
-                    measure.getSegment(0f, measure.length * drawn, piece, true)
-                    drawPath(piece, pal.signal.copy(alpha = alpha), style = Stroke(2f * f.s))
-                }
+                LogoShape.frame(frame, f::px)
+                measure.setPath(frame, false)
+                piece.reset()
+                measure.getSegment(0f, measure.length * drawn, piece, true)
+                drawPath(piece, pal.signal.copy(alpha = alpha), style = Stroke(LogoShape.STROKE * f.s, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
 
             val shown = Out.transform(clamp01((intro - 650f) / 300f))
@@ -358,7 +353,7 @@ private fun Mark(clock: MarkClock) {
                 val turn = 720f * FlipEase.transform(clamp01((t - 1290f) / 760f))
                 translate(0f, rise * k + bob) {
                     scale(grow * sq.first, grow * sq.second, f.centre) {
-                        coin(f.centre, f.ball, f.ball * 2f * 0.061f, turn, pal.signal.copy(alpha = shown), rim.copy(alpha = shown))
+                        core(f.centre, f.ball, turn, pal.signal.copy(alpha = shown), rim.copy(alpha = shown))
                     }
                 }
             }
@@ -371,16 +366,12 @@ private fun Mark(clock: MarkClock) {
     }
 }
 
-private fun DrawScope.coin(c: Offset, r: Float, thick: Float, deg: Float, face: Color, rim: Color) {
+private fun DrawScope.core(c: Offset, half: Float, deg: Float, face: Color, rim: Color) {
     val a = Math.toRadians(deg.toDouble())
     val cs = cos(a).toFloat()
-    val half = thick / 2 * sin(a).toFloat()
-    val rx = r * abs(cs)
-    if (abs(half) > 0.01f) {
-        drawOval(rim, Offset(c.x - half - rx, c.y - r), Size(2 * rx, 2 * r))
-        drawOval(rim, Offset(c.x + half - rx, c.y - r), Size(2 * rx, 2 * r))
-        drawRect(rim, Offset(min(c.x - half, c.x + half), c.y - r), Size(abs(2 * half), 2 * r))
-    }
-    val fx = c.x + if (cs >= 0f) half else -half
-    drawOval(face, Offset(fx - rx, c.y - r), Size(2 * rx, 2 * r))
+    val rx = half * abs(cs)
+    val edge = half * 0.12f * abs(sin(a).toFloat())
+    val w = rx + edge
+    if (edge > 0.01f) drawRoundRect(rim, Offset(c.x - w, c.y - half), Size(2 * w, 2 * half), CornerRadius(min(half * 0.5f, w)))
+    if (rx > 0.01f) drawRoundRect(face, Offset(c.x - rx, c.y - half), Size(2 * rx, 2 * half), CornerRadius(min(half * 0.5f, rx)))
 }

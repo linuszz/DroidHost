@@ -576,6 +576,18 @@ internal fun SessionDrawer(open: Boolean, requestedPage: SessionDrawerPage, cont
                     when (page) {
                         SessionDrawerPage.HUD -> DroidHostHudSettings(host, a) { key -> focus.track(page, key) }
                         SessionDrawerPage.DISPLAY -> {
+                            SettingsGroup(stringResource(R.string.setup_session_orientation)) {
+                                ChoiceRow(host, "orientation", stringResource(R.string.setup_session_orientation),
+                                    stringResource(R.string.setup_session_orientation_hint),
+                                    SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
+                                    a.orientation, chipModifier = focus.track(page, "orientation"), onPick = a.onOrientation)
+                            }
+                            SettingsGroup(stringResource(R.string.safe_area_mode)) {
+                                ChoiceRow(host, "safe-area", stringResource(R.string.safe_area_mode),
+                                    stringResource(R.string.safe_area_mode_hint),
+                                    SessionPrefs.safeAreaModeOptions.map { (value, label) -> value to stringResource(label) },
+                                    a.safeAreaMode, chipModifier = focus.track(page, "safe-area"), onPick = a.onSafeAreaMode)
+                            }
                             SettingsGroup(stringResource(R.string.drawer_page_display)) {
                                 val fgOpen = host.open == "fg"
                                 val offLabel = stringResource(R.string.frame_gen_off)
@@ -613,18 +625,6 @@ internal fun SessionDrawer(open: Boolean, requestedPage: SessionDrawerPage, cont
                                 if (SessionPrefs.upscalerHasSharpness(a.upscaler)) SliderRow(
                                     stringResource(R.string.display_sharpness), null, a.upscaleSharpness, 0..100, step = 5,
                                     format = { "$it%" }, modifier = focus.track(page, "upscale-sharpness"), onChange = a.onUpscaleSharpness)
-                            }
-                            SettingsGroup(stringResource(R.string.setup_session_orientation)) {
-                                ChoiceRow(host, "orientation", stringResource(R.string.setup_session_orientation),
-                                    stringResource(R.string.setup_session_orientation_hint),
-                                    SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
-                                    a.orientation, chipModifier = focus.track(page, "orientation"), onPick = a.onOrientation)
-                            }
-                            SettingsGroup(stringResource(R.string.safe_area_mode)) {
-                                ChoiceRow(host, "safe-area", stringResource(R.string.safe_area_mode),
-                                    stringResource(R.string.safe_area_mode_hint),
-                                    SessionPrefs.safeAreaModeOptions.map { (value, label) -> value to stringResource(label) },
-                                    a.safeAreaMode, chipModifier = focus.track(page, "safe-area"), onPick = a.onSafeAreaMode)
                             }
                         }
                         SessionDrawerPage.EFFECTS -> {

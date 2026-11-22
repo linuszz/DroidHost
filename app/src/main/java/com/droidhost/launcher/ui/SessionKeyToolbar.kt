@@ -47,7 +47,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Keyboard
 import com.droidhost.launcher.input.PC_MODIFIERS
@@ -314,16 +315,18 @@ private sealed interface VertCell {
     data class Key(val k: ToolbarKey) : VertCell
     object Paste : VertCell
     object Ime : VertCell
+    object BarToggle : VertCell
     object Gear : VertCell
 }
 
 // The scrollable keys of the expanded landscape bar, row-major into three columns. The arrows and
-// PageUp/PageDown are NOT here: they stay in the fixed ThinkPad cluster below the grid.
+// PageUp/PageDown are NOT here: they stay in the fixed ThinkPad cluster below the grid. Ime toggles the
+// soft keyboard and BarToggle collapses the bar, so both live among the keys rather than in a header.
 private val VERT_CELLS: List<VertCell> = listOf(
     VertCell.Key(ToolbarKey("Esc", 1)), VertCell.Key(ToolbarKey("Tab", 15)), VertCell.Key(ToolbarKey("/", 53)), VertCell.Key(ToolbarKey("Del", 111)),
     VertCell.Key(ToolbarKey("Home", 102)), VertCell.Key(ToolbarKey("End", 107)),
     VertCell.Key(ToolbarKey("Shift", 42)), VertCell.Key(ToolbarKey("Ctrl", 29)), VertCell.Key(ToolbarKey("Alt", 56)), VertCell.Key(ToolbarKey("Super", 125)),
-    VertCell.Paste, VertCell.Ime, VertCell.Gear,
+    VertCell.Paste, VertCell.Ime, VertCell.BarToggle, VertCell.Gear,
 )
 
 // The collapsed bar is a single gear-width column of the most-used keys plus the expand handle.
@@ -356,6 +359,7 @@ fun SessionKeyBarVertical(
     val scope = rememberCoroutineScope()
     val mk = remember { ModifierKeys(sendKey, scope) }
     var configOpen by remember { mutableStateOf(false) }
+    var barWidthPx by remember { mutableStateOf(0) }
     val density = LocalDensity.current
     val topPad = with(density) { safeInsetTopPx.toDp() } + 6.dp
     val bottomPad = with(density) { safeInsetBottomPx.toDp() } + 6.dp
@@ -366,7 +370,12 @@ fun SessionKeyBarVertical(
         Column(
             Modifier.align(Alignment.CenterEnd).padding(end = rightPad, top = topPad, bottom = bottomPad)
                 .then(if (expanded) Modifier.fillMaxHeight() else Modifier)
-                .onGloballyPositioned { onWidthChanged(it.size.width) }
+                .onGloballyPositioned {
+                    barWidthPx = it.size.width
+                    // The reserve must cover the bar's full footprint (visible width + end padding),
+                    // otherwise the output surface slides under the bar's left edge (Linus #2).
+                    onWidthChanged(it.size.width + with(density) { rightPad.roundToPx() })
+                }
                 .background(Color(0xE6101418), RoundedCornerShape(12.dp))
                 .border(1.dp, pal.line2, RoundedCornerShape(12.dp))
                 .pointerInput(Unit) { awaitEachGesture { awaitFirstDown().consume(); waitForUpOrCancellation()?.consume() } }
@@ -378,11 +387,10 @@ fun SessionKeyBarVertical(
                     val st = mk.mods[key.code] ?: MOD_OFF
                     KeyCap(key.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(key) }, { mk.release(key) }, 40.dp, 40.dp)
                 }
-                IconCap(Icons.Outlined.Keyboard, "Show keys", onToggleExpanded, width = 40.dp, height = 40.dp)
+                IconCap(Icons.Outlined.Keyboard, "Toggle keyboard", onToggleIme, active = imeOpen, width = 40.dp, height = 40.dp)
+                IconCap(Icons.Filled.Settings, "Quick config", { configOpen = !configOpen }, active = configOpen, width = 40.dp, height = 40.dp)
+                IconCap(Icons.Filled.ChevronLeft, "Expand keys", onToggleExpanded, width = 40.dp, height = 40.dp)
             } else {
-                Row(Modifier.width(44.dp * 3 + 4.dp * 2), horizontalArrangement = Arrangement.End) {
-                    IconCap(Icons.Filled.Close, "Hide keys", onToggleExpanded, width = 44.dp, height = 30.dp)
-                }
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -393,11 +401,12 @@ fun SessionKeyBarVertical(
                                 when (cell) {
                                     is VertCell.Key -> {
                                         val st = mk.mods[cell.k.code] ?: MOD_OFF
-                                        KeyCap(cell.k.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(cell.k) }, { mk.release(cell.k) }, 44.dp, 38.dp)
+                                        KeyCap(cell.k.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(cell.k) }, { mk.release(cell.k) }, 40.dp, 38.dp)
                                     }
-                                    VertCell.Paste -> ActionCap("Paste", onPaste, 44.dp, 38.dp)
-                                    VertCell.Ime -> IconCap(Icons.Outlined.Keyboard, "Toggle keyboard", onToggleIme, active = imeOpen, width = 44.dp, height = 38.dp)
-                                    VertCell.Gear -> IconCap(Icons.Filled.Settings, "Quick config", { configOpen = !configOpen }, active = configOpen, width = 44.dp, height = 38.dp)
+                                    VertCell.Paste -> ActionCap("Paste", onPaste, 40.dp, 38.dp)
+                                    VertCell.Ime -> IconCap(Icons.Outlined.Keyboard, "Toggle keyboard", onToggleIme, active = imeOpen, width = 40.dp, height = 38.dp)
+                                    VertCell.BarToggle -> IconCap(Icons.Filled.ChevronRight, "Collapse keys", onToggleExpanded, width = 40.dp, height = 38.dp)
+                                    VertCell.Gear -> IconCap(Icons.Filled.Settings, "Quick config", { configOpen = !configOpen }, active = configOpen, width = 40.dp, height = 38.dp)
                                 }
                             }
                         }
@@ -409,21 +418,22 @@ fun SessionKeyBarVertical(
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         ARROW_CLUSTER_TOP.forEach { key ->
                             val st = mk.mods[key.code] ?: MOD_OFF
-                            KeyCap(key.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(key) }, { mk.release(key) }, 44.dp, 38.dp)
+                            KeyCap(key.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(key) }, { mk.release(key) }, 40.dp, 38.dp)
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         ARROW_CLUSTER_BOTTOM.forEach { key ->
                             val st = mk.mods[key.code] ?: MOD_OFF
-                            KeyCap(key.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(key) }, { mk.release(key) }, 44.dp, 38.dp)
+                            KeyCap(key.label, st != MOD_OFF, st == MOD_LOCKED, { mk.press(key) }, { mk.release(key) }, 40.dp, 38.dp)
                         }
                     }
                 }
             }
         }
         if (configOpen) {
+            val barW = with(density) { barWidthPx.toDp() }
             QuickConfigPanel(config, configActions, { configOpen = false },
-                Modifier.align(Alignment.BottomEnd).padding(end = rightPad + 150.dp, bottom = bottomPad))
+                Modifier.align(Alignment.BottomEnd).padding(end = rightPad + barW + 8.dp, bottom = bottomPad))
         }
     }
 }

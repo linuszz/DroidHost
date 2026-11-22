@@ -6,6 +6,7 @@ import android.util.Log
 import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.session.SessionFiles
 import java.io.File
+import org.json.JSONObject
 
 /**
  * Builds a machine from a system the user brought.
@@ -41,7 +42,13 @@ object VmImport {
      * The rootfs exists but no machine points at it yet, so a system the user did not want can
      * still be thrown away.
      */
-    class Staged(val machineId: String, val rootfs: File, val probe: VmProbe) {
+    class Staged(
+        val machineId: String,
+        val rootfs: File,
+        val probe: VmProbe,
+        val manifestName: String = "",
+        val manifestDesktop: String = VmDesktops.KDE,
+    ) {
         val distro: VmDistro get() = VmDistro(
             id = "imported-" + probe.id + if (probe.versionId.isEmpty()) "" else "-" + probe.versionId,
             name = probe.prettyName,
@@ -110,6 +117,20 @@ object VmImport {
             rootfs.deleteRecursively()
             return Result.Failed(Failure.UNPACK_FAILED)
         }
+        // An export's manifest rides inside the archive but is not a guest file: read it, then
+        // take it out. Archives without one (or with a broken one) still go through the probe.
+        var manifestName = ""
+        var manifestDesktop = VmDesktops.KDE
+        val manifest = File(rootfs, "vm.json")
+        if (manifest.isFile) {
+            runCatching {
+                val json = JSONObject(manifest.readText())
+                manifestName = json.optString("name")
+                val desktop = json.optString("desktop")
+                if (VmDesktops.options.any { it.first == desktop }) manifestDesktop = desktop
+            }
+            manifest.delete()
+        }
         val probe = VmProbeReader.probe(rootfs)
         if (!probe.usable) {
             rootfs.deleteRecursively()
@@ -119,7 +140,7 @@ object VmImport {
         // The session's own files, so the machine can be started like any other.
         runCatching { SessionFiles.stage(context, rootfs, false) }
             .onFailure { Log.w(TAG, "could not stage the session files", it) }
-        return Result.Prepared(Staged(machineId, rootfs, probe))
+        return Result.Prepared(Staged(machineId, rootfs, probe, manifestName, manifestDesktop))
     }
 
     /**
@@ -129,10 +150,14 @@ object VmImport {
      * user brought is added only now, when it is known to be good.
      */
     fun register(context: Context, staged: Staged): Result {
-        val machine = VmStore.create(context, staged.distro, staged.machineId, imported = true)
+        val machine = VmStore.create(context, staged.distro, staged.machineId, imported = true, desktop = staged.manifestDesktop)
         if (machine == null) {
             staged.rootfs.deleteRecursively()
             return Result.Failed(Failure.MACHINE_EXISTS)
+        }
+        if (staged.manifestName.isNotEmpty()) {
+            VmStore.setName(context, machine.id, staged.manifestName)
+            return Result.Ready(machine.copy(customName = staged.manifestName.trim()), staged.probe)
         }
         return Result.Ready(machine, staged.probe)
     }

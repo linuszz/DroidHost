@@ -73,6 +73,9 @@ object VmDesktops {
     const val GNOME = "gnome"
     const val NIRI = "niri"
     val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri)
+    // The new-machine picker offers only desktops verified on device. GNOME/niri stay in [options]
+    // to name machines already fitted with them, but are not offered until their assembly is verified.
+    val adapted = setOf(KDE)
 }
 
 /**
@@ -95,6 +98,11 @@ data class VmMachine(
     val desktop: String = VmDesktops.KDE,
     // The fitted desktop's own version, read from the guest after install; empty until known.
     val desktopVersion: String = "",
+    // A user-given name; empty falls back to the catalogue or the guest's os-release.
+    val customName: String = "",
+    // An external folder bound to /root/data inside the guest. Data only: FUSE cannot host the
+    // rootfs or HOME itself, so /root stays on internal storage.
+    val dataDir: String = "",
 ) {
     companion object {
         /** The id of the machine a build made before machines had a rootfs of their own. */
@@ -106,20 +114,8 @@ object VmStore {
     private const val PREFS = "vm"
     private const val KEY = "machine"
     private const val KEY_MACHINES = "machines"
-    private const val KEY_CAP = "cap:"
-    private const val DEFAULT_CAP = 4L * 1024 * 1024 * 1024
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-    /**
-     * The soft disk ceiling a machine shows against its usage. proot has no filesystem quota, so
-     * this warns rather than enforces; 0 means no ceiling.
-     */
-    fun capBytes(context: Context, id: String): Long = prefs(context).getLong(KEY_CAP + id, DEFAULT_CAP)
-
-    fun setCapBytes(context: Context, id: String, bytes: Long) {
-        prefs(context).edit().putLong(KEY_CAP + id, bytes).apply()
-    }
 
     /** Every machine the user has. */
     fun all(context: Context): List<VmMachine> {
@@ -169,7 +165,6 @@ object VmStore {
      */
     fun remove(context: Context, machine: VmMachine) {
         write(context, all(context).filter { it.id != machine.id })
-        prefs(context).edit().remove(KEY_CAP + machine.id).apply()
         VmRuntime.ownRootfs(context, machine.id)?.parentFile?.let { VmRuntime.removeInBackground(it) }
     }
 
@@ -185,6 +180,14 @@ object VmStore {
         write(context, all(context).map { if (it.id == id) it.copy(desktopVersion = version) else it })
     }
 
+    fun setName(context: Context, id: String, name: String) {
+        write(context, all(context).map { if (it.id == id) it.copy(customName = name.trim()) else it })
+    }
+
+    fun setDataDir(context: Context, id: String, path: String) {
+        write(context, all(context).map { if (it.id == id) it.copy(dataDir = path) else it })
+    }
+
     private fun write(context: Context, machines: List<VmMachine>) {
         val json = JSONArray()
         for (machine in machines) {
@@ -198,7 +201,9 @@ object VmStore {
                 .put("failedStage", machine.failedStage)
                 .put("failReason", machine.failReason)
                 .put("desktop", machine.desktop)
-                .put("desktopVersion", machine.desktopVersion))
+                .put("desktopVersion", machine.desktopVersion)
+                .put("customName", machine.customName)
+                .put("dataDir", machine.dataDir))
         }
         prefs(context).edit()
             .putString(KEY_MACHINES, json.toString())
@@ -223,7 +228,8 @@ object VmStore {
                     o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported,
                     o.optString("lifecycle"), o.optString("failedStage"), o.optString("failReason"),
                     o.optString("desktop").ifEmpty { VmDesktops.KDE },
-                    o.optString("desktopVersion"))
+                    o.optString("desktopVersion"),
+                    o.optString("customName"), o.optString("dataDir"))
             }
         }.getOrDefault(emptyList())
     }

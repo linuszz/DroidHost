@@ -1385,7 +1385,12 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                                 .putExtra(SessionService.EXTRA_PROGRAM, e.program)
                                 .putExtra(SessionService.EXTRA_PROGRAM_ARGS, Library.launchArgs(e.id, g.guestPath).toTypedArray()))
                         },
-                        onResume = { startActivity(Intent(this, SessionActivity::class.java)) },
+                        onResume = {
+                            // ACTION_RESUME clears the manual hold; a bare relaunch would re-show the pause overlay.
+                            startActivity(Intent(this, SessionActivity::class.java)
+                                .setAction(SessionService.ACTION_RESUME)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+                        },
                         onSteamSettings = { loadModeSettings(SessionService.MODE_STEAM) },
                         onRemoveDesktop = { removeDesktop() },
                         onVmStop = { if (SessionState.running) SessionService.stop(this) },
@@ -1434,7 +1439,12 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         onSaveExport = { sg, layout -> exportSaves(sg.name, layout) { GameSaves.game(sg) } },
                         onPerformance = { refreshCores(); showComponents = false; showMapping = false; showPerformance = true },
                         onRoms = { showRoms = true },
-                        onFiles = { startActivity(Intent(this, com.droidhost.launcher.files.FileManagerActivity::class.java)) },
+                        onFiles = { id ->
+                            val root = com.droidhost.launcher.vm.VmRuntime.rootFor(this, id)
+                            startActivity(Intent(this, com.droidhost.launcher.files.FileManagerActivity::class.java)
+                                .putExtra(com.droidhost.launcher.files.FileManagerActivity.EXTRA_START_DIR, root.absolutePath)
+                                .putExtra(com.droidhost.launcher.files.FileManagerActivity.EXTRA_HOME_DIR, java.io.File(root, "root").absolutePath))
+                        },
                         onBrowseFiles = { dir ->
                             startActivity(Intent(this, com.droidhost.launcher.files.FileManagerActivity::class.java)
                                 .putExtra(com.droidhost.launcher.files.FileManagerActivity.EXTRA_START_DIR, dir.absolutePath))

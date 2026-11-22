@@ -4168,8 +4168,21 @@
     <string name="vm_settings_driver_software">软件渲染</string>
     <string name="vm_settings_storage">存储</string>
     <string name="vm_settings_usage">已用：%1$s</string>
-    <string name="vm_settings_cap_none">无上限</string>
-    <string name="vm_settings_cap_note">磁盘上限超出时会提示，不强制配额。</string>
-    <string name="vm_settings_cap_over">已用空间超过磁盘上限。</string>
+    <string name="vm_suspended_note">虚拟机已在后台暂停，继续即可回到桌面。</string>
+    <string name="vm_rename_title">重命名虚拟机</string>
+    <string name="vm_rename_hint">名称</string>
+    <string name="vm_settings_data_dir">数据目录</string>
+    <string name="vm_settings_data_dir_hint">挂载到虚拟机内 /root/data。系统本身仍放在内部存储。</string>
+    <string name="vm_settings_data_dir_none">未设置</string>
+    <string name="vm_settings_data_dir_clear">清除</string>
+    <string name="vm_settings_analysis">空间分析</string>
+    <string name="vm_settings_analysis_measuring">测量中…</string>
+    <string name="vm_settings_analysis_other">其他</string>
+    <string name="vm_export">导出</string>
+    <string name="vm_export_progress">导出中… %1$d%%</string>
+    <string name="vm_export_done">已导出到 %1$s</string>
+    <string name="vm_export_failed">导出失败：%1$s</string>
+    <string name="vm_export_busy">导出前请先停止虚拟机。</string>
+    <string name="vm_files_home">主目录 (/root)</string>
     <string name="vm_settings_danger">危险操作</string>
 </resources>

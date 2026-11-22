@@ -104,7 +104,7 @@ object Themes {
             GRAPHITE, R.string.theme_graphite, R.string.theme_graphite_detail,
             background = Color(0xFF0A0B0D), surface = Color(0xFF121417), surfaceVariant = Color(0xFF1A1D22), line = Color(0xFF262A31), line2 = Color(0xFF343A43),
             onBackground = Color(0xFFF2F4F7), onSurfaceVariant = Color(0xFF9AA3AF),
-            primary = Color(0xFF1A9FFF), primary2 = Color(0xFF1487DB), onPrimary = Color(0xFF03111F), signal = Color(0xFF1A9FFF),
+            primary = Color(0xFF00E5A0), primary2 = Color(0xFF00C48C), onPrimary = Color(0xFF031A12), signal = Color(0xFF00E5A0),
             good = Color(0xFF4CD37F),
         ),
         Palette(

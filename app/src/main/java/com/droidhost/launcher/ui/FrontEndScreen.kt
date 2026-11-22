@@ -248,7 +248,7 @@ class FrontEndActions(
     val onSaveExport: (Library.SteamGame, com.droidhost.launcher.session.GameSaves.Layout) -> Unit = { _, _ -> },
     val onPerformance: () -> Unit,
     val onRoms: () -> Unit,
-    val onFiles: () -> Unit,
+    val onFiles: (String) -> Unit,
     val onBrowseFiles: (File) -> Unit = {},
     val onLogs: () -> Unit,
     val onEnhancedDiagnostics: () -> Unit = {},

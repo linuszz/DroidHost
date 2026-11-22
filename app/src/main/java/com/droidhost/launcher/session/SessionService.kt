@@ -1212,6 +1212,15 @@ class SessionService : Service() {
         runtimeDir: File,
     ): ArrayList<String> {
         val binds = ArrayList<String>()
+        // The user's data directory rides in at /root/data. HOME stays /root: a full Linux home
+        // needs Unix permissions and symlinks, which external storage cannot hold.
+        com.droidhost.launcher.vm.VmStore.get(this, sessionMachineId())?.dataDir?.takeIf { it.isNotEmpty() }?.let { p ->
+            val dir = File(p)
+            if (dir.isDirectory) {
+                File(sessionRootfs(), "root/data").mkdirs()
+                binds.add("$p:/root/data")
+            }
+        }
         if (controllersOn) binds.add(fakeInputDir.path + ":/dev/input")
         if (controllersOn) binds.addAll(deckBinds)
         if (controllersOn) inputSysfs?.let {

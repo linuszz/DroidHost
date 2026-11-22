@@ -46,7 +46,7 @@ import com.droidhost.launcher.vm.VmPreset
 import com.droidhost.launcher.vm.VmProbeReader
 import com.droidhost.launcher.vm.VmRuntime
 
-internal enum class VmStatus { ABSENT, NEW, INSTALLING, PAUSED, INTERRUPTED, FAILED, READY, DEGRADED, RUNNING, DELETING, IMPORTED }
+internal enum class VmStatus { ABSENT, NEW, INSTALLING, PAUSED, INTERRUPTED, FAILED, READY, DEGRADED, RUNNING, SUSPENDED, DELETING, IMPORTED }
 
 /**
  * The status of one machine among several that coexist.
@@ -66,12 +66,14 @@ internal fun vmStatus(
     driverInMachine: Boolean,
     runningHere: Boolean,
     installingHere: Boolean,
+    suspendedHere: Boolean = false,
 ): VmStatus = when {
     machine == null -> VmStatus.ABSENT
     installingHere || (s.busy && !hasOwnRootfs) -> VmStatus.INSTALLING
     // A removal of the shared desktop is also busy, so it is told apart before the ready branch.
     s.removalPending && !hasOwnRootfs -> VmStatus.DELETING
     VmLife.of(machine.lifecycle) == VmLife.DELETING -> VmStatus.DELETING
+    runningHere && suspendedHere -> VmStatus.SUSPENDED
     runningHere -> VmStatus.RUNNING
     // Persisted control states survive a restart, so a paused/interrupted/failed install is known.
     VmLife.of(machine.lifecycle) == VmLife.PAUSED -> VmStatus.PAUSED
@@ -118,6 +120,7 @@ internal fun VmStateChip(status: VmStatus) {
         VmStatus.READY -> Chip(stringResource(R.string.vm_state_ready), ok = true)
         VmStatus.DEGRADED -> Chip(stringResource(R.string.vm_state_degraded), ok = false)
         VmStatus.RUNNING -> Chip(stringResource(R.string.vm_state_running), ok = true)
+        VmStatus.SUSPENDED -> Chip(stringResource(R.string.vm_state_paused), ok = false)
         VmStatus.DELETING -> Chip(stringResource(R.string.vm_deleting), ok = false)
         VmStatus.IMPORTED -> Chip(stringResource(R.string.vm_state_imported), ok = false)
     }
@@ -134,6 +137,7 @@ internal fun vmStateLabel(status: VmStatus): String = when (status) {
     VmStatus.READY -> stringResource(R.string.vm_state_ready)
     VmStatus.DEGRADED -> stringResource(R.string.vm_state_degraded)
     VmStatus.RUNNING -> stringResource(R.string.vm_state_running)
+    VmStatus.SUSPENDED -> stringResource(R.string.vm_state_paused)
     VmStatus.DELETING -> stringResource(R.string.vm_deleting)
     VmStatus.IMPORTED -> stringResource(R.string.vm_state_imported)
 }
@@ -144,6 +148,7 @@ internal fun vmPrimaryLabel(status: VmStatus): String = when (status) {
     VmStatus.NEW -> stringResource(R.string.vm_install)
     VmStatus.READY, VmStatus.DEGRADED -> stringResource(R.string.vm_start)
     VmStatus.RUNNING -> stringResource(R.string.vm_resume)
+    VmStatus.SUSPENDED -> stringResource(R.string.vm_resume)
     VmStatus.INSTALLING -> stringResource(R.string.vm_installing)
     VmStatus.PAUSED, VmStatus.INTERRUPTED -> stringResource(R.string.vm_resume)
     VmStatus.FAILED -> stringResource(R.string.vm_retry)
@@ -158,6 +163,7 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
     VmStatus.PAUSED, VmStatus.INTERRUPTED -> Icons.Filled.PlayArrow
     VmStatus.FAILED -> Icons.Filled.Refresh
     VmStatus.RUNNING -> Icons.Filled.PlayArrow
+    VmStatus.SUSPENDED -> Icons.Filled.PlayArrow
     VmStatus.IMPORTED -> Icons.Outlined.Download
     else -> null
 }
@@ -167,6 +173,7 @@ internal fun vmPrimaryIcon(status: VmStatus): ImageVector? = when (status) {
  * "Ubuntu 26.04 LTS" or "Debian GNU/Linux 13". A machine without a rootfs yet keeps the catalogue name.
  */
 internal fun vmMachineLabel(ctx: Context, machine: VmMachine): String {
+    if (machine.customName.isNotEmpty()) return machine.customName
     if (machine.imported) return machine.distro.name
     val release = VmProbeReader.release(VmRuntime.rootFor(ctx, machine.id)) ?: return machine.distro.name
     if (release["ID"].orEmpty().lowercase() != machine.distro.id) return machine.distro.name

@@ -55,6 +55,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 class DroidHostHudView(context: Context) : View(context) {
 
+    init {
+        WordmarkArt.init(context)
+    }
+
     private var frames: FrameStats? = null
     internal fun setFrameStats(stats: FrameStats?) { frames = stats }
     internal fun setMangoReadings(readings: MangoReadings?) { metrics.setMangoReadings(readings) }
@@ -128,7 +132,7 @@ class DroidHostHudView(context: Context) : View(context) {
     private val graphPath = Path()
     private var resolution = ""
 
-    private var accent = 0xFF1A9FFF.toInt()
+    private var accent = 0xFF00E5A0.toInt()
     private var surfaceRgb = 0x121417
     private var headerMark: RectF? = null
     private var headerWordmark: RectF? = null
@@ -154,7 +158,7 @@ class DroidHostHudView(context: Context) : View(context) {
     private val colVram = 0xFFC98BFF.toInt()
     private val colRam = 0xFFFF7BC0.toInt()
     private val colBat = 0xFFFFAB5E.toInt()
-    private var colFps = 0xFF1A9FFF.toInt()
+    private var colFps = 0xFF00E5A0.toInt()
     private var colGraph = 0xFF5CB8FF.toInt()
     private val colValue = 0xFFF2F5F9.toInt()
     private val colDim = 0xFF9AA4B2.toInt()

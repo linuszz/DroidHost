@@ -1258,7 +1258,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 LaunchedEffect(pcKeyboardOpen, drawerOpen, achievementsOpen) {
                     if (pcKeyboardOpen || drawerOpen || achievementsOpen) padMouse.reset()
                 }
-                if (keyToolbarVisible && !pcKeyboardOpen && !drawerOpen) com.droidhost.launcher.ui.SessionKeyToolbar(
+                if (keyToolbarVisible && !pcKeyboardOpen) com.droidhost.launcher.ui.SessionKeyToolbar(
                     bottomOffsetPx = toolbarBottomOffset(),
                     sendKey = { code, down -> if (CompositorHost.isStarted) sendGuestKey(code, down, 32) },
                     onToggleIme = { keyboard?.toggle() },
@@ -1268,7 +1268,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                     configActions = quickConfigActions(),
                     onHeightChanged = { keyToolbarHeightPx = it; layoutOutputForKeyboard() },
                 )
-                if (landscapeFabVisible && !landscapeKeyBarExpanded && !pcKeyboardOpen && !drawerOpen && !loading.visible && !SessionState.suspended) {
+                // The bar carries its own gear cell, so the standalone FAB only stands in when no bar is
+                // shown; otherwise the right-edge column would cover the bottom-end FAB (Linus #7).
+                if (landscapeFabVisible && !landscapeKeyBarVisible && !landscapeKeyBarExpanded && !pcKeyboardOpen && !loading.visible && !SessionState.suspended) {
                     val fabSafe = currentSafeInsets()
                     com.droidhost.launcher.ui.LandscapeControlsFab(
                         config = quickConfigState(),
@@ -1277,7 +1279,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                         safeInsetBottomPx = fabSafe.bottom,
                     )
                 }
-                if (landscapeKeyBarVisible && !pcKeyboardOpen && !drawerOpen && !loading.visible && !SessionState.suspended) {
+                // The drawer overlays the bar/FAB rather than hiding them: gating on drawerOpen would
+                // dispose the bar, zero its width reserve and resize the guest (Linus 08:28 #6).
+                if (landscapeKeyBarVisible && !pcKeyboardOpen && !loading.visible && !SessionState.suspended) {
                     val barSafe = currentSafeInsets()
                     com.droidhost.launcher.ui.SessionKeyBarVertical(
                         expanded = landscapeKeyBarExpanded,
@@ -2503,6 +2507,12 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         if (keyboardAdaptActive())
             return com.droidhost.launcher.session.SessionDisplay.followSize(width, height, false,
                 if (SessionState.followScreen) SessionState.followScale else 1f)
+        // The landscape right-edge bar narrows the surface (applySafeArea reserves its width). A fixed
+        // preset would keep its resolution and letterbox inside the narrower surface, so follow the
+        // surface size instead and let the guest resize to it (Linus 08:28 #4).
+        if (landscapeKeyBarVisible && landscapeKeyBarWidthPx > 0 && glassesScreen == null)
+            return com.droidhost.launcher.session.SessionDisplay.followSize(width, height, controlsBelowWanted(),
+                if (SessionState.followScreen) SessionState.followScale else 1f)
         return if (SessionState.followScreen)
             com.droidhost.launcher.session.SessionDisplay.followSize(width, height, controlsBelowWanted(), SessionState.followScale)
         else if (glassesScreen == null) outputSize() else null
@@ -2528,7 +2538,8 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     // Landscape counterpart of the portrait extra-keys bar: a zero-height gear FAB instead of a bar,
-    // because landscape height is scarce. Reactive drawer/keyboard/loading guards live at the call site.
+    // because landscape height is scarce. Reactive keyboard/loading guards live at the call site; the
+    // drawer overlays the bar without hiding it (see the bar call site).
     private fun landscapeFabWanted(): Boolean {
         if (!::surfaceView.isInitialized || !::sessionRoot.isInitialized) return false
         if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE) return false
@@ -2587,9 +2598,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val inPip = pipUi || isInPictureInPictureMode
         val snap = safeAreaSnapshot()
         val applied = if (safeAreaMode == SessionPrefs.SAFE_AREA_INSET && !inPip) appliedSafeInset(snap) else android.graphics.Rect()
-        // The landscape right-edge key bar overlays the output; reserve its measured width on top of the
-        // safe-area inset (0 when the bar is collapsed-away/disposed, so the reserve tracks visibility).
-        if (landscapeKeyBarVisible) applied.right += landscapeKeyBarWidthPx
+        // The landscape right-edge key bar overlays the output; reserve its full footprint (the bar
+        // reports visible width + end padding, which already includes the right safe inset, so take the
+        // max rather than adding to avoid double-counting the inset). 0 when collapsed-away/disposed.
+        if (landscapeKeyBarVisible) applied.right = maxOf(applied.right, landscapeKeyBarWidthPx)
         val rootLoc = IntArray(2)
         sessionRoot.getLocationOnScreen(rootLoc)
         val before = android.graphics.Rect(surfaceView.left + rootLoc[0], surfaceView.top + rootLoc[1], surfaceView.right + rootLoc[0], surfaceView.bottom + rootLoc[1])
@@ -2845,6 +2857,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         applyUnfoldedControls()
         resizeOutputForWindow(surfaceW, surfaceH)
         applySafeArea("orientation-change")
+        // Orientation settles asynchronously after a resume/PiP exit; re-evaluate the key bar/FAB
+        // here so they reappear once landscape is restored (Linus 08:28 #5).
+        refreshKeyToolbar()
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -2880,7 +2895,10 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
     }
 
     private fun displayMode(): String = SessionPrefs.displayMode(this,
-        intent.getStringExtra(SessionService.EXTRA_MODE) ?: SessionService.MODE_STEAM, intent.getStringExtra(SessionService.EXTRA_PROGRAM))
+        // A resume intent (ACTION_RESUME) carries no EXTRA_MODE and onNewIntent replaces the activity
+        // intent; fall back to the running session's mode so the key bar/FAB and the resolution prefs
+        // stay on the desktop after a resume instead of flipping to Steam (Linus 08:28 #5).
+        intent.getStringExtra(SessionService.EXTRA_MODE) ?: SessionState.mode, intent.getStringExtra(SessionService.EXTRA_PROGRAM))
 
     private fun outputSize(): Pair<Int, Int> =
         com.droidhost.launcher.session.SessionDisplay.resolveChoice(com.droidhost.launcher.session.SessionDisplay.panelSize(this),
@@ -5269,6 +5287,13 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 
     private fun pauseNow() {
         if (!SessionState.running || SessionState.suspended) return
+        if (SessionState.mode != SessionService.MODE_STEAM) {
+            // finish() keeps SessionService alive; manualHold holds the VM suspended after exit.
+            drawerOpen = false
+            SessionService.pause(this)
+            finish()
+            return
+        }
         pauseAnimated = true
         drawerOpen = false
         pausedFrame = null
@@ -5360,6 +5385,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         applyUnfoldedControls()
         updateGlassesScreen()
         updateBottomGame()
+        // Leaving PiP restores the full landscape window; re-evaluate the key bar/FAB so a resumed
+        // session shows them again (Linus 08:28 #5).
+        refreshKeyToolbar()
     }
 
     override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
@@ -6124,6 +6152,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                 openDualScreenControls()
             }
             applySafeArea("first-frame")
+            // Re-evaluate the key bar/FAB now the guest is rendering: after a resume the earlier
+            // refresh can run before the session is ready, leaving them hidden (Linus 08:28 #5).
+            refreshKeyToolbar()
         }
     }
 

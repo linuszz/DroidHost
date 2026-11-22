@@ -1,6 +1,10 @@
 package com.droidhost.launcher.ui
 
+import android.app.Activity
 import android.os.Build
+import android.text.format.Formatter
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
@@ -26,12 +30,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -74,13 +78,17 @@ import coil.compose.AsyncImage
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.files.FileOps
+import com.droidhost.launcher.files.InAppFilePicker
+import com.droidhost.launcher.runtime.FlatpakHost
 import com.droidhost.launcher.runtime.FlatpakManager
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.session.SessionService
 import com.droidhost.launcher.session.SessionState
+import com.droidhost.launcher.store.StoreState
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmDriver
+import com.droidhost.launcher.vm.VmExport
 import com.droidhost.launcher.vm.VmLife
 import com.droidhost.launcher.vm.VmLifecycle
 import com.droidhost.launcher.vm.VmMachine
@@ -90,6 +98,7 @@ import com.droidhost.launcher.vm.VmStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.io.File
 
 private val VM_TABS = modeSheetTabs(steam = false) + SheetTab.FILES
 
@@ -139,6 +148,16 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     LaunchedEffect(Unit) {
         while (true) { delay(3000); flatpakApps = FlatpakManager.installedApps(ctx) }
     }
+    // Flatpak follows the selected machine. Mirror the selection into the flatpak host; a machine
+    // without its own rootfs yet (seeding) or the shared stand-in maps to null (shared runtime),
+    // never an id setHost would reject.
+    LaunchedEffect(vm?.id) {
+        val id = vm?.id
+        val hostId = if (id != null && VmStore.get(ctx, id) != null && VmRuntime.ownRootfs(ctx, id) != null) id else null
+        FlatpakHost.setHost(ctx, hostId)
+        StoreState.refresh(ctx)
+        flatpakApps = withContext(Dispatchers.IO) { FlatpakManager.installedApps(ctx) }
+    }
     var picking by rememberSaveable { mutableStateOf(false) }
     var settings by rememberSaveable { mutableStateOf(false) }
 
@@ -151,6 +170,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         return vmStatus(
             s, m, VmDesktop.desktopInstalled(own), own != null, VmDriver.driverInstalled(own),
             s.sessionRunning && runningMachineId == m.id, installingHere,
+            suspendedHere = SessionState.suspended,
         )
     }
     fun percentOf(m: VmMachine): Int? = when {
@@ -168,8 +188,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     val primary: () -> Unit = when {
         status == VmStatus.ABSENT -> ({ picking = true })
         // A running machine re-enters its live session; stopping moves to the beside row so the
-        // primary action is always "go into the desktop", never a dead end.
-        status == VmStatus.RUNNING -> a.onResume
+        // primary action is always "go into the desktop", never a dead end. A suspended session
+        // resumes the same way; ACTION_RESUME also clears the manual hold.
+        status == VmStatus.RUNNING || status == VmStatus.SUSPENDED -> a.onResume
         status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ a.onDesktop(vm?.id) })
         // A paused, interrupted or failed install resumes from the partial it kept.
         status == VmStatus.PAUSED || status == VmStatus.INTERRUPTED || status == VmStatus.FAILED -> ({
@@ -194,7 +215,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked && !install.busy && !seed.busy
         // Resume/retry run on the machine alone, so a busy shared runtime does not block them.
         VmStatus.PAUSED, VmStatus.INTERRUPTED, VmStatus.FAILED -> !install.busy && !seed.busy
-        VmStatus.READY, VmStatus.DEGRADED, VmStatus.RUNNING -> !s.busy
+        VmStatus.READY, VmStatus.DEGRADED, VmStatus.RUNNING, VmStatus.SUSPENDED -> !s.busy
         VmStatus.IMPORTED -> !s.busy && !install.busy && !seed.busy && !s.runtimeActionsBlocked
         else -> false
     }
@@ -208,6 +229,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         install.stage == VmDesktop.Stage.FAILED && install.machineId == vm?.id ->
             stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
         status == VmStatus.PAUSED -> stringResource(R.string.vm_paused_note)
+        status == VmStatus.SUSPENDED -> stringResource(R.string.vm_suspended_note)
         status == VmStatus.INTERRUPTED -> stringResource(R.string.vm_interrupted_note)
         status == VmStatus.FAILED -> stringResource(R.string.vm_failed_note)
         status == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
@@ -233,6 +255,8 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     flatpakApps,
                     onOpen = { id, name -> a.onFlatpakApp(id, name) },
                     onStore = { openFrom(null, null, "store") },
+                    showStore = status == VmStatus.READY || status == VmStatus.DEGRADED ||
+                        status == VmStatus.RUNNING || status == VmStatus.SUSPENDED,
                 )
             }
         },
@@ -259,10 +283,12 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                 horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
             ) {
-                HeroIconButton(Icons.Outlined.Storefront, stringResource(R.string.flathub_name), FlathubTeal, "vm:store") { at -> openFrom(at, null, "store") }
-                HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles() }
+                HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles(vm?.id.orEmpty()) }
                 if (vm != null) HeroIconButton(Icons.Outlined.Settings, stringResource(R.string.vm_settings), null, "vm:settings") { settings = true }
-                if (status == VmStatus.RUNNING) HeroIconButton(Icons.Filled.Stop, stringResource(R.string.vm_stop), null, "vm:stop") { a.onVmStop() }
+                // A frozen session is still live, so it can be stopped; pausing only makes sense
+                // while the session runs.
+                if (status == VmStatus.RUNNING || status == VmStatus.SUSPENDED) HeroIconButton(Icons.Filled.Stop, stringResource(R.string.vm_stop), null, "vm:stop") { a.onVmStop() }
+                if (status == VmStatus.RUNNING) HeroIconButton(Icons.Filled.Pause, stringResource(R.string.stores_dl_pause), null, "vm:suspend") { SessionService.pause(ctx) }
                 // While the preset downloads, the user can pause it; an installing or paused machine
                 // can cancel the install and keep the machine.
                 if (vm != null && seed.busy && seed.machineId == vm.id && seed.percent <= 25)
@@ -279,7 +305,8 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     title = stringResource(R.string.vm_delete_machine_title),
                     note = stringResource(R.string.vm_delete_machine_text),
                     // The delete cancels this machine's own install first, so that install cannot block it.
-                    enabled = status != VmStatus.RUNNING && status != VmStatus.DELETING,
+                    // A suspended VM still holds a frozen session; deleting it would orphan that session.
+                    enabled = status != VmStatus.RUNNING && status != VmStatus.SUSPENDED && status != VmStatus.DELETING,
                     onRemove = {
                         VmLifecycle.deleteMachine(ctx, vm)
                         recorded = VmStore.all(ctx)
@@ -294,13 +321,12 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             }
         },
         rows = { tab ->
-            if (tab == SheetTab.FILES) DesktopFiles(s, a)
+            if (tab == SheetTab.FILES) DesktopFiles(s, a, vm?.id)
             else a.modeSheet(mode, tab, SheetExtras())
         },
     )
     if (picking) VmSourceDialog(
         onDismiss = { picking = false },
-        onStore = { picking = false; openFrom(null, null, "store") },
     ) { created, start ->
         picking = false
         recorded = VmStore.all(ctx)
@@ -313,11 +339,14 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
     }
     if (settings && vm != null) VmSettingsDialog(
         machine = vm,
+        recorded = recorded,
+        status = status,
         driverInstalled = VmDriver.driverInstalled(ownRootfs(vm)),
         hasOwnRootfs = vmHasOwnRootfs,
         ownsMachine = vmOwnsMachine,
-        deleteEnabled = status != VmStatus.RUNNING && status != VmStatus.DELETING,
+        deleteEnabled = status != VmStatus.RUNNING && status != VmStatus.SUSPENDED && status != VmStatus.DELETING,
         onDismiss = { settings = false },
+        onRecordedChanged = { recorded = VmStore.all(ctx) },
         onRemoveMachine = {
             VmLifecycle.deleteMachine(ctx, vm)
             recorded = VmStore.all(ctx)
@@ -328,42 +357,75 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
 }
 
 /**
- * What one machine is made of: the driver it runs on, the disk it uses against a soft ceiling, and
- * the deletion that fits it. A preset or imported machine is deleted whole; the shared runtime
- * only loses its desktop.
+ * What one machine is made of: the driver it runs on, the disk it uses, and the deletion that
+ * fits it. A preset or imported machine is deleted whole; the shared runtime only loses its
+ * desktop.
  */
 @Composable
 private fun VmSettingsDialog(
     machine: VmMachine,
+    recorded: List<VmMachine>,
+    status: VmStatus,
     driverInstalled: Boolean,
     hasOwnRootfs: Boolean,
     ownsMachine: Boolean,
     deleteEnabled: Boolean,
     onDismiss: () -> Unit,
+    onRecordedChanged: () -> Unit,
     onRemoveMachine: () -> Unit,
     onRemoveDesktop: () -> Unit,
 ) {
     val ctx = LocalContext.current
     val colors = MaterialTheme.colorScheme
-    val root = if (hasOwnRootfs) VmRuntime.ownRootfs(ctx, machine.id) else LinuxRuntime.rootDir(ctx)
+    // A rename or data-folder change writes the store; re-read the machine from the refreshed
+    // records so the dialog shows what was just saved.
+    val current = recorded.firstOrNull { it.id == machine.id } ?: machine
+    val root = if (hasOwnRootfs) VmRuntime.ownRootfs(ctx, current.id) else LinuxRuntime.rootDir(ctx)
     val size by produceState<Long?>(null, root, hasOwnRootfs, ownsMachine) {
         // A whole machine with no rootfs yet holds nothing; do not report the shared runtime size.
         value = if (ownsMachine && !hasOwnRootfs) 0L
             else withContext(Dispatchers.IO) { runCatching { FileOps.totalSize(root) }.getOrNull() }
     }
-    var cap by remember { mutableStateOf(VmStore.capBytes(ctx, machine.id)) }
-    val caps = listOf(2L, 4L, 8L, 16L, 0L).map { it * 1024 * 1024 * 1024 }
     val used = size ?: 0L
-    val fraction = if (cap > 0) (used.toFloat() / cap).coerceIn(0f, 1f) else 0f
-    val over = cap > 0 && used > cap
+    val dataDirNone = stringResource(R.string.vm_settings_data_dir_none)
+    var renaming by remember { mutableStateOf(false) }
+    var exporting by remember { mutableStateOf(false) }
+    var export by remember { mutableStateOf(VmExport.state()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            export = VmExport.state()
+            // A cancelled export returns to idle; the progress dialog goes with it.
+            if (exporting && !export.busy && export.done == null && export.error.isEmpty()) exporting = false
+            delay(500)
+        }
+    }
+    val dataDirPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val dir = InAppFilePicker.pickedFile(result.data) ?: return@rememberLauncherForActivityResult
+        VmStore.setDataDir(ctx, current.id, dir.absolutePath)
+        onRecordedChanged()
+    }
+    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val dir = InAppFilePicker.pickedFile(result.data) ?: return@rememberLauncherForActivityResult
+        VmExport.start(ctx, current, dir)
+        export = VmExport.state()
+        exporting = true
+    }
     GlideAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.vm_settings)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text(vmMachineLabel(ctx, machine), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
-                if (vmDesktopLabel(ctx, machine).isNotEmpty()) Text(
-                    vmDesktopLabel(ctx, machine), fontSize = 13.sp, color = colors.onSurfaceVariant,
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { renaming = true },
+                ) {
+                    Text(vmMachineLabel(ctx, current), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
+                    Icon(Icons.Filled.Edit, stringResource(R.string.vm_rename_title), tint = colors.onSurfaceVariant, modifier = Modifier.size(14.dp))
+                }
+                if (vmDesktopLabel(ctx, current).isNotEmpty()) Text(
+                    vmDesktopLabel(ctx, current), fontSize = 13.sp, color = colors.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp),
                 )
                 Text(
@@ -383,22 +445,61 @@ private fun VmSettingsDialog(
                     stringResource(R.string.vm_settings_usage, FileUtils.sizeToString(used)),
                     fontSize = 13.sp, color = colors.onBackground,
                 )
-                Box(Modifier.fillMaxWidth().padding(top = 8.dp).height(5.dp).clip(RoundedCornerShape(3.dp)).background(colors.surfaceVariant)) {
-                    Box(Modifier.fillMaxWidth(fraction).height(5.dp).clip(RoundedCornerShape(3.dp)).background(if (over) colors.error else colors.primary))
-                }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().clickable {
+                        dataDirPicker.launch(InAppFilePicker.buildDirIntent(
+                            ctx, ctx.getString(R.string.vm_settings_data_dir),
+                            current.dataDir.takeIf { it.isNotEmpty() && File(it).isDirectory },
+                        ))
+                    }.padding(top = 10.dp),
                 ) {
-                    for (option in caps) SecondaryButton(
-                        if (option == 0L) stringResource(R.string.vm_settings_cap_none) else FileUtils.sizeToString(option),
-                        compact = true,
-                    ) { cap = option; VmStore.setCapBytes(ctx, machine.id, option) }
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.vm_settings_data_dir), fontSize = 13.sp, color = colors.onBackground)
+                        Text(
+                            current.dataDir.ifEmpty { dataDirNone },
+                            fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(top = 2.dp),
+                        )
+                    }
+                    if (current.dataDir.isNotEmpty()) SecondaryButton(stringResource(R.string.vm_settings_data_dir_clear), compact = true) {
+                        VmStore.setDataDir(ctx, current.id, "")
+                        onRecordedChanged()
+                    }
                 }
                 Text(
-                    stringResource(if (over) R.string.vm_settings_cap_over else R.string.vm_settings_cap_note),
-                    fontSize = 12.sp, lineHeight = 17.sp,
-                    color = if (over) colors.error else colors.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp),
+                    stringResource(R.string.vm_settings_data_dir_hint),
+                    fontSize = 12.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp),
+                )
+                if (hasOwnRootfs) {
+                    Text(
+                        stringResource(R.string.vm_settings_analysis), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.2.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),
+                    )
+                    val analysis by produceState<VmSpaceAnalysis?>(null, root) {
+                        value = withContext(Dispatchers.IO) { runCatching { vmSpaceAnalysis(root) }.getOrNull() }
+                    }
+                    val report = analysis
+                    if (report == null) Text(
+                        stringResource(R.string.vm_settings_analysis_measuring),
+                        fontSize = 12.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp),
+                    ) else {
+                        for (entry in report.dirs) SpaceRow(entry.name, entry.bytes, report.total)
+                        if (report.other > 0) SpaceRow(stringResource(R.string.vm_settings_analysis_other), report.other, report.total)
+                    }
+                }
+                val exportBlocked = status == VmStatus.RUNNING || status == VmStatus.INSTALLING
+                SecondaryButton(
+                    stringResource(R.string.vm_export),
+                    enabled = hasOwnRootfs && !exportBlocked && !export.busy,
+                    compact = true,
+                    modifier = Modifier.padding(top = 12.dp),
+                ) {
+                    exportPicker.launch(InAppFilePicker.buildDirIntent(ctx, ctx.getString(R.string.vm_export)))
+                }
+                if (exportBlocked) Text(
+                    stringResource(R.string.vm_export_busy),
+                    fontSize = 12.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp),
                 )
                 Text(
                     stringResource(R.string.vm_settings_danger), fontSize = 11.sp, fontWeight = FontWeight.Bold,
@@ -420,6 +521,62 @@ private fun VmSettingsDialog(
         },
         confirmButton = { PadTextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     )
+    if (exporting) GlideAlertDialog(
+        onDismissRequest = { if (!export.busy) exporting = false },
+        title = { Text(stringResource(R.string.vm_export)) },
+        text = {
+            val state = export
+            when {
+                state.busy -> Text(stringResource(R.string.vm_export_progress, state.percent), fontSize = 13.sp, color = colors.onSurfaceVariant)
+                state.done != null -> Text(stringResource(R.string.vm_export_done, state.done.name), fontSize = 13.sp, color = colors.onBackground)
+                state.error.isNotEmpty() -> Text(
+                    stringResource(R.string.vm_export_failed, state.error),
+                    fontSize = 13.sp, lineHeight = 18.sp, color = colors.error,
+                )
+            }
+        },
+        confirmButton = {
+            if (export.busy) PadTextButton(onClick = { VmExport.cancel() }) { Text(stringResource(R.string.common_cancel)) }
+            else PadTextButton(onClick = { exporting = false }) { Text(stringResource(R.string.common_ok)) }
+        },
+    )
+    if (renaming) TextEntryDialog(
+        stringResource(R.string.vm_rename_title),
+        current.customName.ifEmpty { vmMachineLabel(ctx, current) },
+        onDismiss = { renaming = false },
+        onSave = { name -> VmStore.setName(ctx, current.id, name); onRecordedChanged() },
+    )
+}
+
+private data class VmSpaceEntry(val name: String, val bytes: Long)
+
+private data class VmSpaceAnalysis(val dirs: List<VmSpaceEntry>, val other: Long, val total: Long)
+
+/** First-level real directories by size; symlinks hold no bytes of their own, so they are skipped. */
+private fun vmSpaceAnalysis(root: File?): VmSpaceAnalysis? {
+    if (root == null || !root.isDirectory) return null
+    val total = FileOps.totalSize(root)
+    val dirs = root.listFiles().orEmpty()
+        .filter { it.isDirectory && !FileOps.isSymlink(it) }
+        .map { VmSpaceEntry(it.name, FileOps.totalSize(it)) }
+        .sortedByDescending { it.bytes }
+    return VmSpaceAnalysis(dirs, total - dirs.sumOf { it.bytes }, total)
+}
+
+@Composable
+private fun SpaceRow(name: String, bytes: Long, total: Long) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+    ) {
+        Text(name, fontSize = 12.sp, color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+        Text(Formatter.formatFileSize(ctx, bytes), fontSize = 12.sp, color = colors.onSurfaceVariant)
+    }
+    Box(Modifier.fillMaxWidth().padding(top = 3.dp).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.surfaceVariant)) {
+        Box(Modifier.fillMaxWidth(if (total > 0) (bytes.toFloat() / total).coerceIn(0f, 1f) else 0f).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
+    }
 }
 
 @Composable
@@ -529,11 +686,11 @@ internal fun DesktopCard(
 }
 
 @Composable
-private fun DesktopFiles(s: FrontEndState, a: FrontEndActions) {
+private fun DesktopFiles(s: FrontEndState, a: FrontEndActions, machineId: String?) {
     val ctx = LocalContext.current
     SettingsGroup(stringResource(R.string.setup_tool_files)) {
         SettingsRow(stringResource(R.string.setup_tool_files), stringResource(R.string.setup_tool_files_hint)) {
-            SecondaryButton(stringResource(R.string.store_open), compact = true, onClick = a.onFiles)
+            SecondaryButton(stringResource(R.string.store_open), compact = true, onClick = { a.onFiles(machineId.orEmpty()) })
         }
         SettingsRow(stringResource(R.string.setup_tool_roms), s.romsDir ?: stringResource(R.string.setup_tool_roms_hint)) {
             SecondaryButton(stringResource(R.string.setup_choose), compact = true, onClick = a.onRoms)

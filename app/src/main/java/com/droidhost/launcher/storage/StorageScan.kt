@@ -356,7 +356,7 @@ object StorageScan {
             val dir = VmRuntime.ownRootfs(context, machine.id) ?: return@mapNotNull null
             val cacheDirs = VM_CACHE_DIRS.map { File(dir, it) }.filter { it.isDirectory }
             val cacheBytes = cacheDirs.sumOf { walker.measure(it) }
-            VmUsage(machine.id, machine.distro.name, machine.distro.id, dir, walker.measure(dir), cacheBytes, cacheDirs)
+            VmUsage(machine.id, com.droidhost.launcher.ui.vmMachineLabel(context, machine), machine.distro.id, dir, walker.measure(dir), cacheBytes, cacheDirs)
         }
         val vmBytes = vms.sumOf { it.bytes }
         val clientRoots = listOfNotNull(steamRoot, x64Root)

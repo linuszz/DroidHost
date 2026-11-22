@@ -28,7 +28,7 @@ import com.droidhost.launcher.R
  * Landscape desktop quick-config entry: a ~40dp gear FAB pinned to the bottom-end inside the safe area
  * (cutout/corner inset), opening the same [QuickConfigPanel] as the portrait toolbar gear. Zero resident
  * height cost — landscape height is scarce, width is plentiful. The caller gates visibility (landscape
- * desktop, no drawer/PcKeyboard/PiP/loading) so this composable only renders when wanted.
+ * desktop, no PcKeyboard/PiP/loading; the drawer overlays without hiding) so this renders when wanted.
  */
 @Composable
 fun LandscapeControlsFab(

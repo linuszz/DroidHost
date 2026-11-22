@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.SdStorage
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
@@ -119,6 +120,7 @@ fun FileManagerScreen(
     pickDirMode: Boolean = false,
     pickExtensions: List<String> = emptyList(),
     initialDir: File? = null,
+    homeDir: File? = null,
     pickerTitle: String? = null,
     onPick: ((File) -> Unit)? = null,
     onExit: (() -> Unit)? = null,
@@ -1093,6 +1095,7 @@ fun FileManagerScreen(
             linuxRoot?.let { add(locItem(stringResource(R.string.fm_drive_linux), Icons.Filled.Terminal, it)) }
         }
         val quickItems = buildList {
+            homeDir?.takeIf { it.isDirectory }?.let { add(locItem(stringResource(R.string.vm_files_home), Icons.Filled.Home, it)) }
             File("/storage/emulated/0/Download").takeIf { it.isDirectory }?.let { add(locItem(stringResource(R.string.fm_rail_downloads), Icons.Filled.Download, it, stringResource(R.string.fm_rail_downloads_short))) }
             SessionPrefs.romsDir(context).takeIf { it.isNotEmpty() }?.let(::File)?.takeIf { it.isDirectory }
                 ?.let { add(locItem(stringResource(R.string.fm_rail_roms), Icons.Filled.SportsEsports, it)) }

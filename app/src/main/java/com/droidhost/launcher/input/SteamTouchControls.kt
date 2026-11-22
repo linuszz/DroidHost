@@ -338,16 +338,9 @@ class SteamTouchControls(
         SteamTouchConfig.PASTE, SteamTouchConfig.MACRO_1_FINGER, SteamTouchConfig.MACRO_2_FINGER) ||
         type in SteamTouchConfig.MACRO_0..SteamTouchConfig.MACRO_0 + 7
 
-    private val markD by lazy { androidx.core.graphics.PathParser.createPathFromPathData(MARK_D) }
-
     private fun drawMark(canvas: Canvas, x: Float, y: Float, r: Float, ink: Int = onSurface, alpha: Int = 255) {
-        val k = r / 111.86f
-        canvas.save()
-        canvas.translate(x - 71.98f * k, y - 111.86f * k)
-        canvas.scale(k, k)
-        canvas.drawPath(markD, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = ink })
-        canvas.drawCircle(63.98f, 111.86f, 55.98f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accent; this.alpha = alpha })
-        canvas.restore()
+        val orb = Color.argb(alpha, Color.red(accent), Color.green(accent), Color.blue(accent))
+        com.droidhost.launcher.hud.DroidHostMark.draw(canvas, x - r, y - r, 2f * r, ink, orb)
     }
 
     private fun drawFace(canvas: Canvas, type: Int, binding: SteamTouchBindings.Binding?, x: Float, y: Float, r: Float,
@@ -1483,8 +1476,7 @@ class SteamTouchControls(
         private const val MOVE_REDRAW_MS = 33L
         const val BIG_PICTURE = 769
         private const val ICON_PX = 128
-        private const val MARK_D = "M-31.98 0H56.055V40.489A71.81 71.81 0 0 0 56.055 183.231V223.72H-31.98Z" +
-            "M71.885 0.28A111.86 111.86 0 0 1 71.885 223.44V183.234A71.81 71.81 0 0 0 71.885 40.486Z"
+
         private const val FADE_AFTER_MS = 5000L
         private const val FADED = 0.3f
         private const val SHAKE_G = 2.3f

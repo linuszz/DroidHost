@@ -4270,8 +4270,21 @@
     <string name="vm_settings_driver_software">Software rendered</string>
     <string name="vm_settings_storage">Storage</string>
     <string name="vm_settings_usage">Used: %1$s</string>
-    <string name="vm_settings_cap_none">No limit</string>
-    <string name="vm_settings_cap_note">The disk limit warns when exceeded; it does not enforce a quota.</string>
-    <string name="vm_settings_cap_over">Used space is over the disk limit.</string>
+    <string name="vm_suspended_note">The VM is paused in the background. Resume returns to the desktop.</string>
+    <string name="vm_rename_title">Rename machine</string>
+    <string name="vm_rename_hint">Name</string>
+    <string name="vm_settings_data_dir">Data folder</string>
+    <string name="vm_settings_data_dir_hint">Bound to /root/data inside the VM. The system itself stays on internal storage.</string>
+    <string name="vm_settings_data_dir_none">Not set</string>
+    <string name="vm_settings_data_dir_clear">Clear</string>
+    <string name="vm_settings_analysis">Space analysis</string>
+    <string name="vm_settings_analysis_measuring">Measuring…</string>
+    <string name="vm_settings_analysis_other">Other</string>
+    <string name="vm_export">Export</string>
+    <string name="vm_export_progress">Exporting… %1$d%%</string>
+    <string name="vm_export_done">Exported to %1$s</string>
+    <string name="vm_export_failed">Export failed: %1$s</string>
+    <string name="vm_export_busy">Stop the VM before exporting it.</string>
+    <string name="vm_files_home">Home (/root)</string>
     <string name="vm_settings_danger">Danger zone</string>
 </resources>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DroidHost Mark 预览 · A1 主标 / C2 备用</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mint:#00E5A0; --ink:#0B0E14; --paper:#F5F7FA; --card:#141821; --line:#232a36; --muted:#8a93a6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--paper);
+    font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;padding:48px 40px 80px;}
+  h1{font-size:34px;font-weight:700;margin:0 0 4px;letter-spacing:.5px}
+  h1 .host{color:var(--mint)}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 40px}
+  h2{font-size:20px;font-weight:700;margin:48px 0 6px;border-top:1px solid var(--line);padding-top:32px}
+  h2 .tag{color:var(--mint);font-size:13px;font-weight:500;margin-left:10px;vertical-align:middle}
+  .note{color:var(--muted);font-size:13px;margin:0 0 20px}
+  .row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+  .tile{border-radius:16px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .tile.dark{background:var(--card)}
+  .tile.black{background:#000}
+  .tile.light{background:var(--paper)}
+  .tile .cap{font-size:12px;color:var(--muted)}
+  .tile.light .cap{color:#5a6270}
+  .big{width:180px;height:180px}
+  .mid{width:84px;height:84px}
+  .ladder{display:flex;align-items:flex-end;gap:22px;background:var(--card);border-radius:16px;padding:24px 28px}
+  .ladder .step{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .ladder .cap{font-size:11px;color:var(--muted)}
+  .lockup{display:flex;align-items:center;gap:18px;background:var(--card);border-radius:16px;padding:22px 30px}
+  .lockup svg{width:56px;height:56px}
+  .word{font-size:38px;font-weight:500;color:var(--paper);letter-spacing:.3px}
+  .word b{font-weight:700;color:var(--mint)}
+  .chips{display:flex;gap:16px;margin-top:14px}
+  .chip{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+  .chip i{width:46px;height:46px;border-radius:10px;display:block;border:1px solid var(--line)}
+  .mono-black{color:#0B0E14}
+  .mono-white{color:#F5F7FA}
+  footer{margin-top:56px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:20px}
+  code{color:var(--paper);background:var(--card);padding:1px 6px;border-radius:5px;font-size:12px}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="a1-color" viewBox="0 0 240 240">
+      <path d="M209 137 L209 180 Q209 209 180 209 L60 209 Q31 209 31 180 L31 60 Q31 31 60 31 L180 31 Q209 31 209 60 L209 103" fill="none" stroke="#F5F7FA" stroke-width="22" stroke-linecap="round"/>
+      <rect x="74" y="74" width="92" height="92" rx="23" fill="#00E5A0"/>
+    </symbol>
+    <symbol id="a1-mono" viewBox="0 0 240 240">
+      <path d="M209 137 L209 180 Q209 209 180 209 L60 209 Q31 209 31 180 L31 60 Q31 31 60 31 L180 31 Q209 31 209 60 L209 103" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round"/>
+      <rect x="74" y="74" width="92" height="92" rx="23" fill="currentColor"/>
+    </symbol>
+    <symbol id="c2-color" viewBox="0 0 240 240">
+      <path d="M192.8 84.5 A81 81 0 1 0 192.8 155.5" fill="none" stroke="#F5F7FA" stroke-width="22" stroke-linecap="round"/>
+      <circle cx="120" cy="120" r="54" fill="#00E5A0"/>
+      <circle cx="200" cy="120" r="12" fill="#00E5A0"/>
+    </symbol>
+    <symbol id="c2-mono" viewBox="0 0 240 240">
+      <path d="M192.8 84.5 A81 81 0 1 0 192.8 155.5" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round"/>
+      <circle cx="120" cy="120" r="54" fill="currentColor"/>
+      <circle cx="200" cy="120" r="12" fill="currentColor"/>
+    </symbol>
+  </svg>
+
+  <h1>Droid<span class="host">Host</span></h1>
+  <p class="sub">Mark 预览 · A1 定为 DroidHost 主标，C2 保留备用 · 配色 #00E5A0 / #0B0E14 / #F5F7FA</p>
+
+  <h2>A1 · 宿主之框<span class="tag">DroidHost 主标</span></h2>
+  <p class="note">右侧开口的圆角方框（宿主）+ 居中悬浮圆角方块（客系统）。开口 = 开源 / 可导入发行版。</p>
+  <div class="row">
+    <div class="tile dark"><svg class="big"><use href="#a1-color"/></svg><span class="cap">彩色 · 深底</span></div>
+    <div class="tile black mono-white"><svg class="mid"><use href="#a1-mono"/></svg><span class="cap">单色 · 深底</span></div>
+    <div class="tile light mono-black"><svg class="mid"><use href="#a1-mono"/></svg><span class="cap">单色 · 浅底（_light）</span></div>
+    <div class="ladder">
+      <div class="step"><svg width="48" height="48"><use href="#a1-color"/></svg><span class="cap">48</span></div>
+      <div class="step"><svg width="24" height="24"><use href="#a1-color"/></svg><span class="cap">24</span></div>
+      <div class="step"><svg width="16" height="16"><use href="#a1-color"/></svg><span class="cap">16</span></div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:20px">
+    <div class="lockup"><svg><use href="#a1-color"/></svg><span class="word">Droid<b>Host</b></span></div>
+  </div>
+
+  <h2>C2 · 环抱<span class="tag">保留备用（他处使用）</span></h2>
+  <p class="note">约 309° 环抱弧（宿主）+ 居中圆核（客系统）+ 缺口处卫星点。非 DroidHost 主标。</p>
+  <div class="row">
+    <div class="tile dark"><svg class="big"><use href="#c2-color"/></svg><span class="cap">彩色 · 深底</span></div>
+    <div class="tile black mono-white"><svg class="mid"><use href="#c2-mono"/></svg><span class="cap">单色 · 深底</span></div>
+    <div class="tile light mono-black"><svg class="mid"><use href="#c2-mono"/></svg><span class="cap">单色 · 浅底</span></div>
+    <div class="ladder">
+      <div class="step"><svg width="48" height="48"><use href="#c2-color"/></svg><span class="cap">48</span></div>
+      <div class="step"><svg width="24" height="24"><use href="#c2-color"/></svg><span class="cap">24</span></div>
+      <div class="step"><svg width="16" height="16"><use href="#c2-color"/></svg><span class="cap">16</span></div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:20px">
+    <div class="lockup"><svg><use href="#c2-color"/></svg><span class="word">Droid<b>Host</b></span></div>
+  </div>
+
+  <div class="chips">
+    <div class="chip"><i style="background:#00E5A0"></i>#00E5A0</div>
+    <div class="chip"><i style="background:#0B0E14"></i>#0B0E14</div>
+    <div class="chip"><i style="background:#F5F7FA"></i>#F5F7FA</div>
+  </div>
+
+  <footer>
+    可编辑源：<code>artwork/droidhost-mark.svg</code>（A1 彩色）· <code>droidhost-mark-mono.svg</code>（A1 单色，currentColor）·
+    <code>droidhost-c2.svg</code> / <code>droidhost-c2-mono.svg</code>（C2）。
+    单色版用 <code>currentColor</code>，深底设白、浅底设黑即可。字标字体 Space Grotesk（OFL）；正式字标 SVG 需将文字转曲。
+    设计文档见 DroidHost-docs <code>droidhost-logo-design.md</code>。
+  </footer>
+</body>
+</html>

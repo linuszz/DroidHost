@@ -24,14 +24,14 @@ class FlatpakAppStripTest {
 
     private fun app(id: String, name: String) = FlatpakManager.App(id, name, null, "stable", null)
 
-    private fun show(apps: List<FlatpakManager.App>) {
+    private fun show(apps: List<FlatpakManager.App>, showStore: Boolean = false) {
         compose.mainClock.autoAdvance = false
         compose.setContent {
             DroidHostTheme {
                 CompositionLocalProvider(LocalFrontFocus provides FrontFocus()) {
                     FocusGlideHost {
                         Box(Modifier.fillMaxSize()) {
-                            FlatpakAppStrip(apps, onOpen = { id, name -> opened.add(id to name) }, onStore = { stores++ })
+                            FlatpakAppStrip(apps, onOpen = { id, name -> opened.add(id to name) }, onStore = { stores++ }, showStore = showStore)
                         }
                     }
                 }
@@ -43,6 +43,12 @@ class FlatpakAppStripTest {
     @Test fun noInstalledAppsRenderNothing() {
         show(emptyList())
         compose.onNodeWithText("Flathub").assertDoesNotExist()
+    }
+
+    @Test fun emptyAppsStillShowTheStoreWhenWanted() {
+        show(emptyList(), showStore = true)
+        compose.onNodeWithText("Flathub").performClick()
+        assertEquals(1, stores)
     }
 
     @Test fun installedAppsAreListedAndOneTapOpensThem() {
