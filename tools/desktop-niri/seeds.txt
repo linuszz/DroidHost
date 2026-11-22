@@ -1,3 +1,13 @@
 niri
 # optdepend of niri, so the dependency closure does not pull it implicitly
 xwayland-satellite
+# The host-imported DD-Turnip Vulkan ICD (libvulkan_freedreno.so) DT_NEEDEDs libxcb-keysyms.so.1,
+# which nothing in the niri/xwayland-satellite closure pulls. Without it the loader's dlopen of the
+# driver fails (VK_ERROR_INCOMPATIBLE_DRIVER) and niri's zink EGL init panics. It is not in the
+# pacman db (host imported), so its deps must be seeded explicitly.
+xcb-util-keysyms
+# droiddeck-desktop's games/programs/pads/gpu/perms/open helpers and the pacman wrapper's prepare
+# all run python3.
+python
+# config.kdl binds Mod+T to alacritty.
+alacritty
