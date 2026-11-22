@@ -33,11 +33,11 @@ class OrientationTest {
         val prefs = context.getSharedPreferences("session", Context.MODE_PRIVATE)
         prefs.edit().putInt("orientation", 999).commit()
         assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, SessionPrefs.orientation(context))
-        SessionPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+        SessionPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         assertThrows(IllegalArgumentException::class.java) {
             SessionPrefs.setOrientation(context, 999)
         }
-        assertEquals(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE, SessionPrefs.orientation(context))
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, SessionPrefs.orientation(context))
     }
 
     @Test fun launcherFollowsDeviceRotationAndPortraitDoesNotChangeSessions() {
@@ -48,7 +48,7 @@ class OrientationTest {
             assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, SessionPrefs.orientation(context))
         }
         AppUiPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        SessionPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+        SessionPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_USER)
         assertEquals(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, AppUiPrefs.orientation(context))
         AppUiPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
         SessionPrefs.setOrientation(context, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)

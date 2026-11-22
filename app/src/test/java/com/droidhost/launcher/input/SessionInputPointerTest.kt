@@ -89,7 +89,10 @@ class SessionInputPointerTest {
         invoke("onPadInput")
         assertEquals(Offset(350f, 215.625f), state<Offset>("cursorPos").value)
         assertTrue(state<Boolean>("cursorVisible").value)
-        assertEquals(Triple(1, InputSpace.x(350f, 1000), InputSpace.y(215.625f, 600)), CompositorShadow.pointers.last())
+        // Guest coordinates map from the letterboxed picture rect, not the whole view.
+        val pictureHeight = 1000f * 900f / 1600f
+        val pictureTop = (600f - pictureHeight) / 2f
+        assertEquals(Triple(1, InputSpace.x(350f, 1000), InputSpace.y(215.625f - pictureTop, pictureHeight)), CompositorShadow.pointers.last())
     }
 
     @Test fun firstStickMovementStartsAtCenterAndClampsToPictureBounds() {
