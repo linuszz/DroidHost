@@ -1727,7 +1727,7 @@
         <item quantity="many">hace %1$d días</item>
         <item quantity="other">hace %1$d días</item>
     </plurals>
-    <string name="drivers_checking_sources">Comprobando Banners-Turnip, WinNative y DroidHost…</string>
+    <string name="drivers_checking_sources">Comprobando Banners-Turnip, WinNative y DroidDeck…</string>
     <string name="drivers_check_failed">falló la comprobación</string>
     <string name="drivers_installed_pick_either">%1$s instalado - elígelo en cualquiera de las listas para definir ambos controladores</string>
     <string name="drivers_installed_pick">%1$s instalado - elígelo en el menú</string>

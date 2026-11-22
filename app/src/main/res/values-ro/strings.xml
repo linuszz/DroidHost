@@ -1727,7 +1727,7 @@
         <item quantity="few">acum %1$d zile</item>
         <item quantity="other">acum %1$d de zile</item>
     </plurals>
-    <string name="drivers_checking_sources">Se verifică Banners-Turnip, WinNative și DroidHost…</string>
+    <string name="drivers_checking_sources">Se verifică Banners-Turnip, WinNative și DroidDeck…</string>
     <string name="drivers_check_failed">verificare eșuată</string>
     <string name="drivers_installed_pick_either">Instalat %1$s - alege-l în orice listă pentru a seta ambele drivere</string>
     <string name="drivers_installed_pick">Instalat %1$s - alege-l în meniu</string>

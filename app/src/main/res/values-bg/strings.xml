@@ -1711,7 +1711,7 @@
         <item quantity="one">преди %1$d ден</item>
         <item quantity="other">преди %1$d дни</item>
     </plurals>
-    <string name="drivers_checking_sources">Проверка на Banners-Turnip, WinNative и DroidHost…</string>
+    <string name="drivers_checking_sources">Проверка на Banners-Turnip, WinNative и DroidDeck…</string>
     <string name="drivers_check_failed">проверката се провали</string>
     <string name="drivers_installed_pick_either">Инсталирано: %1$s - избери го в който и да е от списъците, за да зададеш и двата драйвера</string>
     <string name="drivers_installed_pick">Инсталирано: %1$s - избери го от менюто</string>

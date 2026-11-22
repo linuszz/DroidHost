@@ -1743,7 +1743,7 @@
         <item quantity="many">před %1$d dny</item>
         <item quantity="other">před %1$d dny</item>
     </plurals>
-    <string name="drivers_checking_sources">Kontrola Banners-Turnip, WinNative a DroidHost…</string>
+    <string name="drivers_checking_sources">Kontrola Banners-Turnip, WinNative a DroidDeck…</string>
     <string name="drivers_check_failed">kontrola se nezdařila</string>
     <string name="drivers_installed_pick_either">Nainstalováno %1$s - vyberte ho v kterémkoli seznamu pro nastavení obou ovladačů</string>
     <string name="drivers_installed_pick">Nainstalováno %1$s - vyberte ho v nabídce</string>

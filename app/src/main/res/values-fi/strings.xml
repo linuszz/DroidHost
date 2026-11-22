@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d päivä sitten</item>
         <item quantity="other">%1$d päivää sitten</item>
     </plurals>
-    <string name="drivers_checking_sources">Tarkistetaan Banners-Turnip, WinNative ja DroidHost…</string>
+    <string name="drivers_checking_sources">Tarkistetaan Banners-Turnip, WinNative ja DroidDeck…</string>
     <string name="drivers_check_failed">tarkistus epäonnistui</string>
     <string name="drivers_installed_pick_either">Asennettu %1$s - valitse se kummasta tahansa listasta asettaaksesi molemmat ajurit</string>
     <string name="drivers_installed_pick">Asennettu %1$s - valitse se valikosta</string>

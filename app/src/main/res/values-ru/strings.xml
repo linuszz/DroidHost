@@ -1743,7 +1743,7 @@
         <item quantity="many">%1$d дней назад</item>
         <item quantity="other">%1$d дня назад</item>
     </plurals>
-    <string name="drivers_checking_sources">Проверка Banners-Turnip, WinNative и DroidHost…</string>
+    <string name="drivers_checking_sources">Проверка Banners-Turnip, WinNative и DroidDeck…</string>
     <string name="drivers_check_failed">ошибка проверки</string>
     <string name="drivers_installed_pick_either">Установлен %1$s — выберите его в любом из списков, чтобы задать оба драйвера</string>
     <string name="drivers_installed_pick">Установлен %1$s — выберите его в меню</string>

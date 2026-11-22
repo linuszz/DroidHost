@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d dag siden</item>
         <item quantity="other">%1$d dage siden</item>
     </plurals>
-    <string name="drivers_checking_sources">Kontrollerer Banners-Turnip, WinNative og DroidHost…</string>
+    <string name="drivers_checking_sources">Kontrollerer Banners-Turnip, WinNative og DroidDeck…</string>
     <string name="drivers_check_failed">kontrol mislykkedes</string>
     <string name="drivers_installed_pick_either">Installeret %1$s - vælg den i en af listerne for at angive begge drivere</string>
     <string name="drivers_installed_pick">Installeret %1$s - vælg den i menuen</string>

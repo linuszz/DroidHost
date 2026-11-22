@@ -1696,7 +1696,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d hari lalu</item>
     </plurals>
-    <string name="drivers_checking_sources">Menyemak Banners-Turnip, WinNative dan DroidHost…</string>
+    <string name="drivers_checking_sources">Menyemak Banners-Turnip, WinNative dan DroidDeck…</string>
     <string name="drivers_check_failed">semakan gagal</string>
     <string name="drivers_installed_pick_either">%1$s dipasang - pilih dalam mana-mana senarai untuk menetapkan kedua-dua pemacu</string>
     <string name="drivers_installed_pick">%1$s dipasang - pilih dalam menu</string>

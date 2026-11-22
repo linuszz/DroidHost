@@ -1703,7 +1703,7 @@
         <item quantity="one">%1$d gün önce</item>
         <item quantity="other">%1$d gün önce</item>
     </plurals>
-    <string name="drivers_checking_sources">Banners-Turnip, WinNative ve DroidHost kontrol ediliyor…</string>
+    <string name="drivers_checking_sources">Banners-Turnip, WinNative ve DroidDeck kontrol ediliyor…</string>
     <string name="drivers_check_failed">kontrol başarısız oldu</string>
     <string name="drivers_installed_pick_either">%1$s yüklendi - iki sürücüyü de ayarlamak için listelerden birinde seçin</string>
     <string name="drivers_installed_pick">%1$s yüklendi - menüden seçin</string>

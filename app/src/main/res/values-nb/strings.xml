@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d dag siden</item>
         <item quantity="other">%1$d dager siden</item>
     </plurals>
-    <string name="drivers_checking_sources">Sjekker Banners-Turnip, WinNative og DroidHost…</string>
+    <string name="drivers_checking_sources">Sjekker Banners-Turnip, WinNative og DroidDeck…</string>
     <string name="drivers_check_failed">sjekk mislyktes</string>
     <string name="drivers_installed_pick_either">Installert %1$s – velg den i begge lister for å angi begge driverne</string>
     <string name="drivers_installed_pick">Installert %1$s – velg den i menyen</string>

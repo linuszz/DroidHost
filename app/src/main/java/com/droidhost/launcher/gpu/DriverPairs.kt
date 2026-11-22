@@ -81,7 +81,7 @@ object DriverPairs {
     private val ALL_ADRENO = setOf(Family.A6XX, Family.A7XX, Family.A7XX_LOW, Family.A8XX, Family.ADRENO_UNKNOWN)
 
     private fun describe(key: String): Pair<String, Set<Family>> = when {
-        key.startsWith(DD_TURNIP) -> "DroidHost · DD-Turnip" to ALL_ADRENO
+        key.startsWith(DD_TURNIP) -> "DroidDeck · DD-Turnip" to ALL_ADRENO
         key.startsWith("$NON_ADRENO:") -> describeNonAdreno(key)
         else -> describeFixed(key)
     }

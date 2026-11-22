@@ -1870,7 +1870,7 @@
         <item quantity="one">%1$d day ago</item>
         <item quantity="other">%1$d days ago</item>
     </plurals>
-    <string name="drivers_checking_sources">Checking Banners-Turnip, WinNative and DroidHost…</string>
+    <string name="drivers_checking_sources">Checking Banners-Turnip, WinNative and DroidDeck…</string>
     <string name="drivers_check_failed">check failed</string>
     <string name="drivers_installed_pick_either">Installed %1$s - pick it in either list to set both drivers</string>
     <string name="drivers_installed_pick">Installed %1$s - pick it in the menu</string>

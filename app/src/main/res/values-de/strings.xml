@@ -1703,7 +1703,7 @@
         <item quantity="one">vor %1$d Tag</item>
         <item quantity="other">vor %1$d Tagen</item>
     </plurals>
-    <string name="drivers_checking_sources">Banners-Turnip, WinNative und DroidHost werden geprüft…</string>
+    <string name="drivers_checking_sources">Banners-Turnip, WinNative und DroidDeck werden geprüft…</string>
     <string name="drivers_check_failed">Prüfung fehlgeschlagen</string>
     <string name="drivers_installed_pick_either">%1$s installiert - wähle ihn in einer der beiden Listen, um beide Treiber festzulegen</string>
     <string name="drivers_installed_pick">%1$s installiert - wähle ihn im Menü aus</string>

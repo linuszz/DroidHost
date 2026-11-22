@@ -1775,7 +1775,7 @@
         <item quantity="many">منذ %1$d يومًا</item>
         <item quantity="other">منذ %1$d يوم</item>
     </plurals>
-    <string name="drivers_checking_sources">جارٍ التحقّق من Banners-Turnip وWinNative وDroidHost…</string>
+    <string name="drivers_checking_sources">جارٍ التحقّق من Banners-Turnip وWinNative وDroidDeck…</string>
     <string name="drivers_check_failed">فشل التحقّق</string>
     <string name="drivers_installed_pick_either">تم تثبيت %1$s - اختره من أيٍّ من القائمتين لضبط برنامجَي التشغيل معًا</string>
     <string name="drivers_installed_pick">تم تثبيت %1$s - اختره من القائمة</string>

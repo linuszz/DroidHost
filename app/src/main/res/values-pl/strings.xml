@@ -1743,7 +1743,7 @@
         <item quantity="many">%1$d dni temu</item>
         <item quantity="other">%1$d dnia temu</item>
     </plurals>
-    <string name="drivers_checking_sources">Sprawdzanie Banners-Turnip, WinNative i DroidHost…</string>
+    <string name="drivers_checking_sources">Sprawdzanie Banners-Turnip, WinNative i DroidDeck…</string>
     <string name="drivers_check_failed">błąd sprawdzania</string>
     <string name="drivers_installed_pick_either">Zainstalowano %1$s – wybierz go na dowolnej liście, aby ustawić oba sterowniki</string>
     <string name="drivers_installed_pick">Zainstalowano %1$s – wybierz go w menu</string>

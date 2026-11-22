@@ -1696,7 +1696,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d日前</item>
     </plurals>
-    <string name="drivers_checking_sources">Banners-Turnip、WinNative、DroidHostを確認中…</string>
+    <string name="drivers_checking_sources">Banners-Turnip、WinNative、DroidDeckを確認中…</string>
     <string name="drivers_check_failed">確認に失敗</string>
     <string name="drivers_installed_pick_either">%1$sをインストールしました - どちらかの一覧で選択すると両方のドライバーが設定されます</string>
     <string name="drivers_installed_pick">%1$sをインストールしました - メニューで選択してください</string>

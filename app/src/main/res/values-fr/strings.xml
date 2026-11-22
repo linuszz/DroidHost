@@ -1726,7 +1726,7 @@
         <item quantity="many">il y a %1$d jours</item>
         <item quantity="other">il y a %1$d jours</item>
     </plurals>
-    <string name="drivers_checking_sources">Vérification de Banners-Turnip, WinNative et DroidHost…</string>
+    <string name="drivers_checking_sources">Vérification de Banners-Turnip, WinNative et DroidDeck…</string>
     <string name="drivers_check_failed">échec de la vérification</string>
     <string name="drivers_installed_pick_either">%1$s installé - choisissez-le dans l\'une ou l\'autre liste pour définir les deux pilotes</string>
     <string name="drivers_installed_pick">%1$s installé - choisissez-le dans le menu</string>

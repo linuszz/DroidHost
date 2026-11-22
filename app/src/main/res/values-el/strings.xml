@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d ημέρα πριν</item>
         <item quantity="other">%1$d ημέρες πριν</item>
     </plurals>
-    <string name="drivers_checking_sources">Έλεγχος Banners-Turnip, WinNative και DroidHost…</string>
+    <string name="drivers_checking_sources">Έλεγχος Banners-Turnip, WinNative και DroidDeck…</string>
     <string name="drivers_check_failed">ο έλεγχος απέτυχε</string>
     <string name="drivers_installed_pick_either">Εγκατεστημένο %1$s - επιλέξτε το σε οποιαδήποτε λίστα για να ορίσετε και τα δύο προγράμματα οδήγησης</string>
     <string name="drivers_installed_pick">Εγκατεστημένο %1$s - επιλέξτε το στο μενού</string>

@@ -1695,7 +1695,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d 日前</item>
     </plurals>
-    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 DroidHost…</string>
+    <string name="drivers_checking_sources">正在檢查 Banners-Turnip、WinNative 和 DroidDeck…</string>
     <string name="drivers_check_failed">檢查失敗</string>
     <string name="drivers_installed_pick_either">已安裝 %1$s - 在任一清單中選擇即可同時設定兩個驅動程式</string>
     <string name="drivers_installed_pick">已安裝 %1$s - 請在選單中選擇</string>

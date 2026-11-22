@@ -1696,7 +1696,7 @@
     <plurals name="drivers_ago_days">
         <item quantity="other">%1$d ngày trước</item>
     </plurals>
-    <string name="drivers_checking_sources">Đang kiểm tra Banners-Turnip, WinNative và DroidHost…</string>
+    <string name="drivers_checking_sources">Đang kiểm tra Banners-Turnip, WinNative và DroidDeck…</string>
     <string name="drivers_check_failed">kiểm tra thất bại</string>
     <string name="drivers_installed_pick_either">Đã cài %1$s - chọn nó ở một trong hai danh sách để đặt cả hai driver</string>
     <string name="drivers_installed_pick">Đã cài %1$s - chọn nó trong menu</string>

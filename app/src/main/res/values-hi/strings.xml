@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d दिन पहले</item>
         <item quantity="other">%1$d दिन पहले</item>
     </plurals>
-    <string name="drivers_checking_sources">Banners-Turnip, WinNative और DroidHost जांचे जा रहे हैं…</string>
+    <string name="drivers_checking_sources">Banners-Turnip, WinNative और DroidDeck जांचे जा रहे हैं…</string>
     <string name="drivers_check_failed">जांच विफल रही</string>
     <string name="drivers_installed_pick_either">इंस्टॉल है %1$s - दोनों ड्राइवर सेट करने के लिए इसे किसी भी लिस्ट में चुनें</string>
     <string name="drivers_installed_pick">इंस्टॉल है %1$s - इसे मेनू में चुनें</string>

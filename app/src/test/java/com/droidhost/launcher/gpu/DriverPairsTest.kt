@@ -96,7 +96,7 @@ class DriverPairsTest {
 
     @Test
     fun everyBundleReleaseIsACompletePairOnItsOwnNewestFirst() {
-        fun bundle(tag: String) = TurnipReleases.Asset("DroidHost", tag, "$tag.zip", "https://example/$tag", 6_000_000,
+        fun bundle(tag: String) = TurnipReleases.Asset("DroidDeck", tag, "$tag.zip", "https://example/$tag", 6_000_000,
             false, "Android + Linux", "0".repeat(64), DriverPairs.ddTurnip(tag), bundle = true)
         val newer = bundle("DD-Turnip-v0.2.0")
         val older = bundle("DD-Turnip-v0.1.0")
@@ -110,14 +110,14 @@ class DriverPairsTest {
         assertTrue(dd.complete)
         assertEquals(listOf(newer), dd.assets)
         assertEquals("v0.2.0", dd.version)
-        assertEquals("DroidHost · DD-Turnip", dd.name)
+        assertEquals("DroidDeck · DD-Turnip", dd.name)
         assertTrue(dd.suits(gpu(840)))
         assertTrue(dd.suits(gpu(740)))
     }
 
     @Test
     fun everyAdrenoGenerationGetsTheNewestOfficialDdTurnip() {
-        fun bundle(tag: String) = TurnipReleases.Asset("DroidHost", tag, "$tag.zip", "https://example/$tag", 6_000_000,
+        fun bundle(tag: String) = TurnipReleases.Asset("DroidDeck", tag, "$tag.zip", "https://example/$tag", 6_000_000,
             false, "Android + Linux", "0".repeat(64), DriverPairs.ddTurnip(tag), bundle = true)
         val pairs = DriverPairs.from(TurnipReleases.Check(
             listOf(bundle("DD-Turnip-v0.9.0"), bundle("DD-Turnip-v1.0.0"), bundle("DD-Turnip-v0.10.1"),

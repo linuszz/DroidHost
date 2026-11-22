@@ -12,7 +12,7 @@ import org.robolectric.annotation.Config
 class AutoPicksTest {
     private fun gpu(model: Int) = GpuInfo("Adreno $model", model, GpuInfo.familyOf(true, model), "", false)
 
-    private fun bundle(tag: String) = TurnipReleases.Asset("DroidHost", tag, "$tag.zip", "https://example/$tag", 6_000_000,
+    private fun bundle(tag: String) = TurnipReleases.Asset("DroidDeck", tag, "$tag.zip", "https://example/$tag", 6_000_000,
         false, "Android + Linux", "0".repeat(64), DriverPairs.ddTurnip(tag), bundle = true)
 
     private fun half(name: String, tag: String, linux: Boolean, pair: String) =

@@ -1711,7 +1711,7 @@
         <item quantity="one">%1$d napja</item>
         <item quantity="other">%1$d napja</item>
     </plurals>
-    <string name="drivers_checking_sources">A Banners-Turnip, a WinNative és a DroidHost ellenőrzése…</string>
+    <string name="drivers_checking_sources">A Banners-Turnip, a WinNative és a DroidDeck ellenőrzése…</string>
     <string name="drivers_check_failed">ellenőrzés sikertelen</string>
     <string name="drivers_installed_pick_either">%1$s telepítve – válassza ki bármelyik listában mindkét illesztőprogram beállításához</string>
     <string name="drivers_installed_pick">%1$s telepítve – válassza ki a menüben</string>
