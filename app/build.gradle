@@ -92,6 +92,9 @@ def commitTime = (gitValue(['show', '-s', '--format=%ct', '--end-of-options', so
 def desktopKde = rootProject.file('tools/desktop-kde/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
+def desktopNiri = rootProject.file('tools/desktop-niri/release.env').readLines()
+    .findAll { it.contains('=') && !it.startsWith('#') }
+    .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
 def trackingPack = rootProject.file('tools/packs/tracking/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
@@ -154,6 +157,10 @@ android {
         buildConfigField "String", "DESKTOP_KDE_URL", "\"https://github.com/${desktopKde.DESKTOP_KDE_REPO}/releases/download/${desktopKde.DESKTOP_KDE_TAG}/desktop-kde.tar.zst\""
         buildConfigField "String", "DESKTOP_KDE_SHA256", "\"${desktopKde.DESKTOP_KDE_SHA256}\""
         buildConfigField "long", "DESKTOP_KDE_SIZE", "${desktopKde.DESKTOP_KDE_SIZE}L"
+        buildConfigField "String", "DESKTOP_NIRI_TAG", "\"${desktopNiri.DESKTOP_NIRI_TAG}\""
+        buildConfigField "String", "DESKTOP_NIRI_URL", "\"https://github.com/${desktopNiri.DESKTOP_NIRI_REPO}/releases/download/${desktopNiri.DESKTOP_NIRI_TAG}/desktop-niri.tar.zst\""
+        buildConfigField "String", "DESKTOP_NIRI_SHA256", "\"${desktopNiri.DESKTOP_NIRI_SHA256}\""
+        buildConfigField "long", "DESKTOP_NIRI_SIZE", "${desktopNiri.DESKTOP_NIRI_SIZE}L"
         addonPacks.each { name, pack ->
             buildConfigField "String", "PACK_${name.toUpperCase()}_SHA256", "\"${pack.sha256}\""
             buildConfigField "long", "PACK_${name.toUpperCase()}_SIZE", "${pack.size}L"

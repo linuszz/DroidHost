@@ -2,6 +2,7 @@ package com.droidhost.launcher.runtime
 
 import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.core.Hashes
+import com.droidhost.launcher.vm.VmDesktops
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.LinkOption
@@ -33,9 +34,12 @@ internal object DesktopPack {
 
     data class Result(val removed: Int, val restored: Int, val kept: Int)
 
-    fun info(root: File): Info? = runCatching {
+    fun info(root: File, desktop: String = VmDesktops.KDE): Info? = runCatching {
         val json = JSONObject(FileUtils.readString(File(root, INFO)) ?: return null)
-        Info(json.getString("tag"), json.getString("url"), json.getString("sha256"), json.getLong("size"))
+        // A base may name one pack per desktop under "packs"; KDE keeps the legacy top-level pointer.
+        val o = json.optJSONObject("packs")?.optJSONObject(desktop)
+            ?: if (desktop == VmDesktops.KDE) json else return null
+        Info(o.getString("tag"), o.getString("url"), o.getString("sha256"), o.getLong("size"))
     }.getOrNull()
 
     fun installed(root: File): Boolean = File(root, MANIFEST).isFile

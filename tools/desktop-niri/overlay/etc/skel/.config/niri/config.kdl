@@ -1,0 +1,29 @@
+// Minimal niri config for the DroidHost nested-render spike (Arch rolling, KGSL/zink).
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+    }
+    touchpad {
+        tap
+        natural-scroll
+    }
+    mouse {
+    }
+}
+
+prefer-no-csd
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+    Mod+T { spawn "alacritty"; }
+    Mod+Q { close-window; }
+    Mod+Shift+E { quit; }
+    Mod+Left { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up { focus-window-up; }
+    Mod+Down { focus-window-down; }
+}

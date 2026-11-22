@@ -1,0 +1,3 @@
+niri
+# optdepend of niri, so the dependency closure does not pull it implicitly
+xwayland-satellite

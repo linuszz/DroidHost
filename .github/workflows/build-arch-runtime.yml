@@ -15,6 +15,17 @@ on:
         description: 'Release tag for the KDE desktop pack in DroidHost-Components (e.g. desktop-kde-r4); never reused once published'
         required: false
         default: 'desktop-kde-r4'
+      desktop:
+        description: 'Desktop environment to bundle with the runtime'
+        type: choice
+        options:
+          - kde
+          - niri
+        default: kde
+      desktop_niri_tag:
+        description: 'Release tag for the niri desktop pack in DroidHost-Components (e.g. desktop-niri-r1); never reused once published'
+        required: false
+        default: 'desktop-niri-r1'
 
 permissions:
   contents: read
@@ -59,6 +70,7 @@ jobs:
 
   desktop:
     needs: base
+    if: inputs.desktop != 'niri'
     permissions:
       contents: write
     uses: ./.github/workflows/build-desktop-kde.yml
@@ -67,9 +79,20 @@ jobs:
       runtime_packages_artifact: arch-runtime-base
     secrets: inherit
 
+  desktop-niri:
+    needs: base
+    if: inputs.desktop == 'niri'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build-desktop-niri.yml
+    with:
+      tag: ${{ (github.event_name == 'workflow_dispatch' && inputs.revision != '') && inputs.desktop_niri_tag || '' }}
+      runtime_packages_artifact: arch-runtime-base
+    secrets: inherit
+
   publish:
-    needs: [base, desktop]
-    if: github.event_name == 'workflow_dispatch' && inputs.revision != ''
+    needs: [base, desktop, desktop-niri]
+    if: ${{ !cancelled() && needs.base.result == 'success' && (needs.desktop.result == 'success' || needs.desktop-niri.result == 'success') && github.event_name == 'workflow_dispatch' && inputs.revision != '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -85,7 +108,7 @@ jobs:
           path: out/base
       - uses: actions/download-artifact@v4
         with:
-          name: desktop-kde
+          name: ${{ inputs.desktop == 'niri' && 'desktop-niri' || 'desktop-kde' }}
           path: out/desktop
       - uses: actions/create-github-app-token@v2
         id: components-token
@@ -107,15 +130,21 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zstd >/dev/null
           TAG='${{ needs.base.outputs.tag }}'
-          DTAG='${{ inputs.desktop_tag }}'
+          DE='${{ inputs.desktop }}'
+          [ -n "$DE" ] || DE=kde
+          case $DE in
+            niri) DTAG='${{ inputs.desktop_niri_tag }}' ;;
+            *) DTAG='${{ inputs.desktop_tag }}' ;;
+          esac
+          PACK="desktop-$DE"
           mkdir -p stamp/usr/share/droiddeck
-          python3 tools/ubuntu/desktop-pack.py describe out/desktop/desktop-kde.tar.zst \
-            "https://github.com/${{ github.repository }}-Components/releases/download/$DTAG/desktop-kde.tar.zst" \
+          python3 tools/ubuntu/desktop-pack.py describe "out/desktop/$PACK.tar.zst" \
+            "https://github.com/${{ github.repository }}-Components/releases/download/$DTAG/$PACK.tar.zst" \
             "$DTAG" stamp/usr/share/droiddeck/desktop-pack.json
           # DesktopCatalog.desktopInstalled gates the app's desktop-file injection on this marker matching the pack tag.
-          printf '%s\n' "$DTAG" > stamp/.droiddeck-pkg-desktop-kde
+          printf '%s\n' "$DTAG" > "stamp/.droiddeck-pkg-$PACK"
           sudo tar -C stamp --numeric-owner --owner=0 --group=0 -rf "out/base/$TAG.tar" \
-            usr/share/droiddeck/desktop-pack.json .droiddeck-pkg-desktop-kde
+            usr/share/droiddeck/desktop-pack.json ".droiddeck-pkg-$PACK"
           sudo zstd -q -19 -T0 --rm "out/base/$TAG.tar" -o "out/$TAG.tar.zst"
           sudo chown "$(id -u):$(id -g)" "out/$TAG.tar.zst"
           sha256sum "out/$TAG.tar.zst" | cut -d' ' -f1 > "out/$TAG.sha256"
@@ -128,11 +157,16 @@ jobs:
         run: |
           set -euo pipefail
           TAG='${{ needs.base.outputs.tag }}'
-          DTAG='${{ inputs.desktop_tag }}'
+          DE='${{ inputs.desktop }}'
+          [ -n "$DE" ] || DE=kde
+          case $DE in
+            niri) DTAG='${{ inputs.desktop_niri_tag }}'; DDESC='niri scrollable-tiling Wayland desktop pack is desktop-niri.tar.zst' ;;
+            *) DTAG='${{ inputs.desktop_tag }}'; DDESC='KDE Plasma desktop pack is desktop-kde.tar.zst' ;;
+          esac
           prerelease=false
           case $TAG in *-rc*) prerelease=true ;; esac
           gh release create "$TAG" --latest=false --prerelease="$prerelease" --title "$TAG" \
-            --notes "Arch Linux ARM (rolling) aarch64 runtime for DroidHost ($GITHUB_REPOSITORY tools/arch, $GITHUB_SHA), from the signature-checked tarball pinned in tools/arch/base.env: size $(stat -c %s "out/$TAG.tar.zst"), sha256 $(cat "out/$TAG.sha256"). Its KDE Plasma desktop pack is desktop-kde.tar.zst in release $DTAG of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json. The .packages.txt file lists every installed package and version." \
+            --notes "Arch Linux ARM (rolling) aarch64 runtime for DroidHost ($GITHUB_REPOSITORY tools/arch, $GITHUB_SHA), from the signature-checked tarball pinned in tools/arch/base.env: size $(stat -c %s "out/$TAG.tar.zst"), sha256 $(cat "out/$TAG.sha256"). Its $DDESC in release $DTAG of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json. The .packages.txt file lists every installed package and version." \
             "out/$TAG.tar.zst" "out/$TAG.sha256" "out/$TAG.packages.txt"
           gh release edit "$TAG" --latest=false --prerelease="$prerelease"
       - name: Update catalog
@@ -142,11 +176,16 @@ jobs:
         run: |
           set -euo pipefail
           TAG='${{ needs.base.outputs.tag }}'
-          DTAG='${{ inputs.desktop_tag }}'
+          DE='${{ inputs.desktop }}'
+          [ -n "$DE" ] || DE=kde
+          case $DE in
+            niri) DTAG='${{ inputs.desktop_niri_tag }}'; DDESC='niri scrollable-tiling Wayland desktop pack is desktop-niri.tar.zst' ;;
+            *) DTAG='${{ inputs.desktop_tag }}'; DDESC='KDE Plasma desktop pack is desktop-kde.tar.zst' ;;
+          esac
           # The app installs the release named here; write the catalog only after the assets are live.
-          python3 - "$TAG" "$DTAG" <<'EOF' > linuxfs-arch.json
+          python3 - "$TAG" "$DTAG" "$DDESC" <<'EOF' > linuxfs-arch.json
           import json, os, sys
-          tag, dtag = sys.argv[1:3]
+          tag, dtag, ddesc = sys.argv[1:4]
           size = os.path.getsize("out/%s.tar.zst" % tag)
           sha = open("out/%s.sha256" % tag).read().strip()
           repo = os.environ["GITHUB_REPOSITORY"]
@@ -160,7 +199,7 @@ jobs:
               "sha256": sha,
               "size": size,
               "file_size": size,
-              "note": "Arch Linux ARM (rolling) aarch64 runtime for DroidHost, built by tools/arch in %s (%s) from the signature-checked Arch Linux ARM tarball. Its KDE Plasma desktop pack is desktop-kde.tar.zst in release %s of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json." % (repo, os.environ["GITHUB_SHA"], dtag),
+              "note": "Arch Linux ARM (rolling) aarch64 runtime for DroidHost, built by tools/arch in %s (%s) from the signature-checked Arch Linux ARM tarball. Its %s in release %s of the same repository, named inside the runtime at usr/share/droiddeck/desktop-pack.json." % (repo, os.environ["GITHUB_SHA"], ddesc, dtag),
           }, indent=2))
           EOF
           content=$(base64 -w0 linuxfs-arch.json)

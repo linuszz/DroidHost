@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.droidhost.launcher.R
 import com.droidhost.launcher.core.Downloader
+import com.droidhost.launcher.core.FileUtils
 import com.droidhost.launcher.runtime.DesktopCatalog
 import com.droidhost.launcher.runtime.DesktopPack
 import com.droidhost.launcher.runtime.LinuxRuntimeInstaller
@@ -166,9 +167,10 @@ object VmPreset {
                 aborted("PROBE", Reason.NOT_USABLE)
                 return
             }
-            // The pack is KDE-only; another desktop is fitted later by VmDesktop, so the rootfs
-            // stays without a desktop marker and the machine shows as new until then.
-            val desktop = if (machine.desktop == VmDesktops.KDE) seedDesktop(context, machine.id, root, token) { report(it) } else Reason.NONE
+            // KDE and niri seed a desktop pack; another desktop is fitted later by VmDesktop, so
+            // the rootfs stays without a desktop marker and the machine shows as new until then.
+            val desktop = if (machine.desktop == VmDesktops.KDE || machine.desktop == VmDesktops.NIRI)
+                seedDesktop(context, machine.id, root, token, machine.desktop) { report(it) } else Reason.NONE
             if (desktop != Reason.NONE) {
                 if (token?.asBoolean != true) VmRuntime.removeInBackground(root)
                 aborted("SEED", desktop)
@@ -177,8 +179,8 @@ object VmPreset {
             runCatching { SessionFiles.stage(context, root, false) }
                 .onFailure { Log.w(TAG, "could not stage the session files", it) }
             VmDriver.markInstalled(root)
-            if (DesktopCatalog.desktopInstalled(root)) VmDesktop.markInstalled(root)
-            val life = if (DesktopCatalog.desktopInstalled(root)) VmLife.READY else VmLife.DEGRADED
+            if (DesktopCatalog.desktopInstalled(root, machine.desktop)) VmDesktop.markInstalled(root)
+            val life = if (DesktopCatalog.desktopInstalled(root, machine.desktop)) VmLife.READY else VmLife.DEGRADED
             VmStore.setLifecycle(context, machine.id, life.name)
             progress = State(Stage.READY, 100, machine.id)
         } catch (e: Exception) {
@@ -198,9 +200,13 @@ object VmPreset {
      * the package marker, so without this step the machine has no kwin or droiddeck-desktop and
      * the session exits (status 66) before the desktop starts.
      */
-    private fun seedDesktop(context: Context, machineId: String, root: File, token: Downloader.Cancellation?, report: (Int) -> Unit): Reason {
-        val pack = DesktopPack.info(root) ?: return Reason.NONE
-        if (DesktopCatalog.desktopInstalled(root)) return Reason.NONE
+    private fun seedDesktop(context: Context, machineId: String, root: File, token: Downloader.Cancellation?, desktop: String, report: (Int) -> Unit): Reason {
+        // KDE seeds only the pointer the base names; niri also falls back to the build's pinned
+        // pack, since base r1 carries no niri pointer.
+        val pack = DesktopPack.info(root, desktop)
+            ?: if (desktop == VmDesktops.NIRI) DesktopCatalog.buildConfigPack(desktop) else null
+        if (pack == null) return Reason.NONE
+        if (DesktopCatalog.desktopInstalled(root, desktop)) return Reason.NONE
         val archive = File(context.cacheDir, "vm-desktop-" + machineId + ".tar.zst")
         val downloaded = Downloader.downloadFile(pack.url, archive, true, pack.sha256, token) { fraction ->
             report(40 + (if (fraction < 0) 0 else (fraction * 35).toInt()).coerceIn(0, 35))
@@ -217,8 +223,12 @@ object VmPreset {
         // The Arch pack overlays files without a dpkg manifest; finishing reads one, so
         // only a pack that carries it is finished. The desktop marker decides readiness.
         if (DesktopPack.installed(root)) DesktopPack.finishInstall(root)
+        // The base stamps KDE's marker; niri's is written here once its pack is in place.
+        val id = if (desktop == VmDesktops.NIRI) DesktopCatalog.NIRI_DESKTOP_ID else DesktopCatalog.DESKTOP_ID
+        val marker = File(root, ".droiddeck-pkg-$id")
+        if (desktop == VmDesktops.NIRI || !marker.exists()) FileUtils.writeString(marker, pack.tag + "\n")
         report(95)
-        return if (DesktopCatalog.desktopInstalled(root)) Reason.NONE else Reason.UNPACK_FAILED
+        return if (DesktopCatalog.desktopInstalled(root, desktop)) Reason.NONE else Reason.UNPACK_FAILED
     }
 
     private fun fail(machineId: String, reason: Reason) {

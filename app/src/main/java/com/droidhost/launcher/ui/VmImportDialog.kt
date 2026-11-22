@@ -126,7 +126,7 @@ internal fun VmSourceDialog(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.padding(start = 32.dp, top = 2.dp, bottom = 4.dp),
                                         )
-                                        for ((desktop, labelRes) in VmDesktops.options.filter { it.first in VmDesktops.adapted }) VmDesktopRow(labelRes) {
+                                        for ((desktop, labelRes) in VmDesktops.options.filter { it.first in VmDesktops.adaptedFor(distro.id) }) VmDesktopRow(labelRes) {
                                             if (spawned) return@VmDesktopRow
                                             // Each machine keeps a rootfs of its own, downloaded for the
                                             // version picked, so several presets coexist.

@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.droidhost.launcher.BuildConfig
 import com.droidhost.launcher.R
+import com.droidhost.launcher.vm.VmDesktops
 import com.droidhost.launcher.core.Downloader
 import com.droidhost.launcher.core.FileUtils
 import org.json.JSONObject
@@ -113,6 +114,7 @@ object DesktopCatalog {
             !File(LinuxRuntime.rootDir(context), "root/.local/share/Steam/steamapps/appmanifest_4427310.acf").isFile
 
     const val DESKTOP_ID = "desktop-kde"
+    const val NIRI_DESKTOP_ID = "desktop-niri"
     const val EMULATORS_ID = "emulators"
     private const val EMULATORS_SCRIPT = "/usr/local/bin/droiddeck-emulators"
 
@@ -129,11 +131,29 @@ object DesktopCatalog {
 
     fun desktopFromPack(root: File): Boolean = DesktopPack.info(root) != null
 
-    fun desktopInstalled(root: File): Boolean =
-        !File(root, DesktopRemoval.PENDING).exists() &&
-        File(root, "usr/bin/kwin_wayland").isFile &&
-            FileUtils.readString(File(root, ".droiddeck-pkg-$DESKTOP_ID"))?.trim() ==
-                (DesktopPack.info(root)?.tag ?: BuildConfig.DESKTOP_KDE_TAG)
+    fun desktopInstalled(root: File, desktop: String = VmDesktops.KDE): Boolean {
+        val niri = desktop == VmDesktops.NIRI
+        val id = if (niri) NIRI_DESKTOP_ID else DESKTOP_ID
+        val binary = if (niri) "usr/bin/niri" else "usr/bin/kwin_wayland"
+        val tag = packInfo(root, desktop)?.tag
+            ?: if (niri) BuildConfig.DESKTOP_NIRI_TAG else BuildConfig.DESKTOP_KDE_TAG
+        return !File(root, DesktopRemoval.PENDING).exists() &&
+            File(root, binary).isFile &&
+            FileUtils.readString(File(root, ".droiddeck-pkg-$id"))?.trim() == tag
+    }
+
+    /** The pack a desktop seeds from: the base's per-DE pointer, else the build's pinned fallback. */
+    internal fun packInfo(root: File, desktop: String = VmDesktops.KDE): DesktopPack.Info? =
+        DesktopPack.info(root, desktop) ?: buildConfigPack(desktop)
+
+    internal fun buildConfigPack(desktop: String): DesktopPack.Info? = when (desktop) {
+        VmDesktops.NIRI -> if (BuildConfig.DESKTOP_NIRI_SHA256.isEmpty()) null else DesktopPack.Info(
+            BuildConfig.DESKTOP_NIRI_TAG, BuildConfig.DESKTOP_NIRI_URL,
+            BuildConfig.DESKTOP_NIRI_SHA256, BuildConfig.DESKTOP_NIRI_SIZE)
+        else -> DesktopPack.Info(
+            BuildConfig.DESKTOP_KDE_TAG, BuildConfig.DESKTOP_KDE_URL,
+            BuildConfig.DESKTOP_KDE_SHA256, BuildConfig.DESKTOP_KDE_SIZE)
+    }
 
     fun desktopPresent(context: Context): Boolean {
         val root = LinuxRuntime.rootDir(context)
