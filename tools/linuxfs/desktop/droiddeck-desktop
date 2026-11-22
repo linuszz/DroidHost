@@ -132,9 +132,11 @@ if [ "$(cat /usr/share/droiddeck/kwin-compositor 2>/dev/null)" = opengl ]; then
     # niri (Smithay/EGL) and Hyprland (aquamarine/GBM) render through their own stacks, not kwin:
     # no KWIN_* vars or wrapper. zink + single-threaded gallium mirrors the kwin hardware path.
     # Kopper's DRI2 path wants a display device a KGSL guest cannot offer, so it stays off there.
-    # Hyprland's aquamarine GBM-on-renderD0 env is settled by the render spike.
     export MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink GALLIUM_THREAD=0
     [ -e /dev/kgsl-3d0 ] || export LIBGL_KOPPER_DRI2=true
+    # aquamarine allocates GBM buffers on the render node; GBM-on-renderD0 verified via zink/Turnip
+    # (gbm_bo_create LINEAR/RENDERING ok once the session ICD is present). Name the node for Hyprland.
+    [ "$DD_DESKTOP" = hyprland ] && export AQ_DRM_DEVICES="${KWIN_RENDER_NODES:-/dev/dri/renderD0}"
   else
     export KWIN_COMPOSE=O2 MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink LIBGL_KOPPER_DRI2=true
     if [ -z "${KWIN_RENDER_NODES:-}" ]; then
