@@ -128,10 +128,11 @@ if [ -f "$HOME/.droiddeck-remote-run" ]; then
 fi
 if [ "$(cat /usr/share/droiddeck/kwin-compositor 2>/dev/null)" = opengl ]; then
   unset LIBGL_ALWAYS_SOFTWARE QT_QUICK_BACKEND
-  if [ "$DD_DESKTOP" = niri ]; then
-    # niri renders through its own Smithay/EGL stack, not kwin: no KWIN_* vars or wrapper.
-    # zink + single-threaded gallium mirrors the kwin hardware path. Kopper's DRI2 path wants a
-    # display device a KGSL guest cannot offer, so it stays off there (as SessionService does).
+  if [ "$DD_DESKTOP" = niri ] || [ "$DD_DESKTOP" = hyprland ]; then
+    # niri (Smithay/EGL) and Hyprland (aquamarine/GBM) render through their own stacks, not kwin:
+    # no KWIN_* vars or wrapper. zink + single-threaded gallium mirrors the kwin hardware path.
+    # Kopper's DRI2 path wants a display device a KGSL guest cannot offer, so it stays off there.
+    # Hyprland's aquamarine GBM-on-renderD0 env is settled by the render spike.
     export MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink GALLIUM_THREAD=0
     [ -e /dev/kgsl-3d0 ] || export LIBGL_KOPPER_DRI2=true
   else
@@ -149,6 +150,7 @@ if [ "$(cat /usr/share/droiddeck/kwin-compositor 2>/dev/null)" = opengl ]; then
 fi
 case "$DD_DESKTOP" in
   niri) desktop_label=niri ;;
+  hyprland) desktop_label=Hyprland ;;
   gnome) desktop_label=GNOME ;;
   *) desktop_label=Plasma ;;
 esac
@@ -156,14 +158,16 @@ echo "== droiddeck-desktop: $desktop_label on $WAYLAND_DISPLAY (node ${KWIN_REND
 case "$DD_DESKTOP" in
   gnome) dbus-run-session -- gnome-session ;;
   # Nested under the host compositor: --session drops WAYLAND_DISPLAY and forces a TTY backend,
-  # which a proot guest cannot open (os error 38). Plain niri takes the winit nested path.
+  # which a proot guest cannot open (os error 38). Plain niri takes the winit nested path;
+  # Hyprland nests through aquamarine's Wayland backend.
   niri) dbus-run-session -- niri ;;
+  hyprland) dbus-run-session -- Hyprland ;;
   *) dbus-run-session -- startplasma-wayland ;;
 esac
 rc=$?
 echo "== droiddeck-desktop: $desktop_label ended ($rc)"
-# Steam bigpicture is Plasma's gaming shell; niri has no such fallback after the session ends.
-if [ "$rc" -eq 0 ] && [ -z "${BL_BOTTOM_DESKTOP:-}" ] && [ "$DD_DESKTOP" != niri ]; then
+# Steam bigpicture is Plasma's gaming shell; niri and Hyprland have no such fallback after the session ends.
+if [ "$rc" -eq 0 ] && [ -z "${BL_BOTTOM_DESKTOP:-}" ] && [ "$DD_DESKTOP" != niri ] && [ "$DD_DESKTOP" != hyprland ]; then
   /usr/local/bin/droiddeck-steam-launch bigpicture
   sleep 30
 fi

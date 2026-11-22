@@ -95,6 +95,9 @@ def desktopKde = rootProject.file('tools/desktop-kde/release.env').readLines()
 def desktopNiri = rootProject.file('tools/desktop-niri/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
+def desktopHypr = rootProject.file('tools/desktop-hyprland/release.env').readLines()
+    .findAll { it.contains('=') && !it.startsWith('#') }
+    .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
 def trackingPack = rootProject.file('tools/packs/tracking/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
@@ -161,6 +164,10 @@ android {
         buildConfigField "String", "DESKTOP_NIRI_URL", "\"https://github.com/${desktopNiri.DESKTOP_NIRI_REPO}/releases/download/${desktopNiri.DESKTOP_NIRI_TAG}/desktop-niri.tar.zst\""
         buildConfigField "String", "DESKTOP_NIRI_SHA256", "\"${desktopNiri.DESKTOP_NIRI_SHA256}\""
         buildConfigField "long", "DESKTOP_NIRI_SIZE", "${desktopNiri.DESKTOP_NIRI_SIZE}L"
+        buildConfigField "String", "DESKTOP_HYPR_TAG", "\"${desktopHypr.DESKTOP_HYPR_TAG}\""
+        buildConfigField "String", "DESKTOP_HYPR_URL", "\"https://github.com/${desktopHypr.DESKTOP_HYPR_REPO}/releases/download/${desktopHypr.DESKTOP_HYPR_TAG}/desktop-hyprland.tar.zst\""
+        buildConfigField "String", "DESKTOP_HYPR_SHA256", "\"${desktopHypr.DESKTOP_HYPR_SHA256}\""
+        buildConfigField "long", "DESKTOP_HYPR_SIZE", "${desktopHypr.DESKTOP_HYPR_SIZE}L"
         addonPacks.each { name, pack ->
             buildConfigField "String", "PACK_${name.toUpperCase()}_SHA256", "\"${pack.sha256}\""
             buildConfigField "long", "PACK_${name.toUpperCase()}_SIZE", "${pack.size}L"

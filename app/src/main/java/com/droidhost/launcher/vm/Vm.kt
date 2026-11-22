@@ -72,14 +72,16 @@ object VmDesktops {
     const val KDE = "kde"
     const val GNOME = "gnome"
     const val NIRI = "niri"
-    val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri)
+    const val HYPR = "hyprland"
+    val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri, HYPR to R.string.vm_desktop_hypr)
     // The new-machine picker offers only desktops verified on device. GNOME stays in [options]
     // to name machines already fitted with it, but is not offered until its assembly is verified.
     val adapted = setOf(KDE)
 
-    // niri is offered on Arch only: the Debian 13 and Ubuntu 26.04 repositories carry no niri.
+    // niri and Hyprland are offered on Arch only: the Debian 13 and Ubuntu 26.04 repositories
+    // carry neither.
     fun adaptedFor(distroId: String): Set<String> =
-        if (distroId == VmCatalog.ARCH) adapted + NIRI else adapted
+        if (distroId == VmCatalog.ARCH) adapted + NIRI + HYPR else adapted
 }
 
 /**

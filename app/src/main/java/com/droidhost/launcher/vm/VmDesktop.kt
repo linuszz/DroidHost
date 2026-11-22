@@ -308,6 +308,7 @@ object VmDesktop {
         val cmd = when (machine.desktop) {
             VmDesktops.GNOME -> "gnome-shell --version 2>/dev/null | head -n1"
             VmDesktops.NIRI -> "niri --version 2>/dev/null | head -n1"
+            VmDesktops.HYPR -> "Hyprland --version 2>/dev/null | head -n1"
             else -> "QT_QPA_PLATFORM=minimal plasmashell --version 2>/dev/null | head -n1"
         }
         return runCatching {

@@ -115,6 +115,7 @@ object DesktopCatalog {
 
     const val DESKTOP_ID = "desktop-kde"
     const val NIRI_DESKTOP_ID = "desktop-niri"
+    const val HYPR_DESKTOP_ID = "desktop-hyprland"
     const val EMULATORS_ID = "emulators"
     private const val EMULATORS_SCRIPT = "/usr/local/bin/droiddeck-emulators"
 
@@ -132,14 +133,27 @@ object DesktopCatalog {
     fun desktopFromPack(root: File): Boolean = DesktopPack.info(root) != null
 
     fun desktopInstalled(root: File, desktop: String = VmDesktops.KDE): Boolean {
-        val niri = desktop == VmDesktops.NIRI
-        val id = if (niri) NIRI_DESKTOP_ID else DESKTOP_ID
-        val binary = if (niri) "usr/bin/niri" else "usr/bin/kwin_wayland"
-        val tag = packInfo(root, desktop)?.tag
-            ?: if (niri) BuildConfig.DESKTOP_NIRI_TAG else BuildConfig.DESKTOP_KDE_TAG
+        val id = desktopId(desktop)
+        val tag = packInfo(root, desktop)?.tag ?: when (desktop) {
+            VmDesktops.NIRI -> BuildConfig.DESKTOP_NIRI_TAG
+            VmDesktops.HYPR -> BuildConfig.DESKTOP_HYPR_TAG
+            else -> BuildConfig.DESKTOP_KDE_TAG
+        }
         return !File(root, DesktopRemoval.PENDING).exists() &&
-            File(root, binary).isFile &&
+            File(root, desktopBinary(desktop)).isFile &&
             FileUtils.readString(File(root, ".droidhost-pkg-$id"))?.trim() == tag
+    }
+
+    internal fun desktopId(desktop: String): String = when (desktop) {
+        VmDesktops.NIRI -> NIRI_DESKTOP_ID
+        VmDesktops.HYPR -> HYPR_DESKTOP_ID
+        else -> DESKTOP_ID
+    }
+
+    private fun desktopBinary(desktop: String): String = when (desktop) {
+        VmDesktops.NIRI -> "usr/bin/niri"
+        VmDesktops.HYPR -> "usr/bin/Hyprland"
+        else -> "usr/bin/kwin_wayland"
     }
 
     /** The pack a desktop seeds from: the base's per-DE pointer, else the build's pinned fallback. */
@@ -150,6 +164,9 @@ object DesktopCatalog {
         VmDesktops.NIRI -> if (BuildConfig.DESKTOP_NIRI_SHA256.isEmpty()) null else DesktopPack.Info(
             BuildConfig.DESKTOP_NIRI_TAG, BuildConfig.DESKTOP_NIRI_URL,
             BuildConfig.DESKTOP_NIRI_SHA256, BuildConfig.DESKTOP_NIRI_SIZE)
+        VmDesktops.HYPR -> if (BuildConfig.DESKTOP_HYPR_SHA256.isEmpty()) null else DesktopPack.Info(
+            BuildConfig.DESKTOP_HYPR_TAG, BuildConfig.DESKTOP_HYPR_URL,
+            BuildConfig.DESKTOP_HYPR_SHA256, BuildConfig.DESKTOP_HYPR_SIZE)
         else -> DesktopPack.Info(
             BuildConfig.DESKTOP_KDE_TAG, BuildConfig.DESKTOP_KDE_URL,
             BuildConfig.DESKTOP_KDE_SHA256, BuildConfig.DESKTOP_KDE_SIZE)

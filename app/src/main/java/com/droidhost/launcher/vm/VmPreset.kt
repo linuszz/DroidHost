@@ -167,9 +167,10 @@ object VmPreset {
                 aborted("PROBE", Reason.NOT_USABLE)
                 return
             }
-            // KDE and niri seed a desktop pack; another desktop is fitted later by VmDesktop, so
-            // the rootfs stays without a desktop marker and the machine shows as new until then.
-            val desktop = if (machine.desktop == VmDesktops.KDE || machine.desktop == VmDesktops.NIRI)
+            // KDE, niri and Hyprland seed a desktop pack; another desktop is fitted later by
+            // VmDesktop, so the rootfs stays without a desktop marker and the machine shows as
+            // new until then.
+            val desktop = if (machine.desktop == VmDesktops.KDE || machine.desktop == VmDesktops.NIRI || machine.desktop == VmDesktops.HYPR)
                 seedDesktop(context, machine.id, root, token, machine.desktop) { report(it) } else Reason.NONE
             if (desktop != Reason.NONE) {
                 if (token?.asBoolean != true) VmRuntime.removeInBackground(root)
@@ -201,10 +202,10 @@ object VmPreset {
      * the session exits (status 66) before the desktop starts.
      */
     private fun seedDesktop(context: Context, machineId: String, root: File, token: Downloader.Cancellation?, desktop: String, report: (Int) -> Unit): Reason {
-        // KDE seeds only the pointer the base names; niri also falls back to the build's pinned
-        // pack, since base r1 carries no niri pointer.
+        // KDE seeds only the pointer the base names; niri and Hyprland also fall back to the
+        // build's pinned pack, since the base carries no pointer for them.
         val pack = DesktopPack.info(root, desktop)
-            ?: if (desktop == VmDesktops.NIRI) DesktopCatalog.buildConfigPack(desktop) else null
+            ?: if (desktop != VmDesktops.KDE) DesktopCatalog.buildConfigPack(desktop) else null
         if (pack == null) return Reason.NONE
         if (DesktopCatalog.desktopInstalled(root, desktop)) return Reason.NONE
         val archive = File(context.cacheDir, "vm-desktop-" + machineId + ".tar.zst")
@@ -223,10 +224,10 @@ object VmPreset {
         // The Arch pack overlays files without a dpkg manifest; finishing reads one, so
         // only a pack that carries it is finished. The desktop marker decides readiness.
         if (DesktopPack.installed(root)) DesktopPack.finishInstall(root)
-        // The base stamps KDE's marker; niri's is written here once its pack is in place.
-        val id = if (desktop == VmDesktops.NIRI) DesktopCatalog.NIRI_DESKTOP_ID else DesktopCatalog.DESKTOP_ID
+        // The base stamps KDE's marker; niri's and Hyprland's are written here once their pack is in place.
+        val id = DesktopCatalog.desktopId(desktop)
         val marker = File(root, ".droidhost-pkg-$id")
-        if (desktop == VmDesktops.NIRI || !marker.exists()) FileUtils.writeString(marker, pack.tag + "\n")
+        if (desktop != VmDesktops.KDE || !marker.exists()) FileUtils.writeString(marker, pack.tag + "\n")
         report(95)
         return if (DesktopCatalog.desktopInstalled(root, desktop)) Reason.NONE else Reason.UNPACK_FAILED
     }
