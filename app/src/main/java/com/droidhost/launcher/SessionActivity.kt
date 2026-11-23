@@ -831,6 +831,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             host.onImeChanged = { updateDesktopKeyboardButton() }
             host.onImeHeightChanged = { applyImeHeight(it) }
             host.onCommitText = { deliverGuestText(it) }
+            host.shortcutActive = { heldKeys.anyDown(29, 97, 56, 100, 125, 126) }
             secureKeyboard = SessionPrefs.secureKeyboard(this)
             host.setSecureKeyboard(secureKeyboard)
             root.addView(host)

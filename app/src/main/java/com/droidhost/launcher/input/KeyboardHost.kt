@@ -34,6 +34,8 @@ class KeyboardHost(
     // Whole-string delivery for text the virtual keyboard cannot map to scancodes (CJK/emoji). The host
     // routes it through the guest clipboard + paste, since X11 clients never bind text-input-v3.
     var onCommitText: ((String) -> Unit)? = null
+    // True while Ctrl/Alt/Super is held: typed letters are shortcut chords, so drop the IME auto-cap.
+    var shortcutActive: () -> Boolean = { false }
     private var imeHeight = 0
 
     init {
@@ -113,7 +115,10 @@ class KeyboardHost(
 
     fun type(text: CharSequence?) {
         if (text.isNullOrEmpty()) return
-        val events = map.getEvents(text.toString().toCharArray())
+        // A held Ctrl/Alt/Super makes this a shortcut chord: lowercase so getEvents emits the bare
+        // letter (Alt+T), not the auto-capitalized Shift+T (Alt+Shift+T) that misses the Mod+T bind.
+        val typed = if (shortcutActive()) text.toString().lowercase() else text.toString()
+        val events = map.getEvents(typed.toCharArray())
         if (events != null) {
             for (event in events) sendKeyEvent(event)
         } else {
