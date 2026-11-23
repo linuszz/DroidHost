@@ -55,7 +55,6 @@ class KeyboardHost(
         else InputType.TYPE_CLASS_TEXT
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE or EditorInfo.IME_FLAG_NO_FULLSCREEN or
             EditorInfo.IME_FLAG_NO_EXTRACT_UI
-        KbFileLog.log("onCreateInputConnection secure=$secureKeyboard inputType=${outAttrs.inputType}")
         return KeyConnection()
     }
 
@@ -120,7 +119,6 @@ class KeyboardHost(
         // letter (Alt+T), not the auto-capitalized Shift+T (Alt+Shift+T) that misses the Mod+T bind.
         val typed = if (shortcutActive()) text.toString().lowercase() else text.toString()
         val events = map.getEvents(typed.toCharArray())
-        KbFileLog.log("type '$text' typed='$typed' shortcut=${shortcutActive()} events=${events?.size ?: "null->commit"}")
         if (events != null) {
             for (event in events) sendKeyEvent(event)
         } else {
@@ -145,7 +143,6 @@ class KeyboardHost(
         private var composing = ""
 
         override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
-            KbFileLog.log("commitText '$text' shortcut=${shortcutActive()}")
             composing = ""
             type(text)
             return true
@@ -156,7 +153,6 @@ class KeyboardHost(
         // raw keys here; otherwise Alt+T never reaches the guest because the composition is never committed.
         override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
             val s = text?.toString() ?: ""
-            KbFileLog.log("setComposingText '$s' shortcut=${shortcutActive()} prev='$composing'")
             if (shortcutActive() && s.isNotEmpty()) {
                 val delta = if (s.startsWith(composing)) s.substring(composing.length) else s
                 if (delta.isNotEmpty()) type(delta)
@@ -175,10 +171,7 @@ class KeyboardHost(
             return true
         }
 
-        override fun sendKeyEvent(event: KeyEvent): Boolean {
-            KbFileLog.log("ic.sendKeyEvent kc=${event.keyCode} uni=${event.unicodeChar} meta=${event.metaState} action=${event.action}")
-            return this@KeyboardHost.sendKeyEvent(event)
-        }
+        override fun sendKeyEvent(event: KeyEvent): Boolean = this@KeyboardHost.sendKeyEvent(event)
 
         override fun performEditorAction(actionCode: Int): Boolean {
             tap(KeyEvent.KEYCODE_ENTER)
