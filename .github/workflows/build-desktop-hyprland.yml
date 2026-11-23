@@ -65,7 +65,7 @@ jobs:
           DROIDHOST_RELEASES: https://github.com/${{ github.repository }}-Components/releases/download
         run: |
           set -euo pipefail
-          sudo apt-get update -qq && sudo apt-get install -y -qq zstd xz-utils gpgv gcc-aarch64-linux-gnu >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq zstd xz-utils gpgv gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu gcc-14 g++-14 cmake ninja-build libpugixml-dev pkg-config patch >/dev/null
           DESKTOP_HYPR_RELEASE_TAG='${{ inputs.tag }}' tools/desktop-hyprland/build.sh out
           echo "size $(stat -c %s out/desktop-hyprland.tar.zst) sha256 $(cat out/desktop-hyprland.sha256)"
           echo "pacman repository $(ls out/repo | wc -l) files, $(du -sm out/repo | cut -f1) MiB"
