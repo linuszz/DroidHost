@@ -319,19 +319,22 @@ private sealed interface VertCell {
     object Gear : VertCell
 }
 
-// The scrollable keys of the expanded landscape bar, row-major into three columns. The arrows and
+// The scrollable keys of the expanded landscape bar, row-major into three columns. Ctrl/Alt/Super lead
+// so they stay above the soft keyboard when it pops up over the bar's lower rows. The arrows and
 // PageUp/PageDown are NOT here: they stay in the fixed ThinkPad cluster below the grid. Ime toggles the
 // soft keyboard and BarToggle collapses the bar, so both live among the keys rather than in a header.
 private val VERT_CELLS: List<VertCell> = listOf(
+    VertCell.Key(ToolbarKey("Ctrl", 29)), VertCell.Key(ToolbarKey("Alt", 56)), VertCell.Key(ToolbarKey("Super", 125)),
     VertCell.Key(ToolbarKey("Esc", 1)), VertCell.Key(ToolbarKey("Tab", 15)), VertCell.Key(ToolbarKey("/", 53)), VertCell.Key(ToolbarKey("Del", 111)),
     VertCell.Key(ToolbarKey("Home", 102)), VertCell.Key(ToolbarKey("End", 107)),
-    VertCell.Key(ToolbarKey("Shift", 42)), VertCell.Key(ToolbarKey("Ctrl", 29)), VertCell.Key(ToolbarKey("Alt", 56)), VertCell.Key(ToolbarKey("Super", 125)),
+    VertCell.Key(ToolbarKey("Shift", 42)),
     VertCell.Paste, VertCell.Ime, VertCell.BarToggle, VertCell.Gear,
 )
 
 // The collapsed bar is a single gear-width column of the most-used keys plus the expand handle.
+// Ctrl/Alt/Super lead so they stay above the soft keyboard when it pops up over the column's lower keys.
 private val COLLAPSED_KEYS = listOf(
-    ToolbarKey("Esc", 1), ToolbarKey("Tab", 15), ToolbarKey("Ctrl", 29), ToolbarKey("Alt", 56), ToolbarKey("Super", 125),
+    ToolbarKey("Ctrl", 29), ToolbarKey("Alt", 56), ToolbarKey("Super", 125), ToolbarKey("Esc", 1), ToolbarKey("Tab", 15),
 )
 
 /**
