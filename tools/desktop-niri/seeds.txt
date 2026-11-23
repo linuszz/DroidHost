@@ -11,3 +11,18 @@ xcb-util-keysyms
 python
 # config.kdl binds Mod+T to alacritty.
 alacritty
+# DankMaterialShell (DMS) runs on quickshell, a Qt6/QML shell runtime in Arch extra. Its closure
+# pulls the Qt6 6.12 stack (base/declarative/svg/wayland), cpptrace, jemalloc, libpipewire, polkit,
+# pam, libglvnd and mesa. The dms binary itself is fetched pre-built in build.sh (not a pacman pkg).
+quickshell
+# qt6-base 6.12 links libcrypto.so.4 (OPENSSL_4.0.0) but its pacman depends name plain "openssl",
+# which closure.py serves from the base's openssl 3.6.3 (.3 only) and so does NOT ship the 4.1.0
+# upgrade. Seed the .4 soname to force core/openssl-4.1.0-1 into the pack (replacing the base
+# openssl); closure also ships openssl-3 compat (.3) for the base's .3 consumers. Same lesson as
+# Hyprland's libzip. Without this seed qt6-base's libcrypto.so.4 is unsatisfied and DMS fails to start.
+libcrypto.so=4-64
+# DMS's Material You dynamic theming engine (matugen) is in Arch extra and self-contained (glibc/
+# libgcc only). cliphist backs the clipboard manager; qt6-multimedia backs DMS's audio feedback.
+matugen
+cliphist
+qt6-multimedia

@@ -40,6 +40,22 @@ while read -r entry sum; do
 done < "$work/pkglist.txt"
 
 cp -a "$here/overlay/." "$work/root/"
+
+# DankMaterialShell (DMS): upstream's pre-built self-contained arm64 binary. release.yml builds
+# dms-distropkg with -tags 'distro_binary withshell', embedding the QML shell and the DCommon
+# submodule (bundled Material Symbols/Google Sans/FiraCode fonts, loaded via FontLoader) into one
+# CGO_ENABLED=0 Go binary; distro_binary disables update/greeter for the immutable VM pack. The
+# quickshell QML runtime comes from the pacman closure, so dms only needs quickshell on PATH.
+dms_ver=2.1.2
+dms_sha256=6cf71b33e9bade3fa96b30756598ad4f140d11b9925127a45a12911d15e4611f
+dms=$work/dms; mkdir -p "$dms"
+fetch "$dms/dms.gz" "https://github.com/AvengeMedia/DankMaterialShell/releases/download/v$dms_ver/dms-distropkg-arm64.gz"
+[ "$(sha256sum "$dms/dms.gz" | cut -d' ' -f1)" = "$dms_sha256" ] \
+  || { echo "dms-distropkg-arm64.gz sha256 mismatch" >&2; exit 1; }
+mkdir -p "$work/root/usr/bin"
+gunzip -c "$dms/dms.gz" > "$work/root/usr/bin/dms"
+chmod 755 "$work/root/usr/bin/dms"
+
 mkdir -p "$work/root/usr/lib/droiddeck"
 ${CC_AARCH64:-aarch64-linux-gnu-gcc} -shared -fPIC -O2 -Wall -Wextra \
   -o "$work/root/usr/lib/droiddeck/libdroiddeck-root.so" "$kde/root/root.c" -ldl
