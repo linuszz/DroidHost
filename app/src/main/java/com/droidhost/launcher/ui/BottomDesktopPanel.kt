@@ -146,7 +146,7 @@ class BottomDesktopPanel(
 
     private fun sendKey(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount > 0) return true
-        if (GuestKeys.send(event, BottomDesktop::sendKey)) return true
+        if (GuestKeys.send(event, sendKey = BottomDesktop::sendKey)) return true
         val ch = event.unicodeChar
         if (event.action == KeyEvent.ACTION_DOWN && ch > 0) {
             BottomDesktop.sendText(String(Character.toChars(ch)))

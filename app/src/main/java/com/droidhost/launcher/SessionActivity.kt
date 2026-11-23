@@ -3503,7 +3503,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             val down = event.action == KeyEvent.ACTION_DOWN
             if (down && event.repeatCount > 0) return true
             val owner = if (event.deviceId <= 0) 16 else 8
-            if (com.droidhost.launcher.input.GuestKeys.send(event) { code, pressed -> sendGuestKey(code, pressed, owner) }) return true
+            // Ctrl/Alt/Super (evdev L/R) held means a shortcut, not text: skip the soft-IME auto-cap Shift.
+            val shortcutActive = heldKeys.anyDown(29, 97, 56, 100, 125, 126)
+            if (com.droidhost.launcher.input.GuestKeys.send(event, shortcutActive) { code, pressed -> sendGuestKey(code, pressed, owner) }) return true
             // evdev carries only physical-key scancodes; CJK/emoji committed by a soft IME have none,
             // so deliver them through the Wayland text-input path (the same one toolbar Paste uses).
             val ch = event.unicodeChar

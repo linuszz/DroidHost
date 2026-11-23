@@ -24,4 +24,10 @@ class HeldInput(private val emit: (Int, Boolean) -> Unit) {
             emit(code, false)
         }
     }
+
+    @Synchronized
+    fun anyDown(vararg codes: Int): Boolean {
+        for (code in codes) if (code in owners.indices && owners[code] != 0) return true
+        return false
+    }
 }
