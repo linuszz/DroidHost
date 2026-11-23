@@ -63,6 +63,9 @@ jobs:
       - name: Build
         env:
           DROIDHOST_RELEASES: https://github.com/${{ github.repository }}-Components/releases/download
+          # gcc-14 cross-compiler binaries are version-suffixed (no unversioned symlink); the root.c
+          # helper compile in build.sh defaults to aarch64-linux-gnu-gcc, so point it at gcc-14.
+          CC_AARCH64: aarch64-linux-gnu-gcc-14
         run: |
           set -euo pipefail
           sudo apt-get update -qq && sudo apt-get install -y -qq zstd xz-utils gpgv gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu gcc-14 g++-14 cmake ninja-build libpugixml-dev pkg-config patch >/dev/null
