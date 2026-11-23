@@ -1,0 +1,20 @@
+#!/bin/bash
+# DroidHost shim for gtk-launch. The proot guest ships no gtk3 (seeds.txt defers gtk3 to M1/M2),
+# but omarchy's menu (shell/services/AppLibrary.qml) launches .desktop entries through
+# `uwsm-app -- gtk-launch <id>.desktop`. Without gtk-launch the uwsm-app shim's exec fails (exit 127)
+# and every menu launch silently dies. Resolve the .desktop file and exec its Exec line with the
+# desktop field codes stripped -- the honest "just run it" translation, matching the uwsm-app shim.
+id=${1:-}
+[ -n "$id" ] || exit 0
+id=${id%.desktop}
+f=
+for dir in "${XDG_DATA_HOME:-$HOME/.local/share}/applications" /usr/local/share/applications /usr/share/applications; do
+  if [ -f "$dir/$id.desktop" ]; then f=$dir/$id.desktop; break; fi
+done
+[ -n "$f" ] || { echo "gtk-launch: application '$id' not found" >&2; exit 1; }
+exec_line=$(sed -n 's/^Exec=//p' "$f" | head -1)
+[ -n "$exec_line" ] || exit 1
+# Drop desktop-entry field codes (%f %F %u %U %d %D %n %N %i %c %k %v %m); the menu passes no
+# file/URL arguments, so the placeholders expand to nothing.
+exec_line=$(printf '%s' "$exec_line" | sed 's/%[fFuUdDnNickvm]//g')
+eval "exec $exec_line"
