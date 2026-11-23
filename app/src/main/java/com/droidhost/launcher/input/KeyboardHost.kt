@@ -140,13 +140,30 @@ class KeyboardHost(
     }
 
     private inner class KeyConnection : BaseInputConnection(this, false) {
+        private var composing = ""
+
         override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
+            composing = ""
             type(text)
             return true
         }
 
-        override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean = true
-        override fun finishComposingText(): Boolean = true
+        // A composing IME (e.g. Baidu pinyin) routes letter keys through setComposingText rather than
+        // commitText. While Ctrl/Alt/Super is held the letters are a shortcut chord, so deliver them as
+        // raw keys here; otherwise Alt+T never reaches the guest because the composition is never committed.
+        override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
+            val s = text?.toString() ?: ""
+            if (shortcutActive() && s.isNotEmpty()) {
+                val delta = if (s.startsWith(composing)) s.substring(composing.length) else s
+                if (delta.isNotEmpty()) type(delta)
+            }
+            composing = s
+            return true
+        }
+        override fun finishComposingText(): Boolean {
+            composing = ""
+            return true
+        }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
             repeat(beforeLength) { tap(KeyEvent.KEYCODE_DEL) }
