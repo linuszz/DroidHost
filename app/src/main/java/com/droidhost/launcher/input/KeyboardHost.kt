@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.text.InputType
+import android.util.Log
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
@@ -55,6 +56,7 @@ class KeyboardHost(
         else InputType.TYPE_CLASS_TEXT
         outAttrs.imeOptions = EditorInfo.IME_ACTION_NONE or EditorInfo.IME_FLAG_NO_FULLSCREEN or
             EditorInfo.IME_FLAG_NO_EXTRACT_UI
+        Log.i("KBHost", "onCreateInputConnection secure=$secureKeyboard inputType=${outAttrs.inputType}")
         return KeyConnection()
     }
 
@@ -115,6 +117,7 @@ class KeyboardHost(
 
     fun type(text: CharSequence?) {
         if (text.isNullOrEmpty()) return
+        Log.i("KBHost", "type text='$text' shortcut=${shortcutActive()}")
         // A held Ctrl/Alt/Super makes this a shortcut chord: lowercase so getEvents emits the bare
         // letter (Alt+T), not the auto-capitalized Shift+T (Alt+Shift+T) that misses the Mod+T bind.
         val typed = if (shortcutActive()) text.toString().lowercase() else text.toString()
@@ -143,6 +146,7 @@ class KeyboardHost(
         private var composing = ""
 
         override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
+            Log.i("KBHost", "commitText '$text' shortcut=${shortcutActive()}")
             composing = ""
             type(text)
             return true
@@ -153,6 +157,7 @@ class KeyboardHost(
         // raw keys here; otherwise Alt+T never reaches the guest because the composition is never committed.
         override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
             val s = text?.toString() ?: ""
+            Log.i("KBHost", "setComposingText '$s' shortcut=${shortcutActive()} prev='$composing'")
             if (shortcutActive() && s.isNotEmpty()) {
                 val delta = if (s.startsWith(composing)) s.substring(composing.length) else s
                 if (delta.isNotEmpty()) type(delta)
@@ -160,7 +165,12 @@ class KeyboardHost(
             composing = s
             return true
         }
+        override fun setComposingRegion(start: Int, end: Int): Boolean {
+            Log.i("KBHost", "setComposingRegion $start..$end shortcut=${shortcutActive()}")
+            return super.setComposingRegion(start, end)
+        }
         override fun finishComposingText(): Boolean {
+            Log.i("KBHost", "finishComposingText shortcut=${shortcutActive()}")
             composing = ""
             return true
         }
@@ -171,7 +181,10 @@ class KeyboardHost(
             return true
         }
 
-        override fun sendKeyEvent(event: KeyEvent): Boolean = this@KeyboardHost.sendKeyEvent(event)
+        override fun sendKeyEvent(event: KeyEvent): Boolean {
+            Log.i("KBHost", "ic.sendKeyEvent kc=${event.keyCode} uni=${event.unicodeChar} meta=${event.metaState} action=${event.action}")
+            return this@KeyboardHost.sendKeyEvent(event)
+        }
 
         override fun performEditorAction(actionCode: Int): Boolean {
             tap(KeyEvent.KEYCODE_ENTER)
