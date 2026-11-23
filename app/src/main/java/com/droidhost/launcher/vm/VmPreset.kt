@@ -167,10 +167,11 @@ object VmPreset {
                 aborted("PROBE", Reason.NOT_USABLE)
                 return
             }
-            // KDE, niri and Hyprland seed a desktop pack; another desktop is fitted later by
-            // VmDesktop, so the rootfs stays without a desktop marker and the machine shows as
+            // KDE, niri, Hyprland and Omarchy seed a desktop pack; another desktop is fitted later
+            // by VmDesktop, so the rootfs stays without a desktop marker and the machine shows as
             // new until then.
-            val desktop = if (machine.desktop == VmDesktops.KDE || machine.desktop == VmDesktops.NIRI || machine.desktop == VmDesktops.HYPR)
+            val desktop = if (machine.desktop == VmDesktops.KDE || machine.desktop == VmDesktops.NIRI ||
+                machine.desktop == VmDesktops.HYPR || machine.desktop == VmDesktops.OMARCHY)
                 seedDesktop(context, machine.id, root, token, machine.desktop) { report(it) } else Reason.NONE
             if (desktop != Reason.NONE) {
                 if (token?.asBoolean != true) VmRuntime.removeInBackground(root)
