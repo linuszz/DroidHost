@@ -827,6 +827,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             }
             root.addView(controls)
         }
+        com.droidhost.launcher.input.KbFileLog.init(this)
         keyboard = KeyboardHost(this).also { host ->
             host.onImeChanged = { updateDesktopKeyboardButton() }
             host.onImeHeightChanged = { applyImeHeight(it) }
@@ -3506,6 +3507,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
             val owner = if (event.deviceId <= 0) 16 else 8
             // Ctrl/Alt/Super (evdev L/R) held means a shortcut, not text: skip the soft-IME auto-cap Shift.
             val shortcutActive = heldKeys.anyDown(29, 97, 56, 100, 125, 126)
+            com.droidhost.launcher.input.KbFileLog.log("guestGate kc=${event.keyCode} dev=${event.deviceId} action=${event.action} shortcut=$shortcutActive uni=${event.unicodeChar} alt56=${heldKeys.anyDown(56)}")
             if (com.droidhost.launcher.input.GuestKeys.send(event, shortcutActive) { code, pressed -> sendGuestKey(code, pressed, owner) }) return true
             // evdev carries only physical-key scancodes; CJK/emoji committed by a soft IME have none,
             // so deliver them through the Wayland text-input path (the same one toolbar Paste uses).
@@ -5251,6 +5253,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
         val code = if (key == KEY_RIGHTCTRL && (SessionState.mode == SessionService.MODE_DESKTOP || userAppDesktop())) KEY_LEFTCTRL else key
         if (owner == 1) { if (down) guestKeysDown.add(code) else guestKeysDown.remove(code) }
         heldKeys.set(owner, code, down)
+        if (code in intArrayOf(29, 97, 56, 100, 125, 126)) {
+            com.droidhost.launcher.input.KbFileLog.log("sendGuestKey mod=$code down=$down owner=$owner")
+        }
     }
 
     private fun capturePausedFrame(manual: Boolean = false) {
