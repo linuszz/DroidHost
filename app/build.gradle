@@ -217,6 +217,8 @@ android {
         }
         release {
             minifyEnabled false
+            // Test devices seed VM rootfs and read session logs through adb run-as, which needs a debuggable package.
+            debuggable true
             signingConfig signingConfigs.testkey
         }
     }
