@@ -1340,7 +1340,7 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
                     },
                 )
                 if (leaving) com.droidhost.launcher.ui.FloodSpread(
-                    com.droidhost.launcher.ui.LocalPalette.current.signal,
+                    com.droidhost.launcher.ui.LocalPalette.current.background,
                     ball = if (loading.visible) com.droidhost.launcher.ui.ThrobberSpot.ball else null,
                 ) { completeLeave() }
                 quitFrom?.let { from ->
@@ -6211,9 +6211,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 
     private fun finishFlooded() {
         if (isFinishing) return
-        val signal = com.droidhost.launcher.ui.Themes.current(this).signal
-        com.droidhost.launcher.ui.QuitFlood.mark(signal.toArgb())
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(signal.toArgb()))
+        val flood = com.droidhost.launcher.ui.Themes.current(this).background
+        com.droidhost.launcher.ui.QuitFlood.mark(flood.toArgb())
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(flood.toArgb()))
         quitFlooded = true
         SessionService.stop(this)
         finish()
@@ -6258,9 +6258,9 @@ class SessionActivity : ComponentActivity(), SurfaceHolder.Callback, com.droidho
 
     private fun completeLeave() {
         if (isFinishing) return
-        val signal = com.droidhost.launcher.ui.Themes.current(this).signal
-        com.droidhost.launcher.ui.QuitFlood.mark(signal.toArgb())
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(signal.toArgb()))
+        val flood = com.droidhost.launcher.ui.Themes.current(this).background
+        com.droidhost.launcher.ui.QuitFlood.mark(flood.toArgb())
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(flood.toArgb()))
         quitFlooded = true
         finish()
     }

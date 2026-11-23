@@ -710,13 +710,13 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             com.droidhost.launcher.ui.LaunchOrigin.flooding = null
             if (!busy && !LinuxRuntimeInstaller.isBusy() && !(SessionState.installing != null && !SessionState.running) &&
                 (protons.protonBusyId != null || ProtonExtras.installInProgress)) {
-                compatFlood = com.droidhost.launcher.ui.Themes.byId(theme).signal
+                compatFlood = com.droidhost.launcher.ui.Themes.byId(theme).background
                 waitForCompat(f.intent)
             }
             return
         }
-        val signal = com.droidhost.launcher.ui.Themes.byId(theme).signal
-        super.startActivity(f.intent.putExtra(com.droidhost.launcher.ui.EXTRA_FLOOD, signal.toArgb()))
+        val flood = com.droidhost.launcher.ui.Themes.byId(theme).background
+        super.startActivity(f.intent.putExtra(com.droidhost.launcher.ui.EXTRA_FLOOD, flood.toArgb()))
         overridePendingTransition(0, 0)
     }
 

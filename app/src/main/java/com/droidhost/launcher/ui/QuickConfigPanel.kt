@@ -25,8 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
 
 // The less-frequent session toggles, shared by the portrait extra-keys gear and the landscape FAB so
-// both surfaces stay in lockstep. Labels for orientation/safe-area come from resources; the rest are
-// upstream hardcoded English pending a localization decision.
+// both surfaces stay in lockstep. Labels come from resources and follow the app locale.
 data class QuickConfigState(
     val secureKeyboard: Boolean,
     val touchpadActive: Boolean,
@@ -69,11 +68,11 @@ fun QuickConfigPanel(
             .padding(6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        ConfigRow("Secure keyboard", if (state.secureKeyboard) "On" else "Off", state.secureKeyboard, actions.onToggleSecureKeyboard)
-        ConfigRow("Mouse mode", if (state.touchpadActive) "Touchpad" else "Direct", state.touchpadActive, actions.onToggleTouchMode)
-        ConfigRow("Refresh rate", if (state.refreshAuto) "Auto · ${state.refreshHz} Hz" else "${state.refreshHz} Hz", !state.refreshAuto, actions.onCycleRefreshRate)
-        ConfigRow("UI scale", "${state.uiScalePercent}%", state.uiScalePercent > 100, actions.onCycleUiScale)
-        ConfigRow("Performance HUD", if (state.hudOn) "On" else "Off", state.hudOn, actions.onToggleHud)
+        ConfigRow(stringResource(R.string.quick_secure_keyboard), if (state.secureKeyboard) stringResource(R.string.touch_on) else stringResource(R.string.touch_off), state.secureKeyboard, actions.onToggleSecureKeyboard)
+        ConfigRow(stringResource(R.string.quick_mouse_mode), if (state.touchpadActive) stringResource(R.string.mode_touch_touchpad) else stringResource(R.string.mode_touch_direct), state.touchpadActive, actions.onToggleTouchMode)
+        ConfigRow(stringResource(R.string.glasses_refresh), if (state.refreshAuto) "${stringResource(R.string.common_auto)} · ${state.refreshHz} Hz" else "${state.refreshHz} Hz", !state.refreshAuto, actions.onCycleRefreshRate)
+        ConfigRow(stringResource(R.string.quick_ui_scale), "${state.uiScalePercent}%", state.uiScalePercent > 100, actions.onCycleUiScale)
+        ConfigRow(stringResource(R.string.drawer_hud), if (state.hudOn) stringResource(R.string.touch_on) else stringResource(R.string.touch_off), state.hudOn, actions.onToggleHud)
         ConfigRow(stringResource(R.string.setup_session_orientation), state.orientationLabel, false, actions.onCycleOrientation)
         ConfigRow(stringResource(R.string.safe_area_mode), state.safeAreaLabel, false, actions.onCycleSafeArea)
     }

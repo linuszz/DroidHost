@@ -8,7 +8,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -112,9 +111,8 @@ internal fun LaunchFlood(
     cornerAtRest: Dp = 12.dp,
     onCovered: () -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
-    val start = fromColors ?: (colors.primary to pal.primary2)
+    val start = fromColors ?: (pal.background to pal.surface)
     VeilRing()
     val edges = remember { List(4) { Animatable(0f) } }
     val reached = remember { BooleanArray(4) }
@@ -150,7 +148,7 @@ internal fun LaunchFlood(
         }
     }
     Canvas(Modifier.fillMaxSize().onSizeChanged { page = Size(it.width.toFloat(), it.height.toFloat()) }.pointerInput(Unit) { awaitEachGesture { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }) {
-        drawFlood(from, List(4) { edge(it) }, start, pal.signal, cornerAtRest.toPx())
+        drawFlood(from, List(4) { edge(it) }, start, pal.background, cornerAtRest.toPx())
     }
 }
 
@@ -178,7 +176,6 @@ private fun DrawScope.drawFlood(from: Rect, v: List<Float>, start: Pair<Color, C
 
 @Composable
 internal fun FloodReturn(flood: Color, to: Rect?, onProgress: (Float) -> Unit, onLanded: () -> Unit) {
-    val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val edges = remember { List(4) { Animatable(1f) } }
     VeilRing()
@@ -212,7 +209,7 @@ internal fun FloodReturn(flood: Color, to: Rect?, onProgress: (Float) -> Unit, o
     }
     Canvas(Modifier.fillMaxSize().onSizeChanged { page = Size(it.width.toFloat(), it.height.toFloat()) }.pointerInput(Unit) { awaitEachGesture { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }) {
         if (to == null) drawRect(flood, alpha = fade.value)
-        else drawFlood(to, edges.map { it.value }, colors.primary to pal.primary2, flood, 12.dp.toPx())
+        else drawFlood(to, edges.map { it.value }, pal.background to pal.surface, flood, 12.dp.toPx())
     }
 }
 

@@ -929,6 +929,9 @@
     <string name="setup_launcher_orientation">啟動器方向</string>
     <string name="setup_launcher_orientation_auto">跟隨裝置旋轉</string>
     <string name="setup_orientation_portrait">直向</string>
+    <string name="quick_secure_keyboard">安全鍵盤</string>
+    <string name="quick_mouse_mode">鼠標模式</string>
+    <string name="quick_ui_scale">界面縮放</string>
     <string name="setup_session_orientation">會話方向</string>
     <string name="setup_session_orientation_hint">套用至 Steam、遊戲、桌面和控制器編輯器。解像度預設會隨會話旋轉；自訂的寬度和高度則維持輸入值。</string>
     <string name="setup_orientation_auto">自動橫向</string>
