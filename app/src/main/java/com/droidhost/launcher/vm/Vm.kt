@@ -73,15 +73,17 @@ object VmDesktops {
     const val GNOME = "gnome"
     const val NIRI = "niri"
     const val HYPR = "hyprland"
-    val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri, HYPR to R.string.vm_desktop_hypr)
+    const val OMARCHY = "omarchy"
+    val options = listOf(KDE to R.string.vm_desktop_kde, GNOME to R.string.vm_desktop_gnome, NIRI to R.string.vm_desktop_niri, HYPR to R.string.vm_desktop_hypr, OMARCHY to R.string.vm_desktop_omarchy)
     // The new-machine picker offers only desktops verified on device. GNOME stays in [options]
     // to name machines already fitted with it, but is not offered until its assembly is verified.
     val adapted = setOf(KDE)
 
-    // niri and Hyprland are offered on Arch only: the Debian 13 and Ubuntu 26.04 repositories
-    // carry neither.
+    // niri, Hyprland and Omarchy are offered on Arch only: the Debian 13 and Ubuntu 26.04 repositories
+    // carry none. Omarchy is the Hyprland DE plus omarchy's Quickshell shell (tools/desktop-omarchy);
+    // its pack pins into the APK only after the first CI publish (release.env SHA256 empty until then).
     fun adaptedFor(distroId: String): Set<String> =
-        if (distroId == VmCatalog.ARCH) adapted + NIRI + HYPR else adapted
+        if (distroId == VmCatalog.ARCH) adapted + NIRI + HYPR + OMARCHY else adapted
 }
 
 /**

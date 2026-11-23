@@ -1,0 +1,17 @@
+#!/bin/bash
+# DroidHost shim for upstream omarchy's uwsm-app (harvested from moarchy, MIT).
+# 16 of the vendored omarchy-* scripts launch things as `uwsm-app -- <cmd>`, which puts each app in its
+# own systemd scope under a uwsm-managed session. DroidHost's proot guest has no systemd-PID1/uwsm and
+# starts Hyprland straight from droiddeck-desktop, so the honest translation is "just run it". Without
+# this shim the omarchy menu (SUPER+SPACE), editor, TUIs and background switching silently do nothing.
+args=()
+seen_sep=0
+for a in "$@"; do
+  if [[ $seen_sep -eq 0 && $a == "--" ]]; then
+    seen_sep=1
+    continue
+  fi
+  args+=("$a")
+done
+(( ${#args[@]} )) || exit 0
+exec "${args[@]}"

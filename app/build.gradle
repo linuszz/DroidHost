@@ -98,6 +98,9 @@ def desktopNiri = rootProject.file('tools/desktop-niri/release.env').readLines()
 def desktopHypr = rootProject.file('tools/desktop-hyprland/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
+def desktopOmarchy = rootProject.file('tools/desktop-omarchy/release.env').readLines()
+    .findAll { it.contains('=') && !it.startsWith('#') }
+    .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
 def trackingPack = rootProject.file('tools/packs/tracking/release.env').readLines()
     .findAll { it.contains('=') && !it.startsWith('#') }
     .collectEntries { def kv = it.split('=', 2); [(kv[0].trim()): kv[1].trim()] }
@@ -168,6 +171,10 @@ android {
         buildConfigField "String", "DESKTOP_HYPR_URL", "\"https://github.com/${desktopHypr.DESKTOP_HYPR_REPO}/releases/download/${desktopHypr.DESKTOP_HYPR_TAG}/desktop-hyprland.tar.zst\""
         buildConfigField "String", "DESKTOP_HYPR_SHA256", "\"${desktopHypr.DESKTOP_HYPR_SHA256}\""
         buildConfigField "long", "DESKTOP_HYPR_SIZE", "${desktopHypr.DESKTOP_HYPR_SIZE}L"
+        buildConfigField "String", "DESKTOP_OMARCHY_TAG", "\"${desktopOmarchy.DESKTOP_OMARCHY_TAG}\""
+        buildConfigField "String", "DESKTOP_OMARCHY_URL", "\"https://github.com/${desktopOmarchy.DESKTOP_OMARCHY_REPO}/releases/download/${desktopOmarchy.DESKTOP_OMARCHY_TAG}/desktop-omarchy.tar.zst\""
+        buildConfigField "String", "DESKTOP_OMARCHY_SHA256", "\"${desktopOmarchy.DESKTOP_OMARCHY_SHA256}\""
+        buildConfigField "long", "DESKTOP_OMARCHY_SIZE", "${desktopOmarchy.DESKTOP_OMARCHY_SIZE}L"
         addonPacks.each { name, pack ->
             buildConfigField "String", "PACK_${name.toUpperCase()}_SHA256", "\"${pack.sha256}\""
             buildConfigField "long", "PACK_${name.toUpperCase()}_SIZE", "${pack.size}L"

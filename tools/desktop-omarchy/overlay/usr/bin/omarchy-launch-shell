@@ -1,0 +1,4 @@
+#!/bin/bash
+# DroidHost shadow of upstream omarchy's omarchy-launch-shell: route to the DroidHost launch shim
+# (nested-KGSL env resolution + quickshell start) instead of upstream's uwsm/systemd session path.
+exec /usr/bin/droidhost-omarchy-shell "$@"

@@ -1,0 +1,80 @@
+--- a/src/backend/Wayland.cpp
++++ b/src/backend/Wayland.cpp
+@@ -117,23 +117,23 @@
+         const std::string NAME = name;
+ 
+         if (NAME == "wl_seat") {
+-            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, 9, id)));
+-            waylandState.seat = makeShared<CCWlSeat>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_seat_interface, 9));
++            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, std::min(9u, version), id)));
++            waylandState.seat = makeShared<CCWlSeat>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_seat_interface, std::min(9u, version)));
+             initSeat();
+         } else if (NAME == "xdg_wm_base") {
+-            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, 6, id)));
+-            waylandState.xdg = makeShared<CCXdgWmBase>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &xdg_wm_base_interface, 6));
++            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, std::min(6u, version), id)));
++            waylandState.xdg = makeShared<CCXdgWmBase>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &xdg_wm_base_interface, std::min(6u, version)));
+             initShell();
+         } else if (NAME == "wl_compositor") {
+-            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, 6, id)));
+-            waylandState.compositor = makeShared<CCWlCompositor>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_compositor_interface, 6));
++            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, std::min(6u, version), id)));
++            waylandState.compositor = makeShared<CCWlCompositor>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_compositor_interface, std::min(6u, version)));
+         } else if (NAME == "wl_shm") {
+-            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, 1, id)));
+-            waylandState.shm = makeShared<CCWlShm>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_shm_interface, 1));
++            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, std::min(1u, version), id)));
++            waylandState.shm = makeShared<CCWlShm>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &wl_shm_interface, std::min(1u, version)));
+         } else if (NAME == "zwp_linux_dmabuf_v1") {
+-            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, 4, id)));
++            TRACE(backend->log(AQ_LOG_TRACE, std::format("  > binding to global: {} (version {}) with id {}", name, std::min(4u, version), id)));
+             waylandState.dmabuf =
+-                makeShared<CCZwpLinuxDmabufV1>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &zwp_linux_dmabuf_v1_interface, 4));
++                makeShared<CCZwpLinuxDmabufV1>((wl_proxy*)wl_registry_bind((wl_registry*)waylandState.registry->resource(), id, &zwp_linux_dmabuf_v1_interface, std::min(4u, version)));
+             if (!initDmabuf()) {
+                 backend->log(AQ_LOG_ERROR, "Wayland backend cannot start: zwp_linux_dmabuf_v1 init failed");
+                 waylandState.dmabufFailed = true;
+--- a/src/backend/Backend.cpp
++++ b/src/backend/Backend.cpp
+@@ -335,10 +335,10 @@
+         int      leaseFD  = drmModeCreateLease(drmFD, nullptr, 0, O_CLOEXEC, &lesseeID);
+         if (leaseFD >= 0) {
+             return leaseFD;
+-        } else if (leaseFD != -EINVAL && leaseFD != -EOPNOTSUPP) {
+-            log(AQ_LOG_ERROR, "reopenDRMNode: drmModeCreateLease failed");
+-            return -1;
+         }
++        // A render node cannot create a DRM lease; fall back to reopening the
++        // node on any lease failure so a nested Wayland backend on a KGSL render
++        // node still obtains a GBM allocator.
+         log(AQ_LOG_DEBUG, "reopenDRMNode: drmModeCreateLease failed, falling back to open");
+     }
+ 
+--- a/src/allocator/GBM.cpp
++++ b/src/allocator/GBM.cpp
+@@ -331,8 +331,10 @@
+ SP<CGBMAllocator> Aquamarine::CGBMAllocator::create(int drmfd_, Hyprutils::Memory::CWeakPointer<CBackend> backend_) {
+     uint64_t capabilities = 0;
+     if (drmGetCap(drmfd_, DRM_CAP_PRIME, &capabilities) || !(capabilities & DRM_PRIME_CAP_EXPORT)) {
+-        backend_->log(AQ_LOG_ERROR, "Cannot create a GBM Allocator: PRIME export is not supported by the gpu.");
+-        return nullptr;
++        // KGSL render nodes (Turnip) do not advertise DRM_CAP_PRIME yet export
++        // GBM buffers through gbm_bo_get_fd_for_plane; keep this advisory and
++        // let gbm_create_device / buffer allocation decide actual support.
++        backend_->log(AQ_LOG_WARNING, "GBM: DRM_CAP_PRIME export not advertised; proceeding on a render node.");
+     }
+ 
+     auto allocator = SP<CGBMAllocator>(new CGBMAllocator(drmfd_, backend_));
+@@ -355,9 +357,10 @@
+         return;
+     }
+ 
+-    gbmDeviceBackendName = gbm_device_get_backend_name(gbmDevice);
++    const char* gbmName  = gbm_device_get_backend_name(gbmDevice);
++    gbmDeviceBackendName = gbmName ? gbmName : "";
+     auto drmName_        = drmGetDeviceNameFromFd2(fd_);
+-    drmName              = drmName_;
++    drmName              = drmName_ ? drmName_ : "";
+     free(drmName_);
+ }
+ 

@@ -1,0 +1,10 @@
+#!/bin/bash
+# DroidHost no-op shadow of upstream omarchy's omarchy-system-lock.
+# The idle service (shell/plugins/services/idle/Service.qml) execs `omarchy-system-lock` at its lock
+# deadline. Upstream's lock is an ext-session-lock client, which hides EVERY layer-shell surface
+# including the on-screen keyboard. On a phone with no password path that is only clearable over ssh
+# (moarchy's lesson). DroidHost neutralizes it here as a no-op; the user shell.json also parks both idle
+# timeouts at a week (604800) — IdleModel.secondsFromConfig falls back to the 150/300 defaults on any
+# value < 0, so -1 cannot disable it. Defense in depth: even if the idle config is reset, no lock engages.
+echo "droidhost-omarchy: system lock suppressed (no password path on Android)" >&2
+exit 0

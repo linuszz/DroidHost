@@ -1,0 +1,32 @@
+hyprland
+# Omarchy runs on the Hyprland DE base (desktop-hyprland r1): hyprland/aquamarine/hypr* libs are in
+# Arch extra, Arch builder signed; closure.py resolves them from core/extra/alarm (no external repo).
+# hyprland depends on xcb-util-keysyms (also satisfies the host-imported DD-Turnip DT_NEEDED); closure
+# pulls it transitively.
+# hyprcursor -> libzip links libcrypto.so.4 (OPENSSL_4.0.0), but libzip's pacman depends name plain
+# "openssl", which closure serves from the base's openssl 3.6.3 (.3 only). Seed the .4 soname to force
+# core/openssl-4.1.0 into the pack (replacing base openssl); closure also ships openssl-3 compat (.3).
+libcrypto.so=4-64
+# droiddeck-desktop's helpers and the pacman wrapper's prepare all run python3; omarchy's collectors
+# (agents/notifications) are python too.
+python
+# hyprland.conf binds SUPER+T to alacritty (kept as the fallback terminal beside omarchy's own).
+alacritty
+# --- omarchy shell layer (Quickshell + Qt6, all in Arch extra; live extra.db verified) ---
+# quickshell 0.3.2-1 runs omarchy v4.0.4's shell.qml (no OmarchyLoadPatch pragma at this pin). Stock
+# Arch ARM quickshell, NOT a self-built fork and NOT the omarchy CDN. Pulls qt6-base/declarative/
+# shadertools etc. via closure (%DEPENDS%).
+quickshell
+# Qt6 Wayland platform plugin: without it Qt falls through to xcb and aborts ("no Qt platform plugin
+# could be initialized") before a line of QML is read. Explicit seed (critical).
+qt6-wayland
+# Shell icons (SVG) and Qt5-compat QML module the shell imports.
+qt6-svg
+qt6-5compat
+# The bar's mono font + Nerd Font glyphs. quickshell/Qt6 need fontconfig; closure pulls it.
+ttf-jetbrains-mono-nerd
+# update-desktop-database for omarchy's vendored applications/*.desktop entries.
+desktop-file-utils
+# M1/M2 (service-plugin backends + GTK apps), add once the shell renders:
+#   pipewire upower power-profiles-daemon networkmanager polkit gtk3 qt6-multimedia
+# Android lacks the D-Bus services these back; M0 lets those bar plugins graceful-fail.

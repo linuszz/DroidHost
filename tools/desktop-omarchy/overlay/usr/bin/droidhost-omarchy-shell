@@ -1,0 +1,55 @@
+#!/bin/bash
+# DroidHost launch shim for omarchy 4.x's Quickshell shell (Hyprland DE).
+# Harvested from moarchy's moarchy-restart-shell (SimonSchubert/moarchy, MIT); adapted to DroidHost's
+# vendored /usr/share/omarchy and nested-KGSL session. Launched by hyprland.conf exec-once, so it
+# inherits Hyprland's WAYLAND_DISPLAY (the guest compositor's own socket) and HYPRLAND_INSTANCE_SIGNATURE;
+# both are also resolved defensively for a manual restart from a terminal/ssh.
+#
+# The compositor socket is the critical bit: without it the shell's Quickshell.Hyprland module cannot
+# connect, and the bar renders but never populates (workspaces/focus/events stay dead). WAYLAND_DISPLAY
+# is worse: without it Qt falls through to the xcb platform plugin and aborts before a line of QML is
+# read ("no Qt platform plugin could be initialized"), which reads like a broken shell.
+
+: "${OMARCHY_PATH:=/usr/share/omarchy}"
+: "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"
+export OMARCHY_PATH XDG_RUNTIME_DIR
+
+[[ -f $OMARCHY_PATH/shell/shell.qml ]] || {
+  echo "No omarchy shell at $OMARCHY_PATH/shell" >&2; exit 1; }
+
+# The shell shells out to omarchy-* helpers by bare name (the bar's logo runs
+# `omarchy-shell shell toggle omarchy.menu`), so the bin dir must be on PATH.
+export PATH="/usr/bin:$OMARCHY_PATH/bin:$PATH"
+
+# An instance directory under $XDG_RUNTIME_DIR/hypr is the signature Quickshell.Hyprland looks for
+# (the directory name, not a path). Newest first: a restart can leave a stale one behind.
+if [[ -z ${HYPRLAND_INSTANCE_SIGNATURE:-} && -d $XDG_RUNTIME_DIR/hypr ]]; then
+  for _d in $(ls -t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null); do
+    [[ -S $XDG_RUNTIME_DIR/hypr/$_d/.socket.sock ]] || continue
+    HYPRLAND_INSTANCE_SIGNATURE=$_d
+    break
+  done
+fi
+[[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && export HYPRLAND_INSTANCE_SIGNATURE
+[[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] ||
+  echo "warning: no compositor socket found; the bar will not populate" >&2
+
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-$(basename "$(ls "$XDG_RUNTIME_DIR"/wayland-[0-9] 2>/dev/null | head -1)" 2>/dev/null)}"
+[[ -n $WAYLAND_DISPLAY ]] || echo "warning: no WAYLAND_DISPLAY; the shell will not start" >&2
+
+# quickshell refuses to start while another instance holds the same config. Kill the old one and wait
+# for it to actually be gone: losing the race leaves NO shell at all (new exits, old finishes dying).
+# 10s budget, then start anyway (a quickshell that will not die is a different problem).
+pkill -x quickshell 2>/dev/null
+for _ in $(seq 40); do
+  pgrep -x quickshell >/dev/null 2>&1 || break
+  sleep 0.25
+done
+
+# Keep the shell's own output: quickshell reports a failed plugin with a single console.warn and carries
+# on (a broken bar plugin falls back to omarchy.bar, a broken overlay never appears). Truncated per start.
+LOG="${XDG_STATE_HOME:-$HOME/.local/state}/droidhost-omarchy/shell.log"
+mkdir -p "$(dirname "$LOG")"
+
+QS_DISABLE_FILE_WATCHER=1 QS_NO_RELOAD_POPUP=1 \
+  setsid quickshell -n -p "$OMARCHY_PATH/shell" >"$LOG" 2>&1 &

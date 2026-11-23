@@ -116,6 +116,7 @@ object DesktopCatalog {
     const val DESKTOP_ID = "desktop-kde"
     const val NIRI_DESKTOP_ID = "desktop-niri"
     const val HYPR_DESKTOP_ID = "desktop-hyprland"
+    const val OMARCHY_DESKTOP_ID = "desktop-omarchy"
     const val EMULATORS_ID = "emulators"
     private const val EMULATORS_SCRIPT = "/usr/local/bin/droiddeck-emulators"
 
@@ -137,6 +138,7 @@ object DesktopCatalog {
         val tag = packInfo(root, desktop)?.tag ?: when (desktop) {
             VmDesktops.NIRI -> BuildConfig.DESKTOP_NIRI_TAG
             VmDesktops.HYPR -> BuildConfig.DESKTOP_HYPR_TAG
+            VmDesktops.OMARCHY -> BuildConfig.DESKTOP_OMARCHY_TAG
             else -> BuildConfig.DESKTOP_KDE_TAG
         }
         return !File(root, DesktopRemoval.PENDING).exists() &&
@@ -147,12 +149,15 @@ object DesktopCatalog {
     internal fun desktopId(desktop: String): String = when (desktop) {
         VmDesktops.NIRI -> NIRI_DESKTOP_ID
         VmDesktops.HYPR -> HYPR_DESKTOP_ID
+        VmDesktops.OMARCHY -> OMARCHY_DESKTOP_ID
         else -> DESKTOP_ID
     }
 
     private fun desktopBinary(desktop: String): String = when (desktop) {
         VmDesktops.NIRI -> "usr/bin/niri"
         VmDesktops.HYPR -> "usr/bin/Hyprland"
+        // Omarchy runs the Hyprland compositor; its shell is the Quickshell layer started by hyprland.lua hl.on.
+        VmDesktops.OMARCHY -> "usr/bin/Hyprland"
         else -> "usr/bin/kwin_wayland"
     }
 
@@ -167,6 +172,9 @@ object DesktopCatalog {
         VmDesktops.HYPR -> if (BuildConfig.DESKTOP_HYPR_SHA256.isEmpty()) null else DesktopPack.Info(
             BuildConfig.DESKTOP_HYPR_TAG, BuildConfig.DESKTOP_HYPR_URL,
             BuildConfig.DESKTOP_HYPR_SHA256, BuildConfig.DESKTOP_HYPR_SIZE)
+        VmDesktops.OMARCHY -> if (BuildConfig.DESKTOP_OMARCHY_SHA256.isEmpty()) null else DesktopPack.Info(
+            BuildConfig.DESKTOP_OMARCHY_TAG, BuildConfig.DESKTOP_OMARCHY_URL,
+            BuildConfig.DESKTOP_OMARCHY_SHA256, BuildConfig.DESKTOP_OMARCHY_SIZE)
         else -> DesktopPack.Info(
             BuildConfig.DESKTOP_KDE_TAG, BuildConfig.DESKTOP_KDE_URL,
             BuildConfig.DESKTOP_KDE_SHA256, BuildConfig.DESKTOP_KDE_SIZE)

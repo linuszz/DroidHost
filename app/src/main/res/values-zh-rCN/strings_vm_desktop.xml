@@ -4,5 +4,6 @@
     <string name="vm_desktop_gnome">GNOME</string>
     <string name="vm_desktop_niri">niri</string>
     <string name="vm_desktop_hypr">Hyprland</string>
+    <string name="vm_desktop_omarchy">Omarchy</string>
     <string name="vm_source_desktop_hint">选择桌面环境（安装时固定）</string>
 </resources>
