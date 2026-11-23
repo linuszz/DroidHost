@@ -258,6 +258,10 @@ android {
             maxParallelForks = 2
             def logTarget = providers.systemProperty('robolectric.logging').orNull
             if (logTarget != null) systemProperty 'robolectric.logging', logTarget
+            def repoUrl = providers.systemProperty('robolectric.dependency.repo.url').orNull
+            if (repoUrl != null) systemProperty 'robolectric.dependency.repo.url', repoUrl
+            def repoId = providers.systemProperty('robolectric.dependency.repo.id').orNull
+            if (repoId != null) systemProperty 'robolectric.dependency.repo.id', repoId
         }
     }
 
