@@ -81,6 +81,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -434,6 +436,7 @@ private fun VmEmptyState(modifier: Modifier, onPreset: () -> Unit, onImport: () 
             VmSourceCard(
                 Icons.Outlined.Inventory2, stringResource(R.string.vm_source_preset),
                 stringResource(R.string.vm_source_preset_hint), Modifier.weight(1f), onPreset,
+                label = stringResource(R.string.vm_new),
             )
             VmSourceCard(
                 Icons.Outlined.Download, stringResource(R.string.vm_source_import_button),
@@ -445,13 +448,15 @@ private fun VmEmptyState(modifier: Modifier, onPreset: () -> Unit, onImport: () 
 }
 
 @Composable
-private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifier: Modifier, onClick: () -> Unit) {
+private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifier: Modifier, onClick: () -> Unit, label: String? = null) {
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val src = remember { MutableInteractionSource() }
     val hot = rememberHot(src)
     Column(
-        modifier.paneItem("vmsource:$title").clip(Shape16).background(colors.surface)
+        modifier.paneItem("vmsource:$title")
+            .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier)
+            .clip(Shape16).background(colors.surface)
             .glideBorder(hot, Shape16, pal.signal, pal.line)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .controllerConfirm(onClick = onClick)
@@ -465,7 +470,7 @@ private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifie
 
 /** A distribution's mark, small and single-colour; the catalogue art when there is one. */
 @Composable
-private fun DistroGlyph(distroId: String, size: Dp) {
+private fun DistroGlyph(distroId: String, size: Dp, label: String? = null) {
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val shape = RoundedCornerShape(size * 0.24f)
@@ -475,11 +480,11 @@ private fun DistroGlyph(distroId: String, size: Dp) {
     ) {
         val logo = VmCatalog.logoRes(distroId)
         if (logo != null) Image(
-            painterResource(logo), null,
+            painterResource(logo), label,
             colorFilter = ColorFilter.tint(colors.onSurfaceVariant),
             modifier = Modifier.size(size * 0.62f),
         )
-        else Icon(Icons.Outlined.DesktopWindows, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(size * 0.55f))
+        else Icon(Icons.Outlined.DesktopWindows, label, tint = colors.onSurfaceVariant, modifier = Modifier.size(size * 0.55f))
     }
 }
 
@@ -489,9 +494,11 @@ private fun VmNewRow(compact: Boolean, onClick: () -> Unit) {
     val pal = LocalPalette.current
     val src = remember { MutableInteractionSource() }
     val hot = rememberHot(src)
+    val newLabel = stringResource(R.string.vm_new)
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxWidth().paneItem("vm:new").clip(Shape16)
+        modifier = Modifier.fillMaxWidth().paneItem("vm:new")
+            .semantics { contentDescription = newLabel }.clip(Shape16)
             .drawBehind {
                 drawRoundRect(
                     color = if (hot) pal.signal else pal.line2, cornerRadius = CornerRadius(16.dp.toPx()),
@@ -563,7 +570,7 @@ private fun VmCard(
             .padding(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            DistroGlyph(m.distro.id, 42.dp)
+            DistroGlyph(m.distro.id, 42.dp, m.distro.name)
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     Text(
@@ -624,7 +631,7 @@ private fun VmCompactCard(m: VmMachine, status: VmStatus, selected: Boolean, onS
             .controllerConfirm(onClick = onSelect)
             .padding(11.dp),
     ) {
-        DistroGlyph(m.distro.id, 34.dp)
+        DistroGlyph(m.distro.id, 34.dp, m.distro.name)
         Column(Modifier.weight(1f)) {
             Text(
                 vmMachineLabel(ctx, m), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,

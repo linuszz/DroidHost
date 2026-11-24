@@ -56,7 +56,7 @@ class DesktopUninstallTest {
     @Test fun anUninstalledDesktopNoLongerOffersUninstall() {
         show(installed = false, present = false)
         compose.onNodeWithText("Delete").assertDoesNotExist()
-        compose.onNodeWithText("Virtual machines").assertIsDisplayed()
+        compose.onNodeWithText("No virtual machines yet").assertIsDisplayed()
     }
 
     @Test fun startingRuntimeWorkWhileConfirmingDisablesUninstall() {

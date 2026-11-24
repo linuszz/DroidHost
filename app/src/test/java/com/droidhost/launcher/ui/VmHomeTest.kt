@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.droidhost.launcher.R
 import com.droidhost.launcher.vm.VmCatalog
@@ -36,7 +37,7 @@ class VmHomeTest {
     @Test fun nothingInstalledOffersANewMachineAndSaysSo() {
         render(state(desktopInstalled = false, desktopPresent = false))
         compose.onNodeWithContentDescription(ctx.getString(R.string.vm_new)).assertIsDisplayed()
-        compose.onNodeWithText(ctx.getString(R.string.vm_none)).assertIsDisplayed()
+        compose.onNodeWithText(ctx.getString(R.string.vm_empty_title)).assertIsDisplayed()
     }
 
     @Test fun aMachineWithoutTheDesktopAsksForTheInstall() {
@@ -53,7 +54,7 @@ class VmHomeTest {
         render(state(desktopInstalled = true, sessionRunning = true))
         // The primary action re-enters the live session; stopping moved to the beside icon row.
         compose.onNodeWithText(ctx.getString(R.string.vm_resume)).assertIsDisplayed()
-        compose.onNodeWithContentDescription(ctx.getString(R.string.vm_stop)).assertIsDisplayed()
+        compose.onNodeWithText(ctx.getString(R.string.vm_stop)).performScrollTo().assertIsDisplayed()
     }
 
     @Test fun aRemovalInFlightReadsAsDeleting() {
