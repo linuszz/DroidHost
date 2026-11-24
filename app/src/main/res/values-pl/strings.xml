@@ -834,10 +834,12 @@
     <string name="setup_install">Zainstaluj</string>
     <string name="setup_manage">Zarządzaj</string>
     <string name="setup_tab_overview">Przegląd</string>
-    <string name="setup_tab_controller">Kontroler</string>
-    <string name="setup_tab_session">Sesja</string>
-    <string name="setup_tab_launcher">Aplikacja</string>
-    <string name="setup_title">Konfiguracja</string>
+    <string name="setup_tab_controller">Wejście</string>
+    <string name="setup_tab_performance">Wydajność i HUD</string>
+    <string name="setup_tab_appearance">Wygląd</string>
+    <string name="setup_tab_session">Ekran i sesja</string>
+    <string name="setup_tab_launcher">Launcher i karty</string>
+    <string name="setup_title">Ustawienia</string>
     <string name="setup_all_set">● Wszystko gotowe</string>
     <string name="setup_n_ready">Gotowe: %1$d z %2$d</string>
     <string name="setup_system_check">Sprawdzenie systemu</string>
@@ -1489,7 +1491,7 @@
     <string name="rail_store">Sklep</string>
     <string name="rail_components">Komponenty</string>
     <string name="rail_apps">Aplikacje</string>
-    <string name="rail_setup">Konfiguracja</string>
+    <string name="rail_setup">Ustawienia</string>
     <string name="rail_updates">Aktualizacje</string>
     <string name="rail_more">Więcej</string>
     <string name="more_edit_tabs">Edytuj karty</string>
@@ -2921,7 +2923,7 @@
     <string name="gpu_chip_restart">%1$s · wymaga restartu</string>
     <string name="comp_this_device">To urządzenie</string>
     <string name="proton_remove_title">Usunąć %1$s?</string>
-    <string name="setup_tab_diagnostics">Programista</string>
+    <string name="setup_tab_diagnostics">Zaawansowane</string>
     <string name="setup_build_watermark">Znak wodny z etykietą kompilacji</string>
     <string name="setup_build_watermark_hint">Pokazuj na ekranie etykietę kompilacji testowej lub Lab. Domyślnie włączone.</string>
     <string name="diagnostics_share_title">Udostępnij pakiety diagnostyczne</string>
@@ -3716,7 +3718,7 @@
     <string name="spatial_saved_views_hint">Zapisane widoki można przeliczyć. Rozpocznij nową kalibrację, aby przechwycić bieżący układ współrzędnych śledzenia.</string>
     <string name="spatial_model_checksum_error">Niezgodność sumy kontrolnej modelu ręki</string>
     <string name="spatial_opencv_load_error">Nie można załadować OpenCV</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Sieć i synchronizacja</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Synchronizuj przez Syncthing</string>
     <string name="sync_enable_hint">Oparta na Syncthing-Fork implementacja Syncthing, która pozwala synchronizować pliki z wewnętrznego systemu plików DroidHost z innymi instancjami Syncthing. Dotyczy tylko plików przechowywanych w wewnętrznym systemie plików DroidHost.</string>

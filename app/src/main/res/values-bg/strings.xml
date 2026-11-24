@@ -828,10 +828,12 @@
     <string name="setup_install">Инсталиране</string>
     <string name="setup_manage">Управление</string>
     <string name="setup_tab_overview">Общ преглед</string>
-    <string name="setup_tab_controller">Контролер</string>
-    <string name="setup_tab_session">Сесия</string>
-    <string name="setup_tab_launcher">Лаунчър</string>
-    <string name="setup_title">Настройка</string>
+    <string name="setup_tab_controller">Въвеждане</string>
+    <string name="setup_tab_performance">Производителност и HUD</string>
+    <string name="setup_tab_appearance">Визия</string>
+    <string name="setup_tab_session">Дисплей и сесия</string>
+    <string name="setup_tab_launcher">Лаунчър и раздели</string>
+    <string name="setup_title">Настройки</string>
     <string name="setup_all_set">● Всичко е готово</string>
     <string name="setup_n_ready">%1$d от %2$d готови</string>
     <string name="setup_system_check">Проверка на системата</string>
@@ -1473,7 +1475,7 @@
     <string name="rail_store">Магазин</string>
     <string name="rail_components">Компоненти</string>
     <string name="rail_apps">Приложения</string>
-    <string name="rail_setup">Настройка</string>
+    <string name="rail_setup">Настройки</string>
     <string name="rail_updates">Актуализации</string>
     <string name="rail_more">Още</string>
     <string name="more_edit_tabs">Редактирай раздели</string>
@@ -2865,7 +2867,7 @@
     <string name="gpu_chip_restart">%1$s · нужен е рестарт</string>
     <string name="comp_this_device">Това устройство</string>
     <string name="proton_remove_title">Премахване на %1$s?</string>
-    <string name="setup_tab_diagnostics">Разработчик</string>
+    <string name="setup_tab_diagnostics">Разширени</string>
     <string name="setup_build_watermark">Воден знак с етикет на компилацията</string>
     <string name="setup_build_watermark_hint">Показва етикета на тестовата или Lab компилация на екрана. Включено по подразбиране.</string>
     <string name="diagnostics_share_title">Споделяне на диагностични пакети</string>
@@ -3642,7 +3644,7 @@
     <string name="spatial_saved_views_hint">Запазените изгледи могат да бъдат преизчислени. Започнете ново калибриране за заснемане в текущата координатна система за проследяване.</string>
     <string name="spatial_model_checksum_error">Несъответствие на контролната сума на модела на ръката</string>
     <string name="spatial_opencv_load_error">OpenCV не можа да се зареди</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Мрежа и синхронизиране</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Синхронизиране със Syncthing</string>
     <string name="sync_enable_hint">Базирана на Syncthing-Fork, това е реализация на Syncthing, която ви позволява да синхронизирате файлове във вътрешната файлова система на DroidHost с други екземпляри на Syncthing. Това важи само за файлове, които съхранявате във вътрешната файлова система на DroidHost.</string>

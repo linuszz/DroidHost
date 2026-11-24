@@ -828,10 +828,12 @@
     <string name="setup_install">Yükle</string>
     <string name="setup_manage">Yönet</string>
     <string name="setup_tab_overview">Genel bakış</string>
-    <string name="setup_tab_controller">Kumanda</string>
-    <string name="setup_tab_session">Oturum</string>
-    <string name="setup_tab_launcher">Başlatıcı</string>
-    <string name="setup_title">Kurulum</string>
+    <string name="setup_tab_controller">Giriş</string>
+    <string name="setup_tab_performance">Performans ve HUD</string>
+    <string name="setup_tab_appearance">Görünüm</string>
+    <string name="setup_tab_session">Ekran ve oturum</string>
+    <string name="setup_tab_launcher">Başlatıcı ve sekmeler</string>
+    <string name="setup_title">Ayarlar</string>
     <string name="setup_all_set">● Her şey hazır</string>
     <string name="setup_n_ready">%1$d / %2$d hazır</string>
     <string name="setup_system_check">Sistem kontrolü</string>
@@ -1465,7 +1467,7 @@
     <string name="rail_store">Mağaza</string>
     <string name="rail_components">Bileşenler</string>
     <string name="rail_apps">Uygulamalar</string>
-    <string name="rail_setup">Kurulum</string>
+    <string name="rail_setup">Ayarlar</string>
     <string name="rail_updates">Güncellemeler</string>
     <string name="rail_more">Diğer</string>
     <string name="more_edit_tabs">Sekmeleri düzenle</string>
@@ -2854,7 +2856,7 @@
     <string name="gpu_chip_restart">%1$s · yeniden başlatma bekliyor</string>
     <string name="comp_this_device">Bu cihaz</string>
     <string name="proton_remove_title">%1$s kaldırılsın mı?</string>
-    <string name="setup_tab_diagnostics">Geliştirici</string>
+    <string name="setup_tab_diagnostics">Gelişmiş</string>
     <string name="setup_build_watermark">Derleme etiketi filigranı</string>
     <string name="setup_build_watermark_hint">Test veya Lab derlemesinin etiketini ekranda gösterir. Varsayılan olarak açıktır.</string>
     <string name="diagnostics_share_title">Tanılama paketlerini paylaş</string>
@@ -3639,7 +3641,7 @@
     <string name="spatial_saved_views_hint">Kaydedilen görünümler yeniden hesaplanabilir. Geçerli izleme koordinat sistemini yakalamak için yeni bir kalibrasyon başlatın.</string>
     <string name="spatial_model_checksum_error">El modeli sağlama toplamı uyuşmazlığı</string>
     <string name="spatial_opencv_load_error">OpenCV yüklenemedi</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Ağ ve eşitleme</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Syncthing ile eşitle</string>
     <string name="sync_enable_hint">Syncthing-Fork tabanlı bu Syncthing uygulaması, DroidHost\'in dahili dosya sistemindeki dosyaları diğer Syncthing örnekleriyle eşitlemenizi sağlar. Yalnızca DroidHost\'in dahili dosya sisteminde sakladığınız dosyalar içindir.</string>

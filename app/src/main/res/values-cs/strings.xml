@@ -834,10 +834,12 @@
     <string name="setup_install">Instalovat</string>
     <string name="setup_manage">Správa</string>
     <string name="setup_tab_overview">Přehled</string>
-    <string name="setup_tab_controller">Ovladač</string>
-    <string name="setup_tab_session">Relace</string>
-    <string name="setup_tab_launcher">Spouštěč</string>
-    <string name="setup_title">Příprava</string>
+    <string name="setup_tab_controller">Vstup</string>
+    <string name="setup_tab_performance">Výkon a HUD</string>
+    <string name="setup_tab_appearance">Vzhled</string>
+    <string name="setup_tab_session">Zobrazení a relace</string>
+    <string name="setup_tab_launcher">Spouštěč a karty</string>
+    <string name="setup_title">Nastavení</string>
     <string name="setup_all_set">● Vše připraveno</string>
     <string name="setup_n_ready">%1$d z %2$d připraveno</string>
     <string name="setup_system_check">Kontrola systému</string>
@@ -1489,7 +1491,7 @@
     <string name="rail_store">Obchod</string>
     <string name="rail_components">Komponenty</string>
     <string name="rail_apps">Aplikace</string>
-    <string name="rail_setup">Příprava</string>
+    <string name="rail_setup">Nastavení</string>
     <string name="rail_updates">Aktualizace</string>
     <string name="rail_more">Více</string>
     <string name="more_edit_tabs">Upravit karty</string>
@@ -2921,7 +2923,7 @@
     <string name="gpu_chip_restart">%1$s · čeká na restart</string>
     <string name="comp_this_device">Toto zařízení</string>
     <string name="proton_remove_title">Odstranit %1$s?</string>
-    <string name="setup_tab_diagnostics">Vývojář</string>
+    <string name="setup_tab_diagnostics">Pokročilé</string>
     <string name="setup_build_watermark">Vodoznak s označením sestavení</string>
     <string name="setup_build_watermark_hint">Zobrazit na obrazovce označení testovacího sestavení nebo sestavení Lab. Ve výchozím nastavení zapnuté.</string>
     <string name="diagnostics_share_title">Sdílet diagnostické balíčky</string>
@@ -3720,7 +3722,7 @@
     <string name="spatial_saved_views_hint">Uložená zobrazení lze přepočítat. Spusťte novou kalibraci pro zachycení v aktuálním sledovacím souřadnicovém systému.</string>
     <string name="spatial_model_checksum_error">Neshoda kontrolního součtu modelu ruky</string>
     <string name="spatial_opencv_load_error">OpenCV se nepodařilo načíst</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Síť a synchronizace</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Synchronizovat přes Syncthing</string>
     <string name="sync_enable_hint">Jde o implementaci Syncthingu založenou na Syncthing-Fork, která umožňuje synchronizovat soubory v interním souborovém systému DroidHostu s dalšími instancemi Syncthingu. Týká se pouze souborů, které ukládáte v interním souborovém systému DroidHostu.</string>

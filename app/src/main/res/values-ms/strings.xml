@@ -825,10 +825,12 @@
     <string name="setup_install">Pasang</string>
     <string name="setup_manage">Urus</string>
     <string name="setup_tab_overview">Gambaran keseluruhan</string>
-    <string name="setup_tab_controller">Pengawal</string>
-    <string name="setup_tab_session">Sesi</string>
-    <string name="setup_tab_launcher">Pelancar</string>
-    <string name="setup_title">Persediaan</string>
+    <string name="setup_tab_controller">Input</string>
+    <string name="setup_tab_performance">Prestasi dan HUD</string>
+    <string name="setup_tab_appearance">Rupa</string>
+    <string name="setup_tab_session">Paparan dan sesi</string>
+    <string name="setup_tab_launcher">Pelancar dan tab</string>
+    <string name="setup_title">Tetapan</string>
     <string name="setup_all_set">● Semua sedia</string>
     <string name="setup_n_ready">%1$d daripada %2$d sedia</string>
     <string name="setup_system_check">Semakan sistem</string>
@@ -1466,7 +1468,7 @@
     <string name="rail_store">Kedai</string>
     <string name="rail_components">Komponen</string>
     <string name="rail_apps">Apl</string>
-    <string name="rail_setup">Persediaan</string>
+    <string name="rail_setup">Tetapan</string>
     <string name="rail_updates">Kemas kini</string>
     <string name="rail_more">Lagi</string>
     <string name="more_edit_tabs">Sunting tab</string>
@@ -2838,7 +2840,7 @@
     <string name="gpu_chip_restart">%1$s · perlu mula semula</string>
     <string name="comp_this_device">Peranti ini</string>
     <string name="proton_remove_title">Alih keluar %1$s?</string>
-    <string name="setup_tab_diagnostics">Pembangun</string>
+    <string name="setup_tab_diagnostics">Lanjutan</string>
     <string name="setup_build_watermark">Tera air label binaan</string>
     <string name="setup_build_watermark_hint">Paparkan label binaan ujian atau Lab pada skrin. Dihidupkan secara lalai.</string>
     <string name="diagnostics_share_title">Kongsi himpunan diagnostik</string>
@@ -3611,7 +3613,7 @@
     <string name="spatial_saved_views_hint">Pandangan yang disimpan boleh dikira semula. Mulakan penentukuran baharu untuk ditangkap dalam sistem koordinat penjejakan semasa.</string>
     <string name="spatial_model_checksum_error">Ketakpadanan checksum model tangan</string>
     <string name="spatial_opencv_load_error">OpenCV tidak dapat dimuatkan</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Rangkaian dan penyegerakan</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Segerakkan dengan Syncthing</string>
     <string name="sync_enable_hint">Berasaskan Syncthing-Fork, ini ialah pelaksanaan Syncthing yang membolehkan anda menyegerakkan fail dalam sistem fail dalaman DroidHost dengan tika Syncthing lain. Ini hanya untuk fail yang anda simpan dalam sistem fail dalaman DroidHost.</string>

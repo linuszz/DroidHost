@@ -831,10 +831,12 @@
     <string name="setup_install">Instalar</string>
     <string name="setup_manage">Gestionar</string>
     <string name="setup_tab_overview">Resumen</string>
-    <string name="setup_tab_controller">Mando</string>
-    <string name="setup_tab_session">Sesión</string>
-    <string name="setup_tab_launcher">Launcher</string>
-    <string name="setup_title">Configuración</string>
+    <string name="setup_tab_controller">Entrada</string>
+    <string name="setup_tab_performance">Rendimiento y HUD</string>
+    <string name="setup_tab_appearance">Aspecto</string>
+    <string name="setup_tab_session">Pantalla y sesión</string>
+    <string name="setup_tab_launcher">Launcher y pestañas</string>
+    <string name="setup_title">Ajustes</string>
     <string name="setup_all_set">● Todo listo</string>
     <string name="setup_n_ready">%1$d de %2$d listos</string>
     <string name="setup_system_check">Comprobación del sistema</string>
@@ -1481,7 +1483,7 @@
     <string name="rail_store">Tienda</string>
     <string name="rail_components">Componentes</string>
     <string name="rail_apps">Apps</string>
-    <string name="rail_setup">Configuración</string>
+    <string name="rail_setup">Ajustes</string>
     <string name="rail_updates">Actualizar</string>
     <string name="rail_more">Más</string>
     <string name="more_edit_tabs">Editar pestañas</string>
@@ -2890,7 +2892,7 @@
     <string name="gpu_chip_restart">%1$s · reinicio pendiente</string>
     <string name="comp_this_device">Este dispositivo</string>
     <string name="proton_remove_title">¿Quitar %1$s?</string>
-    <string name="setup_tab_diagnostics">Desarrollador</string>
+    <string name="setup_tab_diagnostics">Avanzado</string>
     <string name="setup_build_watermark">Marca de agua de compilación</string>
     <string name="setup_build_watermark_hint">Muestra en pantalla la etiqueta de la versión de prueba o Lab. Activada de forma predeterminada.</string>
     <string name="diagnostics_share_title">Compartir paquetes de diagnóstico</string>
@@ -3681,7 +3683,7 @@
     <string name="spatial_saved_views_hint">Las vistas guardadas se pueden recalcular. Inicie una nueva calibración para capturar en el sistema de coordenadas de seguimiento actual.</string>
     <string name="spatial_model_checksum_error">La suma de comprobación del modelo de mano no coincide</string>
     <string name="spatial_opencv_load_error">OpenCV no se pudo cargar</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Red y sincronización</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Sincronizar con Syncthing</string>
     <string name="sync_enable_hint">Basada en Syncthing-Fork, es una implementación de Syncthing que te permite sincronizar archivos del sistema de archivos interno de DroidHost con otras instancias de Syncthing. Solo sirve para los archivos que guardas en el sistema de archivos interno de DroidHost.</string>

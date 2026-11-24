@@ -828,10 +828,12 @@
     <string name="setup_install">Installer</string>
     <string name="setup_manage">Behandle</string>
     <string name="setup_tab_overview">Oversikt</string>
-    <string name="setup_tab_controller">Kontroller</string>
-    <string name="setup_tab_session">Sesjon</string>
-    <string name="setup_tab_launcher">Launcher</string>
-    <string name="setup_title">Oppsett</string>
+    <string name="setup_tab_controller">Inndata</string>
+    <string name="setup_tab_performance">Ytelse og HUD</string>
+    <string name="setup_tab_appearance">Utseende</string>
+    <string name="setup_tab_session">Skjerm og sesjon</string>
+    <string name="setup_tab_launcher">Launcher og faner</string>
+    <string name="setup_title">Innstillinger</string>
     <string name="setup_all_set">● Alt klart</string>
     <string name="setup_n_ready">%1$d av %2$d klare</string>
     <string name="setup_system_check">Systemkontroll</string>
@@ -1473,7 +1475,7 @@
     <string name="rail_store">Butikk</string>
     <string name="rail_components">Komponenter</string>
     <string name="rail_apps">Apper</string>
-    <string name="rail_setup">Oppsett</string>
+    <string name="rail_setup">Innstillinger</string>
     <string name="rail_updates">Oppdateringer</string>
     <string name="rail_more">Mer</string>
     <string name="more_edit_tabs">Rediger faner</string>
@@ -2865,7 +2867,7 @@
     <string name="gpu_chip_restart">%1$s · krever omstart</string>
     <string name="comp_this_device">Denne enheten</string>
     <string name="proton_remove_title">Fjerne %1$s?</string>
-    <string name="setup_tab_diagnostics">Utvikler</string>
+    <string name="setup_tab_diagnostics">Avansert</string>
     <string name="setup_build_watermark">Vannmerke for byggetikett</string>
     <string name="setup_build_watermark_hint">Vis etiketten for test- eller Lab-bygget på skjermen. På som standard.</string>
     <string name="diagnostics_share_title">Del diagnostikkpakker</string>
@@ -3642,7 +3644,7 @@
     <string name="spatial_saved_views_hint">Lagrede visninger kan beregnes på nytt. Start en ny kalibrering for å fange opp i gjeldende sporingskoordinatsystem.</string>
     <string name="spatial_model_checksum_error">Uoverensstemmelse med håndmodellsjekksum</string>
     <string name="spatial_opencv_load_error">OpenCV kunne ikke laste</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Nettverk og synkronisering</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Synkroniser med Syncthing</string>
     <string name="sync_enable_hint">Dette er en Syncthing-implementasjon basert på Syncthing-Fork som lar deg synkronisere filer i DroidHosts interne filsystem med andre Syncthing-instanser. Dette gjelder bare filer du lagrer i DroidHosts interne filsystem.</string>

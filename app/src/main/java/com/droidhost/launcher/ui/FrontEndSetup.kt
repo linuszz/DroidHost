@@ -21,7 +21,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -82,15 +81,26 @@ import com.droidhost.launcher.R
 
 internal enum class CheckState { OK, WARN, BUSY }
 
-private const val LAUNCHER_TAB = 1
-
 internal object SetupTabs {
     var openLauncher = false
     var focusTabs = false
+    var openDisplay = false
+    var openInput = false
+    var openPerformance = false
+    var openAppearance = false
+    var openNetwork = false
+    var openGlasses = false
+    var openAdvanced = false
 }
-private const val GLASSES_TAB = 4
-private const val SYNC_TAB = 2
-private const val DIAGNOSTICS_TAB = 3
+
+private const val TAB_DISPLAY = "display"
+private const val TAB_INPUT = "input"
+private const val TAB_PERFORMANCE = "performance"
+private const val TAB_APPEARANCE = "appearance"
+private const val TAB_LAUNCHER = "launcher"
+private const val TAB_NETWORK = "network"
+private const val TAB_GLASSES = "glasses"
+private const val TAB_ADVANCED = "advanced"
 
 @Composable
 internal fun CheckRow(state: CheckState, title: String, detail: String?, divider: Boolean = true, action: (@Composable () -> Unit)? = null) {
@@ -158,14 +168,46 @@ internal fun SetupPanel(
         onDismiss = { editDownloadProxy = false },
         onSave = { a.onDownloadProxy(it); editDownloadProxy = false },
     )
-    val tabs = listOf(stringResource(R.string.setup_tab_controller), stringResource(R.string.setup_tab_launcher), stringResource(R.string.setup_tab_sync), stringResource(R.string.setup_tab_diagnostics), stringResource(R.string.setup_tab_glasses))
-    var tab by rememberSaveable { mutableStateOf(if (SetupTabs.openLauncher) LAUNCHER_TAB else 0) }
+    val tabs = listOf(
+        TAB_DISPLAY to stringResource(R.string.setup_tab_session),
+        TAB_INPUT to stringResource(R.string.setup_tab_controller),
+        TAB_PERFORMANCE to stringResource(R.string.setup_tab_performance),
+        TAB_APPEARANCE to stringResource(R.string.setup_tab_appearance),
+        TAB_LAUNCHER to stringResource(R.string.setup_tab_launcher),
+        TAB_NETWORK to stringResource(R.string.setup_tab_sync),
+        TAB_GLASSES to stringResource(R.string.setup_tab_glasses),
+        TAB_ADVANCED to stringResource(R.string.setup_tab_diagnostics),
+    )
+    // Explicit saveable key: retired Int-index state must not restore onto the new key order.
+    var tab by rememberSaveable(key = "setup-tab-key") {
+        mutableStateOf(
+            when {
+                SetupTabs.openDisplay -> TAB_DISPLAY
+                SetupTabs.openInput -> TAB_INPUT
+                SetupTabs.openPerformance -> TAB_PERFORMANCE
+                SetupTabs.openAppearance -> TAB_APPEARANCE
+                SetupTabs.openLauncher -> TAB_LAUNCHER
+                SetupTabs.openNetwork -> TAB_NETWORK
+                SetupTabs.openGlasses -> TAB_GLASSES
+                SetupTabs.openAdvanced -> TAB_ADVANCED
+                else -> TAB_DISPLAY
+            },
+        )
+    }
+    if (SetupTabs.openDisplay) { tab = TAB_DISPLAY; SetupTabs.openDisplay = false }
+    if (SetupTabs.openInput) { tab = TAB_INPUT; SetupTabs.openInput = false }
+    if (SetupTabs.openPerformance) { tab = TAB_PERFORMANCE; SetupTabs.openPerformance = false }
+    if (SetupTabs.openAppearance) { tab = TAB_APPEARANCE; SetupTabs.openAppearance = false }
+    if (SetupTabs.openLauncher) { tab = TAB_LAUNCHER; SetupTabs.openLauncher = false }
+    if (SetupTabs.openNetwork) { tab = TAB_NETWORK; SetupTabs.openNetwork = false }
+    if (SetupTabs.openGlasses) { tab = TAB_GLASSES; SetupTabs.openGlasses = false }
+    if (SetupTabs.openAdvanced) { tab = TAB_ADVANCED; SetupTabs.openAdvanced = false }
     var logsRefresh by remember { mutableStateOf(0) }
     var deleteSessionLogs by remember { mutableStateOf<java.io.File?>(null) }
-    SetupTabs.openLauncher = false
     val chipFocus = remember { List(tabs.size) { FocusRequester() } }
     var tabTurned by remember { mutableStateOf(false) }
-    val pick: (Int) -> Unit = { i -> tab = i; tabTurned = true; if (i == DIAGNOSTICS_TAB) logsRefresh++ }
+    val pick: (String) -> Unit = { key -> tab = key; tabTurned = true; if (key == TAB_ADVANCED) logsRefresh++ }
+    val tabIndex = tabs.indexOfFirst { it.first == tab }.coerceAtLeast(0)
     val inputModeManager = LocalInputModeManager.current
     LaunchedEffect(Unit) {
         while (true) {
@@ -176,7 +218,7 @@ internal fun SetupPanel(
     LaunchedEffect(com.droidhost.launcher.sync.Syncthing.openRequests) {
         if (com.droidhost.launcher.sync.Syncthing.openPending) {
             com.droidhost.launcher.sync.Syncthing.openPending = false
-            tab = SYNC_TAB
+            tab = TAB_NETWORK
         }
     }
     var syncAdvanced by rememberSaveable { mutableStateOf(false) }
@@ -188,206 +230,205 @@ internal fun SetupPanel(
     LaunchedEffect(tab) {
         if (tabTurned && inputModeManager.inputMode == InputMode.Keyboard) {
             androidx.compose.runtime.withFrameNanos { }
-            runCatching { chipFocus[tab].requestFocus() }
+            runCatching { chipFocus[tabIndex].requestFocus() }
         }
     }
     val runtimeOk = s.ready && !s.busy && !s.removalPending
     Rise(0, Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize().bumpers(
-                onPrevious = { pick((tab + tabs.size - 1) % tabs.size) },
-                onNext = { pick((tab + 1) % tabs.size) },
+                onPrevious = { pick(tabs[(tabIndex + tabs.size - 1) % tabs.size].first) },
+                onNext = { pick(tabs[(tabIndex + 1) % tabs.size].first) },
             ),
         ) {
             PageHeader(stringResource(R.string.setup_title)) {
-                Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
+                Box(Modifier.weight(1f)) { SheetChips(tabs.map { it.second }, tabIndex, chipFocus, onPick = { i -> pick(tabs[i].first) }) }
             }
-            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == 0) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == 0) LocalNavOverlayInset.current else maxOf(24.dp, LocalNavOverlayInset.current))) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == TAB_INPUT) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == TAB_INPUT) LocalNavOverlayInset.current else maxOf(24.dp, LocalNavOverlayInset.current))) {
                 when (tab) {
-                    0 -> {
-                        val controller = s.controller
-                        if (controller != null && a.controller != null) InputSettingsPage(onBack = { pick(0) }, embedded = true)
-                        if (s.controller == null || a.controller == null) Note(stringResource(R.string.setup_controller_unavailable))
+                    TAB_DISPLAY -> {
+                        SettingsGroup(stringResource(R.string.setup_group_device)) {
+                            ChoiceRow(
+                                host, "launcher-orientation", stringResource(R.string.setup_launcher_orientation), null,
+                                com.droidhost.launcher.core.AppUiPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
+                                s.launcherOrientation, onPick = a.onLauncherOrientation,
+                            )
+                            ChoiceRow(
+                                host, "orientation", stringResource(R.string.setup_session_orientation), stringResource(R.string.setup_session_orientation_hint),
+                                SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
+                                s.orientation, onPick = a.onOrientation,
+                            )
+                            ToggleRow(
+                                host, "launcher-fullscreen", stringResource(R.string.setup_fullscreen),
+                                if (s.launcherFullscreen) stringResource(R.string.setup_fullscreen_on) else stringResource(R.string.setup_fullscreen_off),
+                                s.launcherFullscreen,
+                            ) { a.onLauncherFullscreen(it) }
+                            if (s.dualScreenDevice) {
+                                val dualModes = listOf(
+                                    com.droidhost.launcher.input.DualScreen.MODE_AUTO to stringResource(R.string.setup_dual_screen_auto),
+                                    com.droidhost.launcher.input.DualScreen.MODE_ON to stringResource(R.string.setup_dual_screen_on),
+                                    com.droidhost.launcher.input.DualScreen.MODE_OFF to stringResource(R.string.setup_dual_screen_off),
+                                )
+                                ChoiceRow(
+                                    host, "dual-screen", stringResource(R.string.setup_dual_screen_launcher), stringResource(R.string.setup_dual_screen_launcher_hint),
+                                    dualModes, s.dualScreenMode, onPick = a.onDualScreenMode,
+                                )
+                                ChoiceRow(
+                                    host, "dual-screen-sessions", stringResource(R.string.setup_dual_screen_sessions), stringResource(R.string.setup_dual_screen_sessions_hint),
+                                    dualModes, s.dualScreenSessions, onPick = a.onDualScreenSessions,
+                                )
+                            }
+                        }
                     }
-                    LAUNCHER_TAB -> {
-                        val look: @Composable () -> Unit = {
-                            SettingsGroup(stringResource(R.string.setup_group_look)) {
-                                SettingsRow(stringResource(R.string.setup_theme), stringResource(R.string.setup_theme_hint)) {
-                                    Box {
-                                        ValueChip(stringResource(Themes.byId(s.theme).label), host.open == "theme") { host.open = if (host.open == "theme") null else "theme" }
-                                        AnchoredMenu(host.open == "theme", onDismiss = { if (host.open == "theme") host.open = null }, title = stringResource(R.string.setup_theme)) { firstItemFocus ->
-                                            Themes.all.forEachIndexed { index, theme ->
-                                                MenuItem(stringResource(theme.label), checked = s.theme == theme.id, focusRequester = if (index == 0) firstItemFocus else null) {
-                                                    a.onTheme(theme.id)
-                                                    host.open = null
-                                                }
+                    TAB_INPUT -> {
+                        if (s.dualScreenDevice) {
+                            SettingsGroup(stringResource(R.string.setup_group_device)) {
+                                if (s.dualScreenSessions != com.droidhost.launcher.input.DualScreen.MODE_OFF) {
+                                    ToggleRow(host, "dual-screen-controls", stringResource(R.string.setup_dual_screen_controls),
+                                        stringResource(R.string.setup_dual_screen_controls_hint), s.dualScreenControls) { a.onDualScreenControls(it) }
+                                }
+                                ToggleRow(host, "android-text-field-keyboard", stringResource(R.string.setup_android_text_field_keyboard),
+                                    null, s.androidTextFieldKeyboard) { a.onAndroidTextFieldKeyboard(it) }
+                            }
+                        }
+                        Box(Modifier.weight(1f).fillMaxWidth()) {
+                            if (s.controller != null && a.controller != null) InputSettingsPage(onBack = { pick(TAB_INPUT) }, embedded = true)
+                            else Note(stringResource(R.string.setup_controller_unavailable))
+                        }
+                    }
+                    TAB_PERFORMANCE -> {
+                        SettingsGroup(stringResource(R.string.setup_group_memory)) {
+                            ChoiceRow(
+                                host, "memory-hud", stringResource(R.string.setup_memory_hud), stringResource(R.string.setup_memory_hud_hint),
+                                listOf(
+                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_OFF to stringResource(R.string.game_env_off),
+                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_SIMPLE to stringResource(R.string.setup_memory_hud_simple),
+                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_ADVANCED to stringResource(R.string.setup_memory_hud_advanced),
+                                ),
+                                s.memoryHud, onPick = a.onMemoryHud,
+                            )
+                        }
+                    }
+                    TAB_APPEARANCE -> {
+                        SettingsGroup(stringResource(R.string.setup_group_look)) {
+                            SettingsRow(stringResource(R.string.setup_theme), stringResource(R.string.setup_theme_hint)) {
+                                Box {
+                                    ValueChip(stringResource(Themes.byId(s.theme).label), host.open == "theme") { host.open = if (host.open == "theme") null else "theme" }
+                                    AnchoredMenu(host.open == "theme", onDismiss = { if (host.open == "theme") host.open = null }, title = stringResource(R.string.setup_theme)) { firstItemFocus ->
+                                        Themes.all.forEachIndexed { index, theme ->
+                                            MenuItem(stringResource(theme.label), checked = s.theme == theme.id, focusRequester = if (index == 0) firstItemFocus else null) {
+                                                a.onTheme(theme.id)
+                                                host.open = null
                                             }
                                         }
                                     }
                                 }
-                                if (s.theme == Themes.INNER_GAMER) RgbSpeedRow()
-                                if (s.theme == Themes.GRADIENT) GradientColorRows()
-                                ChoiceRow(
-                                    host, "app-scale", stringResource(R.string.setup_app_scale), stringResource(R.string.setup_app_scale_hint),
-                                    com.droidhost.launcher.core.AppUiPrefs.scales.map { percent ->
-                                        percent to stringResource(
-                                            if (percent == com.droidhost.launcher.core.AppUiPrefs.DEFAULT_SCALE) R.string.setup_app_scale_default
-                                            else R.string.ctrl_percent, percent,
-                                        )
-                                    }, s.appScale, onPick = a.onAppScale,
-                                )
-                                ChoiceRow(
-                                    host, "launcher-icon", stringResource(R.string.setup_launcher_icon), null,
-                                    com.droidhost.launcher.LauncherIcon.options.map { (style, label) -> style to stringResource(label) },
-                                    s.launcherIcon, onPick = a.onLauncherIcon,
-                                )
-                                ToggleRow(host, "launcher-animations", stringResource(R.string.setup_animations), null,
-                                    s.animationsEnabled, onChange = a.onAnimationsEnabled)
-                                ToggleRow(host, "launcher-reduce-transparency", stringResource(R.string.setup_reduce_transparency), stringResource(R.string.setup_reduce_transparency_hint),
-                                    s.reduceTransparency, onChange = a.onReduceTransparency)
-                                ToggleRow(host, "low-storage-warning", stringResource(R.string.setup_low_storage_warning), stringResource(R.string.setup_low_storage_warning_hint),
-                                    s.lowStorageWarning, onChange = a.onLowStorageWarning)
-                                val railContext = androidx.compose.ui.platform.LocalContext.current
-                                remember { RailLabels.load(railContext) }
-                                ToggleRow(host, "rail-labels", stringResource(R.string.setup_rail_labels), stringResource(R.string.setup_rail_labels_hint), RailLabels.shown) { RailLabels.set(railContext, it) }
-                                LanguageRow(host, s.language, a.onLanguage)
-                                if (s.soundtracksEnabled) ToggleRow(host, "soundtracks-ingame", stringResource(R.string.setup_soundtracks_ingame), stringResource(R.string.setup_soundtracks_ingame_hint), s.soundtracksIngame, onChange = a.onSoundtracksIngame)
                             }
-                            TabsSettingsGroup(host, s, a)
+                            if (s.theme == Themes.INNER_GAMER) RgbSpeedRow()
+                            if (s.theme == Themes.GRADIENT) GradientColorRows()
+                            ChoiceRow(
+                                host, "app-scale", stringResource(R.string.setup_app_scale), stringResource(R.string.setup_app_scale_hint),
+                                com.droidhost.launcher.core.AppUiPrefs.scales.map { percent ->
+                                    percent to stringResource(
+                                        if (percent == com.droidhost.launcher.core.AppUiPrefs.DEFAULT_SCALE) R.string.setup_app_scale_default
+                                        else R.string.ctrl_percent, percent,
+                                    )
+                                }, s.appScale, onPick = a.onAppScale,
+                            )
+                            ChoiceRow(
+                                host, "launcher-icon", stringResource(R.string.setup_launcher_icon), null,
+                                com.droidhost.launcher.LauncherIcon.options.map { (style, label) -> style to stringResource(label) },
+                                s.launcherIcon, onPick = a.onLauncherIcon,
+                            )
+                            ToggleRow(host, "launcher-animations", stringResource(R.string.setup_animations), null,
+                                s.animationsEnabled, onChange = a.onAnimationsEnabled)
+                            ToggleRow(host, "launcher-reduce-transparency", stringResource(R.string.setup_reduce_transparency), stringResource(R.string.setup_reduce_transparency_hint),
+                                s.reduceTransparency, onChange = a.onReduceTransparency)
+                            val railContext = androidx.compose.ui.platform.LocalContext.current
+                            remember { RailLabels.load(railContext) }
+                            ToggleRow(host, "rail-labels", stringResource(R.string.setup_rail_labels), stringResource(R.string.setup_rail_labels_hint), RailLabels.shown) { RailLabels.set(railContext, it) }
+                            LanguageRow(host, s.language, a.onLanguage)
+                            if (s.soundtracksEnabled) ToggleRow(host, "soundtracks-ingame", stringResource(R.string.setup_soundtracks_ingame), stringResource(R.string.setup_soundtracks_ingame_hint), s.soundtracksIngame, onChange = a.onSoundtracksIngame)
                         }
-                        val device: @Composable () -> Unit = {
-                            SettingsGroup(stringResource(R.string.setup_group_device)) {
-                                ToggleRow(
-                                    host, "home-screen", stringResource(R.string.setup_home),
-                                    if (s.homeScreenEnabled) stringResource(R.string.setup_home_on) else stringResource(R.string.setup_home_off),
-                                    s.homeScreenEnabled,
-                                ) { a.onHomeScreen(it) }
-                                if (s.homeScreenEnabled) {
-                                    ActionRow(stringResource(R.string.setup_default_home), s.defaultHomeLabel ?: stringResource(R.string.setup_choose_home), stringResource(R.string.setup_choose), a.onHomeApp)
-                                    ToggleRow(
-                                        host, "hide-home-from-recents", stringResource(R.string.setup_hide_home_from_recents),
-                                        stringResource(R.string.setup_hide_home_from_recents_hint), hideHomeFromRecents,
-                                    ) { hidden ->
-                                        hideHomeFromRecents = hidden
-                                        com.droidhost.launcher.core.AppUiPrefs.setHideHomeFromRecents(ctx, hidden)
-                                    }
-                                    ChoiceRow(
-                                        host, "home-page", stringResource(R.string.setup_home_page), stringResource(R.string.setup_home_page_hint),
-                                        com.droidhost.launcher.core.AppUiPrefs.homePageOptions.map { (value, label) -> value to stringResource(label) },
-                                        s.homePage, onPick = a.onHomePage,
-                                    )
-                                }
-                                ChoiceRow(
-                                    host, "launcher-orientation", stringResource(R.string.setup_launcher_orientation), null,
-                                    com.droidhost.launcher.core.AppUiPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
-                                    s.launcherOrientation, onPick = a.onLauncherOrientation,
-                                )
-                                s.tpUbwcMode?.let { ubwc ->
-                                    ChoiceRow(
-                                        host, "tp-ubwc", stringResource(R.string.gpu_ubwc_title), stringResource(R.string.gpu_ubwc_hint),
-                                        listOf(
-                                            SessionPrefs.TP_UBWC_AUTO to stringResource(R.string.common_auto),
-                                            SessionPrefs.TP_UBWC_ON to stringResource(R.string.widgets_on),
-                                            SessionPrefs.TP_UBWC_OFF to stringResource(R.string.widgets_off),
-                                        ), ubwc, onPick = a.onTpUbwcMode,
-                                    )
-                                    if (s.tpUbwcRestartRequired) {
-                                        if (s.canRestartApp) ActionRow(stringResource(R.string.gpu_ubwc_restart), null, stringResource(R.string.gpu_restart_now), a.onRestartApp)
-                                        else Note(stringResource(R.string.gpu_ubwc_restart))
-                                    }
-                                }
-                                ChoiceRow(
-                                    host, "orientation", stringResource(R.string.setup_session_orientation), stringResource(R.string.setup_session_orientation_hint),
-                                    SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
-                                    s.orientation, onPick = a.onOrientation,
-                                )
-                                ToggleRow(
-                                    host, "launcher-fullscreen", stringResource(R.string.setup_fullscreen),
-                                    if (s.launcherFullscreen) stringResource(R.string.setup_fullscreen_on) else stringResource(R.string.setup_fullscreen_off),
-                                    s.launcherFullscreen,
-                                ) { a.onLauncherFullscreen(it) }
-                                if (s.dualScreenDevice) {
-                                    val dualModes = listOf(
-                                        com.droidhost.launcher.input.DualScreen.MODE_AUTO to stringResource(R.string.setup_dual_screen_auto),
-                                        com.droidhost.launcher.input.DualScreen.MODE_ON to stringResource(R.string.setup_dual_screen_on),
-                                        com.droidhost.launcher.input.DualScreen.MODE_OFF to stringResource(R.string.setup_dual_screen_off),
-                                    )
-                                    ChoiceRow(
-                                        host, "dual-screen", stringResource(R.string.setup_dual_screen_launcher), stringResource(R.string.setup_dual_screen_launcher_hint),
-                                        dualModes, s.dualScreenMode, onPick = a.onDualScreenMode,
-                                    )
-                                    ChoiceRow(
-                                        host, "dual-screen-sessions", stringResource(R.string.setup_dual_screen_sessions), stringResource(R.string.setup_dual_screen_sessions_hint),
-                                        dualModes, s.dualScreenSessions, onPick = a.onDualScreenSessions,
-                                    )
-                                    if (s.dualScreenSessions != com.droidhost.launcher.input.DualScreen.MODE_OFF) {
-                                        ToggleRow(host, "dual-screen-controls", stringResource(R.string.setup_dual_screen_controls),
-                                            stringResource(R.string.setup_dual_screen_controls_hint), s.dualScreenControls) { a.onDualScreenControls(it) }
-                                    }
-                                    ToggleRow(host, "android-text-field-keyboard", stringResource(R.string.setup_android_text_field_keyboard),
-                                        null, s.androidTextFieldKeyboard) { a.onAndroidTextFieldKeyboard(it) }
-                                }
-                            }
-                        }
-                        val art: @Composable () -> Unit = {
-                            SettingsGroup(stringResource(R.string.setup_group_art)) {
-                                ToggleRow(host, "added-art", stringResource(R.string.mode_added_art), stringResource(R.string.mode_added_art_hint), s.addedGamesArt) { a.onAddedGamesArt(it) }
-                                ActionRow(
-                                    stringResource(R.string.mode_sgdb_key), if (s.sgdbUserKey) stringResource(R.string.mode_sgdb_key_yours) else null,
-                                    stringResource(R.string.mode_sgdb_edit), onClick = { editSgdbKey = true },
-                                )
-                            }
-                        }
-                        val download: @Composable () -> Unit = {
-                            SettingsGroup(stringResource(R.string.setup_group_download)) {
-                                ChoiceRow(
-                                    host, "download-source", stringResource(R.string.setup_download_source), null,
-                                    listOf(
-                                        DownloadSource.MODE_AUTO to stringResource(R.string.setup_download_source_auto),
-                                        DownloadSource.MODE_DIRECT to stringResource(R.string.setup_download_source_direct),
-                                        DownloadSource.MODE_MIRROR to stringResource(R.string.setup_download_source_mirror),
-                                        DownloadSource.MODE_CUSTOM to stringResource(R.string.setup_download_source_custom),
-                                    ),
-                                    s.downloadSource, onPick = a.onDownloadSource,
-                                )
-                                if (s.downloadSource == DownloadSource.MODE_MIRROR) {
-                                    ChoiceRow(
-                                        host, "download-mirror", stringResource(R.string.setup_download_mirror), null,
-                                        DownloadSource.MIRRORS.map { it.host to it.host },
-                                        s.downloadMirror, onPick = a.onDownloadMirror,
-                                    )
-                                }
-                                if (s.downloadSource == DownloadSource.MODE_CUSTOM) {
-                                    ActionRow(
-                                        stringResource(R.string.setup_download_prefix),
-                                        s.downloadPrefix.takeIf { it.isNotEmpty() },
-                                        stringResource(R.string.mode_sgdb_edit),
-                                        onClick = { editDownloadPrefix = true },
-                                    )
-                                }
-                                ActionRow(
-                                    stringResource(R.string.setup_download_proxy),
-                                    s.downloadProxy.takeIf { it.isNotEmpty() },
-                                    stringResource(R.string.mode_sgdb_edit),
-                                    onClick = { editDownloadProxy = true },
-                                )
-                            }
-                        }
-                        BoxWithConstraints(Modifier.fillMaxWidth()) {
-                            if (maxWidth >= 840.dp && !LocalNarrowPane.current) Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
-                                Column(Modifier.weight(1f)) { look() }
-                                Column(Modifier.weight(1f)) { device(); art(); download() }
-                            } else Column { look(); device(); art(); download() }
+                        // Game-art rows stay here until §4.7 decides their fate.
+                        SettingsGroup(stringResource(R.string.setup_group_art)) {
+                            ToggleRow(host, "added-art", stringResource(R.string.mode_added_art), stringResource(R.string.mode_added_art_hint), s.addedGamesArt) { a.onAddedGamesArt(it) }
+                            ActionRow(
+                                stringResource(R.string.mode_sgdb_key), if (s.sgdbUserKey) stringResource(R.string.mode_sgdb_key_yours) else null,
+                                stringResource(R.string.mode_sgdb_edit), onClick = { editSgdbKey = true },
+                            )
                         }
                     }
-                    SYNC_TAB -> SyncPanel(host, runtimeOk) { syncAdvanced = true }
-                    DIAGNOSTICS_TAB -> {
+                    TAB_LAUNCHER -> {
+                        TabsSettingsGroup(host, s, a)
+                        SettingsGroup(stringResource(R.string.setup_group_device)) {
+                            ToggleRow(
+                                host, "home-screen", stringResource(R.string.setup_home),
+                                if (s.homeScreenEnabled) stringResource(R.string.setup_home_on) else stringResource(R.string.setup_home_off),
+                                s.homeScreenEnabled,
+                            ) { a.onHomeScreen(it) }
+                            if (s.homeScreenEnabled) {
+                                ActionRow(stringResource(R.string.setup_default_home), s.defaultHomeLabel ?: stringResource(R.string.setup_choose_home), stringResource(R.string.setup_choose), a.onHomeApp)
+                                ToggleRow(
+                                    host, "hide-home-from-recents", stringResource(R.string.setup_hide_home_from_recents),
+                                    stringResource(R.string.setup_hide_home_from_recents_hint), hideHomeFromRecents,
+                                ) { hidden ->
+                                    hideHomeFromRecents = hidden
+                                    com.droidhost.launcher.core.AppUiPrefs.setHideHomeFromRecents(ctx, hidden)
+                                }
+                                ChoiceRow(
+                                    host, "home-page", stringResource(R.string.setup_home_page), stringResource(R.string.setup_home_page_hint),
+                                    com.droidhost.launcher.core.AppUiPrefs.homePageOptions.map { (value, label) -> value to stringResource(label) },
+                                    s.homePage, onPick = a.onHomePage,
+                                )
+                            }
+                        }
+                    }
+                    TAB_NETWORK -> {
+                        SyncPanel(host, runtimeOk) { syncAdvanced = true }
+                        SettingsGroup(stringResource(R.string.setup_group_download)) {
+                            ChoiceRow(
+                                host, "download-source", stringResource(R.string.setup_download_source), null,
+                                listOf(
+                                    DownloadSource.MODE_AUTO to stringResource(R.string.setup_download_source_auto),
+                                    DownloadSource.MODE_DIRECT to stringResource(R.string.setup_download_source_direct),
+                                    DownloadSource.MODE_MIRROR to stringResource(R.string.setup_download_source_mirror),
+                                    DownloadSource.MODE_CUSTOM to stringResource(R.string.setup_download_source_custom),
+                                ),
+                                s.downloadSource, onPick = a.onDownloadSource,
+                            )
+                            if (s.downloadSource == DownloadSource.MODE_MIRROR) {
+                                ChoiceRow(
+                                    host, "download-mirror", stringResource(R.string.setup_download_mirror), null,
+                                    DownloadSource.MIRRORS.map { it.host to it.host },
+                                    s.downloadMirror, onPick = a.onDownloadMirror,
+                                )
+                            }
+                            if (s.downloadSource == DownloadSource.MODE_CUSTOM) {
+                                ActionRow(
+                                    stringResource(R.string.setup_download_prefix),
+                                    s.downloadPrefix.takeIf { it.isNotEmpty() },
+                                    stringResource(R.string.mode_sgdb_edit),
+                                    onClick = { editDownloadPrefix = true },
+                                )
+                            }
+                            ActionRow(
+                                stringResource(R.string.setup_download_proxy),
+                                s.downloadProxy.takeIf { it.isNotEmpty() },
+                                stringResource(R.string.mode_sgdb_edit),
+                                onClick = { editDownloadProxy = true },
+                            )
+                        }
+                    }
+                    TAB_GLASSES -> GlassesSetupPanel()
+                    TAB_ADVANCED -> {
                         SettingsGroup(stringResource(R.string.setup_tab_diagnostics)) {
                             ToggleRow(host, "logs", stringResource(R.string.setup_logs), stringResource(R.string.setup_logs_hint), s.logsEnabled) { a.onLogs() }
                             ToggleRow(
                                 host, "enhanced-diagnostics", stringResource(R.string.setup_enhanced_diagnostics),
                                 stringResource(R.string.setup_enhanced_diagnostics_hint), s.enhancedDiagnosticsArmed,
                             ) { a.onEnhancedDiagnostics() }
+                            // game-debug-logs / vacdiag / steam-gpu-drawing are game-facing rows pending §4.7.
                             ToggleRow(
                                 host, "game-debug-logs", stringResource(R.string.setup_game_debug_logs),
                                 stringResource(if (s.gameDebugLogsNeedsRestart) R.string.setup_game_debug_logs_restart else R.string.setup_game_debug_logs_hint),
@@ -470,22 +511,12 @@ internal fun SetupPanel(
                                 s.backgroundAppLimit, enabled = s.adbPaired || s.backgroundAppLimit != com.droidhost.launcher.core.BackgroundAppLimit.OFF,
                                 onPick = a.onBackgroundAppLimit,
                             )
-                            ChoiceRow(
-                                host, "memory-hud", stringResource(R.string.setup_memory_hud), stringResource(R.string.setup_memory_hud_hint),
-                                listOf(
-                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_OFF to stringResource(R.string.game_env_off),
-                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_SIMPLE to stringResource(R.string.setup_memory_hud_simple),
-                                    com.droidhost.launcher.session.SessionPrefs.MEMORY_HUD_ADVANCED to stringResource(R.string.setup_memory_hud_advanced),
-                                ),
-                                s.memoryHud, onPick = a.onMemoryHud,
-                            )
                             if (!s.adbPaired) ActionRow(
                                 stringResource(R.string.setup_adb_pair), stringResource(R.string.setup_adb_pair_hint),
                                 stringResource(R.string.setup_adb_pair_button), onPairWirelessDebugging,
                             )
                         }
                     }
-                    GLASSES_TAB -> GlassesSetupPanel()
                 }
             }
         }

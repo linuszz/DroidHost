@@ -263,24 +263,18 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             Row(
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
-                    .then(
-                        if (glass) Modifier.drawBehind {
-                            drawRect(pal.glassScrim)
-                            drawRect(pal.glassBg)
-                            drawRect(
-                                Brush.radialGradient(listOf(pal.glassSpec, Color.Transparent), center = Offset(size.width / 2f, -size.height * 0.2f), radius = size.width * 0.6f),
-                            )
-                            val w = 1.dp.toPx()
-                            drawRect(pal.glassLineBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
-                        } else Modifier.drawBehind {
-                            val w = 1.dp.toPx()
-                            drawRect(pal.hairBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
-                        },
-                    )
+                    .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 4.dp)
+                    .then(if (glass) Modifier.glassSurface(Shape16, lens = true) else Modifier.machinedPanel(Shape16))
                     .padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp),
             ) {
                 Wordmark(18.dp)
-                Text("/ " + stringResource(R.string.vm_title), fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1)
+                Text(
+                    "/ " + stringResource(R.string.vm_title),
+                    fontSize = 13.sp,
+                    color = colors.onSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.padding(start = 6.dp),
+                )
                 Spacer(Modifier.weight(1f))
                 BusyChip(s)
                 if (running != null) VmRunPill(

@@ -96,6 +96,23 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                     SYSTEM_OVERVIEW_TAB -> {
                         val first = remember { FocusRequester() }
                         DeviceDetails(first)
+                        s.tpUbwcMode?.let { ubwc ->
+                            val host = rememberMenuHost()
+                            SettingsGroup(stringResource(R.string.setup_group_device)) {
+                                ChoiceRow(
+                                    host, "tp-ubwc", stringResource(R.string.gpu_ubwc_title), stringResource(R.string.gpu_ubwc_hint),
+                                    listOf(
+                                        com.droidhost.launcher.session.SessionPrefs.TP_UBWC_AUTO to stringResource(R.string.common_auto),
+                                        com.droidhost.launcher.session.SessionPrefs.TP_UBWC_ON to stringResource(R.string.widgets_on),
+                                        com.droidhost.launcher.session.SessionPrefs.TP_UBWC_OFF to stringResource(R.string.widgets_off),
+                                    ), ubwc, onPick = a.onTpUbwcMode,
+                                )
+                                if (s.tpUbwcRestartRequired) {
+                                    if (s.canRestartApp) ActionRow(stringResource(R.string.gpu_ubwc_restart), null, stringResource(R.string.gpu_restart_now), a.onRestartApp)
+                                    else Note(stringResource(R.string.gpu_ubwc_restart))
+                                }
+                            }
+                        }
                     }
                     SYSTEM_COMPONENTS_TAB -> {
                         SettingCard(

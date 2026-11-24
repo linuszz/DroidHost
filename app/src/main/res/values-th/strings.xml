@@ -825,9 +825,11 @@
     <string name="setup_install">ติดตั้ง</string>
     <string name="setup_manage">จัดการ</string>
     <string name="setup_tab_overview">ภาพรวม</string>
-    <string name="setup_tab_controller">คอนโทรลเลอร์</string>
-    <string name="setup_tab_session">เซสชัน</string>
-    <string name="setup_tab_launcher">ตัวเปิดแอป</string>
+    <string name="setup_tab_controller">อินพุต</string>
+    <string name="setup_tab_performance">ประสิทธิภาพและ HUD</string>
+    <string name="setup_tab_appearance">รูปลักษณ์</string>
+    <string name="setup_tab_session">จอแสดงผลและเซสชัน</string>
+    <string name="setup_tab_launcher">ตัวเปิดแอปและแท็บ</string>
     <string name="setup_title">การตั้งค่า</string>
     <string name="setup_all_set">● พร้อมทั้งหมด</string>
     <string name="setup_n_ready">พร้อม %1$d จาก %2$d</string>
@@ -2838,7 +2840,7 @@
     <string name="gpu_chip_restart">%1$s · ต้องรีสตาร์ต</string>
     <string name="comp_this_device">อุปกรณ์นี้</string>
     <string name="proton_remove_title">ลบ %1$s?</string>
-    <string name="setup_tab_diagnostics">นักพัฒนา</string>
+    <string name="setup_tab_diagnostics">ขั้นสูง</string>
     <string name="setup_build_watermark">ลายน้ำป้ายชื่อบิลด์</string>
     <string name="setup_build_watermark_hint">แสดงป้ายชื่อบิลด์ทดสอบหรือบิลด์ Lab บนหน้าจอ เปิดไว้โดยค่าเริ่มต้น</string>
     <string name="diagnostics_share_title">แชร์ชุดข้อมูลการวินิจฉัย</string>
@@ -3612,7 +3614,7 @@
     <string name="spatial_saved_views_hint">มุมมองที่บันทึกไว้สามารถคำนวณใหม่ได้ เริ่มการสอบเทียบใหม่เพื่อบันทึกในระบบพิกัดการติดตามปัจจุบัน</string>
     <string name="spatial_model_checksum_error">ผลรวมตรวจสอบแบบจำลองมือไม่ตรงกัน</string>
     <string name="spatial_opencv_load_error">OpenCV ไม่สามารถโหลดได้</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">เครือข่ายและการซิงค์</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">ซิงค์ด้วย Syncthing</string>
     <string name="sync_enable_hint">นี่คือ Syncthing ที่อิงจาก Syncthing-Fork ซึ่งช่วยให้คุณซิงค์ไฟล์ในระบบไฟล์ภายในของ DroidHost กับ Syncthing เครื่องอื่นได้ ใช้ได้เฉพาะกับไฟล์ที่คุณจัดเก็บไว้ในระบบไฟล์ภายในของ DroidHost เท่านั้น</string>

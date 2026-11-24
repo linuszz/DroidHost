@@ -825,9 +825,11 @@
     <string name="setup_install">설치</string>
     <string name="setup_manage">관리</string>
     <string name="setup_tab_overview">개요</string>
-    <string name="setup_tab_controller">컨트롤러</string>
-    <string name="setup_tab_session">세션</string>
-    <string name="setup_tab_launcher">런처</string>
+    <string name="setup_tab_controller">입력</string>
+    <string name="setup_tab_performance">성능 및 HUD</string>
+    <string name="setup_tab_appearance">외관</string>
+    <string name="setup_tab_session">디스플레이 및 세션</string>
+    <string name="setup_tab_launcher">런처 및 탭</string>
     <string name="setup_title">설정</string>
     <string name="setup_all_set">● 모두 준비됨</string>
     <string name="setup_n_ready">%1$d/%2$d 준비됨</string>
@@ -2838,7 +2840,7 @@
     <string name="gpu_chip_restart">%1$s · 재시작 대기</string>
     <string name="comp_this_device">이 기기</string>
     <string name="proton_remove_title">%1$s을(를) 제거하시겠습니까?</string>
-    <string name="setup_tab_diagnostics">개발자</string>
+    <string name="setup_tab_diagnostics">고급</string>
     <string name="setup_build_watermark">빌드 라벨 워터마크</string>
     <string name="setup_build_watermark_hint">테스트 또는 Lab 빌드 라벨을 화면에 표시합니다. 기본적으로 켜져 있습니다.</string>
     <string name="diagnostics_share_title">진단 번들 공유</string>
@@ -3528,7 +3530,7 @@
     <string name="spatial_distance_passed">거리 확인이 통과되었습니다.</string>
     <string name="spatial_model_checksum_error">손 모델 체크섬 불일치</string>
     <string name="spatial_opencv_load_error">OpenCV를 로드할 수 없습니다.</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">네트워크 및 동기화</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Syncthing으로 동기화</string>
     <string name="sync_enable_hint">Syncthing-Fork를 기반으로 한 Syncthing 구현으로, DroidHost 내부 파일 시스템의 파일을 다른 Syncthing 인스턴스와 동기화할 수 있습니다. DroidHost 내부 파일 시스템에 저장한 파일에만 적용됩니다.</string>

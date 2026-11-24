@@ -828,10 +828,12 @@
     <string name="setup_install">Asenna</string>
     <string name="setup_manage">Hallitse</string>
     <string name="setup_tab_overview">Yleiskatsaus</string>
-    <string name="setup_tab_controller">Ohjain</string>
-    <string name="setup_tab_session">Istunto</string>
-    <string name="setup_tab_launcher">Käynnistin</string>
-    <string name="setup_title">Käyttöönotto</string>
+    <string name="setup_tab_controller">Syöte</string>
+    <string name="setup_tab_performance">Suorituskyky ja HUD</string>
+    <string name="setup_tab_appearance">Ulkoasu</string>
+    <string name="setup_tab_session">Näyttö ja istunto</string>
+    <string name="setup_tab_launcher">Käynnistin ja välilehdet</string>
+    <string name="setup_title">Asetukset</string>
     <string name="setup_all_set">● Kaikki valmiina</string>
     <string name="setup_n_ready">%1$d/%2$d valmiina</string>
     <string name="setup_system_check">Järjestelmätarkistus</string>
@@ -2865,7 +2867,7 @@
     <string name="gpu_chip_restart">%1$s · vaatii uudelleenkäynnistyksen</string>
     <string name="comp_this_device">Tämä laite</string>
     <string name="proton_remove_title">Poistetaanko %1$s?</string>
-    <string name="setup_tab_diagnostics">Kehittäjä</string>
+    <string name="setup_tab_diagnostics">Lisäasetukset</string>
     <string name="setup_build_watermark">Koontiversion vesileima</string>
     <string name="setup_build_watermark_hint">Näytä testi- tai Lab-version tunniste näytöllä. Käytössä oletusarvoisesti.</string>
     <string name="diagnostics_share_title">Jaa diagnostiikkapaketit</string>
@@ -3642,7 +3644,7 @@
     <string name="spatial_saved_views_hint">Tallennetut näkymät voidaan laskea uudelleen. Aloita uusi kalibrointi kaapataksesi nykyiseen seurantakoordinaattijärjestelmään.</string>
     <string name="spatial_model_checksum_error">Käsimallin tarkistussumman epäsuhta</string>
     <string name="spatial_opencv_load_error">OpenCV:tä ei voitu ladata</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Verkko ja synkronointi</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Synkronoi Syncthingillä</string>
     <string name="sync_enable_hint">Tämä Syncthing-Forkiin perustuva Syncthing-toteutus synkronoi DroidHostin sisäisen tiedostojärjestelmän tiedostoja muiden Syncthing-instanssien kanssa. Se koskee vain tiedostoja, joita säilytät DroidHostin sisäisessä tiedostojärjestelmässä.</string>

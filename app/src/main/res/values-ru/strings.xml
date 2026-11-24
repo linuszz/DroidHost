@@ -834,10 +834,12 @@
     <string name="setup_install">Установить</string>
     <string name="setup_manage">Управление</string>
     <string name="setup_tab_overview">Обзор</string>
-    <string name="setup_tab_controller">Контроллер</string>
-    <string name="setup_tab_session">Сессия</string>
-    <string name="setup_tab_launcher">Лаунчер</string>
-    <string name="setup_title">Настройка</string>
+    <string name="setup_tab_controller">Ввод</string>
+    <string name="setup_tab_performance">Производительность и HUD</string>
+    <string name="setup_tab_appearance">Внешний вид</string>
+    <string name="setup_tab_session">Экран и сессия</string>
+    <string name="setup_tab_launcher">Лаунчер и вкладки</string>
+    <string name="setup_title">Настройки</string>
     <string name="setup_all_set">● Все готово</string>
     <string name="setup_n_ready">%1$d/%2$d готово</string>
     <string name="setup_system_check">Проверка системы</string>
@@ -1489,7 +1491,7 @@
     <string name="rail_store">Магазин</string>
     <string name="rail_components">Компоненты</string>
     <string name="rail_apps">Приложения</string>
-    <string name="rail_setup">Настройка</string>
+    <string name="rail_setup">Настройки</string>
     <string name="rail_updates">Обновления</string>
     <string name="rail_more">Ещё</string>
     <string name="more_edit_tabs">Настроить вкладки</string>
@@ -2918,7 +2920,7 @@
     <string name="gpu_chip_restart">%1$s · нужен перезапуск</string>
     <string name="comp_this_device">Это устройство</string>
     <string name="proton_remove_title">Удалить %1$s?</string>
-    <string name="setup_tab_diagnostics">Разработчик</string>
+    <string name="setup_tab_diagnostics">Дополнительно</string>
     <string name="setup_build_watermark">Водяной знак с меткой сборки</string>
     <string name="setup_build_watermark_hint">Показывать на экране метку тестовой сборки или сборки Lab. Включено по умолчанию.</string>
     <string name="diagnostics_share_title">Поделиться наборами диагностики</string>
@@ -3716,7 +3718,7 @@
     <string name="spatial_saved_views_hint">Сохраненные представления можно пересчитать. Запустите новую калибровку для захвата текущей системы координат отслеживания.</string>
     <string name="spatial_model_checksum_error">Несоответствие контрольной суммы модели руки.</string>
     <string name="spatial_opencv_load_error">OpenCV не удалось загрузить.</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Сеть и синхронизация</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Синхронизация через Syncthing</string>
     <string name="sync_enable_hint">Это реализация Syncthing на основе Syncthing-Fork, которая позволяет синхронизировать файлы из внутренней файловой системы DroidHost с другими экземплярами Syncthing. Она работает только с файлами, которые хранятся во внутренней файловой системе DroidHost.</string>

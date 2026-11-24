@@ -480,7 +480,15 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
         when (target) {
             "stores:downloads" -> { com.droidhost.launcher.stores.StoresState.openDownloads = true; selected = "stores" }
             "components" -> a.onComponents(true)
-            "setup:launcher" -> { SetupTabs.openLauncher = true; selected = "setup" }
+            "setup:display" -> { SetupTabs.openDisplay = true; selected = "setup" }
+            "setup:input" -> { SetupTabs.openInput = true; selected = "setup" }
+            "setup:performance" -> { SetupTabs.openPerformance = true; selected = "setup" }
+            "setup:appearance" -> { SetupTabs.openAppearance = true; selected = "setup" }
+            // "setup:launcher" is the legacy alias; both land on Launcher & tabs.
+            "setup:launcher", "setup:tabs" -> { SetupTabs.openLauncher = true; selected = "setup" }
+            "setup:network" -> { SetupTabs.openNetwork = true; selected = "setup" }
+            "setup:glasses" -> { SetupTabs.openGlasses = true; selected = "setup" }
+            "setup:advanced" -> { SetupTabs.openAdvanced = true; selected = "setup" }
             com.droidhost.launcher.sync.SyncthingService.NAV -> com.droidhost.launcher.sync.Syncthing.requestOpen()
             "setup:integration" -> { SystemTabs.openOverview = true; selected = "system" }
             "system:overview" -> { SystemTabs.openOverview = true; selected = "system" }

@@ -838,7 +838,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
             .setComponent(LauncherIcon.activity(this))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            .putExtra(com.droidhost.launcher.stores.download.StoreDownloadService.EXTRA_NAV, "setup:launcher"))
+            .putExtra(com.droidhost.launcher.stores.download.StoreDownloadService.EXTRA_NAV, "setup:appearance"))
         finishAndRemoveTask()
         return true
     }

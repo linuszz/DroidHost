@@ -825,9 +825,11 @@
     <string name="setup_install">安裝</string>
     <string name="setup_manage">管理</string>
     <string name="setup_tab_overview">概觀</string>
-    <string name="setup_tab_controller">控制器</string>
-    <string name="setup_tab_session">工作階段</string>
-    <string name="setup_tab_launcher">啟動器</string>
+    <string name="setup_tab_controller">輸入</string>
+    <string name="setup_tab_performance">效能與 HUD</string>
+    <string name="setup_tab_appearance">外觀</string>
+    <string name="setup_tab_session">顯示與工作階段</string>
+    <string name="setup_tab_launcher">啟動器與頁籤</string>
     <string name="setup_title">設定</string>
     <string name="setup_all_set">● 全部就緒</string>
     <string name="setup_n_ready">%1$d/%2$d 已就緒</string>
@@ -2838,7 +2840,7 @@
     <string name="gpu_chip_restart">%1$s · 等待重新啟動</string>
     <string name="comp_this_device">此裝置</string>
     <string name="proton_remove_title">要移除 %1$s 嗎？</string>
-    <string name="setup_tab_diagnostics">開發人員</string>
+    <string name="setup_tab_diagnostics">進階</string>
     <string name="setup_build_watermark">組建標籤浮水印</string>
     <string name="setup_build_watermark_hint">在畫面上顯示測試版或 Lab 組建標籤。預設啟用。</string>
     <string name="diagnostics_share_title">分享診斷資料包</string>
@@ -3610,7 +3612,7 @@
     <string name="spatial_saved_views_hint">可以重新計算已儲存的視圖。開始新的校準以在當前追蹤座標系中捕獲。</string>
     <string name="spatial_model_checksum_error">手模型校驗與不匹配</string>
     <string name="spatial_opencv_load_error">OpenCV 無法載入</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">網路與同步</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">使用 Syncthing 同步</string>
     <string name="sync_enable_hint">這是以 Syncthing-Fork 為基礎的 Syncthing 實作，可將 DroidHost 內部檔案系統中的檔案與其他 Syncthing 執行個體同步。僅適用於你存放在 DroidHost 內部檔案系統中的檔案。</string>

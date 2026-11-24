@@ -44,8 +44,7 @@ class NavTabsTest {
     @Test fun shelvedFeaturesStayOutOfTheBarOnAFreshInstall() {
         assertEquals(listOf("desktop", "setup", "system"), navigationKeys(state()))
         assertEquals(emptyList<String>(), NavTabs.more(state()))
-        assertEquals(setOf("agent"), NavTabs.shelved)
-        assertTrue(com.droidhost.launcher.agent.AgentTab.shown)
+        assertEquals(emptySet<String>(), NavTabs.shelved)
     }
 
     @Test fun shelvingATabOnceKeepsItShelvedAfterReload() {
@@ -74,9 +73,11 @@ class NavTabsTest {
         assertTrue("system" in navigationKeys(s))
     }
 
-    @Test fun aDisabledFeatureReadsAsHidden() {
-        com.droidhost.launcher.agent.AgentTab.set(ctx, false)
-        assertEquals(TabPlace.HIDDEN, NavTabs.place(state(), "agent"))
+    @Test fun theAgentFeatureNoLongerHasARailEntry() {
+        com.droidhost.launcher.agent.AgentTab.set(ctx, true)
+        assertFalse("agent" in NavTabs.listed(state()))
+        assertFalse("agent" in navigationKeys(state()))
+        assertFalse("agent" in NavTabs.more(state()))
     }
 
     @Test fun movingSwapsWithTheNextVisibleTabAndPersists() {

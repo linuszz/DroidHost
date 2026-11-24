@@ -187,7 +187,7 @@ val Palette.hairBrush: Brush get() = Brush.horizontalGradient(
 val Palette.glassBg: Color get() =
     if (isLight) lerp(surfaceVariant, Color.White, 0.5f).copy(alpha = 0.78f) else surfaceVariant.copy(alpha = 0.55f)
 // The backdrop behind a floating control is uncontrollable; this scrim caps its worst-case luminance.
-val Palette.glassScrim: Color get() = if (isLight) Color.Transparent else background.copy(alpha = 0.55f)
+val Palette.glassScrim: Color get() = if (isLight) Color.Transparent else background.copy(alpha = 0.35f)
 val Palette.glassLine: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = 0.14f)
 val Palette.glassSpec: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = if (isLight) 0.10f else 0.22f)
 
@@ -218,22 +218,13 @@ internal fun Modifier.machinedBevel(inset: Dp = 0.dp): Modifier {
     }
 }
 
-/** Static screen texture: a faint primary halo up top, a black floor below, a 22dp dot grid. */
+/** Static screen texture: a faint primary halo up top and a black floor below, matching the prototype's clean ambient gradient. */
 @Composable
 internal fun Modifier.screenTexture(): Modifier {
     val pal = LocalPalette.current
     val halo = pal.primary.copy(alpha = 0.045f)
     val floor = Color.Black.copy(alpha = if (pal.isLight) 0.08f else 0.55f)
-    val dot = (if (pal.isLight) Color.Black else Color.White).copy(alpha = 0.018f)
     return drawWithCache {
-        val step = 22.dp.toPx()
-        val points = ArrayList<Offset>()
-        var y = step / 2f
-        while (y < size.height) {
-            var x = step / 2f
-            while (x < size.width) { points.add(Offset(x, y)); x += step }
-            y += step
-        }
         onDrawBehind {
             drawRect(
                 Brush.radialGradient(
@@ -247,7 +238,6 @@ internal fun Modifier.screenTexture(): Modifier {
                     center = Offset(size.width / 2f, size.height * 1.08f), radius = size.height * 0.45f,
                 ),
             )
-            drawPoints(points, PointMode.Points, dot, strokeWidth = 1.dp.toPx(), cap = StrokeCap.Round)
         }
     }
 }

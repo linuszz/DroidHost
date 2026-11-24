@@ -4,15 +4,13 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.droidhost.launcher.agent.AgentHost
-import com.droidhost.launcher.agent.AgentTab
 import com.droidhost.launcher.session.SessionPrefs
 
 internal enum class TabPlace { BAR, MORE, HIDDEN }
 
 internal object NavTabs {
     const val MORE = "more"
-    val FEATURES = setOf("agent")
+    val FEATURES = emptySet<String>()
     val ALL = listOf("desktop", "android-apps", "setup", "system")
 
     var order by mutableStateOf(ALL)
@@ -41,21 +39,15 @@ internal object NavTabs {
 
     fun available(s: FrontEndState, key: String): Boolean = when (key) {
         "android-apps" -> s.isHomeApp
-        "agent" -> AgentHost.available
         else -> true
     }
 
     fun hideable(key: String) = key != "setup" && key != "system"
 
     fun place(s: FrontEndState, key: String): TabPlace = when {
-        featureOff(s, key) || key in hidden -> TabPlace.HIDDEN
+        key in hidden -> TabPlace.HIDDEN
         key in shelved -> TabPlace.MORE
         else -> TabPlace.BAR
-    }
-
-    private fun featureOff(s: FrontEndState, key: String) = when (key) {
-        "agent" -> !AgentTab.shown
-        else -> false
     }
 
     fun listed(s: FrontEndState) = order.filter { available(s, it) } + FEATURES.filter { it !in order && available(s, it) }

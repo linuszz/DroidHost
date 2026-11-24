@@ -828,10 +828,12 @@
     <string name="setup_install">Installieren</string>
     <string name="setup_manage">Verwalten</string>
     <string name="setup_tab_overview">Übersicht</string>
-    <string name="setup_tab_controller">Controller</string>
-    <string name="setup_tab_session">Sitzung</string>
-    <string name="setup_tab_launcher">Launcher</string>
-    <string name="setup_title">Einrichtung</string>
+    <string name="setup_tab_controller">Eingabe</string>
+    <string name="setup_tab_performance">Leistung und HUD</string>
+    <string name="setup_tab_appearance">Aussehen</string>
+    <string name="setup_tab_session">Anzeige und Sitzung</string>
+    <string name="setup_tab_launcher">Launcher und Tabs</string>
+    <string name="setup_title">Einstellungen</string>
     <string name="setup_all_set">● Alles bereit</string>
     <string name="setup_n_ready">%1$d von %2$d bereit</string>
     <string name="setup_system_check">Systemprüfung</string>
@@ -1465,7 +1467,7 @@
     <string name="rail_store">Store</string>
     <string name="rail_components">Komponenten</string>
     <string name="rail_apps">Apps</string>
-    <string name="rail_setup">Einrichtung</string>
+    <string name="rail_setup">Einstellungen</string>
     <string name="rail_updates">Updates</string>
     <string name="rail_more">Mehr</string>
     <string name="more_edit_tabs">Tabs bearbeiten</string>
@@ -2854,7 +2856,7 @@
     <string name="gpu_chip_restart">%1$s · Neustart ausstehend</string>
     <string name="comp_this_device">Dieses Gerät</string>
     <string name="proton_remove_title">%1$s entfernen?</string>
-    <string name="setup_tab_diagnostics">Entwickler</string>
+    <string name="setup_tab_diagnostics">Erweitert</string>
     <string name="setup_build_watermark">Build-Kennzeichnung als Wasserzeichen</string>
     <string name="setup_build_watermark_hint">Kennzeichnung des Test- oder Lab-Builds auf dem Bildschirm anzeigen. Standardmäßig aktiviert.</string>
     <string name="diagnostics_share_title">Diagnose-Pakete teilen</string>
@@ -3642,7 +3644,7 @@
     <string name="spatial_saved_views_hint">Gespeicherte Ansichten können neu berechnet werden. Starten Sie eine neue Kalibrierung zur Erfassung im aktuellen Tracking-Koordinatensystem.</string>
     <string name="spatial_model_checksum_error">Die Prüfsumme des Handmodells stimmt nicht überein</string>
     <string name="spatial_opencv_load_error">OpenCV konnte nicht geladen werden</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Netzwerk und Synchronisierung</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Mit Syncthing synchronisieren</string>
     <string name="sync_enable_hint">Basiert auf Syncthing-Fork: eine Syncthing-Implementierung, mit der du Dateien im internen Dateisystem von DroidHost mit anderen Syncthing-Instanzen synchronisieren kannst. Gilt nur für Dateien, die du im internen Dateisystem von DroidHost speicherst.</string>

@@ -825,10 +825,12 @@
     <string name="setup_install">安装</string>
     <string name="setup_manage">管理</string>
     <string name="setup_tab_overview">概览</string>
-    <string name="setup_tab_controller">手柄</string>
-    <string name="setup_tab_session">会话</string>
-    <string name="setup_tab_launcher">启动器</string>
-    <string name="setup_title">配置</string>
+    <string name="setup_tab_controller">输入</string>
+    <string name="setup_tab_performance">性能与 HUD</string>
+    <string name="setup_tab_appearance">外观</string>
+    <string name="setup_tab_session">显示与会话</string>
+    <string name="setup_tab_launcher">启动器与 Tab</string>
+    <string name="setup_title">设置</string>
     <string name="setup_all_set">● 全部就绪</string>
     <string name="setup_n_ready">%2$d 项中 %1$d 项就绪</string>
     <string name="setup_system_check">系统检查</string>
@@ -1557,7 +1559,7 @@
     <string name="rail_store">商店</string>
     <string name="rail_components">组件</string>
     <string name="rail_apps">应用</string>
-    <string name="rail_setup">配置</string>
+    <string name="rail_setup">设置</string>
     <string name="rail_system">系统</string>
     <string name="rail_updates">更新</string>
     <string name="rail_more">更多</string>
@@ -2869,7 +2871,7 @@
     <string name="gpu_separately">分别设置运行时驱动和显示驱动</string>
     <string name="gpu_use_title">使用 %1$s？</string>
     <string name="proton_remove_title">移除 %1$s？</string>
-    <string name="setup_tab_diagnostics">开发者</string>
+    <string name="setup_tab_diagnostics">高级</string>
     <string name="setup_build_watermark">构建标签水印</string>
     <string name="setup_build_watermark_hint">在屏幕上显示测试版或 Lab 构建标签。默认启用。</string>
     <string name="diagnostics_share_title">分享诊断包</string>
@@ -3656,7 +3658,7 @@
     <string name="spatial_saved_views_hint">可以重新计算保存的视图。开始新的校准以在当前跟踪坐标系中捕获。</string>
     <string name="spatial_model_checksum_error">手模型校验和不匹配</string>
     <string name="spatial_opencv_load_error">OpenCV 无法加载</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">网络与同步</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">使用 Syncthing 同步</string>
     <string name="sync_enable_hint">这是基于 Syncthing-Fork 的 Syncthing 实现，可将 DroidHost 内部文件系统中的文件与其他 Syncthing 实例同步。仅适用于你存放在 DroidHost 内部文件系统中的文件。</string>

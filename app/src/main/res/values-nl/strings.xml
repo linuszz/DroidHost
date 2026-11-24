@@ -828,10 +828,12 @@
     <string name="setup_install">Installeren</string>
     <string name="setup_manage">Beheren</string>
     <string name="setup_tab_overview">Overzicht</string>
-    <string name="setup_tab_controller">Controller</string>
-    <string name="setup_tab_session">Sessie</string>
-    <string name="setup_tab_launcher">Launcher</string>
-    <string name="setup_title">Installatie</string>
+    <string name="setup_tab_controller">Invoer</string>
+    <string name="setup_tab_performance">Prestaties en HUD</string>
+    <string name="setup_tab_appearance">Weergave</string>
+    <string name="setup_tab_session">Scherm en sessie</string>
+    <string name="setup_tab_launcher">Launcher en tabbladen</string>
+    <string name="setup_title">Instellingen</string>
     <string name="setup_all_set">● Alles klaar</string>
     <string name="setup_n_ready">%1$d van %2$d gereed</string>
     <string name="setup_system_check">Systeemcontrole</string>
@@ -1473,7 +1475,7 @@
     <string name="rail_store">Winkel</string>
     <string name="rail_components">Componenten</string>
     <string name="rail_apps">Apps</string>
-    <string name="rail_setup">Installatie</string>
+    <string name="rail_setup">Instellingen</string>
     <string name="rail_updates">Updates</string>
     <string name="rail_more">Meer</string>
     <string name="more_edit_tabs">Tabbladen bewerken</string>
@@ -2865,7 +2867,7 @@
     <string name="gpu_chip_restart">%1$s · herstart nodig</string>
     <string name="comp_this_device">Dit apparaat</string>
     <string name="proton_remove_title">%1$s verwijderen?</string>
-    <string name="setup_tab_diagnostics">Ontwikkelaar</string>
+    <string name="setup_tab_diagnostics">Geavanceerd</string>
     <string name="setup_build_watermark">Buildlabel als watermerk</string>
     <string name="setup_build_watermark_hint">Toon het label van de testbuild of Lab-build op het scherm. Standaard ingeschakeld.</string>
     <string name="diagnostics_share_title">Diagnostische bundels delen</string>
@@ -3640,7 +3642,7 @@
     <string name="spatial_saved_views_hint">Opgeslagen weergaven kunnen opnieuw worden berekend. Start een nieuwe kalibratie om vast te leggen in het huidige volgcoördinatensysteem.</string>
     <string name="spatial_model_checksum_error">Controlesom handmodel komt niet overeen</string>
     <string name="spatial_opencv_load_error">OpenCV kon niet laden</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Netwerk en synchronisatie</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Synchroniseren met Syncthing</string>
     <string name="sync_enable_hint">Dit is een Syncthing-implementatie op basis van Syncthing-Fork waarmee je bestanden in het interne bestandssysteem van DroidHost synchroniseert met andere Syncthing-installaties. Dit geldt alleen voor bestanden die je in het interne bestandssysteem van DroidHost bewaart.</string>

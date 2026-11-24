@@ -23,7 +23,8 @@ object AgentAccess {
     fun requireCommands(context: Context) {
         if (!commandsAllowed(context)) throw AgentException(
             "AGENT_COMMANDS_DISABLED",
-            "Debugging tools are off: turn on Setup > Developer > Debugging tools on the device",
+            // Hard contract: must match the en values of setup_tab_diagnostics / setup_agent_commands (AgentSecurityTest).
+            "Debugging tools are off: turn on Setup > Advanced > Debugging tools on the device",
         )
     }
 

@@ -140,6 +140,7 @@ internal fun StoragePanel(s: FrontEndState, a: FrontEndActions) {
                 Text(stringResource(R.string.storage_measuring_hint), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+        LowStorageWarningGroup(s, a)
         return
     }
     if (cleanup) CleanUpDialog(report, s.sessionRunning) { cleanup = false }
@@ -158,7 +159,19 @@ internal fun StoragePanel(s: FrontEndState, a: FrontEndActions) {
         "vms" -> VmsView(report, s.sessionRunning) { view = "overview" }
         "stores" -> StoreGamesView(report, s.sessionRunning) { view = "overview" }
         "tools" -> ToolsView(report, s.sessionRunning) { view = "overview" }
-        else -> Overview(report, s.sessionRunning, onCleanUp = { cleanup = true }, onOpen = { view = it })
+        else -> {
+            Overview(report, s.sessionRunning, onCleanUp = { cleanup = true }, onOpen = { view = it })
+            LowStorageWarningGroup(s, a)
+        }
+    }
+}
+
+@Composable
+private fun LowStorageWarningGroup(s: FrontEndState, a: FrontEndActions) {
+    val host = rememberMenuHost()
+    SettingsGroup(stringResource(R.string.setup_group_device)) {
+        ToggleRow(host, "low-storage-warning", stringResource(R.string.setup_low_storage_warning), stringResource(R.string.setup_low_storage_warning_hint),
+            s.lowStorageWarning, onChange = a.onLowStorageWarning)
     }
 }
 

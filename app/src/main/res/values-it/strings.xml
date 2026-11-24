@@ -831,10 +831,12 @@
     <string name="setup_install">Installa</string>
     <string name="setup_manage">Gestisci</string>
     <string name="setup_tab_overview">Panoramica</string>
-    <string name="setup_tab_controller">Controller</string>
-    <string name="setup_tab_session">Sessione</string>
-    <string name="setup_tab_launcher">Launcher</string>
-    <string name="setup_title">Configurazione</string>
+    <string name="setup_tab_controller">Input</string>
+    <string name="setup_tab_performance">Prestazioni e HUD</string>
+    <string name="setup_tab_appearance">Aspetto</string>
+    <string name="setup_tab_session">Schermo e sessione</string>
+    <string name="setup_tab_launcher">Launcher e schede</string>
+    <string name="setup_title">Impostazioni</string>
     <string name="setup_all_set">● Tutto pronto</string>
     <string name="setup_n_ready">%1$d di %2$d pronti</string>
     <string name="setup_system_check">Controllo del sistema</string>
@@ -1472,7 +1474,7 @@
     <string name="rail_store">Negozio</string>
     <string name="rail_components">Componenti</string>
     <string name="rail_apps">App</string>
-    <string name="rail_setup">Configurazione</string>
+    <string name="rail_setup">Impostazioni</string>
     <string name="rail_updates">Aggiornamenti</string>
     <string name="rail_more">Altro</string>
     <string name="more_edit_tabs">Modifica schede</string>
@@ -2881,7 +2883,7 @@
     <string name="gpu_chip_restart">%1$s · riavvio in attesa</string>
     <string name="comp_this_device">Questo dispositivo</string>
     <string name="proton_remove_title">Rimuovere %1$s?</string>
-    <string name="setup_tab_diagnostics">Sviluppatore</string>
+    <string name="setup_tab_diagnostics">Avanzate</string>
     <string name="setup_build_watermark">Filigrana con etichetta build</string>
     <string name="setup_build_watermark_hint">Mostra sullo schermo l’etichetta della build di test o Lab. Attiva per impostazione predefinita.</string>
     <string name="diagnostics_share_title">Condividi i pacchetti diagnostici</string>
@@ -3678,7 +3680,7 @@
     <string name="spatial_saved_views_hint">Le visualizzazioni salvate possono essere ricalcolate. Avvia una nuova calibrazione per acquisire il sistema di coordinate di tracciamento corrente.</string>
     <string name="spatial_model_checksum_error">Mancata corrispondenza del checksum del modello di mano</string>
     <string name="spatial_opencv_load_error">Impossibile caricare OpenCV</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">Rete e sincronizzazione</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Sincronizza con Syncthing</string>
     <string name="sync_enable_hint">Basata su Syncthing-Fork, è un\'implementazione di Syncthing che ti permette di sincronizzare i file del file system interno di DroidHost con altre istanze di Syncthing. Vale solo per i file che conservi all\'interno del file system interno di DroidHost.</string>

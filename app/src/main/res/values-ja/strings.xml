@@ -825,10 +825,12 @@
     <string name="setup_install">インストール</string>
     <string name="setup_manage">管理</string>
     <string name="setup_tab_overview">概要</string>
-    <string name="setup_tab_controller">コントローラー</string>
-    <string name="setup_tab_session">セッション</string>
-    <string name="setup_tab_launcher">ランチャー</string>
-    <string name="setup_title">セットアップ</string>
+    <string name="setup_tab_controller">入力</string>
+    <string name="setup_tab_performance">パフォーマンスと HUD</string>
+    <string name="setup_tab_appearance">外観</string>
+    <string name="setup_tab_session">表示とセッション</string>
+    <string name="setup_tab_launcher">ランチャーとタブ</string>
+    <string name="setup_title">設定</string>
     <string name="setup_all_set">● すべて準備完了</string>
     <string name="setup_n_ready">%1$d/%2$d 準備完了</string>
     <string name="setup_system_check">システムチェック</string>
@@ -1466,7 +1468,7 @@
     <string name="rail_store">ストア</string>
     <string name="rail_components">コンポーネント</string>
     <string name="rail_apps">アプリ</string>
-    <string name="rail_setup">セットアップ</string>
+    <string name="rail_setup">設定</string>
     <string name="rail_updates">アップデート</string>
     <string name="rail_more">その他</string>
     <string name="more_edit_tabs">タブを編集</string>
@@ -2838,7 +2840,7 @@
     <string name="gpu_chip_restart">%1$s · 再起動待ち</string>
     <string name="comp_this_device">このデバイス</string>
     <string name="proton_remove_title">%1$sを削除しますか？</string>
-    <string name="setup_tab_diagnostics">開発者</string>
+    <string name="setup_tab_diagnostics">詳細設定</string>
     <string name="setup_build_watermark">ビルドラベルの透かし</string>
     <string name="setup_build_watermark_hint">テストビルドまたはLabビルドのラベルを画面に表示します。デフォルトで有効です。</string>
     <string name="diagnostics_share_title">診断バンドルを共有</string>
@@ -3611,7 +3613,7 @@
     <string name="spatial_saved_views_hint">保存されたビューは再計算できます。新しいキャリブレーションを開始して、現在のトラッキング座標系でキャプチャします。</string>
     <string name="spatial_model_checksum_error">ハンドモデルのチェックサムの不一致</string>
     <string name="spatial_opencv_load_error">OpenCVをロードできませんでした</string>
-    <string name="setup_tab_sync">Syncthing</string>
+    <string name="setup_tab_sync">ネットワークと同期</string>
     <string name="sync_group">Syncthing</string>
     <string name="sync_enable">Syncthingで同期</string>
     <string name="sync_enable_hint">Syncthing-ForkをベースにしたSyncthingの実装で、DroidHostの内部ファイルシステム内のファイルを他のSyncthingインスタンスと同期できます。DroidHostの内部ファイルシステム内に保存しているファイル専用です。</string>
