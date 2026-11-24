@@ -139,6 +139,19 @@ class PortraitLayoutTest {
         compose.onNodeWithText("Filter").assertIsDisplayed()
     }
 
+    @Test fun resumeDotSitsOnTheNavGlyphRow() {
+        compose.setContent {
+            DroidHostTheme { BottomBar(stateWithAppsAndSession, "desktop", {}, {}, actions, Modifier.size(480.dp, 64.dp)) }
+        }
+        compose.mainClock.advanceTimeBy(1_000)
+        val nav = compose.onNodeWithTag("rail-desktop").getUnclippedBoundsInRoot()
+        val resume = compose.onNodeWithTag("rail-resume").getUnclippedBoundsInRoot()
+        // The running-session entry mirrors the nav slot (48dp, same vertical rhythm) so its dot sits
+        // on the glyph row; centring it in the whole capsule sat it a label-height below the icons.
+        assertEquals(nav.top, resume.top)
+        assertEquals(nav.bottom - nav.top, resume.bottom - resume.top)
+    }
+
     private fun state(home: Boolean = false, running: String? = null) = FrontEndState(
         installed = "r9", ready = true, available = null, busy = false, stage = "", percent = -1,
         desktopInstalled = true, offlineAccount = null, offline = false, frameGenLabel = "",

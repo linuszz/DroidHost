@@ -132,7 +132,7 @@ internal fun BottomBar(
                 }
             }
         }
-        if (s.running != null) ResumeRailItem(s.running, compact = true, iconOnly = true, a.onResume)
+        if (s.running != null) ResumeRailItem(s.running, compact = true, iconOnly = iconOnly, a.onResume, inBar = true)
     }
 }
 
@@ -340,6 +340,7 @@ private fun RailItem(
             // the active tile carries the mint wash and its 1px inner highlight.
             Box(
                 Modifier.size(if (compact) 24.dp else 26.dp)
+                    .testTag("rail-tile-$key")
                     .then(
                         if (current) Modifier
                             .clip(RoundedCornerShape(8.dp))
@@ -385,7 +386,7 @@ private fun RailItem(
 }
 
 @Composable
-private fun ResumeRailItem(name: String, compact: Boolean, iconOnly: Boolean, onResume: () -> Unit) {
+private fun ResumeRailItem(name: String, compact: Boolean, iconOnly: Boolean, onResume: () -> Unit, inBar: Boolean = false) {
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val src = remember { MutableInteractionSource() }
@@ -395,27 +396,64 @@ private fun ResumeRailItem(name: String, compact: Boolean, iconOnly: Boolean, on
     val pulse = rememberInfiniteTransition(label = "pulse")
     val ringScale by pulse.animateFloat(0.4f, 1.6f, infiniteRepeatable(tween(1600, easing = Motion.Ease), RepeatMode.Restart), label = "ring")
     val still = Motion.scale == 0f
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp),
-        modifier = Modifier
-            .padding(top = 6.dp)
-            .width(if (iconOnly) 52.dp else 80.dp)
-            .clip(Shape14)
-            .background(pal.good.copy(alpha = if (focused || hovered) 0.20f else 0.12f))
-            .glideBorder(focused, Shape14, pal.signal)
-            .hoverable(src)
-            .clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onResume)
-            .semantics { contentDescription = resumeDescription }
-            .padding(vertical = if (iconOnly) 15.dp else if (compact) 6.dp else 9.dp, horizontal = 4.dp),
-    ) {
+    val dot: @Composable () -> Unit = {
         Box(modifier = Modifier.size(14.dp), contentAlignment = Alignment.Center) {
             if (!still) Box(modifier = Modifier.size(14.dp).graphicsLayer { scaleX = ringScale; scaleY = ringScale; alpha = (1.6f - ringScale) / 1.2f }.border(1.5.dp, pal.good, CircleShape))
             Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(pal.good))
         }
-        if (!iconOnly) {
-            Text(stringResource(R.string.resume_session), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground, maxLines = 1, softWrap = false)
-            Text(name, fontSize = 12.sp, color = if (LocalGlassActive.current) ThemeColors.inkOn(colors.onSurfaceVariant, pal.glassWorst) else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+    if (inBar) {
+        // Mirror the nav entry's vertical rhythm so the dot lands on the glyph row: a 24dp tile over a
+        // label-height line centred in the 48dp slot (labels), or a centred tile (icon-only). Centring
+        // the dot in the whole capsule instead sat it a label-height below every other icon.
+        Box(
+            modifier = Modifier
+                .width(52.dp)
+                .height(48.dp)
+                .testTag("rail-resume")
+                .clip(Shape14)
+                .hoverable(src)
+                .clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onResume)
+                .semantics { contentDescription = resumeDescription },
+            contentAlignment = Alignment.Center,
+        ) {
+            val tile: @Composable () -> Unit = {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .testTag("rail-resume-tile")
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(pal.good.copy(alpha = if (focused || hovered) 0.20f else 0.12f))
+                        .glideBorder(focused, RoundedCornerShape(8.dp), pal.signal),
+                    contentAlignment = Alignment.Center,
+                ) { dot() }
+            }
+            if (iconOnly) tile()
+            else Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                tile()
+                Text("", fontSize = 10.sp, fontWeight = FontWeight.Normal, maxLines = 1, softWrap = false, color = Color.Transparent)
+            }
+        }
+    } else {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .width(if (iconOnly) 52.dp else 80.dp)
+                .clip(Shape14)
+                .background(pal.good.copy(alpha = if (focused || hovered) 0.20f else 0.12f))
+                .glideBorder(focused, Shape14, pal.signal)
+                .hoverable(src)
+                .clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onResume)
+                .semantics { contentDescription = resumeDescription }
+                .padding(vertical = if (iconOnly) 15.dp else if (compact) 6.dp else 9.dp, horizontal = 4.dp),
+        ) {
+            dot()
+            if (!iconOnly) {
+                Text(stringResource(R.string.resume_session), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground, maxLines = 1, softWrap = false)
+                Text(name, fontSize = 12.sp, color = if (LocalGlassActive.current) ThemeColors.inkOn(colors.onSurfaceVariant, pal.glassWorst) else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }

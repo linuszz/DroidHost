@@ -269,7 +269,9 @@ private fun lensBrush(
     alpha: Float, stop: Float,
 ): Brush {
     val r = rx
-    val sy = if (ry > 0f) r / ry else 1f
+    // The local matrix maps shader space to device space, so the vertical scale must squash the
+    // circle down to ry (ry/r); r/ry stretches it instead and bleeds the wash over the whole control.
+    val sy = if (r > 0f) ry / r else 1f
     val shader = android.graphics.RadialGradient(
         cx, cy, r,
         intArrayOf(Color.White.copy(alpha = alpha).toArgb(), Color.Transparent.toArgb()),
