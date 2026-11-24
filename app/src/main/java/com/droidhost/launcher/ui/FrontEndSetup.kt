@@ -241,7 +241,8 @@ internal fun SetupPanel(
                 onNext = { pick(tabs[(tabIndex + 1) % tabs.size].first) },
             ),
         ) {
-            PageHeader(stringResource(R.string.setup_title)) {
+            HostTopBar(stringResource(R.string.setup_title), padH = if (LocalNarrowPane.current) 20.dp else 28.dp)
+            ChipBar {
                 Box(Modifier.weight(1f)) { SheetChips(tabs.map { it.second }, tabIndex, chipFocus, onPick = { i -> pick(tabs[i].first) }) }
             }
             Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == TAB_INPUT) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == TAB_INPUT) LocalNavOverlayInset.current else maxOf(24.dp, LocalNavOverlayInset.current))) {

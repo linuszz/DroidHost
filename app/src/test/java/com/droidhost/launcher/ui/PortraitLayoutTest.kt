@@ -62,8 +62,9 @@ class PortraitLayoutTest {
         // Portrait navigation floats over the pane (design §3.10): the pane keeps the full height.
         assertEquals(root.top, pane.top)
         assertEquals(root.bottom, pane.bottom)
-        // The bar's bottom edge sits on the root edge; the item is inset by the bar's 4dp vertical padding.
-        assertEquals(root.bottom - 4.dp, desktop.bottom)
+        // The bar row is flush with the root edge; the floating capsule that hosts it owns the
+        // screen inset (10px) and the navbar's bottom padding (12px) - design §3.10.
+        assertEquals(root.bottom, desktop.bottom)
         assertTrue(desktop.top > pane.top)
         compose.onNodeWithText("Count 0").performClick()
         compose.runOnIdle { portrait.value = false }
@@ -99,17 +100,20 @@ class PortraitLayoutTest {
 
     @Test fun bottomBarFollowsSidebarLabelsSetting() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
+        // The rail's first entry is the virtual machine page (design §4.2), so its label is the
+        // vm_title string rather than the old rail_desktop one.
+        val label = context.getString(com.droidhost.launcher.R.string.vm_title)
         RailLabels.set(context, false)
         compose.setContent {
             DroidHostTheme { BottomBar(state, "desktop", {}, {}, actions, Modifier.size(480.dp, 64.dp)) }
         }
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Desktop").assertDoesNotExist()
-        compose.onNodeWithContentDescription("Desktop").assertIsDisplayed()
+        compose.onNodeWithText(label).assertDoesNotExist()
+        compose.onNodeWithContentDescription(label).assertIsDisplayed()
         compose.runOnIdle { RailLabels.set(context, true) }
         androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
         compose.mainClock.advanceTimeBy(1_000)
-        compose.onNodeWithText("Desktop").assertIsDisplayed()
+        compose.onNodeWithText(label).assertIsDisplayed()
     }
 
     @Test fun compactHeaderKeepsAllActionsReachable() {

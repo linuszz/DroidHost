@@ -56,6 +56,8 @@ internal object NavTabs {
 
     fun bar(s: FrontEndState): List<String> {
         val shown = listed(s).filter { place(s, it) == TabPlace.BAR }
+        // The overflow slot only appears when something is shelved; the prototype's five-entry
+        // rail is a mock with every entry populated, not a contract to keep 更多 resident.
         return if (more(s).isEmpty()) shown else shown + MORE
     }
 

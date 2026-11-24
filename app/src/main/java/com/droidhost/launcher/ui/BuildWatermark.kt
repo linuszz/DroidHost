@@ -77,6 +77,18 @@ object BuildWatermark {
         current.forEach(::update)
     }
 
+    /**
+     * Extra bottom clearance so the marker never sits on the floating navigation capsule.
+     * The front end publishes the same inset its pages use to keep content reachable.
+     */
+    fun setBottomInset(context: Context, px: Int) {
+        if (bottomInsetPx == px) return
+        bottomInsetPx = px
+        refresh(context)
+    }
+
+    private var bottomInsetPx = 0
+
     private fun update(activity: Activity) {
         if (activity is QuestXrActivity) return
         val decor = activity.window.decorView as? ViewGroup ?: return
@@ -92,7 +104,7 @@ object BuildWatermark {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.END,
-            ).apply { setMargins(margin, margin, margin, margin) },
+            ).apply { setMargins(margin, margin, margin, margin + bottomInsetPx) },
         )
     }
 

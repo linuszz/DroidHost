@@ -76,6 +76,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -119,11 +120,13 @@ internal fun BottomBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BoxWithConstraints(Modifier.weight(1f)) {
-            val itemWidth = (maxWidth / keys.size).coerceIn(56.dp, 88.dp)
+            // The prototype's nav item is flex:1: the entries share the bar's width evenly.
+            val itemWidth = if (iconOnly) (maxWidth / keys.size).coerceIn(56.dp, 88.dp)
+                else maxWidth / keys.size
             Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).onPlaced { content[0] = it }) {
                 if (shown in keys) ChipGlide(keys.indexOf(shown), bounds[shown], tint, GlideAxis.Horizontal, corner = 14.dp, fill = 0.14f, outline = 0f)
-                Row(Modifier.selectableGroup().padding(vertical = 4.dp), horizontalArrangement = Arrangement.Center) {
-                    NavigationItems(s, shown, compact = true, iconOnly = iconOnly, height = if (iconOnly) 48.dp else 56.dp, width = itemWidth,
+                Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.Center) {
+                    NavigationItems(s, shown, compact = true, iconOnly = iconOnly, height = 48.dp, width = itemWidth,
                         place = { key -> Modifier.onGloballyPositioned { item -> content[0]?.let { bounds[key] = it.localBoundingBoxOf(item) }; Hops.railBounds[key] = item.boundsInRoot() } },
                         onSelect = onSelect, onFocusSelect = onFocusSelect)
                 }
@@ -226,7 +229,8 @@ internal fun railLabelIcon(key: String): Pair<Int, ImageVector> = when (key) {
     "games" -> R.string.rail_games to Icons.Outlined.VideoLibrary
     "soundtracks" -> R.string.rail_music to SoundtrackIcon
     "stores" -> R.string.rail_stores to Icons.Outlined.LocalMall
-    "desktop" -> R.string.rail_desktop to Icons.Outlined.DesktopWindows
+    // The design rail names this entry 虚拟机 (design §4.2); the session-mode label keeps 桌面.
+    "desktop" -> R.string.vm_title to Icons.Outlined.DesktopWindows
     "components" -> R.string.rail_components to Icons.Outlined.Layers
     "agent" -> R.string.rail_agent to Icons.Outlined.AutoAwesome
     "android-apps" -> R.string.rail_apps to Icons.Outlined.Apps
@@ -322,15 +326,50 @@ private fun RailItem(
             .bringIntoViewRequester(bringIntoView)
             .clip(Shape14)
             .background(fill)
-            .glideBorder(focused, Shape14, pal.signal)
+            // The prototype marks the selected rail entry with its mint tile alone; the rail is
+            // also the page selector, so the tile moves with keyboard and gamepad focus and the
+            // extra focus outline only duplicated it.
+            .glideBorder(focused && !current, Shape14, pal.signal)
             .hoverable(src)
             .selectable(selected = current, interactionSource = src, indication = LocalIndication.current, role = Role.Tab, onClick = onClick)
             .then(if (iconOnly) Modifier.semantics { contentDescription = label } else Modifier),
     ) {
         if (iconOnly) Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(22.dp))
-        else Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(if (height < 56.dp) 20.dp else 22.dp))
-            FitText(label, maxSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp), fontWeight = FontWeight.SemiBold, color = fg)
+        else Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // The prototype's nav item is a 20px glyph inside a 24px tile over a 10px label (§4.2);
+            // the active tile carries the mint wash and its 1px inner highlight.
+            Box(
+                Modifier.size(if (compact) 24.dp else 26.dp)
+                    .then(
+                        if (current) Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(pal.primary.copy(alpha = 0.18f), pal.primary.copy(alpha = 0.08f)),
+                                ),
+                            )
+                            // The prototype's active tile carries a 12px mint glow.
+                            .shadow(
+                                12.dp, RoundedCornerShape(8.dp),
+                                spotColor = pal.primary.copy(alpha = 0.12f),
+                                ambientColor = Color.Transparent,
+                            )
+                            .drawBehind {
+                                drawRect(
+                                    Color.White.copy(alpha = 0.08f), topLeft = Offset(0f, 0f),
+                                    size = Size(size.width, 1.dp.toPx()),
+                                )
+                            }
+                        else Modifier,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(if (compact) 20.dp else 22.dp))
+            }
+            FitText(
+                label, maxSize = if (compact) 10.sp else 12.sp, modifier = Modifier.padding(horizontal = 4.dp),
+                fontWeight = if (compact) FontWeight.Normal else FontWeight.SemiBold, color = fg,
+            )
         }
         if (badge) Box(
             modifier = Modifier.align(Alignment.TopEnd).padding(top = if (iconOnly) 7.dp else 8.dp, end = if (iconOnly) 9.dp else 18.dp)

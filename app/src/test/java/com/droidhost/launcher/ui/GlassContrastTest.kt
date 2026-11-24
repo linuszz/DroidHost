@@ -41,7 +41,7 @@ class GlassContrastTest {
                 assertTrue("${palette.id} light scrim off", palette.glassScrim.alpha == 0f)
             } else {
                 assertTrue("${palette.id} dark glass alpha", kotlin.math.abs(palette.glassBg.alpha - 0.55f) < 0.004f)
-                assertTrue("${palette.id} dark scrim", kotlin.math.abs(palette.glassScrim.alpha - 0.35f) < 0.004f)
+                assertTrue("${palette.id} dark scrim", kotlin.math.abs(palette.glassScrim.alpha - 0.55f) < 0.004f)
             }
         }
     }

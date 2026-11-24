@@ -750,7 +750,14 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
             LocalGlassActive provides glassActive,
             LocalNavOverlayInset provides (if (navOverlay && !agentKeyboardOpen) 96.dp else 0.dp),
             LocalGlassNav provides glassNav,
+            LocalLauncherFullscreen provides s.launcherFullscreen,
         ) {
+        // The build marker is a decor overlay; it clears the floating capsule instead of sitting on it.
+        val markerDensity = androidx.compose.ui.platform.LocalDensity.current
+        LaunchedEffect(navOverlay, agentKeyboardOpen) {
+            val inset = if (navOverlay && !agentKeyboardOpen) 96.dp else 0.dp
+            BuildWatermark.setBottomInset(androidContext, with(markerDensity) { inset.roundToPx() })
+        }
         LauncherLayout(
             bottomNavigation && !s.dualScreen, Color.Transparent,
             Modifier.fillMaxSize().onGloballyPositioned { screenAt = it.positionInRoot() }

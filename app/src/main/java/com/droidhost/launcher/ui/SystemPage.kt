@@ -88,7 +88,8 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                 onNext = { pick((tab + 1) % tabs.size) },
             ),
         ) {
-            PageHeader(stringResource(R.string.rail_system)) {
+            HostTopBar(stringResource(R.string.rail_system), padH = if (LocalNarrowPane.current) 20.dp else 28.dp)
+            ChipBar {
                 Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
             }
             Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == SYSTEM_UPDATES_TAB) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == SYSTEM_UPDATES_TAB) 0.dp else maxOf(24.dp, LocalNavOverlayInset.current))) {

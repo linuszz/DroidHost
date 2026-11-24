@@ -257,23 +257,23 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         // Two columns only when both axes have room; a landscape phone keeps the inline list.
         val wide = !LocalNarrowPane.current && maxWidth >= 840.dp && maxHeight >= 600.dp
         val padH = if (LocalNarrowPane.current) 20.dp else 28.dp
+        // The prototype's topbar runs 18px in from the edge (.topbar{padding:16px 18px 12px}).
+        val barPadH = if (LocalNarrowPane.current) 18.dp else 24.dp
+        val bleed = topBleedPx()
         val glass = LocalGlassActive.current
         val inset = LocalNavOverlayInset.current
         Column(Modifier.fillMaxSize()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-                    .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 4.dp)
-                    .then(if (glass) Modifier.glassSurface(Shape16, lens = true) else Modifier.machinedPanel(Shape16))
-                    .padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp),
+            TopBarBand(
+                barHeight = if (LocalNarrowPane.current) 54.dp else 38.dp,
+                bleed = bleed,
+                padH = barPadH,
+                topPad = if (LocalNarrowPane.current) 16.dp else 6.dp,
             ) {
-                Wordmark(18.dp)
+                Wordmark(12.dp)
                 Text(
-                    "/ " + stringResource(R.string.vm_title),
-                    fontSize = 13.sp,
-                    color = colors.onSurfaceVariant,
-                    maxLines = 1,
-                    modifier = Modifier.padding(start = 6.dp),
+                    "/ " + stringResource(R.string.vm_title), fontSize = 13.sp,
+                    color = colors.onSurfaceVariant, maxLines = 1,
+                    modifier = Modifier.padding(start = 14.dp),
                 )
                 Spacer(Modifier.weight(1f))
                 BusyChip(s)

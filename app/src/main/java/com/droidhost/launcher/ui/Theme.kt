@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -184,10 +185,13 @@ val Palette.hairBrush: Brush get() = Brush.horizontalGradient(
 )
 
 // Liquid Glass layer (design §3.10): floating controls only; information surfaces stay machined.
+// The prototype tints glass with a dark surface at 55% (--glass-bg:rgba(22,26,32,.55)); a light
+// tint would wash the bar out to grey, so the dark branch stays close to the background value.
 val Palette.glassBg: Color get() =
-    if (isLight) lerp(surfaceVariant, Color.White, 0.5f).copy(alpha = 0.78f) else surfaceVariant.copy(alpha = 0.55f)
+    if (isLight) lerp(surfaceVariant, Color.White, 0.5f).copy(alpha = 0.78f)
+    else lerp(surfaceVariant, background, 0.2f).copy(alpha = 0.55f)
 // The backdrop behind a floating control is uncontrollable; this scrim caps its worst-case luminance.
-val Palette.glassScrim: Color get() = if (isLight) Color.Transparent else background.copy(alpha = 0.35f)
+val Palette.glassScrim: Color get() = if (isLight) Color.Transparent else background.copy(alpha = 0.55f)
 val Palette.glassLine: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = 0.14f)
 val Palette.glassSpec: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = if (isLight) 0.10f else 0.22f)
 
@@ -218,13 +222,22 @@ internal fun Modifier.machinedBevel(inset: Dp = 0.dp): Modifier {
     }
 }
 
-/** Static screen texture: a faint primary halo up top and a black floor below, matching the prototype's clean ambient gradient. */
+/** Static screen texture: a faint primary halo up top, a black floor below, a 22dp dot grid. */
 @Composable
 internal fun Modifier.screenTexture(): Modifier {
     val pal = LocalPalette.current
     val halo = pal.primary.copy(alpha = 0.045f)
     val floor = Color.Black.copy(alpha = if (pal.isLight) 0.08f else 0.55f)
+    val dot = (if (pal.isLight) Color.Black else Color.White).copy(alpha = 0.018f)
     return drawWithCache {
+        val step = 22.dp.toPx()
+        val points = ArrayList<Offset>()
+        var y = step / 2f
+        while (y < size.height) {
+            var x = step / 2f
+            while (x < size.width) { points.add(Offset(x, y)); x += step }
+            y += step
+        }
         onDrawBehind {
             drawRect(
                 Brush.radialGradient(
@@ -238,9 +251,64 @@ internal fun Modifier.screenTexture(): Modifier {
                     center = Offset(size.width / 2f, size.height * 1.08f), radius = size.height * 0.45f,
                 ),
             )
+            drawPoints(points, PointMode.Points, dot, strokeWidth = 1.dp.toPx(), cap = StrokeCap.Round)
         }
     }
 }
+
+/**
+ * The prototype's lens washes are CSS ellipses, not circles:
+ * `radial-gradient(120% 60% at 50% -20%, rgba(255,255,255,.16), transparent 55%)`.
+ * A circle of the same radius bleeds the wash across the whole control and turns the dark
+ * capsule into a grey slab, so the circle is squashed into the prototype's ellipse through the
+ * shader's local matrix.
+ */
+private fun lensBrush(
+    w: Float, h: Float,
+    cx: Float, cy: Float, rx: Float, ry: Float,
+    alpha: Float, stop: Float,
+): Brush {
+    val r = rx
+    val sy = if (ry > 0f) r / ry else 1f
+    val shader = android.graphics.RadialGradient(
+        cx, cy, r,
+        intArrayOf(Color.White.copy(alpha = alpha).toArgb(), Color.Transparent.toArgb()),
+        floatArrayOf(0f, stop),
+        android.graphics.Shader.TileMode.CLAMP,
+    )
+    shader.setLocalMatrix(android.graphics.Matrix().apply { setScale(1f, sy, cx, cy) })
+    return ShaderBrush(shader)
+}
+
+/** Whether the launcher draws edge to edge; decides which top inset the root reserves. */
+val LocalLauncherFullscreen = androidx.compose.runtime.compositionLocalOf { false }
+
+/**
+ * Pixels the window paints above the app content: the punch-hole cutout (or the status bar)
+ * that the launcher reserves in fullscreen mode. The top bar's glass bleeds over them so the
+ * strip reaches the screen edge like the prototype's `.topbar`.
+ */
+@Composable
+internal fun topBleedPx(): Int {
+    val view = androidx.compose.ui.platform.LocalView.current
+    // WindowInsets.getInsets(int) only exists from API 30 and the launcher still runs on API 26,
+    // so the compat wrapper resolves the insets on every release. The cutout inset has to come
+    // from the same call the root uses (WindowInsets.displayCutout), otherwise the band slides
+    // up by a different amount than the space the root reserved.
+    val insets = androidx.core.view.ViewCompat.getRootWindowInsets(view) ?: return 0
+    return if (LocalLauncherFullscreen.current) {
+        insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.displayCutout()).top
+    } else {
+        insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars()).top
+    }
+}
+
+/** The prototype's lens stack: a top wash plus the two corner highlights (design §3.10). */
+internal fun lensWashes(w: Float, h: Float): List<Brush> = listOf(
+    lensBrush(w, h, w / 2f, -h * 0.2f, w * 1.2f, h * 0.6f, 0.16f, 0.55f),
+    lensBrush(w, h, 0f, 0f, w * 0.6f, h * 0.4f, 0.09f, 0.60f),
+    lensBrush(w, h, w, 0f, w * 0.6f, h * 0.4f, 0.09f, 0.60f),
+)
 
 /** Static glass for in-flow floating controls: tint, specular and (optionally) a lens edge. No live blur. */
 @Composable
@@ -248,25 +316,19 @@ internal fun Modifier.glassSurface(shape: Shape = RectangleShape, lens: Boolean 
     val pal = LocalPalette.current
     val scrim = pal.glassScrim
     val bg = pal.glassBg
-    val spec = pal.glassSpec
     val line = pal.glassLine
     val lineBrush = pal.glassLineBrush
     val base = clip(shape).drawWithCache {
         val w = size.width
         val h = size.height
-        val top = Brush.radialGradient(listOf(spec, Color.Transparent), center = Offset(w / 2f, -h * 0.2f), radius = w * 0.6f)
-        val cornerR = 24.dp.toPx()
-        val cornerSpec = spec.copy(alpha = spec.alpha * 0.5f)
-        val left = Brush.radialGradient(listOf(cornerSpec, Color.Transparent), center = Offset.Zero, radius = cornerR)
-        val right = Brush.radialGradient(listOf(cornerSpec, Color.Transparent), center = Offset(w, 0f), radius = cornerR)
+        val washes = if (lens) lensWashes(w, h) else emptyList()
         onDrawBehind {
             drawRect(scrim)
             drawRect(bg)
-            drawRect(top)
-            if (lens) {
-                drawRect(left)
-                drawRect(right)
-            }
+            washes.forEach { drawRect(it) }
+            // The portrait capsule carries a crisp 1px inner highlight along its top edge
+            // (box-shadow: inset 0 1px 0 var(--glass-spec)).
+            if (lens) drawRect(pal.glassSpec, topLeft = Offset(0f, 0f), size = Size(w, 1.dp.toPx()))
             if (edgeFade) drawRect(lineBrush, topLeft = Offset(0f, h - 1.dp.toPx()), size = Size(w, 1.dp.toPx()))
         }
     }

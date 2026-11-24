@@ -86,9 +86,15 @@ class GlassCapsuleTest {
 
     private fun assertCapsuleInsets() {
         val root = compose.onNodeWithTag("root").getUnclippedBoundsInRoot()
+        val capsule = compose.onNodeWithTag("glass-capsule").getUnclippedBoundsInRoot()
         val go = compose.onNodeWithTag("nav-go").getUnclippedBoundsInRoot()
-        assertEquals(root.left + 10.dp, go.left)
-        assertEquals(root.bottom - 10.dp, go.bottom)
-        assertTrue(go.right <= root.right - 10.dp)
+        // The prototype floats the capsule 10px off the screen edges (.navbar{left:10px;right:10px;
+        // bottom:10px}) and pads its content by 6px/12px (.navbar{padding:8px 6px 12px}), so the
+        // control inside sits 16px from the left edge and 22px above the bottom one.
+        assertEquals(root.left + 10.dp, capsule.left)
+        assertEquals(root.bottom - 10.dp, capsule.bottom)
+        assertEquals(capsule.left + 6.dp, go.left)
+        assertEquals(capsule.bottom - 12.dp, go.bottom)
+        assertTrue(go.right <= capsule.right - 6.dp)
     }
 }
