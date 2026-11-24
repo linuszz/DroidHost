@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Phiên</string>
     <string name="session_channel_description">Hiển thị khi có phiên Steam hoặc desktop đang mở</string>
-    <string name="session_notification">Steam đang chạy</string>
+    <string name="session_notification">%1$s đang chạy</string>
     <string name="session_notification_downloads">Đang tải Steam</string>
     <string name="session_notification_paused">Phiên đã tạm dừng - nhấn Tiếp tục khi sẵn sàng</string>
     <string name="resume_session">Tiếp tục</string>

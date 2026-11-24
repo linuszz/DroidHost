@@ -2332,13 +2332,13 @@ class SessionService : Service() {
         return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_session)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(
+            .setContentText(
                 when {
-                    SessionState.suspended -> R.string.session_notification_paused
-                    downloadsKeepAwake() -> R.string.session_notification_downloads
-                    else -> R.string.session_notification
+                    SessionState.suspended -> getString(R.string.session_notification_paused)
+                    downloadsKeepAwake() -> getString(R.string.session_notification_downloads)
+                    else -> getString(R.string.session_notification, sessionVmTitle())
                 }
-            ))
+            )
             .setContentIntent(open)
             .apply {
                 if (SessionState.suspended) {
@@ -2361,6 +2361,15 @@ class SessionService : Service() {
 
     private fun refreshNotification() {
         getSystemService(NotificationManager::class.java)?.notify(NOTIFICATION_ID, buildNotification())
+    }
+
+    // The notification names the running machine, not Steam: a desktop session is a VM, and the
+    // user-given / os-release title is what the home page shows for it.
+    private fun sessionVmTitle(): String {
+        val machine = com.droidhost.launcher.vm.VmStore.get(this, SessionState.machineId)
+            ?: com.droidhost.launcher.vm.VmStore.load(this)
+            ?: return getString(R.string.app_name)
+        return com.droidhost.launcher.ui.vmMachineLabel(this, machine)
     }
 
     private fun downloadsKeepAwake(): Boolean =

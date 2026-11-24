@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Сесия</string>
     <string name="session_channel_description">Показва се, докато има отворена сесия на Steam или работния плот</string>
-    <string name="session_notification">Steam работи</string>
+    <string name="session_notification">%1$s работи</string>
     <string name="session_notification_downloads">Активно изтегляне в Steam</string>
     <string name="session_notification_paused">Сесията е на пауза – докоснете „Продължи“, когато сте готови</string>
     <string name="resume_session">Продължи</string>

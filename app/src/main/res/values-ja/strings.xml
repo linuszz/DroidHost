@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">セッション</string>
     <string name="session_channel_description">Steamまたはデスクトップのセッション中に表示</string>
-    <string name="session_notification">Steamが実行中です</string>
+    <string name="session_notification">%1$sが実行中です</string>
     <string name="session_notification_downloads">Steamのダウンロードが進行中</string>
     <string name="session_notification_paused">セッションが一時停止中 - 準備ができたらタップして再開</string>
     <string name="resume_session">再開</string>

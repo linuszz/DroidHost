@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">เซสชัน</string>
     <string name="session_channel_description">แสดงขณะมีเซสชัน Steam หรือเดสก์ท็อปเปิดอยู่</string>
-    <string name="session_notification">Steam กำลังทำงาน</string>
+    <string name="session_notification">%1$s กำลังทำงาน</string>
     <string name="session_notification_downloads">กำลังดาวน์โหลดใน Steam</string>
     <string name="session_notification_paused">หยุดเซสชันไว้ชั่วคราว - แตะดำเนินการต่อเมื่อพร้อม</string>
     <string name="resume_session">ดำเนินการต่อ</string>

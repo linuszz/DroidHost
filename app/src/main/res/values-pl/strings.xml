@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sesja</string>
     <string name="session_channel_description">Widoczne, gdy otwarta jest sesja Steam lub pulpitu</string>
-    <string name="session_notification">Steam działa</string>
+    <string name="session_notification">%1$s działa</string>
     <string name="session_notification_downloads">Trwa pobieranie w Steam</string>
     <string name="session_notification_paused">Sesja wstrzymana – dotknij „Wznów”, aby kontynuować</string>
     <string name="resume_session">Wznów</string>

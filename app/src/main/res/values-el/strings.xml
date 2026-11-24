@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Συνεδρία</string>
     <string name="session_channel_description">Εμφανίζεται όσο μια συνεδρία Steam ή επιφάνειας εργασίας είναι ανοιχτή</string>
-    <string name="session_notification">Το Steam εκτελείται</string>
+    <string name="session_notification">%1$s εκτελείται</string>
     <string name="session_notification_downloads">Λήψη Steam σε εξέλιξη</string>
     <string name="session_notification_paused">Η συνεδρία παύθηκε - πατήστε Συνέχιση όταν είστε έτοιμοι</string>
     <string name="resume_session">Συνέχιση</string>

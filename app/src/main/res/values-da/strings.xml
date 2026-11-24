@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Session</string>
     <string name="session_channel_description">Vises, når en Steam- eller skrivebordssession er åben</string>
-    <string name="session_notification">Steam kører</string>
+    <string name="session_notification">%1$s kører</string>
     <string name="session_notification_downloads">Steam-download i gang</string>
     <string name="session_notification_paused">Session på pause – tryk på Genoptag, når du er klar</string>
     <string name="resume_session">Genoptag</string>

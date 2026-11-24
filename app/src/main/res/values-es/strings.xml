@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sesión</string>
     <string name="session_channel_description">Se muestra mientras hay una sesión de Steam o de escritorio abierta</string>
-    <string name="session_notification">Steam se está ejecutando</string>
+    <string name="session_notification">%1$s se está ejecutando</string>
     <string name="session_notification_downloads">Descarga de Steam en curso</string>
     <string name="session_notification_paused">Sesión en pausa - toca Reanudar cuando quieras</string>
     <string name="resume_session">Reanudar</string>

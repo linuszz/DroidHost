@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Istunto</string>
     <string name="session_channel_description">Näkyy, kun Steam- tai työpöytäistunto on käynnissä</string>
-    <string name="session_notification">Steam on käynnissä</string>
+    <string name="session_notification">%1$s on käynnissä</string>
     <string name="session_notification_downloads">Steamin lataus käynnissä</string>
     <string name="session_notification_paused">Istunto keskeytetty - napauta Jatka, kun olet valmis</string>
     <string name="resume_session">Jatka</string>

@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Oturum</string>
     <string name="session_channel_description">Steam veya masaüstü oturumu açıkken gösterilir</string>
-    <string name="session_notification">Steam çalışıyor</string>
+    <string name="session_notification">%1$s çalışıyor</string>
     <string name="session_notification_downloads">Steam indirmesi sürüyor</string>
     <string name="session_notification_paused">Oturum duraklatıldı - hazır olduğunuzda Devam et\'e dokunun</string>
     <string name="resume_session">Devam et</string>

@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sesiune</string>
     <string name="session_channel_description">Apare cât timp o sesiune Steam sau desktop este activă</string>
-    <string name="session_notification">Steam este în execuție</string>
+    <string name="session_notification">%1$s este în execuție</string>
     <string name="session_notification_downloads">Descărcare Steam activă</string>
     <string name="session_notification_paused">Sesiune pusă pe pauză - apasă Reluare când ești pregătit</string>
     <string name="resume_session">Reluare</string>

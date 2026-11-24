@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Relace</string>
     <string name="session_channel_description">Zobrazuje se, když je otevřená relace Steamu nebo Plochy</string>
-    <string name="session_notification">Steam běží</string>
+    <string name="session_notification">%1$s běží</string>
     <string name="session_notification_downloads">Probíhá stahování Steamu</string>
     <string name="session_notification_paused">Relace pozastavena – klepnutím na Obnovit pokračujte</string>
     <string name="resume_session">Obnovit</string>

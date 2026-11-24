@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">会话</string>
     <string name="session_channel_description">在 Steam 或桌面会话打开时显示</string>
-    <string name="session_notification">Steam 正在运行</string>
+    <string name="session_notification">%1$s 正在运行</string>
     <string name="session_notification_downloads">Steam 正在下载</string>
     <string name="session_notification_paused">会话已暂停 — 准备好后点按恢复</string>
     <string name="resume_session">恢复</string>

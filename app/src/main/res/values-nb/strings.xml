@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sesjon</string>
     <string name="session_channel_description">Vises mens en Steam- eller skrivebordssesjon er åpen</string>
-    <string name="session_notification">Steam kjører</string>
+    <string name="session_notification">%1$s kjører</string>
     <string name="session_notification_downloads">Steam-nedlasting aktiv</string>
     <string name="session_notification_paused">Sesjonen er pauset – trykk på Gjenoppta når du er klar</string>
     <string name="resume_session">Gjenoppta</string>

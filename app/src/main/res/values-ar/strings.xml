@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">الجلسة</string>
     <string name="session_channel_description">يظهر أثناء فتح جلسة Steam أو جلسة سطح المكتب</string>
-    <string name="session_notification">Steam قيد التشغيل</string>
+    <string name="session_notification">%1$s قيد التشغيل</string>
     <string name="session_notification_downloads">يجري تنزيل في Steam</string>
     <string name="session_notification_paused">الجلسة متوقفة مؤقتًا - انقر على «استئناف» عندما تكون مستعدًا</string>
     <string name="resume_session">استئناف</string>

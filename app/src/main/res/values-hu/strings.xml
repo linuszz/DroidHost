@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Munkamenet</string>
     <string name="session_channel_description">Megjelenik, amíg egy Steam- vagy asztali munkamenet aktív</string>
-    <string name="session_notification">A Steam fut</string>
+    <string name="session_notification">%1$s fut</string>
     <string name="session_notification_downloads">Steam-letöltés folyamatban</string>
     <string name="session_notification_paused">A munkamenet szünetel – koppintson a Folytatásra, ha készen áll</string>
     <string name="resume_session">Folytatás</string>

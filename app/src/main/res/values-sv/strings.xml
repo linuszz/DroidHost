@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Session</string>
     <string name="session_channel_description">Visas medan en Steam- eller skrivbordssession är öppen</string>
-    <string name="session_notification">Steam körs</string>
+    <string name="session_notification">%1$s körs</string>
     <string name="session_notification_downloads">Steam-nedladdning pågår</string>
     <string name="session_notification_paused">Sessionen är pausad - tryck på Återuppta när du är redo</string>
     <string name="resume_session">Återuppta</string>

@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sesi</string>
     <string name="session_channel_description">Dipaparkan semasa sesi Steam atau desktop sedang dibuka</string>
-    <string name="session_notification">Steam sedang berjalan</string>
+    <string name="session_notification">%1$s sedang berjalan</string>
     <string name="session_notification_downloads">Muat turun Steam aktif</string>
     <string name="session_notification_paused">Sesi dijeda - ketik Sambung apabila sedia</string>
     <string name="resume_session">Sambung</string>

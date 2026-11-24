@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sessie</string>
     <string name="session_channel_description">Wordt getoond zolang er een Steam- of desktopsessie open is</string>
-    <string name="session_notification">Steam is actief</string>
+    <string name="session_notification">%1$s is actief</string>
     <string name="session_notification_downloads">Steam-download actief</string>
     <string name="session_notification_paused">Sessie gepauzeerd - tik op Hervatten als je klaar bent</string>
     <string name="resume_session">Hervatten</string>

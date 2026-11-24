@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">세션</string>
     <string name="session_channel_description">Steam 또는 데스크톱 세션이 실행 중일 때 표시</string>
-    <string name="session_notification">Steam이 실행 중입니다</string>
+    <string name="session_notification">%1$s 실행 중입니다</string>
     <string name="session_notification_downloads">Steam 다운로드 진행 중</string>
     <string name="session_notification_paused">세션이 일시 중지됨 - 준비되면 \"재개\"를 탭하세요</string>
     <string name="resume_session">재개</string>

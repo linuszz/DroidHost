@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">सेशन</string>
     <string name="session_channel_description">Steam या डेस्कटॉप सेशन खुला होने पर दिखता है</string>
-    <string name="session_notification">Steam चल रहा है</string>
+    <string name="session_notification">%1$s चल रहा है</string>
     <string name="session_notification_downloads">Steam डाउनलोड जारी है</string>
     <string name="session_notification_paused">सेशन रुका हुआ है - तैयार होने पर फिर से शुरू करें पर टैप करें</string>
     <string name="resume_session">फिर से शुरू करें</string>

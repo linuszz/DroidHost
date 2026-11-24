@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Sitzung</string>
     <string name="session_channel_description">Wird angezeigt, solange eine Steam- oder Desktop-Sitzung geöffnet ist</string>
-    <string name="session_notification">Steam läuft</string>
+    <string name="session_notification">%1$s läuft</string>
     <string name="session_notification_downloads">Steam-Download aktiv</string>
     <string name="session_notification_paused">Sitzung pausiert – tippe auf „Fortsetzen“, wenn du bereit bist</string>
     <string name="resume_session">Fortsetzen</string>

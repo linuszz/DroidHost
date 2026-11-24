@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">Сеанс</string>
     <string name="session_channel_description">Відображається, поки відкрито сеанс Steam або робочого столу</string>
-    <string name="session_notification">Steam працює</string>
+    <string name="session_notification">%1$s працює</string>
     <string name="session_notification_downloads">Триває завантаження в Steam</string>
     <string name="session_notification_paused">Сеанс призупинено — торкніться «Відновити», коли будете готові</string>
     <string name="resume_session">Відновити</string>

@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">會話</string>
     <string name="session_channel_description">Steam 或桌面會話開啟時顯示</string>
-    <string name="session_notification">Steam 正在執行</string>
+    <string name="session_notification">%1$s 正在執行</string>
     <string name="session_notification_downloads">Steam 正在下載</string>
     <string name="session_notification_paused">會話已暫停 - 準備好後請輕按「繼續」</string>
     <string name="resume_session">繼續</string>

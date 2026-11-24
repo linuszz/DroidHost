@@ -21,7 +21,7 @@
     </string-array>
     <string name="session_channel">工作階段</string>
     <string name="session_channel_description">在 Steam 或桌面工作階段開啟時顯示</string>
-    <string name="session_notification">Steam 正在執行</string>
+    <string name="session_notification">%1$s 正在執行</string>
     <string name="session_notification_downloads">Steam 正在下載</string>
     <string name="session_notification_paused">工作階段已暫停 - 準備好後點擊繼續</string>
     <string name="resume_session">繼續</string>
