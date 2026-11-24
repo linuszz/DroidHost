@@ -48,3 +48,11 @@
 --     column_width = 0.97,
 --   },
 -- })
+
+-- DroidHost: proot launches Hyprland directly (no start-hyprland/uwsm watchdog),
+-- which otherwise raises a top warning notification every start. Suppress it.
+hl.config({
+  misc = {
+    disable_watchdog_warning = true,
+  },
+})

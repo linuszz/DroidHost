@@ -3,4 +3,5 @@
 # `xdg-terminal-exec` (the XDG terminal picker), which the proot guest does not ship; alacritty
 # is the terminal installed via seeds.txt. Launch it directly through the uwsm-app shim so
 # SUPER+RETURN opens a terminal instead of failing on the missing xdg-terminal-exec.
-exec setsid uwsm-app -- alacritty "$@"
+cwd="$(omarchy-cmd-terminal-cwd 2>/dev/null || printf '%s' "$HOME")"
+exec setsid uwsm-app -- alacritty --working-directory "$cwd" "$@"

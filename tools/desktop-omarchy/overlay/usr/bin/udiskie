@@ -1,0 +1,4 @@
+#!/bin/sh
+# DroidHost: the proot guest has no udev/udisks2; omarchy autostart invokes udiskie.
+# No-op stub so the call succeeds instead of logging command-not-found.
+exit 0

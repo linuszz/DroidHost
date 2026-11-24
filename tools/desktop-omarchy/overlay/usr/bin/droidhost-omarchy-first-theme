@@ -1,0 +1,10 @@
+#!/bin/bash
+# DroidHost: proot has no upstream first-login theme provisioning; apply tokyo-night
+# once on first start. Non-fatal: if theme-set cannot run, Color.qml defaults render.
+# current/theme is a directory upstream may pre-create, so gate on our own marker.
+marker="$HOME/.local/state/omarchy/.droidhost-first-theme"
+[ -e "$marker" ] && exit 0
+mkdir -p "$HOME/.local/state/omarchy"
+touch "$marker"
+export OMARCHY_PATH="${OMARCHY_PATH:-/usr/share/omarchy}"
+omarchy-theme-set tokyo-night || true
