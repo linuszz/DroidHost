@@ -17,4 +17,11 @@ exec_line=$(sed -n 's/^Exec=//p' "$f" | head -1)
 # Drop desktop-entry field codes (%f %F %u %U %d %D %n %N %i %c %k %v %m); the menu passes no
 # file/URL arguments, so the placeholders expand to nothing.
 exec_line=$(printf '%s' "$exec_line" | sed 's/%[fFuUdDnNickvm]//g')
+# Terminal=true entries (vim, htop, ...) need a terminal emulator: launching the bare command gives
+# it no TTY and it exits at once ("Output is not to a terminal"), so the menu item appears dead.
+# Route them through alacritty, the seeded terminal, matching the xdg-terminal-exec shim.
+terminal=$(sed -n 's/^Terminal=//p' "$f" | head -1)
+if [ "$terminal" = "true" ]; then
+  eval "exec setsid uwsm-app -- alacritty -e $exec_line"
+fi
 eval "exec $exec_line"

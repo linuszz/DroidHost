@@ -1,0 +1,27 @@
+#!/bin/bash
+# DroidHost shim for xdg-terminal-exec. Upstream omarchy launches every terminal-backed menu entry
+# (About, Install, the TUI pickers) through `xdg-terminal-exec --app-id=<id> -e <cmd>`, the XDG
+# terminal picker, which the proot guest does not ship; alacritty is the terminal seeded via
+# seeds.txt. Without this shim omarchy-launch-tui's `uwsm-app -- xdg-terminal-exec ...` exec fails
+# (exit 127) and those entries silently die -- the same failure mode the gtk-launch shim fixed for
+# .desktop launches. Translate the picker to alacritty: --app-id becomes the window class so
+# omarchy-launch-or-focus can find/focus the window, -e becomes alacritty's command runner.
+app_id=""
+cmd=()
+rest=()
+seen_e=0
+for a in "$@"; do
+  if (( seen_e )); then cmd+=("$a"); continue; fi
+  case "$a" in
+    --app-id=*) app_id="${a#--app-id=}" ;;
+    -e) seen_e=1 ;;
+    --) ;;
+    -*) ;;
+    *) rest+=("$a") ;;
+  esac
+done
+(( ${#cmd[@]} )) || cmd=("${rest[@]}")
+(( ${#cmd[@]} )) || cmd=("${SHELL:-/bin/bash}")
+class_args=()
+[ -n "$app_id" ] && class_args=(--class "$app_id,$app_id")
+exec setsid uwsm-app -- alacritty "${class_args[@]}" -e "${cmd[@]}"

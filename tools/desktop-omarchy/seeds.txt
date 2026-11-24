@@ -27,6 +27,84 @@ qt6-5compat
 ttf-jetbrains-mono-nerd
 # update-desktop-database for omarchy's vendored applications/*.desktop entries.
 desktop-file-utils
+# omarchy's menu actions assume these upstream tools. The M0 shell renders without them, but every
+# terminal-backed entry dies: omarchy-launch-or-focus pipes hyprctl clients through jq, the Install
+# pickers drive gum, About renders fastfetch. Seed them so the menu launches actually open windows.
+jq
+gum
+fastfetch
+# Core functionality tier: the proot-safe CLI/TUI, capture, media, font and portal packages the
+# omarchy menu and shell actually invoke. Validated resolvable from core/extra/alarm via closure.py
+# (422-package closure). Hardware drivers, bootloader/kernel, systemd/D-Bus services and heavy GTK
+# GUI apps from omarchy-base.packages are deliberately NOT seeded: they are inapplicable to a proot
+# Android guest or deferred to M1/M2 (see below).
+bat
+btop
+eza
+fd
+fzf
+less
+ripgrep
+zoxide
+starship
+tmux
+nvim
+lazygit
+lazydocker
+dua-cli
+expac
+pacman-contrib
+plocate
+man-db
+tldr
+unzip
+whois
+inetutils
+socat
+qrencode
+zbar
+tesseract
+tesseract-data-eng
+imagemagick
+imv
+mpv
+wl-clipboard
+wtype
+grim
+slurp
+hyprpicker
+hyprsunset
+gpu-screen-recorder
+brightnessctl
+pamixer
+alsa-utils
+bash-completion
+git
+lua51
+luarocks
+ruby
+python-gobject
+python-poetry-core
+libyaml
+libvips
+mariadb-libs
+postgresql-libs
+qt6-imageformats
+webp-pixbuf-loader
+woff2-font-awesome
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+gnome-themes-extra
+gtk4-layer-shell
+egl-wayland
+xdg-desktop-portal-gtk
+xdg-desktop-portal-hyprland
+gnome-keyring
+libsecret
+# Learn menu entries launch web apps; firefox is the browser the DroidHost session pre-configures
+# (MOZ_ENABLE_WAYLAND / MOZ_DISABLE_*_SANDBOX), so it integrates with proot out of the box.
+firefox
 # M1/M2 (service-plugin backends + GTK apps), add once the shell renders:
 #   pipewire upower power-profiles-daemon networkmanager polkit gtk3 qt6-multimedia
 # Android lacks the D-Bus services these back; M0 lets those bar plugins graceful-fail.
