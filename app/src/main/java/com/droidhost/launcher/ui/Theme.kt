@@ -39,7 +39,10 @@ class Palette(
     val onBackground: Color, val onSurfaceVariant: Color,
     val primary: Color, val primary2: Color, val onPrimary: Color, val signal: Color,
     val good: Color, val error: Color = Color(0xFFFF8A80),
-)
+    warn: Color = Color(0xFFFFB74D),
+) {
+    val warn: Color = ThemeColors.semantic(warn.toArgb(), background)
+}
 
 object Themes {
     const val GRAPHITE = "graphite"

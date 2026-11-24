@@ -58,11 +58,12 @@ import java.io.File
  */
 @Composable
 internal fun VmSourceDialog(
+    startImporting: Boolean = false,
     onDismiss: () -> Unit,
     onPick: (VmMachine, Boolean) -> Unit,
 ) {
     val ctx = LocalContext.current
-    var importing by remember { mutableStateOf(false) }
+    var importing by remember { mutableStateOf(startImporting) }
     var expanded by remember { mutableStateOf<String?>(null) }
     // The version whose desktop choices are open; picking a desktop is what creates the machine.
     var pendingVersion by remember { mutableStateOf<VmCatalog.Builtin?>(null) }

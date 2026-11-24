@@ -4188,4 +4188,14 @@
     <string name="vm_export_busy">导出前请先停止虚拟机。</string>
     <string name="vm_files_home">主目录 (/root)</string>
     <string name="vm_settings_danger">危险操作</string>
+    <string name="vm_last_start">上次启动</string>
+    <string name="vm_never_started">从未启动</string>
+    <string name="vm_session_live">会话进行中</string>
+    <string name="vm_detail_driver">驱动等级</string>
+    <string name="vm_detail_disk">磁盘占用</string>
+    <string name="vm_detail_disk_cache">%1$s（缓存 %2$s）</string>
+    <string name="vm_session_settings_link">会话显示 / 输入 / 安全区设置 →</string>
+    <string name="vm_empty_title">还没有虚拟机</string>
+    <string name="vm_empty_body">选一个预置发行版，或导入你自己的系统镜像。内核由 Android 提供，DroidHost 负责把它跑起来。</string>
+    <string name="vm_detail_environment">运行环境</string>
 </resources>

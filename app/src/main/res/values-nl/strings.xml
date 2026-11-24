@@ -4078,4 +4078,14 @@
     <string name="hud_metric_hdr">HDR-status</string>
     <string name="hud_readings_shown">Getoond</string>
     <string name="hud_readings_count">%1$d van %2$d</string>
+    <string name="vm_last_start">Last started</string>
+    <string name="vm_never_started">Never started</string>
+    <string name="vm_session_live">Session in progress</string>
+    <string name="vm_detail_driver">Driver level</string>
+    <string name="vm_detail_disk">Disk usage</string>
+    <string name="vm_detail_disk_cache">%1$s (cache %2$s)</string>
+    <string name="vm_session_settings_link">Session display / input / safe-area settings →</string>
+    <string name="vm_empty_title">No virtual machines yet</string>
+    <string name="vm_empty_body">Pick a packaged distribution, or import your own system image. The kernel comes from Android; DroidHost runs it.</string>
+    <string name="vm_detail_environment">Runtime environment</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.droidhost.launcher.ui
 
 import android.app.Activity
-import android.os.Build
 import android.text.format.Formatter
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.hoverable
@@ -17,25 +17,34 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.Apps
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.DesktopWindows
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Memory
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +52,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -51,27 +61,30 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -84,6 +97,7 @@ import com.droidhost.launcher.runtime.FlatpakManager
 import com.droidhost.launcher.runtime.LinuxRuntime
 import com.droidhost.launcher.session.SessionService
 import com.droidhost.launcher.session.SessionState
+import com.droidhost.launcher.storage.StorageScan
 import com.droidhost.launcher.store.StoreState
 import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
@@ -100,21 +114,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
 
-private val VM_TABS = modeSheetTabs(steam = false) + SheetTab.FILES
-
 @Composable
 internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier, onSelect: (String) -> Unit) {
     val ctx = LocalContext.current
-    val density = LocalDensity.current
-    val narrow = LocalNarrowPane.current
-    val short = compactDesktop()
     val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
     val mode = SessionService.MODE_DESKTOP
-    val tabs = VM_TABS.map { it to sheetTabLabel(it) }
-    fun openFrom(at: Rect?, art: Any?, page: String) {
-        at?.let { PageOrigin.mark(Origin(it, 16f * density.density, art = art)) }
-        onSelect(page)
-    }
 
     // Several machines coexist; the page acts on the one the user selected.
     var recorded by remember { mutableStateOf(VmStore.all(ctx)) }
@@ -159,6 +164,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         flatpakApps = withContext(Dispatchers.IO) { FlatpakManager.installedApps(ctx) }
     }
     var picking by rememberSaveable { mutableStateOf(false) }
+    var pickImport by rememberSaveable { mutableStateOf(false) }
     var settings by rememberSaveable { mutableStateOf(false) }
 
     // The machine the running session is for; without a named one the first stands in.
@@ -180,37 +186,35 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         else -> null
     }
 
-    val status = vm?.let { statusOf(it) } ?: VmStatus.ABSENT
-    val vmHasOwnRootfs = ownRootfs(vm) != null
-    // A preset or imported machine is deleted whole even before its rootfs exists; only the
-    // shared-runtime stand-in (the legacy "default" machine) loses just its desktop.
-    val vmOwnsMachine = vm != null && vm.id != VmMachine.DEFAULT_ID
-    val primary: () -> Unit = when {
+    // A session start is remembered by the UI alone; the machine record stays untouched.
+    fun launch(id: String?) {
+        id?.let { VmLastStart.record(ctx, it) }
+        a.onDesktop(id)
+    }
+    fun primaryFor(m: VmMachine?, status: VmStatus): () -> Unit = when {
         status == VmStatus.ABSENT -> ({ picking = true })
-        // A running machine re-enters its live session; stopping moves to the beside row so the
-        // primary action is always "go into the desktop", never a dead end. A suspended session
-        // resumes the same way; ACTION_RESUME also clears the manual hold.
+        // A running machine re-enters its live session; a suspended session resumes the same way.
         status == VmStatus.RUNNING || status == VmStatus.SUSPENDED -> a.onResume
-        status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ a.onDesktop(vm?.id) })
+        status == VmStatus.READY || status == VmStatus.DEGRADED -> ({ launch(m?.id) })
         // A paused, interrupted or failed install resumes from the partial it kept.
         status == VmStatus.PAUSED || status == VmStatus.INTERRUPTED || status == VmStatus.FAILED -> ({
-            vm?.let { if (VmPreset.start(ctx, it)) seed = VmPreset.state() }
+            m?.let { if (VmPreset.start(ctx, it)) seed = VmPreset.state() }
         })
         // A machine with its own rootfs but no desktop yet gets one fitted in; the shared runtime
         // installs its desktop through the session itself, as it always has.
-        status == VmStatus.IMPORTED || (status == VmStatus.NEW && vmHasOwnRootfs) -> ({
-            vm?.let { if (VmDesktop.start(ctx, it)) install = VmDesktop.state() }
+        status == VmStatus.IMPORTED || (status == VmStatus.NEW && ownRootfs(m) != null) -> ({
+            m?.let { if (VmDesktop.start(ctx, it)) install = VmDesktop.state() }
         })
         // A built-in preset seeds its own rootfs; anything else installs through the session.
         status == VmStatus.NEW -> ({
-            vm?.let {
+            m?.let {
                 if (VmCatalog.builtinFor(it.distro.id) != null) { if (VmPreset.start(ctx, it)) seed = VmPreset.state() }
-                else a.onDesktop(it.id)
+                else launch(it.id)
             }
         })
         else -> ({})
     }
-    val primaryEnabled = when (status) {
+    fun primaryEnabledFor(status: VmStatus): Boolean = when (status) {
         VmStatus.ABSENT -> !s.busy
         VmStatus.NEW -> !s.busy && !s.runtimeActionsBlocked && !install.busy && !seed.busy
         // Resume/retry run on the machine alone, so a busy shared runtime does not block them.
@@ -219,8 +223,6 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         VmStatus.IMPORTED -> !s.busy && !install.busy && !seed.busy && !s.runtimeActionsBlocked
         else -> false
     }
-    val label = vmPrimaryLabel(status)
-    val head = vm?.let { vmMachineLabel(ctx, it) } ?: stringResource(R.string.vm_title)
     val note = when {
         seed.busy && seed.machineId == vm?.id -> stringResource(R.string.vm_preset_seeding_running, seed.percent)
         seed.stage == VmPreset.Stage.FAILED && seed.machineId == vm?.id ->
@@ -228,123 +230,144 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         install.busy && install.machineId == vm?.id -> stringResource(R.string.vm_install_desktop_running, install.percent)
         install.stage == VmDesktop.Stage.FAILED && install.machineId == vm?.id ->
             stringResource(R.string.vm_install_desktop_failed, vmInstallReason(install.reason))
-        status == VmStatus.PAUSED -> stringResource(R.string.vm_paused_note)
-        status == VmStatus.SUSPENDED -> stringResource(R.string.vm_suspended_note)
-        status == VmStatus.INTERRUPTED -> stringResource(R.string.vm_interrupted_note)
-        status == VmStatus.FAILED -> stringResource(R.string.vm_failed_note)
-        status == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
-        status == VmStatus.IMPORTED -> stringResource(R.string.vm_imported_note)
+        vm?.let { statusOf(it) } == VmStatus.PAUSED -> stringResource(R.string.vm_paused_note)
+        vm?.let { statusOf(it) } == VmStatus.SUSPENDED -> stringResource(R.string.vm_suspended_note)
+        vm?.let { statusOf(it) } == VmStatus.INTERRUPTED -> stringResource(R.string.vm_interrupted_note)
+        vm?.let { statusOf(it) } == VmStatus.FAILED -> stringResource(R.string.vm_failed_note)
+        vm?.let { statusOf(it) } == VmStatus.DEGRADED -> stringResource(R.string.vm_degraded_note)
+        vm?.let { statusOf(it) } == VmStatus.IMPORTED -> stringResource(R.string.vm_imported_note)
         else -> null
     }
+    val running = machines.firstOrNull {
+        val st = statusOf(it)
+        st == VmStatus.RUNNING || st == VmStatus.SUSPENDED
+    }
+    val onDeleted: () -> Unit = {
+        recorded = VmStore.all(ctx)
+        selectedId = null
+    }
 
-    LiftHero(
-        key = "desktop", tabs = tabs,
-        onOpen = a.onDesktopSettings, onPrimary = primary,
-        modifier = modifier.clipToBounds(),
-        start = if (narrow) 20.dp else 44.dp, bottom = 44.dp,
-        background = { DesktopWall(machines.mapNotNull { VmCatalog.logoRes(it.distro.id) }.distinct() + flatpakApps.mapNotNull { it.icon }) },
-        scrim = { lifted ->
-            WallFade()
-            Column(Modifier.graphicsLayer { val v = lifted(); alpha = 1f - v; translationY = -12.dp.toPx() * v }) {
-                VmDock(
-                    s, machines, vm?.id,
-                    statusOf = { statusOf(it) }, percentOf = { percentOf(it) },
-                    onSelect = { selectedId = it.id }, onNew = { picking = true },
-                )
-                FlatpakAppStrip(
-                    flatpakApps,
-                    onOpen = { id, name -> a.onFlatpakApp(id, name) },
-                    onStore = { openFrom(null, null, "store") },
-                    showStore = status == VmStatus.READY || status == VmStatus.DEGRADED ||
-                        status == VmStatus.RUNNING || status == VmStatus.SUSPENDED,
-                )
-            }
-        },
-        words = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (LocalConfiguration.current.screenHeightDp >= 400) Text(
-                    head, fontSize = if (short) 30.sp else 42.sp, lineHeight = if (short) 34.sp else 46.sp,
-                    fontWeight = FontWeight.Black, color = colors.onBackground,
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    VmStateChip(status)
-                    BusyChip(s)
-                }
-                if (note != null) Text(
-                    note, fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant,
-                )
-            }
-        },
-        button = { click ->
-            PrimaryButton(label, enabled = primaryEnabled, main = true, large = true, icon = vmPrimaryIcon(status), onClick = click)
-        },
-        beside = {
+    BoxWithConstraints(modifier.fillMaxSize().background(pal.background)) {
+        // Two columns only when both axes have room; a landscape phone keeps the inline list.
+        val wide = !LocalNarrowPane.current && maxWidth >= 840.dp && maxHeight >= 600.dp
+        val padH = if (LocalNarrowPane.current) 20.dp else 28.dp
+        Column(Modifier.fillMaxSize()) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp),
             ) {
-                HeroIconButton(Icons.Outlined.Folder, stringResource(R.string.setup_tool_files), null, "vm:files") { a.onFiles(vm?.id.orEmpty()) }
-                if (vm != null) HeroIconButton(Icons.Outlined.Settings, stringResource(R.string.vm_settings), null, "vm:settings") { settings = true }
-                // A frozen session is still live, so it can be stopped; pausing only makes sense
-                // while the session runs.
-                if (status == VmStatus.RUNNING || status == VmStatus.SUSPENDED) HeroIconButton(Icons.Filled.Stop, stringResource(R.string.vm_stop), null, "vm:stop") { a.onVmStop() }
-                if (status == VmStatus.RUNNING) HeroIconButton(Icons.Filled.Pause, stringResource(R.string.stores_dl_pause), null, "vm:suspend") { SessionService.pause(ctx) }
-                // While the preset downloads, the user can pause it; an installing or paused machine
-                // can cancel the install and keep the machine.
-                if (vm != null && seed.busy && seed.machineId == vm.id && seed.percent <= 25)
-                    HeroIconButton(Icons.Filled.Pause, stringResource(R.string.vm_pause), null, "vm:pause") { VmPreset.pause(ctx, vm.id) }
-                if (vm != null && vmHasOwnRootfs && (status == VmStatus.INSTALLING || status == VmStatus.PAUSED))
-                    HeroIconButton(Icons.Filled.Close, stringResource(R.string.vm_cancel_install), null, "vm:cancel") {
-                        VmPreset.cancel(ctx, vm.id, forDelete = false)
-                        VmDesktop.cancel(ctx, vm.id, forDelete = false)
-                    }
-                // A preset or imported machine is deleted whole, even before its rootfs exists; the
-                // shared runtime only loses its desktop. Two different deletions, two different wordings.
-                if (vm != null && vmOwnsMachine) VmRemoveMachine(
-                    label = stringResource(R.string.vm_delete_machine),
-                    title = stringResource(R.string.vm_delete_machine_title),
-                    note = stringResource(R.string.vm_delete_machine_text),
-                    // The delete cancels this machine's own install first, so that install cannot block it.
-                    // A suspended VM still holds a frozen session; deleting it would orphan that session.
-                    enabled = status != VmStatus.RUNNING && status != VmStatus.SUSPENDED && status != VmStatus.DELETING,
-                    onRemove = {
-                        VmLifecycle.deleteMachine(ctx, vm)
-                        recorded = VmStore.all(ctx)
-                        selectedId = null
-                    },
-                )
-                else if (vm != null) UninstallDesktop(
-                    label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
-                    note = stringResource(R.string.vm_delete_text),
-                    enabled = !s.busy && !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
-                )
+                Wordmark(18.dp)
+                Text("/ " + stringResource(R.string.vm_title), fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1)
+                Spacer(Modifier.weight(1f))
+                BusyChip(s)
+                if (running != null) VmRunPill(
+                    vmMachineLabel(ctx, running) + " · " + vmStateLabel(statusOf(running)),
+                    statusOf(running),
+                ) { a.onResume() }
             }
-        },
-        rows = { tab ->
-            if (tab == SheetTab.FILES) DesktopFiles(s, a, vm?.id)
-            else a.modeSheet(mode, tab, SheetExtras())
-        },
-    )
+            if (machines.isEmpty()) {
+                VmEmptyState(
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = padH),
+                    onPreset = { pickImport = false; picking = true },
+                    onImport = { pickImport = true; picking = true },
+                )
+            } else if (wide) {
+                Row(Modifier.weight(1f).fillMaxWidth()) {
+                    Column(
+                        Modifier.width(300.dp).fillMaxHeight().verticalScroll(rememberScrollState())
+                            .padding(start = padH, end = 12.dp, bottom = 24.dp),
+                    ) {
+                        VmSectionLabel(machines.size)
+                        for (m in machines) {
+                            val st = statusOf(m)
+                            VmCompactCard(m, st, m.id == vm?.id) { selectedId = m.id }
+                        }
+                        VmNewRow(compact = true) { picking = true }
+                    }
+                    Box(Modifier.width(1.dp).fillMaxHeight().background(pal.line))
+                    vm?.let { m ->
+                        key(m.id) {
+                            val st = statusOf(m)
+                            Column(
+                                Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())
+                                    .padding(start = 20.dp, end = padH, top = 4.dp, bottom = 24.dp),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    DistroGlyph(m.distro.id, 30.dp)
+                                    Text(
+                                        vmMachineLabel(ctx, m), fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
+                                        color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f, fill = false),
+                                    )
+                                    VmStateChip(st)
+                                }
+                                val de = vmDesktopLabel(ctx, m)
+                                val sub = de + if (m.imported) (if (de.isEmpty()) "" else " · ") + stringResource(R.string.vm_state_imported) else ""
+                                if (sub.isNotEmpty()) Text(
+                                    sub, fontSize = 12.5.sp, color = colors.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                                )
+                                VmDetail(
+                                    s, a, m, st, note, seed, install, flatpakApps,
+                                    wide = true, primaryEnabled = primaryEnabledFor(st), onPrimary = primaryFor(m, st),
+                                    sizeTick = recorded, onSettings = { settings = true }, onDeleted = onDeleted, onSelectPage = onSelect,
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = padH),
+                ) {
+                    VmSectionLabel(machines.size)
+                    for (m in machines) {
+                        val st = statusOf(m)
+                        VmCard(
+                            m, st, percentOf(m), selected = m.id == selectedId,
+                            primaryEnabled = primaryEnabledFor(st), onPrimary = primaryFor(m, st),
+                            onSelect = { selectedId = if (selectedId == m.id) null else m.id },
+                            sizeTick = recorded,
+                        ) {
+                            Box(Modifier.fillMaxWidth().padding(top = 12.dp).height(1.dp).background(pal.line))
+                            VmDetail(
+                                s, a, m, st, note, seed, install, flatpakApps,
+                                wide = false, primaryEnabled = primaryEnabledFor(st), onPrimary = primaryFor(m, st),
+                                sizeTick = recorded, onSettings = { settings = true }, onDeleted = onDeleted, onSelectPage = onSelect,
+                            )
+                        }
+                    }
+                    VmNewRow(compact = false) { picking = true }
+                    Spacer(Modifier.height(24.dp))
+                }
+            }
+        }
+    }
     if (picking) VmSourceDialog(
-        onDismiss = { picking = false },
+        startImporting = pickImport,
+        onDismiss = { picking = false; pickImport = false },
     ) { created, start ->
         picking = false
+        pickImport = false
         recorded = VmStore.all(ctx)
         selectedId = created.id
         // A preset machine starts seeding inside the wizard; take its state now so the progress
         // poll below picks it up.
         seed = VmPreset.state()
         install = VmDesktop.state()
-        if (start) a.onDesktop(created.id)
+        if (start) launch(created.id)
     }
     if (settings && vm != null) VmSettingsDialog(
         machine = vm,
         recorded = recorded,
-        status = status,
+        status = statusOf(vm),
         driverInstalled = VmDriver.driverInstalled(ownRootfs(vm)),
-        hasOwnRootfs = vmHasOwnRootfs,
-        ownsMachine = vmOwnsMachine,
-        deleteEnabled = status != VmStatus.RUNNING && status != VmStatus.SUSPENDED && status != VmStatus.DELETING,
+        hasOwnRootfs = ownRootfs(vm) != null,
+        ownsMachine = vm.id != VmMachine.DEFAULT_ID,
+        deleteEnabled = statusOf(vm) != VmStatus.RUNNING && statusOf(vm) != VmStatus.SUSPENDED && statusOf(vm) != VmStatus.DELETING,
         onDismiss = { settings = false },
         onRecordedChanged = { recorded = VmStore.all(ctx) },
         onRemoveMachine = {
@@ -353,6 +376,578 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             selectedId = null
         },
         onRemoveDesktop = a.onRemoveDesktop,
+    )
+}
+
+/** The live-session pill in the page header; one tap returns to the desktop. */
+@Composable
+private fun VmRunPill(label: String, status: VmStatus, onClick: () -> Unit) {
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    val shape = RoundedCornerShape(99.dp)
+    val tint = if (status == VmStatus.RUNNING) pal.good else pal.onSurfaceVariant
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.paneItem("vm:runpill").clip(shape)
+            .background(tint.copy(alpha = 0.08f))
+            .glideBorder(hot, shape, pal.signal, tint.copy(alpha = 0.4f))
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
+            .controllerConfirm(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    ) {
+        Box(Modifier.size(7.dp).clip(CircleShape).background(tint))
+        Text(label, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, color = tint, maxLines = 1)
+    }
+}
+
+@Composable
+private fun VmSectionLabel(count: Int) {
+    Text(
+        stringResource(R.string.vm_section).uppercase() + " · " + count,
+        fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
+    )
+}
+
+/** The brand's one large appearance: the host frame, with the two ways a machine comes to be. */
+@Composable
+private fun VmEmptyState(modifier: Modifier, onPreset: () -> Unit, onImport: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.height(40.dp))
+        DroidHostLogo(96.dp, body = colors.onBackground)
+        Spacer(Modifier.height(20.dp))
+        Text(stringResource(R.string.vm_empty_title), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.vm_empty_body), fontSize = 13.sp, lineHeight = 19.sp,
+            color = colors.onSurfaceVariant, textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 300.dp),
+        )
+        Spacer(Modifier.height(24.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth().widthIn(max = 520.dp),
+        ) {
+            VmSourceCard(
+                Icons.Outlined.Inventory2, stringResource(R.string.vm_source_preset),
+                stringResource(R.string.vm_source_preset_hint), Modifier.weight(1f), onPreset,
+            )
+            VmSourceCard(
+                Icons.Outlined.Download, stringResource(R.string.vm_source_import_button),
+                stringResource(R.string.vm_source_import_hint), Modifier.weight(1f), onImport,
+            )
+        }
+        Spacer(Modifier.height(32.dp))
+    }
+}
+
+@Composable
+private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifier: Modifier, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    Column(
+        modifier.paneItem("vmsource:$title").clip(Shape16).background(colors.surface)
+            .glideBorder(hot, Shape16, pal.signal, pal.line)
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
+            .controllerConfirm(onClick = onClick)
+            .padding(14.dp),
+    ) {
+        Icon(icon, null, tint = pal.signal, modifier = Modifier.size(22.dp))
+        Text(title, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground, modifier = Modifier.padding(top = 8.dp))
+        Text(hint, fontSize = 11.5.sp, lineHeight = 15.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 3.dp))
+    }
+}
+
+/** A distribution's mark, small and single-colour; the catalogue art when there is one. */
+@Composable
+private fun DistroGlyph(distroId: String, size: Dp) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val shape = RoundedCornerShape(size * 0.24f)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(size).clip(shape).background(colors.surfaceVariant).border(1.dp, pal.line, shape),
+    ) {
+        val logo = VmCatalog.logoRes(distroId)
+        if (logo != null) Image(
+            painterResource(logo), null,
+            colorFilter = ColorFilter.tint(colors.onSurfaceVariant),
+            modifier = Modifier.size(size * 0.62f),
+        )
+        else Icon(Icons.Outlined.DesktopWindows, null, tint = colors.onSurfaceVariant, modifier = Modifier.size(size * 0.55f))
+    }
+}
+
+@Composable
+private fun VmNewRow(compact: Boolean, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth().paneItem("vm:new").clip(Shape16)
+            .drawBehind {
+                drawRoundRect(
+                    color = if (hot) pal.signal else pal.line2, cornerRadius = CornerRadius(16.dp.toPx()),
+                    style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
+                )
+            }
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
+            .controllerConfirm(onClick = onClick)
+            .padding(14.dp),
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(colors.surfaceVariant),
+        ) {
+            Icon(Icons.Filled.Add, null, tint = if (hot) pal.signal else colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        }
+        Column {
+            Text(
+                stringResource(R.string.vm_new), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
+                color = if (hot) pal.signal else colors.onSurfaceVariant,
+            )
+            if (!compact) Text(
+                stringResource(R.string.vm_new_hint), fontSize = 11.5.sp, color = colors.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun VmMetaItem(icon: ImageVector, text: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        Icon(icon, null, tint = color, modifier = Modifier.size(13.dp))
+        Text(text, fontSize = 11.5.sp, color = color, maxLines = 1)
+    }
+}
+
+/**
+ * One machine as a vertical information card: what system, what desktop, what state, how big,
+ * when last used, with the primary action kept at the right. The selected card expands its
+ * detail in place.
+ */
+@Composable
+private fun VmCard(
+    m: VmMachine, status: VmStatus, percent: Int?, selected: Boolean,
+    primaryEnabled: Boolean, onPrimary: () -> Unit, onSelect: () -> Unit,
+    sizeTick: Any?,
+    detail: @Composable () -> Unit,
+) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    val shape = Shape16
+    val own = VmRuntime.ownRootfs(ctx, m.id)
+    val gpu = VmDriver.driverInstalled(own) || own == null
+    val usage = vmDiskUsage(m, sizeTick)
+    Column(
+        Modifier.fillMaxWidth().padding(bottom = 12.dp).paneItem("vmcard:${m.id}")
+            .clip(shape)
+            .background(if (hot) pal.signal.copy(alpha = 0.06f) else colors.surface)
+            .drawBehind {
+                if (status == VmStatus.RUNNING) drawRect(color = pal.good, size = Size(3.dp.toPx(), size.height))
+            }
+            .glideBorder(hot, shape, pal.signal, if (selected) pal.signal.copy(alpha = 0.55f) else pal.line)
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onSelect)
+            .controllerConfirm(onClick = onSelect)
+            .padding(14.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            DistroGlyph(m.distro.id, 42.dp)
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text(
+                        vmMachineLabel(ctx, m), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                        color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    VmStateChip(status)
+                    if (percent != null) {
+                        if (percent >= 0) CircularProgressIndicator(
+                            progress = { percent / 100f }, strokeWidth = 2.dp, color = pal.signal,
+                            trackColor = pal.signal.copy(alpha = 0.25f), modifier = Modifier.size(16.dp),
+                        )
+                        else CircularProgressIndicator(strokeWidth = 2.dp, color = pal.signal, modifier = Modifier.size(16.dp))
+                    }
+                }
+                val de = vmDesktopLabel(ctx, m)
+                val sub = de.ifEmpty { if (m.imported) stringResource(R.string.vm_imported_wait) else "" }
+                if (sub.isNotEmpty()) Text(
+                    sub, fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+            VmStartButton(m.id, vmPrimaryLabel(status), vmPrimaryIcon(status), primaryEnabled, onPrimary)
+        }
+        Box(Modifier.fillMaxWidth().padding(top = 11.dp).height(1.dp).background(pal.line))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 11.dp),
+        ) {
+            VmMetaItem(
+                Icons.Outlined.Memory,
+                stringResource(if (gpu) R.string.vm_settings_driver_gpu else R.string.vm_settings_driver_software),
+                if (gpu) pal.good else pal.warn,
+            )
+            VmMetaItem(Icons.Outlined.Storage, usage?.let { FileUtils.sizeToString(it.total) } ?: "…", colors.onSurfaceVariant)
+            VmMetaItem(Icons.Outlined.Schedule, vmLastStartText(m, status), colors.onSurfaceVariant)
+        }
+        if (selected) detail()
+    }
+}
+
+/** The left-column card of the two-pane layout: identity and state, the detail lives beside it. */
+@Composable
+private fun VmCompactCard(m: VmMachine, status: VmStatus, selected: Boolean, onSelect: () -> Unit) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    val shape = Shape12
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp).paneItem("vmcard:${m.id}")
+            .clip(shape).background(if (hot) pal.signal.copy(alpha = 0.06f) else colors.surface)
+            .glideBorder(hot, shape, pal.signal, if (selected) pal.signal.copy(alpha = 0.55f) else pal.line)
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onSelect)
+            .controllerConfirm(onClick = onSelect)
+            .padding(11.dp),
+    ) {
+        DistroGlyph(m.distro.id, 34.dp)
+        Column(Modifier.weight(1f)) {
+            Text(
+                vmMachineLabel(ctx, m), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold,
+                color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            val de = vmDesktopLabel(ctx, m)
+            if (de.isNotEmpty()) Text(
+                de, fontSize = 11.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 1.dp),
+            )
+        }
+        VmStateChip(status)
+    }
+}
+
+/**
+ * The card's primary action. Its focus id names the machine, so several machines sharing one
+ * action word ("Start") do not share one focus target.
+ */
+@Composable
+private fun VmStartButton(id: String, label: String, icon: ImageVector?, enabled: Boolean, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src) && enabled
+    val pressed by src.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) 0.955f else if (hot) 1.02f else 1f, Motion.sp(0.5f, Spring.StiffnessMedium), label = "vmStart")
+    val placed = remember { arrayOfNulls<LayoutCoordinates>(1) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.paneItem("vmstart:$id")
+            .onGloballyPositioned { placed[0] = it }
+            .heightIn(min = 40.dp)
+            .graphicsLayer { alpha = if (LaunchOrigin.flooding === placed) 0f else 1f; scaleX = scale; scaleY = scale }
+            .clip(Shape12)
+            .background(
+                if (enabled) Brush.linearGradient(listOf(colors.primary, pal.primary2))
+                else Brush.linearGradient(listOf(colors.surfaceVariant, colors.surfaceVariant)),
+            )
+            .then(if (enabled) Modifier else Modifier.border(1.dp, pal.line2, Shape12))
+            .glideBorder(hot, Shape12, pal.signal, hotFillAlpha = 0f)
+            .hoverable(src).clickable(role = Role.Button, interactionSource = src, indication = null, enabled = enabled) {
+                placed[0]?.takeIf { it.isAttached }?.let { LaunchOrigin.mark(it.boundsInRoot(), placed) }
+                onClick()
+            }
+            .controllerConfirm(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+    ) {
+        val fg = if (enabled) colors.onPrimary else colors.onSurfaceVariant
+        if (icon != null) Icon(icon, null, tint = fg, modifier = Modifier.size(16.dp))
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = fg, maxLines = 1)
+    }
+}
+
+private data class VmDisk(val total: Long, val cache: Long)
+
+/** Total rootfs bytes and the share of them the host may reclaim as cache. */
+@Composable
+private fun vmDiskUsage(m: VmMachine, sizeTick: Any?): VmDisk? {
+    val ctx = LocalContext.current
+    val own = VmRuntime.ownRootfs(ctx, m.id)
+    val owns = m.id != VmMachine.DEFAULT_ID
+    val root = own ?: LinuxRuntime.rootDir(ctx)
+    val usage by produceState<VmDisk?>(null, root, owns, sizeTick) {
+        // A whole machine with no rootfs yet holds nothing; do not report the shared runtime size.
+        value = if (owns && own == null) VmDisk(0L, 0L)
+        else withContext(Dispatchers.IO) {
+            runCatching {
+                val total = FileOps.totalSize(root)
+                val cache = StorageScan.VM_CACHE_DIRS.map { File(root, it) }.filter { it.isDirectory }.sumOf { FileOps.totalSize(it) }
+                VmDisk(total, cache)
+            }.getOrNull()
+        }
+    }
+    return usage
+}
+
+@Composable
+private fun vmLastStartText(m: VmMachine, status: VmStatus): String {
+    val ctx = LocalContext.current
+    if (status == VmStatus.RUNNING || status == VmStatus.SUSPENDED) return stringResource(R.string.vm_session_live)
+    val at = VmLastStart.of(ctx, m.id) ?: return stringResource(R.string.vm_never_started)
+    return playedSpan(at / 1000L) ?: stringResource(R.string.vm_never_started)
+}
+
+/**
+ * The expanded detail of one machine: what it runs on, the actions worth keeping at hand, the
+ * apps installed in it, and the session defaults it shares with the global settings.
+ */
+@Composable
+private fun VmDetail(
+    s: FrontEndState, a: FrontEndActions,
+    m: VmMachine, status: VmStatus, note: String?,
+    seed: VmPreset.State, install: VmDesktop.State,
+    flatpakApps: List<FlatpakManager.App>,
+    wide: Boolean, primaryEnabled: Boolean, onPrimary: () -> Unit,
+    sizeTick: Any?,
+    onSettings: () -> Unit, onDeleted: () -> Unit, onSelectPage: (String) -> Unit,
+) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val own = VmRuntime.ownRootfs(ctx, m.id)
+    val hasOwnRootfs = own != null
+    val ownsMachine = m.id != VmMachine.DEFAULT_ID
+    // The shared runtime is the app's patched build, so it always carries the driver.
+    val gpu = VmDriver.driverInstalled(own) || !hasOwnRootfs
+    val usage = vmDiskUsage(m, sizeTick)
+    val diskText = when {
+        usage == null -> "…"
+        usage.cache > 0L -> stringResource(
+            R.string.vm_detail_disk_cache, FileUtils.sizeToString(usage.total), FileUtils.sizeToString(usage.cache),
+        )
+        else -> FileUtils.sizeToString(usage.total)
+    }
+    Column(Modifier.fillMaxWidth().padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (note != null) Text(note, fontSize = 12.5.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant)
+        if (wide) Text(
+            stringResource(R.string.vm_detail_environment).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp, color = colors.onSurfaceVariant,
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                VmDetailCell(
+                    stringResource(R.string.vm_detail_driver),
+                    stringResource(if (gpu) R.string.vm_settings_driver_gpu else R.string.vm_settings_driver_software),
+                    if (gpu) pal.good else pal.warn, Modifier.weight(1f),
+                )
+                VmDetailCell(stringResource(R.string.vm_detail_disk), diskText, colors.onBackground, Modifier.weight(1f))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                VmDetailCell(
+                    stringResource(R.string.vm_settings_data_dir),
+                    m.dataDir.ifEmpty { stringResource(R.string.vm_settings_data_dir_none) },
+                    colors.onBackground, Modifier.weight(1f), maxLines = 2,
+                )
+                VmDetailCell(stringResource(R.string.vm_last_start), vmLastStartText(m, status), colors.onBackground, Modifier.weight(1f))
+            }
+        }
+        Actions {
+            if (wide) PrimaryButton(
+                vmPrimaryLabel(status), enabled = primaryEnabled, main = true,
+                icon = vmPrimaryIcon(status), onClick = onPrimary,
+            )
+            SecondaryButton(stringResource(R.string.setup_tool_files), compact = true) { a.onFiles(m.id) }
+            SecondaryButton(stringResource(R.string.vm_settings), compact = true) { onSettings() }
+            VmExportAction(m, enabled = hasOwnRootfs && status != VmStatus.RUNNING && status != VmStatus.INSTALLING)
+            // A frozen session is still live, so it can be stopped; pausing only makes sense
+            // while the session runs.
+            if (status == VmStatus.RUNNING || status == VmStatus.SUSPENDED)
+                SecondaryButton(stringResource(R.string.vm_stop), compact = true) { a.onVmStop() }
+            if (status == VmStatus.RUNNING)
+                SecondaryButton(stringResource(R.string.stores_dl_pause), compact = true) { SessionService.pause(ctx) }
+            // While the preset downloads, the user can pause it; an installing or paused machine
+            // can cancel the install and keep the machine.
+            if (seed.busy && seed.machineId == m.id && seed.percent <= 25)
+                SecondaryButton(stringResource(R.string.vm_pause), compact = true) { VmPreset.pause(ctx, m.id) }
+            if (hasOwnRootfs && (status == VmStatus.INSTALLING || status == VmStatus.PAUSED))
+                SecondaryButton(stringResource(R.string.vm_cancel_install), compact = true) {
+                    VmPreset.cancel(ctx, m.id, forDelete = false)
+                    VmDesktop.cancel(ctx, m.id, forDelete = false)
+                }
+            // A preset or imported machine is deleted whole, even before its rootfs exists; the
+            // shared runtime only loses its desktop. Two different deletions, two different wordings.
+            if (ownsMachine) VmRemoveMachine(
+                label = stringResource(R.string.vm_delete_machine),
+                title = stringResource(R.string.vm_delete_machine_title),
+                note = stringResource(R.string.vm_delete_machine_text),
+                enabled = status != VmStatus.RUNNING && status != VmStatus.SUSPENDED && status != VmStatus.DELETING,
+                onRemove = { VmLifecycle.deleteMachine(ctx, m); onDeleted() },
+            )
+            else UninstallDesktop(
+                label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
+                note = stringResource(R.string.vm_delete_text),
+                enabled = !s.busy && !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
+            )
+        }
+        val showStore = status == VmStatus.READY || status == VmStatus.DEGRADED ||
+            status == VmStatus.RUNNING || status == VmStatus.SUSPENDED
+        if (flatpakApps.isNotEmpty() || showStore) {
+            Text(
+                stringResource(R.string.flatpak_apps_section).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                letterSpacing = 1.6.sp, color = colors.onSurfaceVariant,
+            )
+            VmAppChips(
+                flatpakApps, showStore,
+                onOpen = { id, name -> a.onFlatpakApp(id, name) },
+                onStore = { onSelectPage("store") },
+            )
+        }
+        var sessionOpen by rememberSaveable { mutableStateOf(false) }
+        var sessionTab by rememberSaveable { mutableStateOf(SheetTab.DISPLAY) }
+        Text(
+            stringResource(R.string.vm_session_settings_link), fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+            color = pal.signal,
+            modifier = Modifier.clip(Shape12)
+                .clickable { sessionOpen = !sessionOpen; if (sessionOpen) a.onDesktopSettings() }
+                .padding(vertical = 6.dp),
+        )
+        if (sessionOpen) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            ) {
+                for (tab in modeSheetTabs(steam = false)) VmSessionTab(tab, tab == sessionTab) {
+                    sessionTab = tab
+                    a.onDesktopSettings()
+                }
+            }
+            a.modeSheet(SessionService.MODE_DESKTOP, sessionTab, SheetExtras())
+        }
+    }
+}
+
+@Composable
+private fun VmDetailCell(label: String, value: String, color: Color, modifier: Modifier = Modifier, maxLines: Int = 1) {
+    Column(modifier) {
+        Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        Text(
+            value, fontSize = 12.5.sp, color = color, maxLines = maxLines, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 1.dp),
+        )
+    }
+}
+
+@Composable
+private fun VmAppChips(apps: List<FlatpakManager.App>, showStore: Boolean, onOpen: (String, String) -> Unit, onStore: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+    ) {
+        for (app in apps) VmAppChip(app.name, app.icon, "appchip:${app.id}", store = false) { onOpen(app.id, app.name) }
+        if (showStore) VmAppChip(stringResource(R.string.flathub_name), null, "appchip:store", store = true, onClick = onStore)
+    }
+}
+
+@Composable
+private fun VmAppChip(name: String, icon: Any?, paneId: String, store: Boolean, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    val shape = RoundedCornerShape(10.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.paneItem(paneId).heightIn(min = 32.dp)
+            .clip(shape).background(colors.surfaceVariant)
+            .glideBorder(hot, shape, pal.signal, if (store) pal.signal.copy(alpha = 0.35f) else pal.line)
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
+            .controllerConfirm(onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+    ) {
+        if (icon != null) AsyncImage(model = icon, contentDescription = null, modifier = Modifier.size(18.dp).clip(RoundedCornerShape(5.dp)))
+        else Icon(
+            if (store) Icons.Outlined.Storefront else Icons.Outlined.Apps, null,
+            tint = if (store) pal.signal else colors.onSurfaceVariant, modifier = Modifier.size(16.dp),
+        )
+        Text(name, fontSize = 11.5.sp, color = if (store) pal.signal else colors.onBackground, maxLines = 1)
+    }
+}
+
+@Composable
+private fun VmSessionTab(tab: String, selected: Boolean, onClick: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
+    val src = remember { MutableInteractionSource() }
+    val hot = rememberHot(src)
+    val shape = RoundedCornerShape(99.dp)
+    Text(
+        sheetTabLabel(tab), fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+        color = if (selected) pal.signal else colors.onSurfaceVariant, maxLines = 1,
+        modifier = Modifier.paneItem("vmsession:$tab").clip(shape)
+            .background(if (selected) pal.signal.copy(alpha = 0.12f) else colors.surfaceVariant)
+            .glideBorder(hot, shape, pal.signal, if (selected) pal.signal.copy(alpha = 0.5f) else pal.line2)
+            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
+            .controllerConfirm(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+    )
+}
+
+/** Export with its picker and progress dialog; shared by the detail row and the settings dialog. */
+@Composable
+private fun VmExportAction(machine: VmMachine, enabled: Boolean, modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    var exporting by remember { mutableStateOf(false) }
+    var export by remember { mutableStateOf(VmExport.state()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            export = VmExport.state()
+            // A cancelled export returns to idle; the progress dialog goes with it.
+            if (exporting && !export.busy && export.done == null && export.error.isEmpty()) exporting = false
+            delay(500)
+        }
+    }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val dir = InAppFilePicker.pickedFile(result.data) ?: return@rememberLauncherForActivityResult
+        VmExport.start(ctx, machine, dir)
+        export = VmExport.state()
+        exporting = true
+    }
+    SecondaryButton(stringResource(R.string.vm_export), enabled = enabled && !export.busy, compact = true, modifier = modifier) {
+        picker.launch(InAppFilePicker.buildDirIntent(ctx, ctx.getString(R.string.vm_export)))
+    }
+    if (exporting) GlideAlertDialog(
+        onDismissRequest = { if (!export.busy) exporting = false },
+        title = { Text(stringResource(R.string.vm_export)) },
+        text = {
+            val state = export
+            when {
+                state.busy -> Text(stringResource(R.string.vm_export_progress, state.percent), fontSize = 13.sp, color = colors.onSurfaceVariant)
+                state.done != null -> Text(stringResource(R.string.vm_export_done, state.done.name), fontSize = 13.sp, color = colors.onBackground)
+                state.error.isNotEmpty() -> Text(
+                    stringResource(R.string.vm_export_failed, state.error),
+                    fontSize = 13.sp, lineHeight = 18.sp, color = colors.error,
+                )
+            }
+        },
+        confirmButton = {
+            if (export.busy) PadTextButton(onClick = { VmExport.cancel() }) { Text(stringResource(R.string.common_cancel)) }
+            else PadTextButton(onClick = { exporting = false }) { Text(stringResource(R.string.common_ok)) }
+        },
     )
 }
 
@@ -389,28 +984,11 @@ private fun VmSettingsDialog(
     val used = size ?: 0L
     val dataDirNone = stringResource(R.string.vm_settings_data_dir_none)
     var renaming by remember { mutableStateOf(false) }
-    var exporting by remember { mutableStateOf(false) }
-    var export by remember { mutableStateOf(VmExport.state()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            export = VmExport.state()
-            // A cancelled export returns to idle; the progress dialog goes with it.
-            if (exporting && !export.busy && export.done == null && export.error.isEmpty()) exporting = false
-            delay(500)
-        }
-    }
     val dataDirPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
         val dir = InAppFilePicker.pickedFile(result.data) ?: return@rememberLauncherForActivityResult
         VmStore.setDataDir(ctx, current.id, dir.absolutePath)
         onRecordedChanged()
-    }
-    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
-        val dir = InAppFilePicker.pickedFile(result.data) ?: return@rememberLauncherForActivityResult
-        VmExport.start(ctx, current, dir)
-        export = VmExport.state()
-        exporting = true
     }
     GlideAlertDialog(
         onDismissRequest = onDismiss,
@@ -489,14 +1067,7 @@ private fun VmSettingsDialog(
                     }
                 }
                 val exportBlocked = status == VmStatus.RUNNING || status == VmStatus.INSTALLING
-                SecondaryButton(
-                    stringResource(R.string.vm_export),
-                    enabled = hasOwnRootfs && !exportBlocked && !export.busy,
-                    compact = true,
-                    modifier = Modifier.padding(top = 12.dp),
-                ) {
-                    exportPicker.launch(InAppFilePicker.buildDirIntent(ctx, ctx.getString(R.string.vm_export)))
-                }
+                VmExportAction(current, enabled = hasOwnRootfs && !exportBlocked, modifier = Modifier.padding(top = 12.dp))
                 if (exportBlocked) Text(
                     stringResource(R.string.vm_export_busy),
                     fontSize = 12.sp, lineHeight = 17.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(top = 6.dp),
@@ -520,25 +1091,6 @@ private fun VmSettingsDialog(
             }
         },
         confirmButton = { PadTextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
-    )
-    if (exporting) GlideAlertDialog(
-        onDismissRequest = { if (!export.busy) exporting = false },
-        title = { Text(stringResource(R.string.vm_export)) },
-        text = {
-            val state = export
-            when {
-                state.busy -> Text(stringResource(R.string.vm_export_progress, state.percent), fontSize = 13.sp, color = colors.onSurfaceVariant)
-                state.done != null -> Text(stringResource(R.string.vm_export_done, state.done.name), fontSize = 13.sp, color = colors.onBackground)
-                state.error.isNotEmpty() -> Text(
-                    stringResource(R.string.vm_export_failed, state.error),
-                    fontSize = 13.sp, lineHeight = 18.sp, color = colors.error,
-                )
-            }
-        },
-        confirmButton = {
-            if (export.busy) PadTextButton(onClick = { VmExport.cancel() }) { Text(stringResource(R.string.common_cancel)) }
-            else PadTextButton(onClick = { exporting = false }) { Text(stringResource(R.string.common_ok)) }
-        },
     )
     if (renaming) TextEntryDialog(
         stringResource(R.string.vm_rename_title),
@@ -576,136 +1128,6 @@ private fun SpaceRow(name: String, bytes: Long, total: Long) {
     }
     Box(Modifier.fillMaxWidth().padding(top = 3.dp).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.surfaceVariant)) {
         Box(Modifier.fillMaxWidth(if (total > 0) (bytes.toFloat() / total).coerceIn(0f, 1f) else 0f).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
-    }
-}
-
-@Composable
-internal fun compactDesktop() = LocalNarrowPane.current || LocalConfiguration.current.screenHeightDp < 600
-
-@Composable
-private fun HeroIconButton(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, tint: Color?, id: String, onClick: (Rect?) -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    val pal = LocalPalette.current
-    val src = remember { MutableInteractionSource() }
-    val hot = rememberHot(src)
-    val pressed by src.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.95f else if (hot) 1.04f else 1f, Motion.sp(0.5f, Spring.StiffnessMedium), label = "heroIcon")
-    val shape = RoundedCornerShape(12.dp)
-    val accent = tint ?: pal.signal
-    var at by remember { mutableStateOf<Rect?>(null) }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(56.dp).paneItem("btn:$id").onGloballyPositioned { at = it.boundsInRoot() }
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(shape).background(if (hot) accent.copy(alpha = 0.18f) else colors.surface.copy(alpha = 0.92f))
-            .glideBorder(hot, shape, accent, pal.line2)
-            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button) { onClick(at) }
-            .controllerConfirm { onClick(at) }
-            .semantics { contentDescription = description },
-    ) { Icon(icon, null, tint = accent, modifier = Modifier.size(26.dp)) }
-}
-
-@Composable
-private fun DesktopWall(icons: List<Any>) {
-    val pal = LocalPalette.current
-    val ground = remember(pal) { Brush.linearGradient(listOf(pal.surfaceVariant, pal.surface)) }
-    TiltedWall(icons.size, if (icons.isEmpty()) 75_000 else 50_000, capW = 132.dp, capH = 84.dp, gap = 14.dp, corner = 8.dp) { i ->
-        WallCapsule(ground, edge = pal.line2, icon = icons.getOrNull(i), bar = pal.background.copy(alpha = 0.7f))
-    }
-}
-
-@Composable
-internal fun DesktopCard(
-    key: String, name: String, detail: String, art: Any?,
-    fallback: androidx.compose.ui.graphics.vector.ImageVector = Icons.Outlined.Apps,
-    first: Boolean = false, badge: String? = null, progress: Int? = null, accent: Boolean = false, tint: Color? = null,
-    onClick: (Rect?) -> Unit,
-) {
-    val colors = MaterialTheme.colorScheme
-    val pal = LocalPalette.current
-    val src = remember { MutableInteractionSource() }
-    val hot = rememberHot(src)
-    val pressed by src.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (pressed) 0.96f else if (hot) 1.03f else 1f, Motion.sp(0.5f, Spring.StiffnessMedium), label = "deskCard")
-    val shape = RoundedCornerShape(16.dp)
-    var artAt by remember { mutableStateOf<Rect?>(null) }
-    val width = if (LocalNarrowPane.current) 116.dp else 132.dp
-    val artH = width * 0.62f
-    val ground = tint?.copy(alpha = 0.25f) ?: if (accent) pal.signal.copy(alpha = 0.12f) else colors.surfaceVariant
-    Column(
-        Modifier.width(width).paneItem("tile:desktop:$key").then(if (first) Modifier.firstTile() else Modifier)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clip(shape).background(if (hot) pal.signal.copy(alpha = 0.10f) else colors.surface)
-            .glideBorder(hot, shape, pal.signal, pal.line)
-            .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button) { onClick(artAt) }
-            .controllerConfirm { onClick(artAt) }
-            .semantics { contentDescription = name },
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth().height(artH).onGloballyPositioned { artAt = it.boundsInRoot() }
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)).background(ground),
-        ) {
-            when (art) {
-                is Int -> {
-                    Image(
-                        painterResource(art), null, contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = 1.8f; scaleY = 1.8f; alpha = 0.5f }
-                            .then(if (Build.VERSION.SDK_INT >= 31) Modifier.blur(18.dp) else Modifier),
-                    )
-                    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.35f)))
-                    Image(painterResource(art), null, modifier = Modifier.size(artH * 0.6f))
-                }
-                null -> Icon(fallback, null, tint = tint ?: if (accent) pal.signal else colors.onSurfaceVariant, modifier = Modifier.size(artH * 0.42f))
-                else -> {
-                    AsyncImage(
-                        model = art, contentDescription = null, contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize().graphicsLayer { scaleX = 1.8f; scaleY = 1.8f; alpha = 0.5f }
-                            .then(if (Build.VERSION.SDK_INT >= 31) Modifier.blur(18.dp) else Modifier),
-                    )
-                    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.35f)))
-                    AsyncImage(model = art, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.size(artH * 0.6f))
-                }
-            }
-            Box(Modifier.align(Alignment.TopEnd).padding(6.dp)) {
-                if (progress != null) Box(Modifier.clip(RoundedCornerShape(99.dp)).background(Color.Black.copy(alpha = 0.55f)).padding(4.dp)) {
-                    if (progress >= 0) CircularProgressIndicator(progress = { progress / 100f }, strokeWidth = 2.dp, color = pal.signal, trackColor = pal.signal.copy(alpha = 0.25f), modifier = Modifier.size(16.dp))
-                    else CircularProgressIndicator(strokeWidth = 2.dp, color = pal.signal, modifier = Modifier.size(16.dp))
-                }
-                else if (badge != null) Text(
-                    badge, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = pal.onSignal, maxLines = 1,
-                    modifier = Modifier.clip(RoundedCornerShape(99.dp)).background(pal.signal).padding(horizontal = 8.dp, vertical = 2.dp),
-                )
-            }
-        }
-        Column(Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 10.dp)) {
-            Text(name, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, lineHeight = 17.sp, color = colors.onBackground, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(detail, fontSize = 12.sp, lineHeight = 15.sp, color = colors.onSurfaceVariant, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 3.dp))
-        }
-    }
-}
-
-@Composable
-private fun DesktopFiles(s: FrontEndState, a: FrontEndActions, machineId: String?) {
-    val ctx = LocalContext.current
-    SettingsGroup(stringResource(R.string.setup_tool_files)) {
-        SettingsRow(stringResource(R.string.setup_tool_files), stringResource(R.string.setup_tool_files_hint)) {
-            SecondaryButton(stringResource(R.string.store_open), compact = true, onClick = { a.onFiles(machineId.orEmpty()) })
-        }
-        SettingsRow(stringResource(R.string.setup_tool_roms), s.romsDir ?: stringResource(R.string.setup_tool_roms_hint)) {
-            SecondaryButton(stringResource(R.string.setup_choose), compact = true, onClick = a.onRoms)
-        }
-    }
-    if (s.desktopPresent) SettingsGroup(stringResource(R.string.content_linux_desktop)) {
-        val size by produceState<Long?>(null) { value = withContext(Dispatchers.IO) { runCatching { com.droidhost.launcher.runtime.DesktopCatalog.desktopSize(ctx) }.getOrNull() } }
-        SettingsRow(stringResource(R.string.desktop_size), size?.let { FileUtils.sizeToString(it) } ?: "…") {}
-        SettingsRow(stringResource(R.string.vm_delete), stringResource(R.string.vm_delete_text)) {
-            UninstallDesktop(
-                label = stringResource(R.string.vm_delete), title = stringResource(R.string.vm_delete_title),
-                note = stringResource(R.string.vm_delete_text),
-                enabled = !s.runtimeActionsBlocked, onUninstall = a.onRemoveDesktop,
-            )
-        }
     }
 }
 

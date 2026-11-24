@@ -1,14 +1,16 @@
 package com.droidhost.launcher.ui
 
 import android.content.Context
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -26,18 +28,23 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidhost.launcher.R
-import com.droidhost.launcher.vm.VmCatalog
 import com.droidhost.launcher.vm.VmDesktop
 import com.droidhost.launcher.vm.VmDesktops
 import com.droidhost.launcher.vm.VmLife
@@ -108,21 +115,56 @@ internal fun vmSeedReason(reason: VmPreset.Reason): String = when (reason) {
     VmPreset.Reason.NOT_USABLE -> stringResource(R.string.vm_seed_reason_usable)
 }
 
+/**
+ * The state pill of one machine. Ready/degraded/failed keep distinct hues in every palette, so a
+ * failure never reads as ready; running is the only solid fill. Imported is dashed: brought in,
+ * not yet fitted with a desktop.
+ */
 @Composable
 internal fun VmStateChip(status: VmStatus) {
+    if (status == VmStatus.ABSENT) return
+    val pal = LocalPalette.current
+    val colors = MaterialTheme.colorScheme
+    val shape = RoundedCornerShape(99.dp)
+    val label = vmStateLabel(status)
     when (status) {
-        VmStatus.ABSENT -> Unit
-        VmStatus.NEW -> Chip(stringResource(R.string.vm_state_new), ok = false)
-        VmStatus.INSTALLING -> Chip(stringResource(R.string.vm_installing), ok = false)
-        VmStatus.PAUSED -> Chip(stringResource(R.string.vm_state_paused), ok = false)
-        VmStatus.INTERRUPTED -> Chip(stringResource(R.string.vm_state_interrupted), ok = false)
-        VmStatus.FAILED -> Chip(stringResource(R.string.vm_state_failed), ok = false)
-        VmStatus.READY -> Chip(stringResource(R.string.vm_state_ready), ok = true)
-        VmStatus.DEGRADED -> Chip(stringResource(R.string.vm_state_degraded), ok = false)
-        VmStatus.RUNNING -> Chip(stringResource(R.string.vm_state_running), ok = true)
-        VmStatus.SUSPENDED -> Chip(stringResource(R.string.vm_state_paused), ok = false)
-        VmStatus.DELETING -> Chip(stringResource(R.string.vm_deleting), ok = false)
-        VmStatus.IMPORTED -> Chip(stringResource(R.string.vm_state_imported), ok = false)
+        VmStatus.RUNNING -> {
+            val ink = ThemeColors.inkFor(pal.good.toArgb(), pal.good.toArgb())
+            Row(
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.clip(shape).background(pal.good).padding(horizontal = 9.dp, vertical = 4.dp),
+            ) {
+                Box(Modifier.size(6.dp).clip(CircleShape).background(ink))
+                Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = ink, maxLines = 1)
+            }
+        }
+        VmStatus.IMPORTED -> Text(
+            label, fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.drawBehind {
+                drawRoundRect(
+                    color = pal.line2, cornerRadius = CornerRadius(size.height / 2f),
+                    style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
+                )
+            }.padding(horizontal = 9.dp, vertical = 4.dp),
+        )
+        else -> {
+            val tint = when (status) {
+                VmStatus.READY -> pal.good
+                VmStatus.DEGRADED -> pal.warn
+                VmStatus.FAILED, VmStatus.INTERRUPTED -> pal.error
+                else -> colors.onSurfaceVariant
+            }
+            val border = when (status) {
+                VmStatus.READY -> pal.good.copy(alpha = 0.35f)
+                VmStatus.DEGRADED -> pal.warn.copy(alpha = 0.4f)
+                VmStatus.FAILED, VmStatus.INTERRUPTED -> pal.error.copy(alpha = 0.4f)
+                else -> pal.line2
+            }
+            Text(
+                label, fontSize = 12.sp, color = tint, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.clip(shape).background(colors.surfaceVariant).border(1.dp, border, shape).padding(horizontal = 9.dp, vertical = 4.dp),
+            )
+        }
     }
 }
 
@@ -193,56 +235,19 @@ internal fun vmDesktopLabel(ctx: Context, machine: VmMachine): String {
 }
 
 /**
- * The machines the user owns, one card each, plus a card that opens the new-machine wizard.
- *
- * Several machines coexist, so the dock lists them all; tapping a card selects the machine the
- * page acts on. [statusOf] and [percentOf] are read per machine, so one busy machine does not paint
- * the others busy.
+ * When a machine was last started, kept by the UI alone: the machine record and its lifecycle
+ * stay untouched. Epoch millis per machine id; absent means never started.
  */
-@Composable
-internal fun VmDock(
-    s: FrontEndState,
-    machines: List<VmMachine>,
-    selectedId: String?,
-    statusOf: (VmMachine) -> VmStatus,
-    percentOf: (VmMachine) -> Int?,
-    onSelect: (VmMachine) -> Unit,
-    onNew: () -> Unit,
-) {
-    val colors = MaterialTheme.colorScheme
-    val ctx = LocalContext.current
-    val narrow = LocalNarrowPane.current
-    val start = if (narrow) 20.dp else 44.dp
-    Column(Modifier.fillMaxWidth().padding(top = if (compactDesktop()) 14.dp else 22.dp)) {
-        Text(
-            stringResource(R.string.vm_section).uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold,
-            letterSpacing = 1.6.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(start = start, bottom = 8.dp),
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top,
-            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
-                .padding(start = start, end = 20.dp, top = 2.dp, bottom = 4.dp),
-        ) {
-            for (machine in machines) {
-                val selected = machine.id == selectedId
-                val de = vmDesktopLabel(ctx, machine)
-                val sub = vmStateLabel(statusOf(machine)) + if (de.isEmpty()) "" else " · $de"
-                DesktopCard(
-                    "vm:" + machine.id, vmMachineLabel(ctx, machine), sub,
-                    art = VmCatalog.logoRes(machine.distro.id), fallback = Icons.Outlined.DesktopWindows,
-                    first = machine.id == machines.firstOrNull()?.id,
-                    progress = percentOf(machine), accent = selected,
-                ) { onSelect(machine) }
-            }
-            DesktopCard(
-                "vm:new", stringResource(R.string.vm_new), stringResource(R.string.vm_new_hint),
-                art = null, fallback = Icons.Filled.Add, first = machines.isEmpty(),
-            ) { onNew() }
-        }
-        if (machines.isEmpty()) Text(
-            stringResource(R.string.vm_none), fontSize = 12.5.sp, lineHeight = 16.sp, color = colors.onSurfaceVariant,
-            modifier = Modifier.padding(start = start, end = 20.dp, top = 8.dp),
-        )
+internal object VmLastStart {
+    private const val PREFS = "vm-last-start"
+
+    fun record(ctx: Context, id: String) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong(id, System.currentTimeMillis()).apply()
+    }
+
+    fun of(ctx: Context, id: String): Long? {
+        val at = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(id, 0L)
+        return if (at > 0L) at else null
     }
 }
 

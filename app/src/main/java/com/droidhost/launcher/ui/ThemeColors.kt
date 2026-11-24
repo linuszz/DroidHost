@@ -97,6 +97,12 @@ internal object ThemeColors {
         return out
     }
 
+    /** Fit a status hue to the theme background: brighten on dark, darken on light. */
+    fun semantic(base: Int, background: Color): Color {
+        val ink = if (background.luminance() > 0.5f) Color.White else DARK_INK
+        return Color(fitTo(ink, readable(base)))
+    }
+
     private fun gradientColor(first: Int, second: Int, fraction: Float): Int {
         fun channel(shift: Int): Int {
             val a = first shr shift and 0xFF
