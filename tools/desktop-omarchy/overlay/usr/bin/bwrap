@@ -1,0 +1,25 @@
+#!/bin/sh
+# DroidHost shim/shadow: bwrap bypass for proot.
+# bubblewrap needs user/mount namespaces + seccomp that proot cannot emulate,
+# so glycin's sandboxed image loaders abort and every GTK app crashes on icons
+# (Gtk:ERROR ensure_surface_for_gicon ... image-missing.svg). Run the target
+# loader directly: apply --setenv, ignore namespace/bind options, keep inherited
+# fds (glycin gets its dbus fd via --dbus-fd after the executable).
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --setenv) export "$2=$3"; shift 3 ;;
+    --unsetenv) unset "$2"; shift 2 ;;
+    --chdir) cd "$2" 2>/dev/null || true; shift 2 ;;
+    --ro-bind|--ro-bind-try|--bind|--bind-try|--dev-bind|--dev-bind-try|--bind-fd|--ro-bind-fd) shift 3 ;;
+    --symlink) shift 3 ;;
+    --dev|--tmpfs|--proc|--mqueue|--dir) shift 2 ;;
+    --ro-bind-data|--bind-data|--file|--overlay-src) shift 3 ;;
+    --seccomp|--info-fd|--json-status-fd|--userns-block-fd|--pidfd) shift 2 ;;
+    --cap-add|--cap-drop|--hostname|--uid|--gid|--perms|--size) shift 2 ;;
+    --unshare-all|--unshare-user|--unshare-user-try|--unshare-ipc|--unshare-pid|--unshare-net|--unshare-uts|--unshare-cgroup|--unshare-cgroup-try|--die-with-parent|--new-session|--disable-userns|--assert-userns-disabled|--clearenv|--tmp-overlay|--overlay|--ro-overlay) shift ;;
+    --) shift; break ;;
+    -*) shift ;;
+    *) break ;;
+  esac
+done
+exec "$@"
