@@ -52,6 +52,7 @@ import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.LocalMall
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material.icons.outlined.SystemUpdate
@@ -200,6 +201,7 @@ internal fun railLabelIcon(key: String): Pair<Int, ImageVector> = when (key) {
     "agent" -> R.string.rail_agent to Icons.Outlined.AutoAwesome
     "android-apps" -> R.string.rail_apps to Icons.Outlined.Apps
     "setup" -> R.string.rail_setup to Icons.Outlined.Tune
+    "system" -> R.string.rail_system to Icons.Outlined.Settings
     NavTabs.MORE -> R.string.rail_more to Icons.Outlined.MoreHoriz
     else -> R.string.rail_updates to Icons.Outlined.SystemUpdate
 }
@@ -210,6 +212,7 @@ internal fun setupNeedsAttention(s: FrontEndState): Boolean =
 
 internal fun railBadge(s: FrontEndState, key: String, setupNeedsAttention: Boolean = setupNeedsAttention(s)): Boolean = when (key) {
     "setup" -> setupNeedsAttention
+    "system" -> s.updates.hasUpdate || setupNeedsAttention
     "updates" -> s.updates.hasUpdate
     NavTabs.MORE -> NavTabs.more(s).any { it != NavTabs.MORE && railBadge(s, it, setupNeedsAttention) }
     else -> false

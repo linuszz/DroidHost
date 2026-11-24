@@ -42,34 +42,36 @@ class NavTabsTest {
     }
 
     @Test fun shelvedFeaturesStayOutOfTheBarOnAFreshInstall() {
-        assertEquals(listOf("desktop", "components", "setup", "updates"), navigationKeys(state()))
+        assertEquals(listOf("desktop", "setup", "system"), navigationKeys(state()))
         assertEquals(emptyList<String>(), NavTabs.more(state()))
         assertEquals(setOf("agent"), NavTabs.shelved)
         assertTrue(com.droidhost.launcher.agent.AgentTab.shown)
     }
 
     @Test fun shelvingATabOnceKeepsItShelvedAfterReload() {
-        place("components", TabPlace.MORE)
+        place("system", TabPlace.MORE)
         NavTabs.load(ctx)
-        assertEquals(listOf("components"), NavTabs.more(state()))
+        assertEquals(listOf("system"), NavTabs.more(state()))
     }
 
     @Test fun shelvedTabsLeaveTheBarAndAddMoreAtTheEnd() {
-        place("components", TabPlace.MORE)
-        place("updates", TabPlace.MORE)
+        place("system", TabPlace.MORE)
+        place("setup", TabPlace.MORE)
         val s = state()
-        assertEquals(listOf("updates", "components"), NavTabs.more(s))
+        assertEquals(listOf("setup", "system"), NavTabs.more(s))
         assertEquals(NavTabs.MORE, navigationKeys(s).last())
-        assertFalse("components" in navigationKeys(s))
+        assertFalse("system" in navigationKeys(s))
     }
 
-    @Test fun hiddenTabsAreNowhereAndSetupCannotBeHidden() {
-        place("updates", TabPlace.HIDDEN)
+    @Test fun hiddenTabsAreNowhereAndSetupAndSystemCannotBeHidden() {
+        place("desktop", TabPlace.HIDDEN)
         place("setup", TabPlace.HIDDEN)
+        place("system", TabPlace.HIDDEN)
         val s = state()
-        assertFalse("updates" in navigationKeys(s))
-        assertFalse("updates" in NavTabs.more(s))
+        assertFalse("desktop" in navigationKeys(s))
+        assertFalse("desktop" in NavTabs.more(s))
         assertTrue("setup" in navigationKeys(s))
+        assertTrue("system" in navigationKeys(s))
     }
 
     @Test fun aDisabledFeatureReadsAsHidden() {
@@ -79,15 +81,15 @@ class NavTabsTest {
 
     @Test fun movingSwapsWithTheNextVisibleTabAndPersists() {
         moveTab("setup", -1)
-        assertEquals(listOf("desktop", "setup", "components", "updates"), navigationKeys(state()))
+        assertEquals(listOf("setup", "desktop", "system"), navigationKeys(state()))
         NavTabs.load(ctx)
-        assertEquals(listOf("desktop", "setup", "components", "updates"), navigationKeys(state()))
+        assertEquals(listOf("setup", "desktop", "system"), navigationKeys(state()))
     }
 
     @Test fun tabsMissingFromASavedOrderSlotInAfterTheirDefaultNeighbour() {
-        assertEquals(listOf("desktop", "agent", "components", "android-apps", "setup", "updates"),
+        assertEquals(listOf("desktop", "android-apps", "setup", "system"),
             NavTabs.arrange(listOf("updates", "steam")))
-        assertEquals(listOf("setup", "desktop", "agent", "components", "android-apps", "updates"),
+        assertEquals(listOf("setup", "system", "desktop", "android-apps"),
             NavTabs.arrange(listOf("games", "steam", "setup", "stores", "desktop", "components", "android-apps", "updates", "bogus")))
     }
 
@@ -126,7 +128,7 @@ class NavTabsTest {
 
     @Test fun morePageListsShelvedTabs() {
         place("setup", TabPlace.MORE)
-        place("updates", TabPlace.MORE)
+        place("system", TabPlace.MORE)
         val s = state()
         compose.setContent {
             DroidHostTheme {
@@ -136,7 +138,7 @@ class NavTabsTest {
             }
         }
         compose.onNodeWithTag("more-setup").assertIsDisplayed()
-        compose.onNodeWithTag("more-updates").assertIsDisplayed()
+        compose.onNodeWithTag("more-system").assertIsDisplayed()
     }
 
     @Test fun backFromAShelvedTabReturnsToMore() {
@@ -158,15 +160,15 @@ class NavTabsTest {
         compose.onNodeWithTag("more-desktop").assertIsDisplayed()
     }
 
-    @Test fun startupWithTheHomeTabHiddenNeverLandsOnABareComponentsSelection() {
+    @Test fun startupWithTheHomeTabHiddenLandsOnARealPane() {
         place("desktop", TabPlace.HIDDEN)
-        repeat(NavTabs.ALL.size) { moveTab("components", -1) }
-        assertEquals("components", navigationKeys(state()).first())
+        repeat(NavTabs.ALL.size) { moveTab("system", -1) }
+        assertEquals("system", navigationKeys(state()).first())
         compose.mainClock.autoAdvance = false
         compose.setContent { DroidHostTheme { FrontEndScreen(state(), actions(), page = null) } }
         compose.mainClock.advanceTimeBy(2_000)
         compose.onNode(hasText(ctx.getString(com.droidhost.launcher.R.string.content_page_gone))).assertDoesNotExist()
-        compose.onNode(hasTestTag("rail-setup") and androidx.compose.ui.test.isSelected()).assertExists()
+        compose.onNode(hasTestTag("rail-system") and androidx.compose.ui.test.isSelected()).assertExists()
     }
 
     @Test fun theDesktopPageOffersANewMachineWhenNothingIsInstalled() {

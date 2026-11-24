@@ -82,7 +82,7 @@ class PortraitLayoutTest {
             }
         }
         compose.mainClock.advanceTimeBy(1_000)
-        for (key in listOf("desktop", "components", "android-apps", "setup", "updates")) {
+        for (key in listOf("desktop", "android-apps", "setup", "system")) {
             compose.onNodeWithTag("rail-$key").performScrollTo()
             compose.mainClock.advanceTimeBy(1_000)
             compose.onNodeWithTag("rail-$key").assertIsDisplayed().performClick()

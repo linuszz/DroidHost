@@ -480,7 +480,11 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
             "components" -> a.onComponents(true)
             "setup:launcher" -> { SetupTabs.openLauncher = true; selected = "setup" }
             com.droidhost.launcher.sync.SyncthingService.NAV -> com.droidhost.launcher.sync.Syncthing.requestOpen()
-            "setup:integration" -> { SetupTabs.openOverview = true; selected = "setup" }
+            "setup:integration" -> { SystemTabs.openOverview = true; selected = "system" }
+            "system:overview" -> { SystemTabs.openOverview = true; selected = "system" }
+            "system:components" -> { SystemTabs.openComponents = true; selected = "system" }
+            "system:storage" -> { SystemTabs.openStorage = true; selected = "system" }
+            "system:updates" -> { SystemTabs.openUpdates = true; selected = "system" }
             com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_APPS -> {
                 // Home lands on the apps page itself, so a page open over the rail (Components, Performance) closes first.
                 if (s.pageKey != null) a.onPageBack()
@@ -617,7 +621,10 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
         }
     }
     LaunchedEffect(com.droidhost.launcher.storage.StorageState.openRequests) {
-        if (com.droidhost.launcher.storage.StorageState.openPending) showRailPage("setup", true)
+        if (com.droidhost.launcher.storage.StorageState.openPending) {
+            SystemTabs.openStorage = true
+            showRailPage("system", true)
+        }
     }
     LaunchedEffect(com.droidhost.launcher.sync.Syncthing.openRequests) {
         if (com.droidhost.launcher.sync.Syncthing.openPending) showRailPage("setup", true)

@@ -13,7 +13,7 @@ internal enum class TabPlace { BAR, MORE, HIDDEN }
 internal object NavTabs {
     const val MORE = "more"
     val FEATURES = setOf("agent")
-    val ALL = listOf("desktop", "agent", "components", "android-apps", "setup", "updates")
+    val ALL = listOf("desktop", "android-apps", "setup", "system")
 
     var order by mutableStateOf(ALL)
         private set
@@ -24,8 +24,8 @@ internal object NavTabs {
 
     fun load(context: Context) {
         order = arrange(SessionPrefs.navTabOrder(context))
-        shelved = SessionPrefs.navTabShelved(context).intersect(ALL.toSet())
-        hidden = SessionPrefs.navTabHidden(context).intersect(ALL.toSet()) - FEATURES - "setup"
+        shelved = SessionPrefs.navTabShelved(context).intersect(ALL.toSet() + FEATURES)
+        hidden = SessionPrefs.navTabHidden(context).intersect(ALL.toSet()) - FEATURES - "setup" - "system"
     }
 
     fun arrange(saved: List<String>): List<String> {
@@ -45,7 +45,7 @@ internal object NavTabs {
         else -> true
     }
 
-    fun hideable(key: String) = key != "setup"
+    fun hideable(key: String) = key != "setup" && key != "system"
 
     fun place(s: FrontEndState, key: String): TabPlace = when {
         featureOff(s, key) || key in hidden -> TabPlace.HIDDEN
@@ -58,7 +58,7 @@ internal object NavTabs {
         else -> false
     }
 
-    fun listed(s: FrontEndState) = order.filter { available(s, it) }
+    fun listed(s: FrontEndState) = order.filter { available(s, it) } + FEATURES.filter { it !in order && available(s, it) }
 
     fun more(s: FrontEndState) = listed(s).filter { place(s, it) == TabPlace.MORE }
 
@@ -75,7 +75,7 @@ internal object NavTabs {
     fun rearrange(context: Context, s: FrontEndState, bar: List<String>, more: List<String>) {
         val placed = bar + more
         if (placed.toSet() != listed(s).toSet()) return
-        val next = placed.iterator()
+        val next = placed.filter { it in order }.iterator()
         order = order.map { if (it in placed) next.next() else it }
         shelved = shelved - placed.toSet() + more
         SessionPrefs.setNavTabOrder(context, order)

@@ -46,7 +46,6 @@ import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,10 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import com.droidhost.launcher.core.AppLanguage
-import com.droidhost.launcher.core.DeviceSupport
 import com.droidhost.launcher.core.DownloadSource
-import com.droidhost.launcher.core.PhantomProcessLimit
-import com.droidhost.launcher.core.PhantomProcessStatus
 import com.droidhost.launcher.session.SessionPrefs
 import com.droidhost.launcher.stores.download.StoreDownloadTier
 import com.droidhost.launcher.R
@@ -86,16 +82,15 @@ import com.droidhost.launcher.R
 
 internal enum class CheckState { OK, WARN, BUSY }
 
-private const val STORAGE_TAB = 3
-private const val LAUNCHER_TAB = 2
+private const val LAUNCHER_TAB = 1
 
 internal object SetupTabs {
     var openLauncher = false
     var focusTabs = false
-    var openOverview = false
 }
-private const val GLASSES_TAB = 6
-private const val SYNC_TAB = 4
+private const val GLASSES_TAB = 4
+private const val SYNC_TAB = 2
+private const val DIAGNOSTICS_TAB = 3
 
 @Composable
 internal fun CheckRow(state: CheckState, title: String, detail: String?, divider: Boolean = true, action: (@Composable () -> Unit)? = null) {
@@ -148,35 +143,6 @@ internal fun SetupPanel(
     val host = rememberMenuHost()
     val ctx = LocalContext.current
     var hideHomeFromRecents by remember { mutableStateOf(com.droidhost.launcher.core.AppUiPrefs.hideHomeFromRecents(ctx)) }
-    var processLimitBusy by remember { mutableStateOf(false) }
-    var processLimitMessage by remember { mutableStateOf<String?>(null) }
-    val setProcessLimit: (Boolean) -> Unit = { enabled ->
-        processLimitBusy = true
-        processLimitMessage = null
-        a.onSetPhantomProcessLimit(enabled) { error ->
-            processLimitBusy = false
-            if (error == null) {
-                a.onRefreshPhantomStatus()
-            } else {
-                processLimitMessage = ctx.getString(R.string.setup_limit_adb_failed)
-                onRequestWirelessAdb(enabled)
-            }
-        }
-    }
-    val runtime = when {
-        s.busy -> stringResource(R.string.common_working)
-        s.removalPending -> stringResource(R.string.setup_retry_removal)
-        !s.ready -> stringResource(R.string.setup_install)
-        s.available != null && s.available != s.installed -> stringResource(R.string.common_update)
-        else -> stringResource(R.string.setup_manage)
-    }
-    val colors = MaterialTheme.colorScheme
-    val pal = LocalPalette.current
-    val gpu = remember { com.droidhost.launcher.gpu.GpuInfo.detect() }
-    val gpuOk = gpu.support == com.droidhost.launcher.gpu.GpuInfo.Support.TESTED || s.vkBridge
-    val gpuName = remember { DeviceSupport.gpuName(ctx) }
-    val limitBlocks = PhantomProcessLimit.blocksSteam(s.phantomProcessStatus)
-    var showLimitDetails by rememberSaveable { mutableStateOf(false) }
     var editSgdbKey by remember { mutableStateOf(false) }
     var editDownloadPrefix by remember { mutableStateOf(false) }
     var editDownloadProxy by remember { mutableStateOf(false) }
@@ -192,22 +158,15 @@ internal fun SetupPanel(
         onDismiss = { editDownloadProxy = false },
         onSave = { a.onDownloadProxy(it); editDownloadProxy = false },
     )
-    val tabs = listOf(stringResource(R.string.setup_tab_overview), stringResource(R.string.setup_tab_controller), stringResource(R.string.setup_tab_launcher), stringResource(R.string.setup_tab_storage), stringResource(R.string.setup_tab_sync), stringResource(R.string.setup_tab_diagnostics), stringResource(R.string.setup_tab_glasses))
+    val tabs = listOf(stringResource(R.string.setup_tab_controller), stringResource(R.string.setup_tab_launcher), stringResource(R.string.setup_tab_sync), stringResource(R.string.setup_tab_diagnostics), stringResource(R.string.setup_tab_glasses))
     var tab by rememberSaveable { mutableStateOf(if (SetupTabs.openLauncher) LAUNCHER_TAB else 0) }
     var logsRefresh by remember { mutableStateOf(0) }
     var deleteSessionLogs by remember { mutableStateOf<java.io.File?>(null) }
     SetupTabs.openLauncher = false
-    if (SetupTabs.openOverview) { tab = 0; SetupTabs.openOverview = false }
     val chipFocus = remember { List(tabs.size) { FocusRequester() } }
     var tabTurned by remember { mutableStateOf(false) }
-    val pick: (Int) -> Unit = { i -> tab = i; tabTurned = true; if (i == 5) logsRefresh++ }
+    val pick: (Int) -> Unit = { i -> tab = i; tabTurned = true; if (i == DIAGNOSTICS_TAB) logsRefresh++ }
     val inputModeManager = LocalInputModeManager.current
-    LaunchedEffect(com.droidhost.launcher.storage.StorageState.openRequests) {
-        if (com.droidhost.launcher.storage.StorageState.openPending) {
-            com.droidhost.launcher.storage.StorageState.openPending = false
-            tab = STORAGE_TAB
-        }
-    }
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(2_000)
@@ -233,9 +192,6 @@ internal fun SetupPanel(
         }
     }
     val runtimeOk = s.ready && !s.busy && !s.removalPending
-    val checks = listOf(gpuOk, runtimeOk, !limitBlocks)
-    val passing = checks.count { it }
-    var showChecks by rememberSaveable { mutableStateOf(s.vkBridge) }
     Rise(0, Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize().bumpers(
@@ -246,162 +202,14 @@ internal fun SetupPanel(
             PageHeader(stringResource(R.string.setup_title)) {
                 Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
             }
-            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == 1) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == 1) 0.dp else 24.dp)) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == 0) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == 0) 0.dp else 24.dp)) {
                 when (tab) {
                     0 -> {
-                        // Setup's "Safe mode" row, under the GPU row while the bridge is on and can be used here.
-                        val bridgeModeRow = !s.adreno && s.vkBridge && com.droidhost.launcher.core.DeviceSupport.bridgeUsable()
-                        val gpuCheck: @Composable (Boolean) -> Unit = { divider ->
-                            CheckRow(
-                                if (gpuOk) CheckState.OK else CheckState.WARN,
-                                when {
-                                    gpu.support == com.droidhost.launcher.gpu.GpuInfo.Support.TESTED -> stringResource(R.string.setup_gpu_supported)
-                                    gpu.support == com.droidhost.launcher.gpu.GpuInfo.Support.UNTESTED -> stringResource(R.string.setup_gpu_untested)
-                                    s.vkBridge -> stringResource(R.string.setup_gpu_bridged)
-                                    else -> stringResource(R.string.setup_gpu_unsupported)
-                                },
-                                when (gpu.support) {
-                                    com.droidhost.launcher.gpu.GpuInfo.Support.TESTED -> stringResource(R.string.setup_gpu_detail, gpu.displayName(ctx), gpuName)
-                                    com.droidhost.launcher.gpu.GpuInfo.Support.UNTESTED ->
-                                        if (!s.adreno && s.venus && s.venusHostVulkan != null) stringResource(R.string.setup_gpu_venus_host_too_old, gpu.displayName(ctx), s.venusHostVulkan)
-                                        else if (!s.adreno && s.vkBridge && !com.droidhost.launcher.core.DeviceSupport.bridgeUsable()) stringResource(R.string.setup_gpu_bridge_unusable, gpu.displayName(ctx))
-                                        else if (!s.adreno && s.vkBridge && s.bridgeFellBack) stringResource(if (s.bridgeFellBackMemory) R.string.setup_gpu_bridge_no_memory_sharing else R.string.setup_gpu_bridge_fell_back, gpu.displayName(ctx))
-                                        else stringResource(R.string.setup_gpu_untested_detail, gpu.displayName(ctx), gpu.supportText(ctx).replaceFirstChar { it.lowercase() })
-                                    else -> if (s.venus && s.venusHostVulkan != null) stringResource(R.string.setup_gpu_venus_host_too_old, gpuName, s.venusHostVulkan)
-                                    else if (s.vkBridge && !com.droidhost.launcher.core.DeviceSupport.bridgeUsable()) stringResource(R.string.setup_gpu_bridge_unusable, gpuName)
-                                    else if (s.vkBridge && s.bridgeFellBack) stringResource(if (s.bridgeFellBackMemory) R.string.setup_gpu_bridge_no_memory_sharing else R.string.setup_gpu_bridge_fell_back, gpuName)
-                                    else if (s.vkBridge) stringResource(R.string.setup_gpu_bridge_detail, gpuName)
-                                    else stringResource(R.string.setup_gpu_unsupported_detail, gpuName)
-                                },
-                                divider = divider || bridgeModeRow,
-                                action = if (s.adreno) null else { {
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        SecondaryButton(
-                                            stringResource(if (s.venus) R.string.setup_gpu_venus_on else R.string.setup_gpu_venus_off),
-                                            enabled = !s.sessionRunning, compact = true, onClick = { a.onVenus(!s.venus) },
-                                        )
-                                        SecondaryButton(
-                                            stringResource(if (s.vkBridge) R.string.setup_gpu_bridge_on else R.string.setup_gpu_bridge_off),
-                                            enabled = !s.sessionRunning, compact = true, onClick = { a.onVkBridge(!s.vkBridge) },
-                                        )
-                                    }
-                                } },
-                            )
-                            if (bridgeModeRow) CheckRow(
-                                CheckState.OK,
-                                stringResource(R.string.setup_bridge_safe),
-                                stringResource(if (s.vkBridgeSafe) R.string.setup_bridge_safe_on_detail else R.string.setup_bridge_safe_off_detail),
-                                divider = divider,
-                                action = {
-                                    SecondaryButton(
-                                        stringResource(if (s.vkBridgeSafe) R.string.setup_bridge_safe_on else R.string.setup_bridge_safe_off),
-                                        enabled = !s.sessionRunning, compact = true, onClick = { a.onVkBridgeSafe(!s.vkBridgeSafe) },
-                                    )
-                                },
-                            )
-                            if (!s.adreno && s.vkBridge) CheckRow(
-                                CheckState.OK,
-                                stringResource(R.string.setup_bridge_dxvk),
-                                stringResource(if (s.bridgeProtonDxvk) R.string.setup_bridge_dxvk_proton_detail else R.string.setup_bridge_dxvk_auto_detail),
-                                divider = divider,
-                                action = {
-                                    SecondaryButton(
-                                        stringResource(if (s.bridgeProtonDxvk) R.string.setup_bridge_dxvk_proton else R.string.setup_bridge_dxvk_auto),
-                                        enabled = !s.sessionRunning, compact = true, onClick = { a.onBridgeProtonDxvk(!s.bridgeProtonDxvk) },
-                                    )
-                                },
-                            )
-                        }
-                        val runtimeCheck: @Composable (Boolean) -> Unit = { divider ->
-                            CheckRow(
-                                when { s.busy -> CheckState.BUSY; !s.ready -> CheckState.WARN; else -> CheckState.OK },
-                                stringResource(R.string.setup_runtime),
-                                when {
-                                    s.busy -> null
-                                    s.removalPending -> stringResource(R.string.runtime_removal_incomplete)
-                                    !s.ready -> stringResource(R.string.setup_runtime_missing)
-                                    s.available != null && s.available != s.installed -> stringResource(R.string.setup_runtime_update, s.installed ?: stringResource(R.string.setup_installed))
-                                    else -> stringResource(R.string.setup_runtime_current, s.installed ?: stringResource(R.string.setup_installed))
-                                },
-                                divider = divider && !s.busy,
-                            ) { SecondaryButton(runtime, enabled = !s.busy && !s.runtimeActionsBlocked && !s.sessionRunning, compact = true, onClick = a.onRuntime) }
-                            if (s.busy) {
-                                Column(modifier = Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, bottom = 10.dp)) {
-                                    Text(
-                                        if (s.percent >= 0) stringResource(R.string.setup_runtime_progress, s.stage, s.percent) else s.stage,
-                                        fontSize = 13.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(bottom = 5.dp),
-                                    )
-                                    if (s.percent >= 0) LinearProgressIndicator(progress = { s.percent / 100f }, modifier = Modifier.fillMaxWidth().height(4.dp))
-                                    else LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(4.dp))
-                                }
-                                if (divider) Box(Modifier.fillMaxWidth().height(1.dp).background(pal.line))
-                            }
-                        }
-                        val limitCheck: @Composable (Boolean) -> Unit = { divider ->
-                            CheckRow(
-                                if (limitBlocks) CheckState.WARN else CheckState.OK,
-                                stringResource(R.string.setup_limit),
-                                when (s.phantomProcessStatus) {
-                                    PhantomProcessStatus.ENABLED -> stringResource(R.string.setup_limit_on)
-                                    PhantomProcessStatus.UNSET -> stringResource(R.string.setup_limit_unset)
-                                    PhantomProcessStatus.UNREADABLE -> stringResource(R.string.setup_limit_unknown)
-                                    else -> PhantomProcessLimit.title(ctx, s.phantomProcessStatus)
-                                },
-                                divider = divider && !showLimitDetails,
-                            ) {
-                                if (limitBlocks) PrimaryButton(stringResource(R.string.setup_fix_it), compact = true, onClick = a.onShowPhantomGate)
-                                else if (s.phantomProcessStatus != PhantomProcessStatus.NOT_APPLICABLE) {
-                                    SecondaryButton(if (showLimitDetails) stringResource(R.string.common_hide) else stringResource(R.string.setup_details), compact = true) { showLimitDetails = !showLimitDetails }
-                                }
-                            }
-                            AnimatedVisibility(showLimitDetails, enter = expandVertically(Motion.sp(1f)) + fadeIn(Motion.sp(1f)), exit = shrinkVertically(Motion.sp(1f)) + fadeOut(Motion.sp(1f))) {
-                                Column(modifier = Modifier.fillMaxWidth().padding(start = 56.dp, end = 14.dp, top = 4.dp, bottom = 10.dp)) {
-                                    Text(
-                                        if (limitBlocks) PhantomProcessLimit.gateInstructions(ctx, s.phantomProcessStatus)
-                                        else PhantomProcessLimit.instructions(ctx, s.phantomProcessStatus),
-                                        fontSize = 14.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(vertical = 4.dp),
-                                    )
-                                    Actions {
-                                        if (s.phantomProcessStatus == PhantomProcessStatus.DISABLED) {
-                                            SecondaryButton(stringResource(R.string.setup_limit_turn_on), compact = true, enabled = !processLimitBusy) { setProcessLimit(true) }
-                                        }
-                                    }
-                                    if (processLimitBusy) LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp))
-                                    processLimitMessage?.let { Text(it, fontSize = 14.sp, color = colors.onSurfaceVariant, modifier = Modifier.padding(vertical = 4.dp)) }
-                                }
-                            }
-                            if (divider && showLimitDetails) Box(Modifier.fillMaxWidth().height(1.dp).background(pal.line))
-                        }
-                        val all = listOf(gpuCheck, runtimeCheck, limitCheck)
-                        ReadinessCard(
-                            passing, checks.size,
-                            listOfNotNull(
-                                gpu.displayName(ctx),
-                                s.installed?.let { stringResource(R.string.setup_ready_runtime, it) },
-                                stringResource(R.string.setup_ready_limit_off).takeIf { !limitBlocks },
-                            ).joinToString(" · "),
-                            open = showChecks, onDetails = { showChecks = !showChecks },
-                        ) {
-                            val shownChecks = all.filterIndexed { i, _ -> checks[i] }
-                            shownChecks.forEachIndexed { i, check -> check(i < shownChecks.lastIndex) }
-                        }
-                        val needsAttention = all.filterIndexed { i, _ -> !checks[i] && i != 1 }
-                        if (needsAttention.isNotEmpty()) {
-                            SectionTitle(stringResource(R.string.setup_needs_you), null)
-                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                needsAttention.forEach { check ->
-                                    Column(Modifier.fillMaxWidth().clip(Shape14).background(colors.surface).border(1.dp, AttentionAmber.copy(alpha = 0.5f), Shape14)) { check(false) }
-                                }
-                            }
-                        }
-                        SettingsGroup(stringResource(R.string.setup_runtime)) { runtimeCheck(false) }
-                    }
-                    1 -> {
                         val controller = s.controller
                         if (controller != null && a.controller != null) InputSettingsPage(onBack = { pick(0) }, embedded = true)
                         if (s.controller == null || a.controller == null) Note(stringResource(R.string.setup_controller_unavailable))
                     }
-                    2 -> {
+                    LAUNCHER_TAB -> {
                         val look: @Composable () -> Unit = {
                             SettingsGroup(stringResource(R.string.setup_group_look)) {
                                 SettingsRow(stringResource(R.string.setup_theme), stringResource(R.string.setup_theme_hint)) {
@@ -570,9 +378,8 @@ internal fun SetupPanel(
                             } else Column { look(); device(); art(); download() }
                         }
                     }
-                    STORAGE_TAB -> StoragePanel(s, a)
                     SYNC_TAB -> SyncPanel(host, runtimeOk) { syncAdvanced = true }
-                    5 -> {
+                    DIAGNOSTICS_TAB -> {
                         SettingsGroup(stringResource(R.string.setup_tab_diagnostics)) {
                             ToggleRow(host, "logs", stringResource(R.string.setup_logs), stringResource(R.string.setup_logs_hint), s.logsEnabled) { a.onLogs() }
                             ToggleRow(
@@ -1107,7 +914,7 @@ private fun StoreLaunchCard(host: MenuHost, folder: java.io.File, store: com.dro
 }
 
 @Composable
-private fun SettingCard(label: String, value: String, id: String, modifier: Modifier, onClick: () -> Unit) {
+internal fun SettingCard(label: String, value: String, id: String, modifier: Modifier, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val src = remember { MutableInteractionSource() }

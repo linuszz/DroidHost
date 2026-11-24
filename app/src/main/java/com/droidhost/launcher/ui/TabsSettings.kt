@@ -94,8 +94,6 @@ internal fun TabsSettingsGroup(host: MenuHost, s: FrontEndState, a: FrontEndActi
     }
     fun setShown(key: String, show: Boolean) {
         when (key) {
-            "stores" -> if (show != s.gameStoresEnabled) a.onGameStoresEnabled(show)
-            "soundtracks" -> if (show != s.soundtracksEnabled) a.onSoundtracksEnabled(show)
             "agent" -> if (show != AgentTab.shown) AgentTab.set(ctx, show)
         }
         NavTabs.setHidden(ctx, key, !show)

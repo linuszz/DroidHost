@@ -135,7 +135,8 @@ object DeviceInfo {
         for ((key, label) in features) add(label, vk[key])
         for ((key, value) in vk) if (key.startsWith("ext.")) add(key.removePrefix("ext."), value)
         val pm = context.packageManager
-        val hw = pm.systemAvailableFeatures.associate { it.name to it.version }
+        val pmFeatures: Array<android.content.pm.FeatureInfo>? = pm.systemAvailableFeatures
+        val hw = pmFeatures?.associate { it.name to it.version } ?: emptyMap()
         hw[PackageManager.FEATURE_VULKAN_HARDWARE_VERSION]?.let {
             add("Android-certified version", "${it shr 22}.${(it shr 12) and 0x3ff}.${it and 0xfff}")
         }
