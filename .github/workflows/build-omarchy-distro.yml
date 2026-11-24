@@ -1,0 +1,148 @@
+name: Build Omarchy distro (full rootfs)
+
+on:
+  push:
+    paths:
+      - 'tools/desktop-omarchy/**'
+      - 'tools/arch/gpu-seeds.txt'
+      - '.github/workflows/build-omarchy-distro.yml'
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Release revision, e.g. r1 (tag becomes droidhost-omarchy-arm64-r1); empty = artifact only'
+        required: false
+        default: 'r1'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Compose release tag
+        id: tag
+        run: |
+          set -euo pipefail
+          revision='${{ inputs.revision }}'
+          if [ -z "$revision" ]; then
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo 'Artifact-only build: no revision given.'
+            exit 0
+          fi
+          case $revision in *[!A-Za-z0-9._-]*) echo "::error::revision may only contain letters, digits, dot, underscore, hyphen"; exit 1 ;; esac
+          tag="droidhost-omarchy-arm64-${revision}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $tag"
+      - name: Build
+        env:
+          DROIDHOST_RELEASES: https://github.com/${{ github.repository }}-Components/releases/download
+          # gcc-14 cross-compiler binaries are version-suffixed (no unversioned symlink); the root.c
+          # helper compile in build.sh defaults to aarch64-linux-gnu-gcc, so point it at gcc-14.
+          CC_AARCH64: aarch64-linux-gnu-gcc-14
+          FULL: '1'
+          DESKTOP_OMARCHY_RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq zstd xz-utils gpgv gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu gcc-14 g++-14 cmake ninja-build libpugixml-dev pkg-config patch >/dev/null
+          tools/desktop-omarchy/build.sh out
+          echo "size $(stat -c %s out/droidhost-omarchy.tar.zst) sha256 $(cat out/droidhost-omarchy.sha256)"
+          echo "pacman repository $(ls out/repo | wc -l) files, $(du -sm out/repo | cut -f1) MiB"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: omarchy-distro
+          retention-days: 7
+          compression-level: 0
+          path: |
+            out/droidhost-omarchy.tar.zst
+            out/droidhost-omarchy.packages.txt
+            out/droidhost-omarchy.sha256
+            out/repo/
+
+  publish:
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'workflow_dispatch' && inputs.revision != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: omarchy-distro
+          path: out
+      - uses: actions/create-github-app-token@v2
+        id: components-token
+        with:
+          app-id: ${{ vars.DROIDHOST_CI_APP_ID }}
+          private-key: ${{ secrets.DROIDHOST_CI_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: DroidHost-Components
+      - name: Refuse a published tag
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+        run: |
+          if gh release view '${{ needs.build.outputs.tag }}' -R ${{ github.repository }}-Components >/dev/null 2>&1; then
+            echo "::error::${{ needs.build.outputs.tag }} is already published, and published tags are never replaced: use a new revision"
+            exit 1
+          fi
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}-Components
+        run: |
+          set -euo pipefail
+          TAG='${{ needs.build.outputs.tag }}'
+          cp out/droidhost-omarchy.tar.zst "out/$TAG.tar.zst"
+          cp out/droidhost-omarchy.sha256 "out/$TAG.sha256"
+          cp out/droidhost-omarchy.packages.txt "out/$TAG.packages.txt"
+          prerelease=false
+          case $TAG in *-rc*) prerelease=true ;; esac
+          gh release create "$TAG" --latest=false --prerelease="$prerelease" --title "$TAG" \
+            --notes "DroidHost Omarchy standalone distribution (Arch Linux ARM aarch64, Hyprland + Quickshell shell + themes): the full package overlay laid over the signature-checked Arch Linux ARM base tarball, os-release ID=droidhost-omarchy ($GITHUB_REPOSITORY tools/desktop-omarchy FULL=1, $GITHUB_SHA). omarchy v4.0.4 MIT (c) Omacom. size $(stat -c %s "out/$TAG.tar.zst"), sha256 $(cat "out/$TAG.sha256"). $TAG.packages.txt lists the signature-checked packages it was built from; the repo assets hold its droidhost.db pacman repository." \
+            "out/$TAG.tar.zst" "out/$TAG.sha256" "out/$TAG.packages.txt" out/repo/*
+          gh release edit "$TAG" --latest=false --prerelease="$prerelease"
+      - name: Update catalog
+        env:
+          GH_TOKEN: ${{ steps.components-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}-Components
+        run: |
+          set -euo pipefail
+          TAG='${{ needs.build.outputs.tag }}'
+          # The app installs the release named here; write the catalog only after the assets are live.
+          python3 - "$TAG" <<'EOF' > linuxfs-omarchy.json
+          import json, os, sys
+          tag = sys.argv[1]
+          size = os.path.getsize("out/%s.tar.zst" % tag)
+          sha = open("out/%s.sha256" % tag).read().strip()
+          repo = os.environ["GITHUB_REPOSITORY"]
+          print(json.dumps({
+              "schemaVersion": 1,
+              "category": "linux-runtime",
+              "release": tag,
+              "name": "DroidHost Omarchy (Arch ARM)",
+              "version": tag,
+              "url": "https://github.com/%s-Components/releases/download/%s/%s.tar.zst" % (repo, tag, tag),
+              "sha256": sha,
+              "size": size,
+              "file_size": size,
+              "note": "DroidHost Omarchy standalone distribution (Arch Linux ARM aarch64, Hyprland + Quickshell), built by tools/desktop-omarchy FULL=1 in %s (%s): the full package overlay applied over the signature-checked Arch Linux ARM base tarball, os-release ID=droidhost-omarchy. omarchy v4.0.4 MIT (c) Omacom. The .packages.txt file lists every shipped package and version." % (repo, os.environ["GITHUB_SHA"]),
+          }, indent=2))
+          EOF
+          content=$(base64 -w0 linuxfs-omarchy.json)
+          file_sha=$(gh api "repos/$GH_REPO/contents/linuxfs-omarchy.json" -q .sha 2>/dev/null || true)
+          if [ -n "$file_sha" ]; then
+            gh api "repos/$GH_REPO/contents/linuxfs-omarchy.json" -X PUT -f message="linuxfs-omarchy: $TAG" -f content="$content" -f sha="$file_sha" >/dev/null
+          else
+            gh api "repos/$GH_REPO/contents/linuxfs-omarchy.json" -X PUT -f message="linuxfs-omarchy: $TAG" -f content="$content" >/dev/null
+          fi

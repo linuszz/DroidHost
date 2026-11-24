@@ -3,6 +3,20 @@ set -euo pipefail
 out=${1:?out dir}
 here=$(cd "$(dirname "$0")" && pwd)
 kde=$here/../desktop-kde
+# FULL=1 builds the standalone distribution: closure resolves against an EMPTY runtime file with
+# base-seeds.txt (the whole ALARM base + DE + GPU seeds), the overlay ships every package, pacman's
+# local db records all of them, and os-release/the repo db carry the droidhost-omarchy identity.
+# The ALARM tarball still lays the base rootfs (.INSTALL pre-initialization). FULL=0 (default)
+# keeps the incremental pack for fallback comparison.
+full=${FULL:-0}
+case $full in 0|1) ;; *) echo "FULL must be 0 or 1" >&2; exit 1 ;; esac
+if [ "$full" = 1 ]; then
+  runtime_seeds=$here/base-seeds.txt
+  distro=droidhost-omarchy
+else
+  runtime_seeds=$here/seeds.txt
+  distro=desktop-omarchy
+fi
 # Omarchy is the Hyprland DE plus omarchy's Quickshell shell/theme/config layer. The compositor
 # base is identical to desktop-hyprland: Hyprland nests through aquamarine's Wayland backend and
 # renders via GBM-on-renderD0 + zink/Turnip, inheriting the KDE pipeline's mesa pin. The shell
@@ -24,8 +38,18 @@ for repo in core extra alarm; do
   mkdir -p "$work/db/x_$repo" && tar -xzf "$work/db/$repo.db" -C "$work/db/x_$repo"
 done
 
-python3 "$kde/closure.py" "$work/db" "$here/runtime-packages.txt" "$here/seeds.txt" > "$work/pkglist.txt"
-echo "omarchy: $(wc -l < "$work/pkglist.txt") packages beyond the runtime's own"
+if [ "$full" = 1 ]; then
+  : > "$work/runtime-empty.txt"
+  runtime_file=$work/runtime-empty.txt
+else
+  runtime_file=$here/runtime-packages.txt
+fi
+python3 "$kde/closure.py" "$work/db" "$runtime_file" "$runtime_seeds" > "$work/pkglist.txt"
+if [ "$full" = 1 ]; then
+  echo "omarchy distro: $(wc -l < "$work/pkglist.txt") packages (full closure over the ALARM base)"
+else
+  echo "omarchy: $(wc -l < "$work/pkglist.txt") packages beyond the runtime's own"
+fi
 
 while read -r entry sum; do
   file=${entry#*/}
@@ -184,8 +208,29 @@ mkdir -p "$work/root/usr/lib/droiddeck"
 ${CC_AARCH64:-aarch64-linux-gnu-gcc} -shared -fPIC -O2 -Wall -Wextra \
   -o "$work/root/usr/lib/droiddeck/libdroiddeck-root.so" "$kde/root/root.c" -ldl
 ${STRIP_AARCH64:-aarch64-linux-gnu-strip} --strip-unneeded "$work/root/usr/lib/droiddeck/libdroiddeck-root.so"
-python3 "$kde/pacman-db.py" "$work/db" "$pkgs" "$work/pkglist.txt" "$here/runtime-packages.txt" \
+python3 "$kde/pacman-db.py" "$work/db" "$pkgs" "$work/pkglist.txt" "$runtime_file" \
   "$here/mirror.txt" "${DESKTOP_OMARCHY_RELEASE_TAG:-}" "$work/root" "$out/repo"
+
+if [ "$full" = 1 ]; then
+  # The distribution identifies itself, not Arch. etc/os-release is the filesystem package's
+  # symlink to usr/lib/os-release; overwrite the target and keep that layout.
+  version_id=$(date -u -d "@${SOURCE_DATE_EPOCH:-$(date -u +%s)}" +%Y%m%d)
+  cat > "$work/root/usr/lib/os-release" <<EOF
+NAME="DroidHost Omarchy"
+PRETTY_NAME="DroidHost Omarchy (Arch ARM)"
+ID=droidhost-omarchy
+ID_LIKE=arch
+VERSION_ID=$version_id
+EOF
+  ln -sfn ../usr/lib/os-release "$work/root/etc/os-release"
+  # New distribution, new db name. pacman-db.py is shared with KDE and stays untouched, so rename
+  # its output here and follow through the conf section and the wrapper copies in THIS rootfs.
+  mv "$out/repo/droiddeck.db" "$out/repo/droidhost.db"
+  share=$work/root/usr/share/droiddeck/pacman
+  mv "$share/droiddeck.db" "$share/droidhost.db"
+  sed -i 's/^\[droiddeck\]$/[droidhost]/' "$share/pacman.conf"
+  sed -i 's/droiddeck\.db/droidhost.db/g' "$share/prepare" "$share/remember" "$share/restore"
+fi
 
 rm -rf "$work/root/usr/share/doc" "$work/root/usr/share/info" \
        "$work/root/usr/share/gtk-doc" "$work/root/usr/include" "$work/root/usr/lib/pkgconfig" \
@@ -194,7 +239,7 @@ find "$work/root/usr/share/locale" -mindepth 1 -maxdepth 1 -type d ! -name 'en*'
 find "$work/root/usr/lib" -name '*.a' -delete
 chmod -R u+rwX "$work/root"
 
-sed 's#^[a-z]*/##' "$work/pkglist.txt" > "$out/desktop-omarchy.packages.txt"
-tar -C "$work/root" --zstd -cf "$out/desktop-omarchy.tar.zst" .
-sha256sum "$out/desktop-omarchy.tar.zst" | awk '{print $1}' > "$out/desktop-omarchy.sha256"
-ls -l "$out/desktop-omarchy.tar.zst"
+sed 's#^[a-z]*/##' "$work/pkglist.txt" > "$out/$distro.packages.txt"
+tar -C "$work/root" --zstd -cf "$out/$distro.tar.zst" .
+sha256sum "$out/$distro.tar.zst" | awk '{print $1}' > "$out/$distro.sha256"
+ls -l "$out/$distro.tar.zst"
