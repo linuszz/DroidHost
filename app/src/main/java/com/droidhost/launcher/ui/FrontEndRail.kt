@@ -76,6 +76,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -110,7 +114,17 @@ internal fun BottomBar(
     val barContext = LocalContext.current
     remember { RailLabels.load(barContext) }
     val iconOnly = !RailLabels.shown
-    Row(modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface), verticalAlignment = Alignment.CenterVertically) {
+    val pal = LocalPalette.current
+    Row(
+        modifier.fillMaxWidth()
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .drawBehind {
+                val w = 1.dp.toPx()
+                drawRect(pal.hairBrush, size = Size(size.width, w))
+                drawRect(pal.edgeLo, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
+            },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         BoxWithConstraints(Modifier.weight(1f)) {
             val itemWidth = (maxWidth / keys.size).coerceIn(56.dp, 88.dp)
             Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).onPlaced { content[0] = it }) {
@@ -147,14 +161,24 @@ internal fun SideRail(
     s: FrontEndState, selected: String,
     onSelect: (String) -> Unit, onFocusSelect: (String) -> Unit, a: FrontEndActions, modifier: Modifier,
 ) {
-    val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
     val compact = LocalConfiguration.current.screenHeightDp < 420
     val railContext = LocalContext.current
     remember { RailLabels.load(railContext) }
     val iconOnly = isNarrowScreen() || !RailLabels.shown
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.width(if (iconOnly) 64.dp else 92.dp).background(colors.surface).padding(vertical = if (compact) 8.dp else 12.dp),
+        modifier = modifier.width(if (iconOnly) 64.dp else 92.dp)
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .machinedBevel()
+            .drawBehind {
+                val w = 1.dp.toPx()
+                drawRect(
+                    Brush.verticalGradient(0f to Color.Transparent, 0.12f to pal.hair, 0.88f to pal.hair, 1f to Color.Transparent),
+                    topLeft = Offset(size.width - w, 0f), size = Size(w, size.height),
+                )
+            }
+            .padding(vertical = if (compact) 8.dp else 12.dp),
     ) {
         val count = navigationKeys(s).size
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {

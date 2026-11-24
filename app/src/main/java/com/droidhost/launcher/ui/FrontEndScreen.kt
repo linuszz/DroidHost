@@ -507,7 +507,6 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
     var wirelessAdbDesiredEnabled by rememberSaveable { mutableStateOf(false) }
     var appToChooseDisplay by remember { mutableStateOf<HomeApp.LaunchableApp?>(null) }
     val colors = MaterialTheme.colorScheme
-    val pal = LocalPalette.current
     val ctx = LocalContext.current
     val phantomGateVisible = s.showPhantomGate && PhantomProcessLimit.blocksSteam(s.phantomProcessStatus)
     val processSettingsPageVisible = phantomGateVisible || showWirelessAdbFix || showDeveloperDisplayChoice
@@ -653,7 +652,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
         }
     }
     androidx.compose.foundation.layout.BoxWithConstraints(
-        modifier = Modifier.fillMaxSize().background(colors.background)
+        modifier = Modifier.fillMaxSize().background(colors.background).screenTexture()
             .windowInsetsPadding(if (s.launcherFullscreen) WindowInsets.displayCutout else WindowInsets.systemBars)
             .onFocusChanged { anyFocused = it.hasFocus },
     ) {
@@ -735,7 +734,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
         CompositionLocalProvider(LocalShowSection provides { key -> selected = key }) {
         val agentKeyboardOpen = railSelection == "agent" && WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
         LauncherLayout(
-            bottomNavigation && !s.dualScreen, pal.line,
+            bottomNavigation && !s.dualScreen, Color.Transparent,
             Modifier.fillMaxSize().onGloballyPositioned { screenAt = it.positionInRoot() }
                 .then(if (railSelection == "agent") Modifier.imePadding() else Modifier)
                 .then(if (s.dualScreen) Modifier.onKeyEvent { event ->

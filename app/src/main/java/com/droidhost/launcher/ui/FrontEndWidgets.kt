@@ -98,7 +98,7 @@ internal fun SectionTitle(t: String, detail: String?) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp)) {
         Text(headingUppercase(t), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp, color = colors.onSurfaceVariant)
         if (detail != null) Text(detail, fontSize = 12.sp, color = colors.onBackground)
-        Box(modifier = Modifier.weight(1f).height(1.dp).background(LocalPalette.current.line))
+        Box(modifier = Modifier.weight(1f).height(1.dp).background(Brush.horizontalGradient(listOf(LocalPalette.current.hair, Color.Transparent))))
     }
 }
 
@@ -144,7 +144,11 @@ internal fun Chip(t: String, ok: Boolean) {
     val pal = LocalPalette.current
     Text(
         t, fontSize = 12.sp, color = if (ok) pal.good else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.clip(RoundedCornerShape(99.dp)).background(colors.surfaceVariant).border(1.dp, if (ok) pal.good.copy(alpha = 0.3f) else pal.line, RoundedCornerShape(99.dp)).padding(horizontal = 9.dp, vertical = 4.dp),
+        modifier = Modifier.clip(RoundedCornerShape(99.dp))
+            .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
+            .border(1.dp, if (ok) pal.good.copy(alpha = 0.3f) else pal.line, RoundedCornerShape(99.dp))
+            .machinedBevel(inset = 1.dp)
+            .padding(horizontal = 9.dp, vertical = 4.dp),
     )
 }
 
@@ -207,10 +211,11 @@ internal fun PrimaryButton(
             .onGloballyPositioned { placed[0] = it }
             .heightIn(min = if (pillMode) 40.dp else if (compact) 44.dp else 48.dp)
             .then(if (frontFocus != null) Modifier.focusRequester(frontFocus.primary).onFocusChanged { if (it.isFocused) frontFocus.last = FrontFocus.PRIMARY } else Modifier)
-            .graphicsLayer { alpha = if (LaunchOrigin.flooding === placed) 0f else 1f; scaleX = scale; scaleY = scale; shadowElevation = if (enabled) lift.dp.toPx() else 0f; shape = btnShape; clip = false; ambientShadowColor = pal.signal; spotShadowColor = pal.signal }
+            .graphicsLayer { alpha = if (LaunchOrigin.flooding === placed) 0f else 1f; scaleX = scale; scaleY = scale; shadowElevation = if (enabled) lift.dp.toPx() else 0f; shape = btnShape; clip = false; ambientShadowColor = pal.glow; spotShadowColor = pal.glow }
             .clip(btnShape)
             .background(if (enabled) Brush.linearGradient(listOf(colors.primary, pal.primary2)) else Brush.linearGradient(listOf(colors.surfaceVariant, colors.surfaceVariant)))
             .then(if (enabled) Modifier else Modifier.border(1.dp, pal.line2, btnShape))
+            .machinedBevel(inset = if (enabled) 0.dp else 1.dp)
             .glideBorder(hot, btnShape, pal.signal, hotFillAlpha = 0f)
             .hoverable(src).clickable(role = Role.Button, interactionSource = src, indication = null, enabled = enabled) {
                 placed[0]?.takeIf { it.isAttached }?.let { LaunchOrigin.mark(it.boundsInRoot(), placed) }
@@ -275,7 +280,10 @@ internal fun SecondaryButton(text: String, enabled: Boolean = true, compact: Boo
     val fill by animateColorAsState(if (hot) pal.signal.copy(alpha = 0.14f) else Color.White.copy(alpha = if (pill) 0.09f else 0.03f), Motion.tw(250), label = "secFill")
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.paneItem("btn:$text").downToFirstTile().heightIn(min = if (pill) 40.dp else if (compact) 44.dp else 48.dp).graphicsLayer { scaleX = scale; scaleY = scale }.clip(shape).background(fill).glideBorder(hot, shape, pal.signal, if (pill) Color.White.copy(alpha = 0.14f) else pal.line2)
+        modifier = modifier.paneItem("btn:$text").downToFirstTile().heightIn(min = if (pill) 40.dp else if (compact) 44.dp else 48.dp).graphicsLayer { scaleX = scale; scaleY = scale }.clip(shape).background(fill)
+            .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
+            .machinedBevel()
+            .glideBorder(hot, shape, pal.signal, if (pill) Color.White.copy(alpha = 0.14f) else pal.line2)
             .alpha(if (enabled) 1f else 0.5f)
             .hoverable(src).clickable(role = androidx.compose.ui.semantics.Role.Button, interactionSource = src, indication = LocalIndication.current, enabled = enabled, onClick = onClick)
             .controllerConfirm(enabled = enabled, onClick = onClick)

@@ -83,6 +83,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -450,10 +451,15 @@ fun SettingsGroup(title: String, compact: Boolean = false, detail: String? = nul
         modifier = Modifier.fillMaxWidth().padding(top = if (tight) 4.dp else 16.dp, bottom = if (tight) 3.dp else 6.dp),
     ) {
         Text(title.uppercase(), fontSize = if (tight) 11.sp else 12.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp, color = colors.onSurfaceVariant)
-        Box(modifier = Modifier.weight(1f).height(1.dp).background(pal.line))
+        Box(modifier = Modifier.weight(1f).height(1.dp).background(Brush.horizontalGradient(listOf(pal.hair, Color.Transparent))))
         if (detail != null) Text(detail, fontSize = if (tight) 11.sp else 12.sp, fontWeight = FontWeight.SemiBold, color = colors.onSurfaceVariant)
     }
-    Column(modifier = Modifier.fillMaxWidth().clip(GroupShape).background(colors.surface).border(1.dp, pal.line, GroupShape)) { content() }
+    Column(
+        modifier = Modifier.fillMaxWidth().shadow(4.dp, GroupShape, clip = false).clip(GroupShape)
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .border(1.dp, pal.line, GroupShape)
+            .machinedBevel(inset = 1.dp),
+    ) { content() }
     }
 }
 

@@ -30,12 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -129,10 +131,15 @@ internal fun VmStateChip(status: VmStatus) {
     val label = vmStateLabel(status)
     when (status) {
         VmStatus.RUNNING -> {
-            val ink = ThemeColors.inkFor(pal.good.toArgb(), pal.good.toArgb())
+            val ink = colors.onPrimary
             Row(
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.clip(shape).background(pal.good).padding(horizontal = 9.dp, vertical = 4.dp),
+                modifier = Modifier
+                    .shadow(6.dp, shape, clip = false, ambientColor = pal.glow, spotColor = pal.glow)
+                    .clip(shape)
+                    .background(Brush.verticalGradient(listOf(pal.primary, pal.primary2)))
+                    .machinedBevel()
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
             ) {
                 Box(Modifier.size(6.dp).clip(CircleShape).background(ink))
                 Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = ink, maxLines = 1)
@@ -140,12 +147,15 @@ internal fun VmStateChip(status: VmStatus) {
         }
         VmStatus.IMPORTED -> Text(
             label, fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.drawBehind {
-                drawRoundRect(
-                    color = pal.line2, cornerRadius = CornerRadius(size.height / 2f),
-                    style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
-                )
-            }.padding(horizontal = 9.dp, vertical = 4.dp),
+            modifier = Modifier
+                .clip(shape)
+                .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
+                .drawBehind {
+                    drawRoundRect(
+                        color = pal.line2, cornerRadius = CornerRadius(size.height / 2f),
+                        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
+                    )
+                }.padding(horizontal = 9.dp, vertical = 4.dp),
         )
         else -> {
             val tint = when (status) {
@@ -162,7 +172,11 @@ internal fun VmStateChip(status: VmStatus) {
             }
             Text(
                 label, fontSize = 12.sp, color = tint, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.clip(shape).background(colors.surfaceVariant).border(1.dp, border, shape).padding(horizontal = 9.dp, vertical = 4.dp),
+                modifier = Modifier.clip(shape)
+                    .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
+                    .border(1.dp, border, shape)
+                    .machinedBevel(inset = 1.dp)
+                    .padding(horizontal = 9.dp, vertical = 4.dp),
             )
         }
     }

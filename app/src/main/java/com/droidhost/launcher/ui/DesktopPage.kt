@@ -63,8 +63,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -249,14 +251,18 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         selectedId = null
     }
 
-    BoxWithConstraints(modifier.fillMaxSize().background(pal.background)) {
+    BoxWithConstraints(modifier.fillMaxSize().background(pal.background).screenTexture()) {
         // Two columns only when both axes have room; a landscape phone keeps the inline list.
         val wide = !LocalNarrowPane.current && maxWidth >= 840.dp && maxHeight >= 600.dp
         val padH = if (LocalNarrowPane.current) 20.dp else 28.dp
         Column(Modifier.fillMaxSize()) {
             Row(
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp),
+                modifier = Modifier.fillMaxWidth().padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp)
+                    .drawBehind {
+                        val w = 1.dp.toPx()
+                        drawRect(pal.hairBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
+                    },
             ) {
                 Wordmark(18.dp)
                 Text("/ " + stringResource(R.string.vm_title), fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1)
@@ -334,7 +340,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                             onSelect = { selectedId = if (selectedId == m.id) null else m.id },
                             sizeTick = recorded,
                         ) {
-                            Box(Modifier.fillMaxWidth().padding(top = 12.dp).height(1.dp).background(pal.line))
+                            Box(Modifier.fillMaxWidth().padding(top = 12.dp).height(1.dp).background(pal.hairBrush))
                             VmDetail(
                                 s, a, m, st, note, seed, install, flatpakApps,
                                 wide = false, primaryEnabled = primaryEnabledFor(st), onPrimary = primaryFor(m, st),
@@ -405,12 +411,18 @@ private fun VmRunPill(label: String, status: VmStatus, onClick: () -> Unit) {
 
 @Composable
 private fun VmSectionLabel(count: Int) {
-    Text(
-        stringResource(R.string.vm_section).uppercase() + " · " + count,
-        fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
-    )
+    val pal = LocalPalette.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 10.dp),
+    ) {
+        Text(
+            stringResource(R.string.vm_section).uppercase() + " · " + count,
+            fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Box(Modifier.weight(1f).height(1.dp).background(Brush.horizontalGradient(listOf(pal.hair, Color.Transparent))))
+    }
 }
 
 /** The brand's one large appearance: the host frame, with the two ways a machine comes to be. */
@@ -456,7 +468,10 @@ private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifie
     Column(
         modifier.paneItem("vmsource:$title")
             .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier)
-            .clip(Shape16).background(colors.surface)
+            .shadow(6.dp, Shape16, clip = false)
+            .clip(Shape16)
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .machinedBevel(inset = 1.dp)
             .glideBorder(hot, Shape16, pal.signal, pal.line)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .controllerConfirm(onClick = onClick)
@@ -476,7 +491,10 @@ private fun DistroGlyph(distroId: String, size: Dp, label: String? = null) {
     val shape = RoundedCornerShape(size * 0.24f)
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(size).clip(shape).background(colors.surfaceVariant).border(1.dp, pal.line, shape),
+        modifier = Modifier.size(size).shadow(2.dp, shape, clip = false).clip(shape)
+            .background(Brush.verticalGradient(listOf(pal.surfaceVariant, pal.surface)))
+            .border(1.dp, pal.line, shape)
+            .machinedBevel(inset = 1.dp),
     ) {
         val logo = VmCatalog.logoRes(distroId)
         if (logo != null) Image(
@@ -498,20 +516,27 @@ private fun VmNewRow(compact: Boolean, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth().paneItem("vm:new")
-            .semantics { contentDescription = newLabel }.clip(Shape16)
+            .semantics { contentDescription = newLabel }
+            .shadow(if (hot) 8.dp else 0.dp, Shape16, clip = false, ambientColor = pal.glow, spotColor = pal.glow)
+            .clip(Shape16)
+            .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
             .drawBehind {
                 drawRoundRect(
                     color = if (hot) pal.signal else pal.line2, cornerRadius = CornerRadius(16.dp.toPx()),
                     style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
                 )
             }
+            .machinedBevel(inset = 1.dp)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .controllerConfirm(onClick = onClick)
             .padding(14.dp),
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(colors.surfaceVariant),
+            modifier = Modifier.size(34.dp).shadow(2.dp, RoundedCornerShape(8.dp), clip = false)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Brush.verticalGradient(listOf(pal.surfaceVariant, pal.surface)))
+                .machinedBevel(),
         ) {
             Icon(Icons.Filled.Add, null, tint = if (hot) pal.signal else colors.onSurfaceVariant, modifier = Modifier.size(18.dp))
         }
@@ -536,6 +561,11 @@ private fun VmMetaItem(icon: ImageVector, text: String, color: Color) {
     }
 }
 
+@Composable
+private fun VmMetaDivider() {
+    Box(Modifier.padding(horizontal = 12.dp).width(1.dp).height(12.dp).background(LocalPalette.current.hair))
+}
+
 /**
  * One machine as a vertical information card: what system, what desktop, what state, how big,
  * when last used, with the primary action kept at the right. The selected card expands its
@@ -557,14 +587,33 @@ private fun VmCard(
     val own = VmRuntime.ownRootfs(ctx, m.id)
     val gpu = VmDriver.driverInstalled(own) || own == null
     val usage = vmDiskUsage(m, sizeTick)
+    val lit = selected || status == VmStatus.RUNNING
     Column(
         Modifier.fillMaxWidth().padding(bottom = 12.dp).paneItem("vmcard:${m.id}")
+            .shadow(
+                elevation = if (hot) 14.dp else 10.dp, shape = shape, clip = false,
+                ambientColor = if (lit) pal.glow else Color.Black, spotColor = if (lit) pal.glow else Color.Black,
+            )
             .clip(shape)
-            .background(if (hot) pal.signal.copy(alpha = 0.06f) else colors.surface)
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .drawBehind { if (hot) drawRect(pal.signal.copy(alpha = 0.06f)) }
+            .machinedBevel(inset = 1.dp)
             .drawBehind {
-                if (status == VmStatus.RUNNING) drawRect(color = pal.good, size = Size(3.dp.toPx(), size.height))
+                if (status == VmStatus.RUNNING) {
+                    val barW = 3.dp.toPx()
+                    val inset = 12.dp.toPx()
+                    val h = size.height - inset * 2f
+                    drawRoundRect(
+                        pal.glow, topLeft = Offset(-barW, inset - barW),
+                        size = Size(barW * 3f, h + barW * 2f), cornerRadius = CornerRadius(6.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        Brush.verticalGradient(listOf(pal.primary, pal.primary2)),
+                        topLeft = Offset(0f, inset), size = Size(barW, h), cornerRadius = CornerRadius(3.dp.toPx()),
+                    )
+                }
             }
-            .glideBorder(hot, shape, pal.signal, if (selected) pal.signal.copy(alpha = 0.55f) else pal.line)
+            .glideBorder(hot, shape, pal.signal, if (selected) pal.primary.copy(alpha = 0.22f) else pal.line)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onSelect)
             .controllerConfirm(onClick = onSelect)
             .padding(14.dp),
@@ -596,9 +645,9 @@ private fun VmCard(
             }
             VmStartButton(m.id, vmPrimaryLabel(status), vmPrimaryIcon(status), primaryEnabled, onPrimary)
         }
-        Box(Modifier.fillMaxWidth().padding(top = 11.dp).height(1.dp).background(pal.line))
+        Box(Modifier.fillMaxWidth().padding(top = 11.dp).height(1.dp).background(pal.hairBrush))
         Row(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(top = 11.dp),
         ) {
             VmMetaItem(
@@ -606,7 +655,9 @@ private fun VmCard(
                 stringResource(if (gpu) R.string.vm_settings_driver_gpu else R.string.vm_settings_driver_software),
                 if (gpu) pal.good else pal.warn,
             )
+            VmMetaDivider()
             VmMetaItem(Icons.Outlined.Storage, usage?.let { FileUtils.sizeToString(it.total) } ?: "…", colors.onSurfaceVariant)
+            VmMetaDivider()
             VmMetaItem(Icons.Outlined.Schedule, vmLastStartText(m, status), colors.onSurfaceVariant)
         }
         if (selected) detail()
@@ -622,11 +673,34 @@ private fun VmCompactCard(m: VmMachine, status: VmStatus, selected: Boolean, onS
     val src = remember { MutableInteractionSource() }
     val hot = rememberHot(src)
     val shape = Shape12
+    val lit = selected || status == VmStatus.RUNNING
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp).paneItem("vmcard:${m.id}")
-            .clip(shape).background(if (hot) pal.signal.copy(alpha = 0.06f) else colors.surface)
-            .glideBorder(hot, shape, pal.signal, if (selected) pal.signal.copy(alpha = 0.55f) else pal.line)
+            .shadow(
+                elevation = if (hot) 8.dp else 4.dp, shape = shape, clip = false,
+                ambientColor = if (lit) pal.glow else Color.Black, spotColor = if (lit) pal.glow else Color.Black,
+            )
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+            .drawBehind { if (hot) drawRect(pal.signal.copy(alpha = 0.06f)) }
+            .machinedBevel(inset = 1.dp)
+            .drawBehind {
+                if (status == VmStatus.RUNNING) {
+                    val barW = 3.dp.toPx()
+                    val inset = 12.dp.toPx()
+                    val h = size.height - inset * 2f
+                    drawRoundRect(
+                        pal.glow, topLeft = Offset(-barW, inset - barW),
+                        size = Size(barW * 3f, h + barW * 2f), cornerRadius = CornerRadius(6.dp.toPx()),
+                    )
+                    drawRoundRect(
+                        Brush.verticalGradient(listOf(pal.primary, pal.primary2)),
+                        topLeft = Offset(0f, inset), size = Size(barW, h), cornerRadius = CornerRadius(3.dp.toPx()),
+                    )
+                }
+            }
+            .glideBorder(hot, shape, pal.signal, if (selected) pal.primary.copy(alpha = 0.22f) else pal.line)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onSelect)
             .controllerConfirm(onClick = onSelect)
             .padding(11.dp),
@@ -878,7 +952,9 @@ private fun VmAppChip(name: String, icon: Any?, paneId: String, store: Boolean, 
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.paneItem(paneId).heightIn(min = 32.dp)
-            .clip(shape).background(colors.surfaceVariant)
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(pal.surfaceVariant, pal.surface)))
+            .machinedBevel(inset = 1.dp)
             .glideBorder(hot, shape, pal.signal, if (store) pal.signal.copy(alpha = 0.35f) else pal.line)
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .controllerConfirm(onClick = onClick)
@@ -1126,6 +1202,7 @@ private fun vmSpaceAnalysis(root: File?): VmSpaceAnalysis? {
 private fun SpaceRow(name: String, bytes: Long, total: Long) {
     val ctx = LocalContext.current
     val colors = MaterialTheme.colorScheme
+    val pal = LocalPalette.current
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
@@ -1133,8 +1210,17 @@ private fun SpaceRow(name: String, bytes: Long, total: Long) {
         Text(name, fontSize = 12.sp, color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
         Text(Formatter.formatFileSize(ctx, bytes), fontSize = 12.sp, color = colors.onSurfaceVariant)
     }
-    Box(Modifier.fillMaxWidth().padding(top = 3.dp).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.surfaceVariant)) {
-        Box(Modifier.fillMaxWidth(if (total > 0) (bytes.toFloat() / total).coerceIn(0f, 1f) else 0f).height(3.dp).clip(RoundedCornerShape(2.dp)).background(colors.primary))
+    Box(
+        Modifier.fillMaxWidth().padding(top = 3.dp).height(3.dp).clip(RoundedCornerShape(2.dp))
+            .background(colors.surfaceVariant)
+            .drawBehind { drawRect(pal.edgeLo, size = Size(size.width, 1.dp.toPx())) },
+    ) {
+        Box(
+            Modifier.fillMaxWidth(if (total > 0) (bytes.toFloat() / total).coerceIn(0f, 1f) else 0f).height(3.dp)
+                .shadow(2.dp, RoundedCornerShape(2.dp), clip = false, ambientColor = pal.glow, spotColor = pal.glow)
+                .clip(RoundedCornerShape(2.dp))
+                .background(Brush.horizontalGradient(listOf(pal.primary2, colors.primary))),
+        )
     }
 }
 

@@ -23,9 +23,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import android.content.Context
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.droidhost.launcher.R
 import androidx.compose.ui.platform.LocalConfiguration
@@ -152,6 +163,68 @@ object Themes {
 val LocalPalette = staticCompositionLocalOf { Themes.byId(Themes.GRAPHITE) }
 
 val Palette.onSignal: Color get() = if (signal.luminance() > 0.18f) Color(0xFF03111F) else Color.White
+
+// Machined texture layer (design §3.9): neutral light/shadow derived per palette, never fixed values.
+private val Palette.isLight: Boolean get() = background.luminance() > 0.5f
+
+val Palette.edgeHi: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = 0.05f)
+val Palette.edgeLo: Color get() = Color.Black.copy(alpha = if (isLight) 0.12f else 0.45f)
+val Palette.cardTop: Color get() = lerp(surface, Color.White, 0.04f)
+val Palette.cardBot: Color get() = lerp(surface, Color.Black, 0.04f)
+val Palette.hair: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = 0.06f)
+val Palette.glow: Color get() = primary.copy(alpha = 0.16f)
+
+val Palette.hairBrush: Brush get() = Brush.horizontalGradient(
+    0f to Color.Transparent, 0.12f to hair, 0.88f to hair, 1f to Color.Transparent,
+)
+
+/** Top inner highlight and bottom inner shadow, drawn inside the node's clip; inset clears a border. */
+@Composable
+internal fun Modifier.machinedBevel(inset: Dp = 0.dp): Modifier {
+    val pal = LocalPalette.current
+    val hi = pal.edgeHi
+    val lo = pal.edgeLo
+    return drawBehind {
+        val w = 1.dp.toPx()
+        val pad = inset.toPx()
+        drawRect(hi, topLeft = Offset(0f, pad), size = Size(size.width, w))
+        drawRect(lo, topLeft = Offset(0f, size.height - pad - w), size = Size(size.width, w))
+    }
+}
+
+/** Static screen texture: a faint primary halo up top, a black floor below, a 22dp dot grid. */
+@Composable
+internal fun Modifier.screenTexture(): Modifier {
+    val pal = LocalPalette.current
+    val halo = pal.primary.copy(alpha = 0.045f)
+    val floor = Color.Black.copy(alpha = if (pal.isLight) 0.08f else 0.55f)
+    val dot = (if (pal.isLight) Color.Black else Color.White).copy(alpha = 0.018f)
+    return drawWithCache {
+        val step = 22.dp.toPx()
+        val points = ArrayList<Offset>()
+        var y = step / 2f
+        while (y < size.height) {
+            var x = step / 2f
+            while (x < size.width) { points.add(Offset(x, y)); x += step }
+            y += step
+        }
+        onDrawBehind {
+            drawRect(
+                Brush.radialGradient(
+                    listOf(halo, Color.Transparent),
+                    center = Offset(size.width / 2f, -size.height * 0.08f), radius = size.height * 0.62f,
+                ),
+            )
+            drawRect(
+                Brush.radialGradient(
+                    listOf(floor, Color.Transparent),
+                    center = Offset(size.width / 2f, size.height * 1.08f), radius = size.height * 0.45f,
+                ),
+            )
+            drawPoints(points, PointMode.Points, dot, strokeWidth = 1.dp.toPx(), cap = StrokeCap.Round)
+        }
+    }
+}
 
 @Composable
 fun DroidHostTheme(theme: String? = null, appScale: Int = AppUiPrefs.DEFAULT_SCALE, content: @Composable () -> Unit) {
