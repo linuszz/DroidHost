@@ -196,6 +196,19 @@ if [ -d "$omsrc/applications/icons" ]; then
   done
 fi
 
+# yay (AUR helper) for the Install > AUR menu. yay-bin ships a prebuilt aarch64 binary with libalpm
+# statically linked (NEEDED is only libc/libresolv), so the guest needs no Go toolchain and there is
+# no libalpm soname to match against the guest's pacman. Pinned + checksummed like the other vendored
+# sources. The AUR build toolchain (gcc/make/fakeroot...) is NOT seeded here -- build.sh strips dev
+# headers below -- it is bootstrapped on first use by overlay/usr/local/bin/omarchy-pkg-aur-install.
+yay_ver=13.1.0
+yay_sha256=be9bde82b0ae601365bf38515a4bfe60840a0b9945994cc8631a974c0492aa2c
+fetch "$work/yay.tar.gz" "https://github.com/Jguer/yay/releases/download/v$yay_ver/yay_${yay_ver}_aarch64.tar.gz"
+[ "$(sha256sum "$work/yay.tar.gz" | cut -d' ' -f1)" = "$yay_sha256" ] \
+  || { echo "yay binary sha256 mismatch" >&2; exit 1; }
+tar -xzf "$work/yay.tar.gz" -C "$work"
+install -Dm755 "$work/yay_${yay_ver}_aarch64/yay" "$work/root/usr/bin/yay"
+
 # Shared pacman wrappers/hooks and sudo/su come from the KDE overlay: cp -a on the Linux builder
 # preserves their exec bits and symlinks (sudoedit -> sudo, masked hooks -> /dev/null). The omarchy
 # overlay then adds only the DE-specific files (hyprland.lua, skel, shell.json, launch shim, stubs).

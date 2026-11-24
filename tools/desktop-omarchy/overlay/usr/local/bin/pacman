@@ -1,0 +1,31 @@
+#!/bin/bash
+# DroidHost proot pacman wrapper. The droiddeck-root LD_PRELOAD used by sudo breaks exec of the
+# pacman launcher under proot, and real pacman refuses -S without uid 0. The proot user owns the
+# rootfs, so installs are done by the tar-extraction installer instead; all other operations run
+# real pacman with the preload removed.
+unset LD_PRELOAD
+install=0
+sync=0
+letters=""
+for arg in "$@"; do
+  case $arg in
+    --) break ;;
+    --sync) sync=1 ;;
+    --upgrade) install=1 ;;
+    --search|--info|--clean|--groups|--list|--print|--print-format|--downloadonly|--query|--remove|--deptest) sync=0 ;;
+    --database) exit 0 ;;
+    --*) ;;
+    -*) letters+=${arg#-} ;;
+  esac
+done
+case $letters in *S*) sync=1 ;; esac
+case $letters in *U*) install=1 ;; esac
+case $letters in *[sicglpwq]*) sync=0 ;; esac
+# -D only edits install-reason metadata; real pacman gates it on uid 0. It is
+# cosmetic for functionality, so accept it as a no-op (yay calls it post-install).
+case $letters in *D*) exit 0 ;; esac
+[ "$sync" = 1 ] && install=1
+if [ "$install" = 1 ]; then
+  exec python3 /usr/share/droidhost/pkg-install.py "$@"
+fi
+exec /usr/bin/pacman "$@"

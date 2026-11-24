@@ -1,0 +1,24 @@
+#!/bin/sh
+# DroidHost shim: fakeroot bypass for the proot guest. libfakeroot's LD_PRELOAD
+# and the faked daemon segfault under proot (makepkg dies with exit 139 entering
+# the fakeroot environment). The proot user owns the whole rootfs, so makepkg's
+# package() step needs no fake root -- strip the preload and run the command
+# directly. Option set mirrors fakeroot(1): -l/-f/-i/-s/-b take an argument.
+unset LD_PRELOAD
+# makepkg gates its internal -F re-invocation on FAKEROOTKEY being set; the real
+# faked daemon would export it, so the bypass must too (without the segfaulting
+# libfakeroot preload).
+export FAKEROOTKEY="${FAKEROOTKEY:-1}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --) shift; break ;;
+    -l|-f|-i|-s|-b|--lib|--faked|--fd-base) shift 2 ;;
+    -u|--unknown-is-real|-v|--version|-h|--help) shift ;;
+    -*) shift ;;
+    *) break ;;
+  esac
+done
+if [ $# -eq 0 ]; then
+  exec "${SHELL:-/bin/sh}"
+fi
+exec "$@"

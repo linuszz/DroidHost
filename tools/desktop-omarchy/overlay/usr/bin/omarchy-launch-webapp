@@ -1,0 +1,14 @@
+#!/bin/bash
+# DroidHost shim for omarchy-launch-webapp. Upstream only accepts chromium-family browsers for
+# --app webapps and otherwise falls back to chromium.desktop, which the proot guest does not ship
+# (firefox is the seeded browser). That made every Learn/* webapp entry exec an empty command and
+# silently die. Route the URL to the DroidHost browser (firefox) as a normal window instead.
+url="$1"
+shift 2>/dev/null
+browser=$(xdg-settings get default-web-browser 2>/dev/null)
+case "$browser" in
+google-chrome* | chromium* | brave* | microsoft-edge*)
+  exec setsid uwsm-app -- "${browser%%.desktop}" --app="$url" "$@"
+  ;;
+esac
+exec setsid firefox "$url" "$@"

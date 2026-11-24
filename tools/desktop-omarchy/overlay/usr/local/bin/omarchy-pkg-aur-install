@@ -1,0 +1,13 @@
+#!/bin/sh
+# DroidHost shim: bootstrap the AUR build toolchain, then run upstream's AUR picker.
+# base-devel is deliberately NOT seeded into the pack: build.sh strips /usr/include,
+# pkgconfig and static libs to save space, which would break makepkg. Installing the
+# toolchain on demand through the proot installer keeps those dev files intact. yay
+# itself ships prebuilt in the pack (see build.sh), so only the compilers are fetched.
+if ! command -v gcc >/dev/null 2>&1; then
+  echo ":: DroidHost: installing AUR build toolchain (first use)..."
+  sudo pacman -S --needed --noconfirm \
+    gcc make fakeroot binutils guile gc libtool autoconf automake m4 flex bison \
+    patch pkgconf groff texinfo debugedit which
+fi
+exec /usr/bin/omarchy-pkg-aur-install "$@"
