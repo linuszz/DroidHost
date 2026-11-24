@@ -23,7 +23,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import android.content.Context
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +35,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -178,6 +183,27 @@ val Palette.hairBrush: Brush get() = Brush.horizontalGradient(
     0f to Color.Transparent, 0.12f to hair, 0.88f to hair, 1f to Color.Transparent,
 )
 
+// Liquid Glass layer (design §3.10): floating controls only; information surfaces stay machined.
+val Palette.glassBg: Color get() =
+    if (isLight) lerp(surfaceVariant, Color.White, 0.5f).copy(alpha = 0.78f) else surfaceVariant.copy(alpha = 0.55f)
+// The backdrop behind a floating control is uncontrollable; this scrim caps its worst-case luminance.
+val Palette.glassScrim: Color get() = if (isLight) Color.Transparent else background.copy(alpha = 0.55f)
+val Palette.glassLine: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = 0.14f)
+val Palette.glassSpec: Color get() = (if (isLight) Color.Black else Color.White).copy(alpha = if (isLight) 0.10f else 0.22f)
+
+val Palette.glassLineBrush: Brush get() = Brush.horizontalGradient(
+    0f to Color.Transparent, 0.12f to glassLine, 0.88f to glassLine, 1f to Color.Transparent,
+)
+
+private fun glassOver(src: Color, dst: Color): Color = Color(
+    src.red * src.alpha + dst.red * (1f - src.alpha),
+    src.green * src.alpha + dst.green * (1f - src.alpha),
+    src.blue * src.alpha + dst.blue * (1f - src.alpha),
+)
+
+/** The glass stack composited over the brightest (dark themes) or darkest (light themes) backdrop. */
+val Palette.glassWorst: Color get() = glassOver(glassBg, glassOver(glassScrim, if (isLight) Color.Black else Color.White))
+
 /** Top inner highlight and bottom inner shadow, drawn inside the node's clip; inset clears a border. */
 @Composable
 internal fun Modifier.machinedBevel(inset: Dp = 0.dp): Modifier {
@@ -224,6 +250,47 @@ internal fun Modifier.screenTexture(): Modifier {
             drawPoints(points, PointMode.Points, dot, strokeWidth = 1.dp.toPx(), cap = StrokeCap.Round)
         }
     }
+}
+
+/** Static glass for in-flow floating controls: tint, specular and (optionally) a lens edge. No live blur. */
+@Composable
+internal fun Modifier.glassSurface(shape: Shape = RectangleShape, lens: Boolean = false, edgeFade: Boolean = false): Modifier {
+    val pal = LocalPalette.current
+    val scrim = pal.glassScrim
+    val bg = pal.glassBg
+    val spec = pal.glassSpec
+    val line = pal.glassLine
+    val lineBrush = pal.glassLineBrush
+    val base = clip(shape).drawWithCache {
+        val w = size.width
+        val h = size.height
+        val top = Brush.radialGradient(listOf(spec, Color.Transparent), center = Offset(w / 2f, -h * 0.2f), radius = w * 0.6f)
+        val cornerR = 24.dp.toPx()
+        val cornerSpec = spec.copy(alpha = spec.alpha * 0.5f)
+        val left = Brush.radialGradient(listOf(cornerSpec, Color.Transparent), center = Offset.Zero, radius = cornerR)
+        val right = Brush.radialGradient(listOf(cornerSpec, Color.Transparent), center = Offset(w, 0f), radius = cornerR)
+        onDrawBehind {
+            drawRect(scrim)
+            drawRect(bg)
+            drawRect(top)
+            if (lens) {
+                drawRect(left)
+                drawRect(right)
+            }
+            if (edgeFade) drawRect(lineBrush, topLeft = Offset(0f, h - 1.dp.toPx()), size = Size(w, 1.dp.toPx()))
+        }
+    }
+    return if (edgeFade) base else base.border(1.dp, line, shape)
+}
+
+/** Solid fallback for glass controls: the §3.9 neutral machined layer, visually distinct from glass. */
+@Composable
+internal fun Modifier.machinedPanel(shape: Shape): Modifier {
+    val pal = LocalPalette.current
+    return clip(shape)
+        .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+        .machinedBevel(inset = 1.dp)
+        .border(1.dp, pal.line2, shape)
 }
 
 @Composable

@@ -103,6 +103,22 @@ internal object ThemeColors {
         return Color(fitTo(ink, readable(base)))
     }
 
+    /** Adjust an ink until it reads on a fixed surface (glass composites); hue is kept, value moves. */
+    fun inkOn(ink: Color, background: Color): Color {
+        if (contrast(ink, background) >= MIN_CONTRAST) return ink
+        val hsv = toHsv(ink.toArgb())
+        var v = hsv.v
+        var s = hsv.s
+        var out = ink.toArgb()
+        if (background.luminance() > 0.5f) {
+            while (v > 0f && contrast(Color(out), background) < MIN_CONTRAST) { v = max(0f, v - 0.04f); out = fromHsv(hsv.h, s, v) }
+        } else {
+            while (v < 1f && contrast(Color(out), background) < MIN_CONTRAST) { v = min(1f, v + 0.04f); out = fromHsv(hsv.h, s, v) }
+            while (s > 0f && contrast(Color(out), background) < MIN_CONTRAST) { s = max(0f, s - 0.04f); out = fromHsv(hsv.h, s, v) }
+        }
+        return Color(out)
+    }
+
     private fun gradientColor(first: Int, second: Int, fraction: Float): Int {
         fun channel(shift: Int): Int {
             val a = first shr shift and 0xFF

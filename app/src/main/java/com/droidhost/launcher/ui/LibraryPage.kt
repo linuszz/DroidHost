@@ -539,7 +539,7 @@ private fun LibraryGrid(
             columns = ((it.width + gap) / (minimum + gap)).coerceAtLeast(1)
         },
         horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 16.dp),
+        contentPadding = PaddingValues(top = 4.dp, bottom = maxOf(16.dp, LocalNavOverlayInset.current)),
     ) {
         item(key = "header", span = { GridItemSpan(maxLineSpan) }) {
             Rise(0) { LibraryHeader(s, a, total, searchCleared, source == Store.XBOX.id, showUninstalled, onShowUninstalled, collections = Store.byId(source)?.takeIf { it == Store.ITCH || it == Store.GAMEJOLT }, soundMode = soundMode, onAddSoundtrack = onAddSoundtrack, onCollections = onCollections) }

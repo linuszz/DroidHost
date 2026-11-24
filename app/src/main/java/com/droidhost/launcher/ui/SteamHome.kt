@@ -130,7 +130,7 @@ internal fun SteamHome(s: FrontEndState, a: FrontEndActions, modifier: Modifier)
         },
         onOpen = a.onSteamSettings, onPrimary = a.onPlay,
         modifier = modifier.clipToBounds(),
-        start = if (narrow) 20.dp else 44.dp, bottom = 44.dp,
+        start = if (narrow) 20.dp else 44.dp, bottom = maxOf(44.dp, LocalNavOverlayInset.current),
         background = {
             when {
                 games.isEmpty() -> EmptyLibrary(

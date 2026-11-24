@@ -178,6 +178,7 @@ class FrontEndState(
     val downloadPrefix: String = "",
     val downloadProxy: String = "",
     val animationsEnabled: Boolean = true,
+    val reduceTransparency: Boolean = false,
     val lowStorageWarning: Boolean = true,
     val launcherIcon: String = com.droidhost.launcher.LauncherIcon.DARK,
     val gameStoresEnabled: Boolean = true,
@@ -280,6 +281,7 @@ class FrontEndActions(
     val onHomePage: (String) -> Unit = {},
     val onLauncherFullscreen: (Boolean) -> Unit = {},
     val onAnimationsEnabled: (Boolean) -> Unit = {},
+    val onReduceTransparency: (Boolean) -> Unit = {},
     val onLowStorageWarning: (Boolean) -> Unit = {},
     val onDualScreenMode: (String) -> Unit = {},
     val onDualScreenSessions: (String) -> Unit = {},
@@ -733,6 +735,14 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
         }, a)
         CompositionLocalProvider(LocalShowSection provides { key -> selected = key }) {
         val agentKeyboardOpen = railSelection == "agent" && WindowInsets.ime.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+        val glassActive = !s.reduceTransparency && android.os.Build.VERSION.SDK_INT >= 31
+        val navOverlay = bottomNavigation && !s.dualScreen
+        val glassNav = remember { GlassNavBackdrop() }
+        CompositionLocalProvider(
+            LocalGlassActive provides glassActive,
+            LocalNavOverlayInset provides (if (navOverlay && !agentKeyboardOpen) 96.dp else 0.dp),
+            LocalGlassNav provides glassNav,
+        ) {
         LauncherLayout(
             bottomNavigation && !s.dualScreen, Color.Transparent,
             Modifier.fillMaxSize().onGloballyPositioned { screenAt = it.positionInRoot() }
@@ -751,7 +761,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
                 } else Modifier),
             navigation = {
                 if (s.dualScreen || (bottomNavigation && agentKeyboardOpen)) Unit
-                else if (bottomNavigation) BottomBar(s, railSelection, onRailSelect, onRailFocus, a, railFocus)
+                else if (bottomNavigation) GlassCapsule { BottomBar(s, railSelection, onRailSelect, onRailFocus, a, railFocus) }
                 else SideRail(s, railSelection, onRailSelect, onRailFocus, a, railFocus.fillMaxHeight())
             },
         ) {
@@ -774,6 +784,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
                     onRequestWirelessAdb = requestWirelessAdbFix,
                     onPairWirelessDebugging = startGuidedPairing,
                 )
+        }
         }
 
         }

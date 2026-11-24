@@ -1329,6 +1329,8 @@
     <string name="ctrl_joycon_vr">將 Joy-Con 當作 VR 控制器</string>
     <string name="ctrl_joycon_vr_hint">SteamVR 執行時，每個 Joy-Con 都會變成一隻手。將它指向前方並按住 HOME 鍵或擷取鍵，即可重新置中。</string>
     <string name="setup_animations">動畫</string>
+    <string name="setup_reduce_transparency">降低透明度</string>
+    <string name="setup_reduce_transparency_hint">以實底面板取代玻璃質感</string>
     <string name="setup_low_storage_warning">儲存空間不足時提醒</string>
     <string name="setup_low_storage_warning_hint">可用空間少於 10 GB 時，啟動 Steam 前先詢問。</string>
     <string name="ctrl_layout">版面配置</string>

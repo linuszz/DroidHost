@@ -91,7 +91,7 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
             PageHeader(stringResource(R.string.rail_system)) {
                 Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
             }
-            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == SYSTEM_UPDATES_TAB) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == SYSTEM_UPDATES_TAB) 0.dp else 24.dp)) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == SYSTEM_UPDATES_TAB) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == SYSTEM_UPDATES_TAB) 0.dp else maxOf(24.dp, LocalNavOverlayInset.current))) {
                 when (tab) {
                     SYSTEM_OVERVIEW_TAB -> {
                         val first = remember { FocusRequester() }

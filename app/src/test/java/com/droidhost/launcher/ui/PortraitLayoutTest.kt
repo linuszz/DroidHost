@@ -59,8 +59,12 @@ class PortraitLayoutTest {
         val desktop = compose.onNodeWithTag("rail-desktop").getUnclippedBoundsInRoot()
         assertEquals(root.left, pane.left)
         assertEquals(root.right, pane.right)
-        assertTrue(desktop.top >= pane.bottom)
+        // Portrait navigation floats over the pane (design §3.10): the pane keeps the full height.
+        assertEquals(root.top, pane.top)
+        assertEquals(root.bottom, pane.bottom)
+        // The bar's bottom edge sits on the root edge; the item is inset by the bar's 4dp vertical padding.
         assertEquals(root.bottom - 4.dp, desktop.bottom)
+        assertTrue(desktop.top > pane.top)
         compose.onNodeWithText("Count 0").performClick()
         compose.runOnIdle { portrait.value = false }
         compose.mainClock.advanceTimeBy(1_000)

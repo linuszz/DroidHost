@@ -40,7 +40,7 @@ import com.droidhost.launcher.R
 internal fun MorePage(s: FrontEndState, a: FrontEndActions, onSelect: (String) -> Unit, modifier: Modifier) {
     val keys = NavTabs.more(s)
     val open: (String) -> Unit = { key -> if (key == "components") a.onComponents(true) else onSelect(key) }
-    Column(modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier.verticalScroll(rememberScrollState()).padding(bottom = LocalNavOverlayInset.current)) {
         PageHeader(stringResource(R.string.rail_more)) {
             Spacer(Modifier.weight(1f))
             SecondaryButton(stringResource(R.string.more_edit_tabs), compact = true) {

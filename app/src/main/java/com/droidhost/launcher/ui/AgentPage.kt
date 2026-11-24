@@ -230,7 +230,7 @@ private fun AgentPageContent(
     val keyboardOpen = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     LaunchedEffect(keyboardOpen) { if (keyboardOpen && (panel == AgentPanel.MODEL || panel == AgentPanel.USAGE)) panel = AgentPanel.NONE }
     Column(
-        modifier.fillMaxSize().imePadding().onPreviewKeyEvent { e ->
+        modifier.fillMaxSize().imePadding().padding(bottom = LocalNavOverlayInset.current).onPreviewKeyEvent { e ->
             val k = e.nativeKeyEvent
             if (k.keyCode != KeyEvent.KEYCODE_BUTTON_Y || composer.focused) return@onPreviewKeyEvent false
             if (k.action == KeyEvent.ACTION_UP) composer.open()

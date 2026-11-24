@@ -114,15 +114,8 @@ internal fun BottomBar(
     val barContext = LocalContext.current
     remember { RailLabels.load(barContext) }
     val iconOnly = !RailLabels.shown
-    val pal = LocalPalette.current
     Row(
-        modifier.fillMaxWidth()
-            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
-            .drawBehind {
-                val w = 1.dp.toPx()
-                drawRect(pal.hairBrush, size = Size(size.width, w))
-                drawRect(pal.edgeLo, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
-            },
+        modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BoxWithConstraints(Modifier.weight(1f)) {
@@ -166,18 +159,31 @@ internal fun SideRail(
     val railContext = LocalContext.current
     remember { RailLabels.load(railContext) }
     val iconOnly = isNarrowScreen() || !RailLabels.shown
+    val glass = LocalGlassActive.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.width(if (iconOnly) 64.dp else 92.dp)
-            .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
-            .machinedBevel()
-            .drawBehind {
-                val w = 1.dp.toPx()
-                drawRect(
-                    Brush.verticalGradient(0f to Color.Transparent, 0.12f to pal.hair, 0.88f to pal.hair, 1f to Color.Transparent),
-                    topLeft = Offset(size.width - w, 0f), size = Size(w, size.height),
-                )
-            }
+            .then(
+                if (glass) Modifier.background(pal.glassScrim).background(pal.glassBg).drawBehind {
+                    val w = 1.dp.toPx()
+                    drawRect(
+                        Brush.radialGradient(listOf(pal.glassSpec, Color.Transparent), center = Offset(size.width / 2f, -size.height * 0.2f), radius = size.width * 0.6f),
+                    )
+                    drawRect(
+                        Brush.verticalGradient(0f to Color.Transparent, 0.12f to pal.glassLine, 0.88f to pal.glassLine, 1f to Color.Transparent),
+                        topLeft = Offset(size.width - w, 0f), size = Size(w, size.height),
+                    )
+                }
+                else Modifier.background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
+                    .machinedBevel()
+                    .drawBehind {
+                        val w = 1.dp.toPx()
+                        drawRect(
+                            Brush.verticalGradient(0f to Color.Transparent, 0.12f to pal.hair, 0.88f to pal.hair, 1f to Color.Transparent),
+                            topLeft = Offset(size.width - w, 0f), size = Size(w, size.height),
+                        )
+                    },
+            )
             .padding(vertical = if (compact) 8.dp else 12.dp),
     ) {
         val count = navigationKeys(s).size
@@ -288,8 +294,13 @@ private fun RailItem(
         }
         else if (frontFocus.focusedRail == key) frontFocus.focusedRail = null
     }
+    val glass = LocalGlassActive.current
     val fg by animateColorAsState(
-        if (current) pal.signal else if (focused || hovered) colors.onBackground else colors.onSurfaceVariant,
+        when {
+            current -> if (glass) ThemeColors.inkOn(pal.signal, pal.glassWorst) else pal.signal
+            focused || hovered -> colors.onBackground
+            else -> if (glass) ThemeColors.inkOn(colors.onSurfaceVariant, pal.glassWorst) else colors.onSurfaceVariant
+        },
         Motion.tw(220), label = "railFg",
     )
     val fill by animateColorAsState(
@@ -365,7 +376,7 @@ private fun ResumeRailItem(name: String, compact: Boolean, iconOnly: Boolean, on
         }
         if (!iconOnly) {
             Text(stringResource(R.string.resume_session), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground, maxLines = 1, softWrap = false)
-            Text(name, fontSize = 12.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(name, fontSize = 12.sp, color = if (LocalGlassActive.current) ThemeColors.inkOn(colors.onSurfaceVariant, pal.glassWorst) else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }

@@ -50,6 +50,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -79,6 +80,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -255,14 +257,27 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         // Two columns only when both axes have room; a landscape phone keeps the inline list.
         val wide = !LocalNarrowPane.current && maxWidth >= 840.dp && maxHeight >= 600.dp
         val padH = if (LocalNarrowPane.current) 20.dp else 28.dp
+        val glass = LocalGlassActive.current
+        val inset = LocalNavOverlayInset.current
         Column(Modifier.fillMaxSize()) {
             Row(
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp)
-                    .drawBehind {
-                        val w = 1.dp.toPx()
-                        drawRect(pal.hairBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
-                    },
+                modifier = Modifier.fillMaxWidth()
+                    .then(
+                        if (glass) Modifier.drawBehind {
+                            drawRect(pal.glassScrim)
+                            drawRect(pal.glassBg)
+                            drawRect(
+                                Brush.radialGradient(listOf(pal.glassSpec, Color.Transparent), center = Offset(size.width / 2f, -size.height * 0.2f), radius = size.width * 0.6f),
+                            )
+                            val w = 1.dp.toPx()
+                            drawRect(pal.glassLineBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
+                        } else Modifier.drawBehind {
+                            val w = 1.dp.toPx()
+                            drawRect(pal.hairBrush, topLeft = Offset(0f, size.height - w), size = Size(size.width, w))
+                        },
+                    )
+                    .padding(start = padH, end = padH, top = 12.dp, bottom = 10.dp),
             ) {
                 Wordmark(18.dp)
                 Text("/ " + stringResource(R.string.vm_title), fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1)
@@ -275,7 +290,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
             }
             if (machines.isEmpty()) {
                 VmEmptyState(
-                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = padH),
+                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = padH).padding(bottom = inset),
                     onPreset = { pickImport = false; picking = true },
                     onImport = { pickImport = true; picking = true },
                 )
@@ -283,7 +298,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     Column(
                         Modifier.width(300.dp).fillMaxHeight().verticalScroll(rememberScrollState())
-                            .padding(start = padH, end = 12.dp, bottom = 24.dp),
+                            .padding(start = padH, end = 12.dp, bottom = maxOf(24.dp, inset)),
                     ) {
                         VmSectionLabel(machines.size)
                         for (m in machines) {
@@ -298,7 +313,7 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                             val st = statusOf(m)
                             Column(
                                 Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())
-                                    .padding(start = 20.dp, end = padH, top = 4.dp, bottom = 24.dp),
+                                    .padding(start = 20.dp, end = padH, top = 4.dp, bottom = maxOf(24.dp, inset)),
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -328,9 +343,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                     }
                 }
             } else {
-                Column(
-                    Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = padH),
-                ) {
+                val glassNav = LocalGlassNav.current
+                val listScroll = rememberScrollState()
+                val listContent: @Composable () -> Unit = {
                     VmSectionLabel(machines.size)
                     for (m in machines) {
                         val st = statusOf(m)
@@ -349,8 +364,26 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
                         }
                     }
                     VmNewRow(compact = false) { picking = true }
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(maxOf(24.dp, inset)))
                 }
+                if (glassNav != null) {
+                    glassNav.content = listContent
+                    glassNav.scroll = listScroll
+                    glassNav.padH = padH
+                    DisposableEffect(glassNav) {
+                        onDispose {
+                            glassNav.content = null
+                            glassNav.scroll = null
+                        }
+                    }
+                }
+                Column(
+                    Modifier.weight(1f).verticalScroll(listScroll).padding(horizontal = padH)
+                        .onGloballyPositioned {
+                            glassNav?.listOrigin = it.positionInRoot()
+                            glassNav?.listSize = Size(it.size.width.toFloat(), it.size.height.toFloat())
+                        },
+                ) { listContent() }
             }
         }
     }
@@ -394,18 +427,21 @@ private fun VmRunPill(label: String, status: VmStatus, onClick: () -> Unit) {
     val src = remember { MutableInteractionSource() }
     val hot = rememberHot(src)
     val shape = RoundedCornerShape(99.dp)
+    val glass = LocalGlassActive.current
     val tint = if (status == VmStatus.RUNNING) pal.good else pal.onSurfaceVariant
+    val ink = if (glass) ThemeColors.inkOn(tint, pal.glassWorst) else tint
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.paneItem("vm:runpill").clip(shape)
-            .background(tint.copy(alpha = 0.08f))
-            .glideBorder(hot, shape, pal.signal, tint.copy(alpha = 0.4f))
+            .background(tint.copy(alpha = 0.10f))
+            .then(if (glass) Modifier.drawBehind { drawRect(pal.glassSpec, size = Size(size.width, 1.dp.toPx())) } else Modifier)
+            .glideBorder(hot, shape, pal.signal, if (glass) pal.glassLine else tint.copy(alpha = 0.4f))
             .hoverable(src).clickable(interactionSource = src, indication = LocalIndication.current, role = Role.Button, onClick = onClick)
             .controllerConfirm(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 4.dp),
     ) {
         Box(Modifier.size(7.dp).clip(CircleShape).background(tint))
-        Text(label, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, color = tint, maxLines = 1)
+        Text(label, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold, color = ink, maxLines = 1)
     }
 }
 

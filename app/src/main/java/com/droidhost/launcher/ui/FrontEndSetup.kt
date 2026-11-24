@@ -202,7 +202,7 @@ internal fun SetupPanel(
             PageHeader(stringResource(R.string.setup_title)) {
                 Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
             }
-            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == 0) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == 0) 0.dp else 24.dp)) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == 0) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == 0) LocalNavOverlayInset.current else maxOf(24.dp, LocalNavOverlayInset.current))) {
                 when (tab) {
                     0 -> {
                         val controller = s.controller
@@ -243,6 +243,8 @@ internal fun SetupPanel(
                                 )
                                 ToggleRow(host, "launcher-animations", stringResource(R.string.setup_animations), null,
                                     s.animationsEnabled, onChange = a.onAnimationsEnabled)
+                                ToggleRow(host, "launcher-reduce-transparency", stringResource(R.string.setup_reduce_transparency), stringResource(R.string.setup_reduce_transparency_hint),
+                                    s.reduceTransparency, onChange = a.onReduceTransparency)
                                 ToggleRow(host, "low-storage-warning", stringResource(R.string.setup_low_storage_warning), stringResource(R.string.setup_low_storage_warning_hint),
                                     s.lowStorageWarning, onChange = a.onLowStorageWarning)
                                 val railContext = androidx.compose.ui.platform.LocalContext.current

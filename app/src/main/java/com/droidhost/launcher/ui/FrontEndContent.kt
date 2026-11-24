@@ -179,7 +179,13 @@ internal fun Pane(
                 if (Hops.sinking == key) 1f else 0f, Motion.tw(260), label = "hopSink",
             )
             val shown: @Composable () -> Unit = {
-                Box(Modifier.fillMaxSize().graphicsLayer { val k = 1f - 0.05f * hopSink; scaleX = k; scaleY = k; alpha = 1f - 0.35f * hopSink }) { drawn() }
+                // Pushed pages clear the floating capsule here; rail pages owe the inset at their scroll root.
+                val pushed = key in pages
+                Box(
+                    Modifier.fillMaxSize()
+                        .then(if (pushed) Modifier.padding(bottom = LocalNavOverlayInset.current) else Modifier)
+                        .graphicsLayer { val k = 1f - 0.05f * hopSink; scaleX = k; scaleY = k; alpha = 1f - 0.35f * hopSink },
+                ) { drawn() }
             }
             run {
                 DisposableEffect(key) { onDispose { if (key != livePage && key != targetNow) { pages.remove(key); origins.remove(key) } } }
@@ -289,7 +295,7 @@ private fun Content(
         AndroidAppsPage(s, a, modifier, onAndroidAppClick)
         return
     }
-    Column(modifier = modifier.verticalScroll(rememberScrollState()).padding(horizontal = padH, vertical = padV)) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState()).padding(horizontal = padH).padding(top = padV, bottom = padV + LocalNavOverlayInset.current)) {
         when {
             selected.startsWith("user:") -> {
                 val app = UserAppsState.items.firstOrNull { "user:${it.key}" == selected }

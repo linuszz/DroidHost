@@ -203,6 +203,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var downloadPrefix by mutableStateOf("")
     private var downloadProxy by mutableStateOf("")
     private var animationsEnabled by mutableStateOf(true)
+    private var reduceTransparency by mutableStateOf(false)
     private var lowStorageWarning by mutableStateOf(true)
     private var launcherIcon by mutableStateOf(LauncherIcon.DARK)
     private var gameStoresEnabled by mutableStateOf(true)
@@ -1162,6 +1163,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         downloadProxy = DownloadSource.proxyHostPort(this)
         DownloadSource.probe()
         animationsEnabled = SessionPrefs.animationsEnabled(this)
+        reduceTransparency = SessionPrefs.reduceTransparency(this)
         lowStorageWarning = SessionPrefs.lowStorageWarning(this)
         LauncherIcon.repair(this, intent?.component)
         launcherIcon = LauncherIcon.current(this)
@@ -1260,6 +1262,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         downloadPrefix = downloadPrefix,
                         downloadProxy = downloadProxy,
                         animationsEnabled = animationsEnabled,
+                        reduceTransparency = reduceTransparency,
                         lowStorageWarning = lowStorageWarning,
                         launcherIcon = launcherIcon,
                         gameStoresEnabled = gameStoresEnabled,
@@ -1628,6 +1631,10 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                             SessionPrefs.setAnimationsEnabled(this, on)
                             animationsEnabled = on
                             com.droidhost.launcher.ui.Motion.refresh(this)
+                        },
+                        onReduceTransparency = { on ->
+                            SessionPrefs.setReduceTransparency(this, on)
+                            reduceTransparency = on
                         },
                         onDownloadSource = { mode ->
                             DownloadSource.setMode(this, mode)

@@ -343,7 +343,7 @@ internal fun Storefront(s: FrontEndState, a: FrontEndActions) {
                 Modifier.fillMaxSize().focusProperties {
                     enter = { if (detail == null) androidx.compose.ui.focus.FocusRequester.Default else androidx.compose.ui.focus.FocusRequester.Cancel }
                 }.focusGroup()
-                    .graphicsLayer { scaleX = sink; scaleY = sink; alpha = fade }.verticalScroll(rememberScrollState()).padding(bottom = 16.dp),
+                    .graphicsLayer { scaleX = sink; scaleY = sink; alpha = fade }.verticalScroll(rememberScrollState()).padding(bottom = maxOf(16.dp, LocalNavOverlayInset.current)),
             ) {
                 val open: (String) -> Unit = { openApp = it }
                 when (mode) {
@@ -358,7 +358,7 @@ internal fun Storefront(s: FrontEndState, a: FrontEndActions) {
                 val body: @Composable () -> Unit = {
                     Column(
                         Modifier.fillMaxSize().background(colors.background).pointerInput(Unit) { detectTapGestures { } }
-                            .verticalScroll(rememberScrollState()).padding(bottom = 16.dp).focusGroup(),
+                            .verticalScroll(rememberScrollState()).padding(bottom = maxOf(16.dp, LocalNavOverlayInset.current)).focusGroup(),
                     ) { AppDetail(s, a, id) { openApp = null } }
                 }
                 if (from == null) body()

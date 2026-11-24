@@ -1325,6 +1325,8 @@
     <string name="ctrl_joycon_vr">Joy-Cons als VR-Controller</string>
     <string name="ctrl_joycon_vr_hint">Während SteamVR läuft, wird jeder Joy-Con zu einer Hand. Richte ihn nach vorn und halte HOME oder Capture gedrückt, um ihn neu auszurichten.</string>
     <string name="setup_animations">Animationen</string>
+    <string name="setup_reduce_transparency">Transparenz reduzieren</string>
+    <string name="setup_reduce_transparency_hint">Undurchsichtige Flächen statt Glas</string>
     <string name="setup_low_storage_warning">Bei knappem Speicher warnen</string>
     <string name="setup_low_storage_warning_hint">Vor dem Start von Steam nachfragen, wenn weniger als 10 GB frei sind.</string>
     <string name="ctrl_layout">Layout</string>

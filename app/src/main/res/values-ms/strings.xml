@@ -1327,6 +1327,8 @@
     <string name="ctrl_joycon_vr">Joy-Con sebagai pengawal VR</string>
     <string name="ctrl_joycon_vr_hint">Semasa SteamVR berjalan, setiap Joy-Con menjadi tangan. Halakan ke hadapan dan tahan Home atau Capture untuk memusatkannya semula.</string>
     <string name="setup_animations">Animasi</string>
+    <string name="setup_reduce_transparency">Kurangkan ketelusan</string>
+    <string name="setup_reduce_transparency_hint">Gunakan panel legap menggantikan kaca</string>
     <string name="setup_low_storage_warning">Beri amaran apabila storan rendah</string>
     <string name="setup_low_storage_warning_hint">Tanya sebelum memulakan Steam apabila ruang kosong kurang daripada 10 GB.</string>
     <string name="ctrl_layout">Susun atur</string>

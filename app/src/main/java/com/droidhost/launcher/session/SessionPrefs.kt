@@ -122,6 +122,12 @@ object SessionPrefs {
         prefs(context).edit().putBoolean("animations", on).apply()
     }
 
+    fun reduceTransparency(context: Context): Boolean = prefs(context).getBoolean("reduceTransparency", false)
+
+    fun setReduceTransparency(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("reduceTransparency", on).apply()
+    }
+
     private fun savedDualScreenMode(context: Context, key: String): String? =
         prefs(context).getString(key, null)?.takeIf { it in com.droidhost.launcher.input.DualScreen.modes }
 

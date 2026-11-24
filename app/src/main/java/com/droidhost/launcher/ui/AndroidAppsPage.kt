@@ -392,7 +392,7 @@ internal fun AndroidAppsPage(s: FrontEndState, a: FrontEndActions, modifier: Mod
                     state = grid,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(start = padH, end = if (scroller) padH + 22.dp else padH, top = 12.dp, bottom = 16.dp),
+                    contentPadding = PaddingValues(start = padH, end = if (scroller) padH + 22.dp else padH, top = 12.dp, bottom = maxOf(16.dp, LocalNavOverlayInset.current)),
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     if (widgetsShown) item(key = "widgets", span = { GridItemSpan(maxLineSpan) }) {
@@ -900,6 +900,7 @@ private fun FolderSheet(
                     state = grid,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = LocalNavOverlayInset.current),
                 ) {
                     items(apps, key = { it.key }) { app ->
                         AppTile(
@@ -998,7 +999,7 @@ private fun WidgetPicker(padH: androidx.compose.ui.unit.Dp, onClose: () -> Unit)
             columns = GridCells.Adaptive(150.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(horizontal = padH, vertical = 14.dp),
+            contentPadding = PaddingValues(start = padH, end = padH, top = 14.dp, bottom = maxOf(14.dp, LocalNavOverlayInset.current)),
             modifier = Modifier.fillMaxSize(),
         ) {
             item(key = "back", span = { GridItemSpan(maxLineSpan) }) {

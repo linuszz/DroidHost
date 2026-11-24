@@ -904,7 +904,7 @@ private fun Storefront(
             columns = ((it.width + gap) / (minimum + gap)).coerceAtLeast(1)
         },
         horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 16.dp),
+        contentPadding = PaddingValues(top = 4.dp, bottom = maxOf(16.dp, LocalNavOverlayInset.current)),
     ) {
         item(key = "profile", span = { GridItemSpan(maxLineSpan) }) { Rise(1) { ProfileStrip(store, library.size, StoresState.library.containsKey(store), s, a) } }
         item(key = "search", span = { GridItemSpan(maxLineSpan) }) {

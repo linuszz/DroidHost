@@ -35,16 +35,16 @@ internal fun LauncherLayout(
             minWidth = if (bottomNavigation) width else 0, maxWidth = width,
             minHeight = if (bottomNavigation) 0 else height, maxHeight = height,
         ))
-        val line = if ((if (bottomNavigation) nav.height else nav.width) == 0) 0 else 1.dp.roundToPx()
+        // Portrait navigation floats over the content (design §3.10); the pane keeps the full height.
+        val line = if (!bottomNavigation && nav.width > 0) 1.dp.roundToPx() else 0
         val contentWidth = if (bottomNavigation) width else (width - nav.width - line).coerceAtLeast(0)
-        val contentHeight = if (bottomNavigation) (height - nav.height - line).coerceAtLeast(0) else height
+        val contentHeight = height
         val pane = children[0].measure(Constraints.fixed(contentWidth, contentHeight))
-        val edge = children[1].measure(Constraints.fixed(if (bottomNavigation) width else line, if (bottomNavigation) line else height))
+        val edge = children[1].measure(Constraints.fixed(if (bottomNavigation) 0 else line, if (bottomNavigation) 0 else height))
         layout(width, height) {
             if (bottomNavigation) {
                 pane.placeRelative(0, 0)
-                edge.placeRelative(0, contentHeight)
-                nav.placeRelative(0, contentHeight + line)
+                nav.placeRelative(0, height - nav.height)
             } else {
                 nav.placeRelative(0, 0)
                 edge.placeRelative(nav.width, 0)
