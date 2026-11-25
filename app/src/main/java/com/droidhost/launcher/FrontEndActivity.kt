@@ -1922,6 +1922,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         if (hasFocus) {
             com.droidhost.launcher.ui.DualScreenPanel.yieldTo(taskId, false)
             applyLauncherFullscreen()
+            applyPeakRefresh()
         }
     }
 
@@ -1965,11 +1966,6 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             preferredDisplayModeId = best.modeId
             @Suppress("DEPRECATION") preferredRefreshRate = best.refreshRate
         }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) applyPeakRefresh()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
