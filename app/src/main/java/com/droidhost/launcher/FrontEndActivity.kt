@@ -1961,10 +1961,18 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         val best = sameRes.filter { it.refreshRate <= cap + 0.5f }.maxByOrNull { it.refreshRate }
             ?: sameRes.maxByOrNull { it.refreshRate }
         android.util.Log.i("PeakRefresh", "cur=${cur.refreshRate} cap=$cap modes=${sameRes.map { it.refreshRate }} target=${best?.refreshRate} id=${best?.modeId}")
-        if (best == null || best.refreshRate <= cur.refreshRate + 0.5f) return
+        if (best == null || best.refreshRate <= cur.refreshRate + 0.5f) {
+            if (best != null && Build.VERSION.SDK_INT >= 30 && !window.attributes.preferMinimalPostProcessing) {
+                // The session window gets 144 Hz on nubia with preferMinimalPostProcessing while
+                // pure window votes are ignored; mirror that attribute on the home window too.
+                window.attributes = window.attributes.apply { preferMinimalPostProcessing = true }
+            }
+            return
+        }
         window.attributes = window.attributes.apply {
             preferredDisplayModeId = best.modeId
             @Suppress("DEPRECATION") preferredRefreshRate = best.refreshRate
+            if (Build.VERSION.SDK_INT >= 30) preferMinimalPostProcessing = true
         }
     }
 
