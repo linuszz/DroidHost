@@ -108,10 +108,12 @@ class InputUiLayoutTest {
             }
         }
         compose.onNodeWithText(context.getString(R.string.setup_tab_controller)).performClick()
-        compose.onNodeWithTag("input-profile-game").assertIsDisplayed()
+        // 8f586e52c intentional: the touch & mouse group now leads the controller tab
+        // (design §4.3), so the embedded profile list sits below the fold.
+        compose.onNodeWithTag("input-profile-game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText(context.getString(R.string.ctrl_layout)).assertDoesNotExist()
         screenshot("controller-tab")
-        compose.onNodeWithTag("input-profile-game").performClick()
+        compose.onNodeWithTag("input-profile-game").performScrollTo().performClick()
         compose.onNodeWithTag("input-part-physical").performScrollTo().performClick()
         compose.onNodeWithText(context.getString(R.string.setup_tab_launcher)).assertIsDisplayed()
         screenshot("controller-physical")
