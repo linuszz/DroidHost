@@ -657,7 +657,6 @@ private fun VmCard(
                         color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    VmStateChip(status)
                     if (percent != null) {
                         if (percent >= 0) CircularProgressIndicator(
                             progress = { percent / 100f }, strokeWidth = 2.dp, color = pal.signal,
@@ -673,7 +672,12 @@ private fun VmCard(
                     modifier = Modifier.padding(top = 2.dp),
                 )
             }
-            VmStartButton(m.id, vmPrimaryLabel(status), vmPrimaryIcon(status), primaryEnabled, onPrimary)
+            // Status→action cluster on the header's single centre line: the pill gates the button,
+            // so it sits beside it (8dp) rather than in the title row, where a subtitle would drift it.
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                VmStateChip(status)
+                VmStartButton(m.id, vmPrimaryLabel(status), vmPrimaryIcon(status), primaryEnabled, onPrimary)
+            }
         }
         Box(Modifier.fillMaxWidth().padding(top = 11.dp).height(1.dp).background(pal.hairBrush))
         Row(

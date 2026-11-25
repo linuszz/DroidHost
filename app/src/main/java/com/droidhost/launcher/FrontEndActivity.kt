@@ -1948,6 +1948,23 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         }
     }
 
+    // The launcher is a Compose window: without opting into a high-refresh display mode the OEM
+    // keeps it at its default (60/90 Hz) even on a 144 Hz panel, so the home screen reads as ~50 fps.
+    // Vote for the panel's peak mode at the current resolution, honouring the system refresh cap.
+    private fun applyPeakRefresh() {
+        if (Build.VERSION.SDK_INT < 23) return
+        val d = (if (Build.VERSION.SDK_INT >= 30) display else windowManager.defaultDisplay) ?: return
+        val cur = d.mode
+        val cap = com.droidhost.launcher.session.PerfMode.peakRefreshCap(this)
+        val best = d.supportedModes
+            .filter { it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight && it.refreshRate <= cap + 0.5f }
+            .maxByOrNull { it.refreshRate } ?: return
+        if (best.refreshRate <= cur.refreshRate + 0.5f) return
+        if (window.attributes.preferredDisplayModeId != best.modeId) {
+            window.attributes = window.attributes.apply { preferredDisplayModeId = best.modeId }
+        }
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (com.droidhost.launcher.ui.AgentPet.handleBack(this, event)) return true
         if (compatLaunch != null) {
@@ -1988,6 +2005,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
 
     override fun onResume() {
         super.onResume()
+        applyPeakRefresh()
         if (!homeChoiceOpen) {
             HomeApp.releaseUnusedHomeEntry(this)
             refreshHomeAppState()

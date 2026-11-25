@@ -24,6 +24,7 @@ object VmCatalog {
     const val UBUNTU = "ubuntu"
     const val DEBIAN = "debian"
     const val ARCH = "arch"
+    const val OMARCHY = "omarchy"
 
     /** The fork's component catalogue, where each built-in distribution keeps its rootfs release. */
     private const val COMPONENTS = "https://raw.githubusercontent.com/linuszz/DroidHost-Components/main/"
@@ -34,6 +35,9 @@ object VmCatalog {
         VmDistro("nixos", "NixOS", VmFamily.LINUX, engine = false),
         VmDistro("fedora", "Fedora", VmFamily.LINUX, engine = false),
         VmDistro(ARCH, "Arch Linux ARM", VmFamily.LINUX, engine = true),
+        // Omarchy ships its own Arch-based rootfs preset plus the omarchy shell; it is a distribution
+        // choice in its own right, not a desktop fitted onto a plain Arch machine.
+        VmDistro(OMARCHY, "Omarchy", VmFamily.LINUX, engine = true),
         VmDistro("alpine", "Alpine Linux", VmFamily.LINUX, engine = false),
         VmDistro("windows-11", "Windows 11", VmFamily.WINDOWS, engine = false),
         VmDistro("windows-xp", "Windows XP", VmFamily.WINDOWS, engine = false),
@@ -49,6 +53,7 @@ object VmCatalog {
         Builtin(UBUNTU, "26.04", COMPONENTS + "linuxfs-ubuntu.json"),
         Builtin(DEBIAN, "13", COMPONENTS + "linuxfs-debian.json"),
         Builtin(ARCH, "rolling", COMPONENTS + "linuxfs-arch.json"),
+        Builtin(OMARCHY, "rolling", COMPONENTS + "linuxfs-arch.json"),
     )
 
     fun of(id: String?): VmDistro? = distros.firstOrNull { it.id == id }
@@ -63,6 +68,7 @@ object VmCatalog {
         UBUNTU -> R.drawable.distro_ubuntu
         DEBIAN -> R.drawable.distro_debian
         ARCH -> R.drawable.distro_arch
+        OMARCHY -> R.drawable.distro_arch
         else -> null
     }
 }
@@ -83,7 +89,7 @@ object VmDesktops {
     // carry none. Omarchy is the Hyprland DE plus omarchy's Quickshell shell (tools/desktop-omarchy);
     // its pack pins into the APK only after the first CI publish (release.env SHA256 empty until then).
     fun adaptedFor(distroId: String): Set<String> =
-        if (distroId == VmCatalog.ARCH) adapted + NIRI + HYPR + OMARCHY else adapted
+        when (distroId) { VmCatalog.ARCH -> adapted + NIRI + HYPR; VmCatalog.OMARCHY -> setOf(OMARCHY); else -> adapted }
 }
 
 /**
@@ -232,7 +238,10 @@ object VmStore {
                 val distro = VmCatalog.of(id)
                     ?: if (imported) VmDistro(id, o.optString("name").ifEmpty { id }, VmFamily.LINUX, engine = true)
                     else return@mapNotNull null
-                VmMachine(distro, o.optLong("createdAt"),
+                // Omarchy became a first-class distro; older records stored it as Arch with an
+                // Omarchy desktop. Normalize so the card and picker read Omarchy.
+                val normDistro = if (o.optString("desktop") == VmDesktops.OMARCHY && distro.id == VmCatalog.ARCH) VmCatalog.of(VmCatalog.OMARCHY) ?: distro else distro
+                VmMachine(normDistro, o.optLong("createdAt"),
                     o.optString("id").ifEmpty { VmMachine.DEFAULT_ID }, imported,
                     o.optString("lifecycle"), o.optString("failedStage"), o.optString("failReason"),
                     o.optString("desktop").ifEmpty { VmDesktops.KDE },

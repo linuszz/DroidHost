@@ -118,8 +118,20 @@ internal fun VmSourceDialog(
                                     modifier = Modifier.padding(start = 14.dp, top = 2.dp, bottom = 4.dp),
                                 )
                                 for (version in versions) {
-                                    VmVersionRow(version, chevron = true) {
-                                        pendingVersion = if (pendingVersion == version) null else version
+                                    val desks = VmDesktops.options.filter { it.first in VmDesktops.adaptedFor(distro.id) }
+                                    VmVersionRow(version, chevron = desks.size > 1) {
+                                        if (desks.size == 1) {
+                                            if (!spawned) {
+                                                val created = VmStore.create(ctx, distro, desktop = desks.first().first)
+                                                if (created != null) {
+                                                    spawned = true
+                                                    VmPreset.start(ctx, created)
+                                                    onPick(created, false)
+                                                }
+                                            }
+                                        } else {
+                                            pendingVersion = if (pendingVersion == version) null else version
+                                        }
                                     }
                                     if (pendingVersion == version) {
                                         Text(

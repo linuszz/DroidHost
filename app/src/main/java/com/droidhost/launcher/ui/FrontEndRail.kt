@@ -124,7 +124,9 @@ internal fun BottomBar(
             val itemWidth = if (iconOnly) (maxWidth / keys.size).coerceIn(56.dp, 88.dp)
                 else maxWidth / keys.size
             Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).onPlaced { content[0] = it }) {
-                if (shown in keys) ChipGlide(keys.indexOf(shown), bounds[shown], tint, GlideAxis.Horizontal, corner = 14.dp, fill = 0.14f, outline = 0f)
+                // The prototype highlights the selected entry with its mint glyph tile alone; a
+                // whole-item chip fill read as a green slab under the icon, so the bar keeps none.
+                if (shown in keys) ChipGlide(keys.indexOf(shown), bounds[shown], tint, GlideAxis.Horizontal, corner = 14.dp, fill = 0f, outline = 0f)
                 Row(Modifier.selectableGroup(), horizontalArrangement = Arrangement.Center) {
                     NavigationItems(s, shown, compact = true, iconOnly = iconOnly, height = 48.dp, width = itemWidth,
                         place = { key -> Modifier.onGloballyPositioned { item -> content[0]?.let { bounds[key] = it.localBoundingBoxOf(item) }; Hops.railBounds[key] = item.boundsInRoot() } },
