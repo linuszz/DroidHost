@@ -107,9 +107,22 @@ internal fun VmSourceDialog(
                         if (versions.isEmpty() || !distro.engine) {
                             VmDistroRow(distro) {}
                         } else {
-                            VmDistroRow(distro, chevron = true) {
-                                expanded = if (expanded == distro.id) null else distro.id
-                                pendingVersion = null
+                            val distroDesks = VmDesktops.options.filter { it.first in VmDesktops.adaptedFor(distro.id) }
+                            val single = versions.size == 1 && distroDesks.size == 1
+                            VmDistroRow(distro, chevron = !single) {
+                                if (single) {
+                                    if (!spawned) {
+                                        val created = VmStore.create(ctx, distro, desktop = distroDesks.first().first)
+                                        if (created != null) {
+                                            spawned = true
+                                            VmPreset.start(ctx, created)
+                                            onPick(created, false)
+                                        }
+                                    }
+                                } else {
+                                    expanded = if (expanded == distro.id) null else distro.id
+                                    pendingVersion = null
+                                }
                             }
                             if (expanded == distro.id) {
                                 Text(
