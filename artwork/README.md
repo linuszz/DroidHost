@@ -11,5 +11,6 @@ Android currently consumes raster resources for the launcher layers and the Comp
 - `distro_ubuntu.png` — [Ubuntu logo, no wordmark, solid o, 2022](https://commons.wikimedia.org/wiki/File:Ubuntu-logo-no-wordmark-solid-o-2022.svg), Canonical Ltd., GPLv3.
 - `distro_debian.png` — [Debian logo, no text](https://commons.wikimedia.org/wiki/File:Debian-logo-notext_heyiya-if.svg), User:Skymandr, CC0. The wordmark variants set the name in black, which vanishes on the dark wall, so only the swirl is used.
 - `distro_arch.png` — [Arch Linux "Crystal" icon](https://commons.wikimedia.org/wiki/File:Arch_Linux_%22Crystal%22_icon.svg), Judd Vinet, Aaron Griffin and Levente Polyák, GPL.
+- `drawable/distro_omarchy.xml` — [Omarchy mark](https://github.com/simple-icons/simple-icons/blob/develop/icons/omarchy.svg), Simple Icons contributors, CC0. Kept as a vector because the stepped block emblem stays crisp at card size; `DistroGlyph` tints it like the raster marks.
 
-Only the three built-in distributions carry art; every other system keeps the generic icon.
+Only the four built-in distributions carry art; every other system keeps the generic icon.

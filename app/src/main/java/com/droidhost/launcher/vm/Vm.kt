@@ -68,7 +68,7 @@ object VmCatalog {
         UBUNTU -> R.drawable.distro_ubuntu
         DEBIAN -> R.drawable.distro_debian
         ARCH -> R.drawable.distro_arch
-        OMARCHY -> R.drawable.distro_arch
+        OMARCHY -> R.drawable.distro_omarchy
         else -> null
     }
 }
