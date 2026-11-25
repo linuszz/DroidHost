@@ -64,7 +64,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -498,7 +497,6 @@ private fun VmSourceCard(icon: ImageVector, title: String, hint: String, modifie
     Column(
         modifier.paneItem("vmsource:$title")
             .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier)
-            .shadow(6.dp, Shape16, clip = false)
             .clip(Shape16)
             .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
             .machinedBevel(inset = 1.dp)
@@ -521,7 +519,7 @@ private fun DistroGlyph(distroId: String, size: Dp, label: String? = null) {
     val shape = RoundedCornerShape(size * 0.24f)
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(size).shadow(2.dp, shape, clip = false).clip(shape)
+        modifier = Modifier.size(size).clip(shape)
             .background(Brush.verticalGradient(listOf(pal.surfaceVariant, pal.surface)))
             .border(1.dp, pal.line, shape)
             .machinedBevel(inset = 1.dp),
@@ -547,7 +545,6 @@ private fun VmNewRow(compact: Boolean, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxWidth().paneItem("vm:new")
             .semantics { contentDescription = newLabel }
-            .shadow(if (hot) 8.dp else 0.dp, Shape16, clip = false, ambientColor = pal.glow, spotColor = pal.glow)
             .clip(Shape16)
             .background(Brush.verticalGradient(listOf(pal.edgeHi, Color.Transparent)))
             .drawBehind {
@@ -563,7 +560,7 @@ private fun VmNewRow(compact: Boolean, onClick: () -> Unit) {
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(34.dp).shadow(2.dp, RoundedCornerShape(8.dp), clip = false)
+            modifier = Modifier.size(34.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Brush.verticalGradient(listOf(pal.surfaceVariant, pal.surface)))
                 .machinedBevel(),
@@ -617,13 +614,8 @@ private fun VmCard(
     val own = VmRuntime.ownRootfs(ctx, m.id)
     val gpu = VmDriver.driverInstalled(own) || own == null
     val usage = vmDiskUsage(m, sizeTick)
-    val lit = selected || status == VmStatus.RUNNING
     Column(
         Modifier.fillMaxWidth().padding(bottom = 12.dp).paneItem("vmcard:${m.id}")
-            .shadow(
-                elevation = if (hot) 14.dp else 10.dp, shape = shape, clip = false,
-                ambientColor = if (lit) pal.glow else Color.Black, spotColor = if (lit) pal.glow else Color.Black,
-            )
             .clip(shape)
             .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
             .drawBehind { if (hot) drawRect(pal.signal.copy(alpha = 0.06f)) }
@@ -707,14 +699,9 @@ private fun VmCompactCard(m: VmMachine, status: VmStatus, selected: Boolean, onS
     val src = remember { MutableInteractionSource() }
     val hot = rememberHot(src)
     val shape = Shape12
-    val lit = selected || status == VmStatus.RUNNING
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp).paneItem("vmcard:${m.id}")
-            .shadow(
-                elevation = if (hot) 8.dp else 4.dp, shape = shape, clip = false,
-                ambientColor = if (lit) pal.glow else Color.Black, spotColor = if (lit) pal.glow else Color.Black,
-            )
             .clip(shape)
             .background(Brush.verticalGradient(listOf(pal.cardTop, pal.cardBot)))
             .drawBehind { if (hot) drawRect(pal.signal.copy(alpha = 0.06f)) }
@@ -1251,7 +1238,6 @@ private fun SpaceRow(name: String, bytes: Long, total: Long) {
     ) {
         Box(
             Modifier.fillMaxWidth(if (total > 0) (bytes.toFloat() / total).coerceIn(0f, 1f) else 0f).height(3.dp)
-                .shadow(2.dp, RoundedCornerShape(2.dp), clip = false, ambientColor = pal.glow, spotColor = pal.glow)
                 .clip(RoundedCornerShape(2.dp))
                 .background(Brush.horizontalGradient(listOf(pal.primary2, colors.primary))),
         )
