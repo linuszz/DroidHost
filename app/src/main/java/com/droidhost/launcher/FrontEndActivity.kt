@@ -1956,13 +1956,20 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         val d = (if (Build.VERSION.SDK_INT >= 30) display else windowManager.defaultDisplay) ?: return
         val cur = d.mode
         val cap = com.droidhost.launcher.session.PerfMode.peakRefreshCap(this)
-        val best = d.supportedModes
-            .filter { it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight && it.refreshRate <= cap + 0.5f }
-            .maxByOrNull { it.refreshRate } ?: return
-        if (best.refreshRate <= cur.refreshRate + 0.5f) return
-        if (window.attributes.preferredDisplayModeId != best.modeId) {
-            window.attributes = window.attributes.apply { preferredDisplayModeId = best.modeId }
+        val sameRes = d.supportedModes.filter { it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight }
+        val best = sameRes.filter { it.refreshRate <= cap + 0.5f }.maxByOrNull { it.refreshRate }
+            ?: sameRes.maxByOrNull { it.refreshRate }
+        android.util.Log.i("PeakRefresh", "cur=${cur.refreshRate} cap=$cap modes=${sameRes.map { it.refreshRate }} target=${best?.refreshRate} id=${best?.modeId}")
+        if (best == null || best.refreshRate <= cur.refreshRate + 0.5f) return
+        window.attributes = window.attributes.apply {
+            preferredDisplayModeId = best.modeId
+            @Suppress("DEPRECATION") preferredRefreshRate = best.refreshRate
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) applyPeakRefresh()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
