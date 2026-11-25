@@ -628,7 +628,7 @@ internal fun SessionDrawer(open: Boolean, requestedPage: SessionDrawerPage, cont
                             }
                         }
                         SessionDrawerPage.EFFECTS -> {
-                            ScreenEffectsGroup(host, a, advancedEffectsExpanded,
+                            ScreenEffectsGroup(host, a.effects, a.upscaler, a.onEffects, a.onUpscaler, advancedEffectsExpanded,
                                 onAdvancedToggle = { advancedEffectsExpanded = !advancedEffectsExpanded }) { key -> focus.track(page, key) }
                         }
                         SessionDrawerPage.VR -> {
@@ -1071,12 +1071,12 @@ private fun DrawerPageTabs(page: SessionDrawerPage, pages: List<SessionDrawerPag
 private const val LOOK_CUSTOM = "custom"
 
 @Composable
-private fun ScreenEffectsGroup(
-    host: MenuHost, a: DrawerActions, advancedExpanded: Boolean, onAdvancedToggle: () -> Unit,
+internal fun ScreenEffectsGroup(
+    host: MenuHost, e: ScreenEffects, upscaler: Int, onEffects: (ScreenEffects) -> Unit, onUpscaler: (Int) -> Unit,
+    advancedExpanded: Boolean, onAdvancedToggle: () -> Unit,
     track: (String) -> Modifier,
 ) {
-    val e = a.effects
-    val preset = ScreenEffectLooks.match(e, a.upscaler)
+    val preset = ScreenEffectLooks.match(e, upscaler)
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     SettingsGroup(stringResource(R.string.drawer_effects)) {
@@ -1085,15 +1085,15 @@ private fun ScreenEffectsGroup(
             if (preset == null) listOf(LOOK_CUSTOM to stringResource(R.string.drawer_look_custom)) + presets else presets,
             preset?.name ?: LOOK_CUSTOM, chipModifier = track("look")) { name ->
             ScreenEffectLooks.LOOKS.firstOrNull { it.name == name }?.let { picked ->
-                picked.scalingMode?.let(a.onUpscaler)
-                a.onEffects(picked.effects)
+                picked.scalingMode?.let(onUpscaler)
+                onEffects(picked.effects)
             }
         }
-        ToggleRow(host, "fxaa", stringResource(R.string.drawer_fxaa), null, e.fxaa, chipModifier = track("fxaa")) { a.onEffects(e.copy(fxaa = it)) }
-        ToggleRow(host, "toon", stringResource(R.string.drawer_toon), null, e.toon, chipModifier = track("toon")) { a.onEffects(e.copy(toon = it)) }
-        ToggleRow(host, "crt", stringResource(R.string.drawer_crt), null, e.crt, chipModifier = track("crt")) { a.onEffects(e.copy(crt = it)) }
-        ToggleRow(host, "ntsc", stringResource(R.string.drawer_ntsc), null, e.ntsc, chipModifier = track("ntsc")) { a.onEffects(e.copy(ntsc = it)) }
-        ToggleRow(host, "fake-hdr", stringResource(R.string.drawer_fake_hdr), null, e.hdr, chipModifier = track("fake-hdr")) { a.onEffects(e.copy(hdr = it)) }
+        ToggleRow(host, "fxaa", stringResource(R.string.drawer_fxaa), null, e.fxaa, chipModifier = track("fxaa")) { onEffects(e.copy(fxaa = it)) }
+        ToggleRow(host, "toon", stringResource(R.string.drawer_toon), null, e.toon, chipModifier = track("toon")) { onEffects(e.copy(toon = it)) }
+        ToggleRow(host, "crt", stringResource(R.string.drawer_crt), null, e.crt, chipModifier = track("crt")) { onEffects(e.copy(crt = it)) }
+        ToggleRow(host, "ntsc", stringResource(R.string.drawer_ntsc), null, e.ntsc, chipModifier = track("ntsc")) { onEffects(e.copy(ntsc = it)) }
+        ToggleRow(host, "fake-hdr", stringResource(R.string.drawer_fake_hdr), null, e.hdr, chipModifier = track("fake-hdr")) { onEffects(e.copy(hdr = it)) }
     }
     val source = remember { MutableInteractionSource() }
     val hot = source.collectIsFocusedAsState().value || source.collectIsHoveredAsState().value
@@ -1116,20 +1116,20 @@ private fun ScreenEffectsGroup(
     }
     AnimatedVisibility(advancedExpanded) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(colors.surface).border(1.dp, pal.line, RoundedCornerShape(14.dp))) {
-            ToggleRow(host, "cas", stringResource(R.string.drawer_cas), null, e.cas, chipModifier = track("cas")) { a.onEffects(e.copy(cas = it)) }
+            ToggleRow(host, "cas", stringResource(R.string.drawer_cas), null, e.cas, chipModifier = track("cas")) { onEffects(e.copy(cas = it)) }
             if (e.cas) SliderRow(stringResource(R.string.drawer_cas_level), null, e.casLevel, 0..100, step = 5,
-                format = { "$it%" }, modifier = track("cas-level")) { a.onEffects(e.copy(casLevel = it)) }
-            ToggleRow(host, "deband", stringResource(R.string.drawer_deband), null, e.deband, chipModifier = track("deband")) { a.onEffects(e.copy(deband = it)) }
+                format = { "$it%" }, modifier = track("cas-level")) { onEffects(e.copy(casLevel = it)) }
+            ToggleRow(host, "deband", stringResource(R.string.drawer_deband), null, e.deband, chipModifier = track("deband")) { onEffects(e.copy(deband = it)) }
             if (e.deband) SliderRow(stringResource(R.string.drawer_deband_strength), null, e.debandStrength, 0..200, step = 5,
-                format = { "$it%" }, modifier = track("deband-strength")) { a.onEffects(e.copy(debandStrength = it)) }
+                format = { "$it%" }, modifier = track("deband-strength")) { onEffects(e.copy(debandStrength = it)) }
             SliderRow(stringResource(R.string.drawer_brightness), null, e.brightness, -100..100, step = 2,
-                format = ::signed, modifier = track("brightness")) { a.onEffects(e.copy(brightness = it)) }
+                format = ::signed, modifier = track("brightness")) { onEffects(e.copy(brightness = it)) }
             SliderRow(stringResource(R.string.drawer_contrast), null, e.contrast, -100..100, step = 2,
-                format = ::signed, modifier = track("contrast")) { a.onEffects(e.copy(contrast = it)) }
+                format = ::signed, modifier = track("contrast")) { onEffects(e.copy(contrast = it)) }
             SliderRow(stringResource(R.string.drawer_gamma), null, (e.gamma * 100f).roundToInt(), 50..300, step = 5,
-                format = { String.format(Locale.US, "%.2f", it / 100f) }, modifier = track("gamma")) { a.onEffects(e.copy(gamma = it / 100f)) }
+                format = { String.format(Locale.US, "%.2f", it / 100f) }, modifier = track("gamma")) { onEffects(e.copy(gamma = it / 100f)) }
             SliderRow(stringResource(R.string.drawer_saturation), null, e.saturation, 0..200, step = 5,
-                format = { "$it%" }, modifier = track("saturation")) { a.onEffects(e.copy(saturation = it)) }
+                format = { "$it%" }, modifier = track("saturation")) { onEffects(e.copy(saturation = it)) }
         }
     }
 }

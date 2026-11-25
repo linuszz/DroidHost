@@ -152,7 +152,6 @@ internal fun SetupPanel(
 ) {
     val host = rememberMenuHost()
     val ctx = LocalContext.current
-    var hideHomeFromRecents by remember { mutableStateOf(com.droidhost.launcher.core.AppUiPrefs.hideHomeFromRecents(ctx)) }
     var editSgdbKey by remember { mutableStateOf(false) }
     var editDownloadPrefix by remember { mutableStateOf(false) }
     var editDownloadProxy by remember { mutableStateOf(false) }
@@ -248,16 +247,18 @@ internal fun SetupPanel(
             Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == TAB_INPUT) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == TAB_INPUT) LocalNavOverlayInset.current else maxOf(24.dp, LocalNavOverlayInset.current))) {
                 when (tab) {
                     TAB_DISPLAY -> {
-                        SettingsGroup(stringResource(R.string.setup_group_device)) {
+                        var safeArea by remember { mutableStateOf(SessionPrefs.safeAreaMode(ctx)) }
+                        var refreshChoice by remember { mutableStateOf(SessionPrefs.refreshRateChoice(ctx)) }
+                        var upscaler by remember { mutableStateOf(SessionPrefs.upscaler(ctx)) }
+                        var sharpness by remember { mutableStateOf(SessionPrefs.upscaleSharpness(ctx)) }
+                        var pipAuto by remember { mutableStateOf(SessionPrefs.pipAutoEnter(ctx)) }
+                        var effects by remember { mutableStateOf(SessionPrefs.screenEffects(ctx)) }
+                        var effectsExpanded by rememberSaveable { mutableStateOf(false) }
+                        SettingsGroup(stringResource(R.string.setup_group_launcher_display)) {
                             ChoiceRow(
                                 host, "launcher-orientation", stringResource(R.string.setup_launcher_orientation), null,
                                 com.droidhost.launcher.core.AppUiPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
                                 s.launcherOrientation, onPick = a.onLauncherOrientation,
-                            )
-                            ChoiceRow(
-                                host, "orientation", stringResource(R.string.setup_session_orientation), stringResource(R.string.setup_session_orientation_hint),
-                                SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
-                                s.orientation, onPick = a.onOrientation,
                             )
                             ToggleRow(
                                 host, "launcher-fullscreen", stringResource(R.string.setup_fullscreen),
@@ -280,8 +281,94 @@ internal fun SetupPanel(
                                 )
                             }
                         }
+                        SettingsGroup(stringResource(R.string.setup_group_session_display)) {
+                            ChoiceRow(
+                                host, "orientation", stringResource(R.string.setup_session_orientation), stringResource(R.string.setup_session_orientation_hint),
+                                SessionPrefs.orientationOptions.map { (value, label) -> value to stringResource(label) },
+                                s.orientation, onPick = a.onOrientation,
+                            )
+                            ChoiceRow(
+                                host, "safe-area", stringResource(R.string.safe_area_mode), stringResource(R.string.safe_area_mode_hint),
+                                SessionPrefs.safeAreaModeOptions.map { (value, label) -> value to stringResource(label) },
+                                safeArea, onPick = { mode -> safeArea = mode; SessionPrefs.setSafeAreaMode(ctx, mode) },
+                            )
+                            // Same rate list as the session toolbar: auto (0) plus the panel's supported modes.
+                            val refreshRates = remember(ctx) {
+                                val activity = ctx as? android.app.Activity
+                                val display = if (Build.VERSION.SDK_INT >= 30) activity?.display else activity?.windowManager?.defaultDisplay
+                                val cur = display?.mode
+                                display?.supportedModes
+                                    ?.filter { cur != null && it.physicalWidth == cur.physicalWidth && it.physicalHeight == cur.physicalHeight }
+                                    ?.map { it.refreshRate.toInt() }?.distinct()?.sortedDescending().orEmpty()
+                            }
+                            ChoiceRow(
+                                host, "refresh-rate", stringResource(R.string.setup_refresh_rate), stringResource(R.string.setup_refresh_rate_hint),
+                                listOf(0 to stringResource(R.string.common_auto)) + refreshRates.map { it to "$it Hz" },
+                                refreshChoice, onPick = { hz -> refreshChoice = hz; SessionPrefs.setRefreshRateChoice(ctx, hz) },
+                            )
+                            ChoiceRow(
+                                host, "upscaler", stringResource(R.string.display_filter), null,
+                                SessionPrefs.upscalerChoices(ctx), upscaler,
+                                note = stringResource(R.string.display_filter_note),
+                                onPick = { mode -> upscaler = mode; SessionPrefs.setUpscaler(ctx, mode) },
+                            )
+                            if (SessionPrefs.upscalerHasSharpness(upscaler)) SliderRow(
+                                stringResource(R.string.display_sharpness), null, sharpness, 0..100, step = 5,
+                                format = { "$it%" }, onChange = { pct -> sharpness = pct; SessionPrefs.setUpscaleSharpness(ctx, pct) },
+                            )
+                            ToggleRow(host, "pip-auto", stringResource(R.string.pip_auto), null, pipAuto) { on ->
+                                pipAuto = on
+                                SessionPrefs.setPipAutoEnter(ctx, on)
+                            }
+                        }
+                        ScreenEffectsGroup(host, effects, upscaler,
+                            onEffects = { e -> effects = e; SessionPrefs.setScreenEffects(ctx, e) },
+                            onUpscaler = { mode -> upscaler = mode; SessionPrefs.setUpscaler(ctx, mode) },
+                            advancedExpanded = effectsExpanded, onAdvancedToggle = { effectsExpanded = !effectsExpanded }) { Modifier }
                     }
                     TAB_INPUT -> {
+                        SettingsGroup(stringResource(R.string.setup_group_touch_mouse)) {
+                            var touch by remember { mutableStateOf(SessionPrefs.touchMode(ctx)) }
+                            ChoiceRow(
+                                host, "touch-mode", stringResource(R.string.input_touchscreen), stringResource(R.string.input_touchscreen_hint),
+                                listOf(
+                                    SessionPrefs.TOUCH_AUTO to stringResource(R.string.common_auto),
+                                    SessionPrefs.TOUCH_PAD to stringResource(R.string.mode_touch_touchpad),
+                                    SessionPrefs.TOUCH_DIRECT to stringResource(R.string.mode_touch_direct),
+                                    SessionPrefs.TOUCH_GESTURES to stringResource(R.string.mode_touch_gestures),
+                                    SessionPrefs.TOUCH_OFF to stringResource(R.string.widgets_off),
+                                ),
+                                touch, onPick = { mode -> touch = mode; SessionPrefs.setTouchMode(ctx, mode) },
+                            )
+                            var relativeMouse by remember { mutableStateOf(com.droidhost.launcher.input.GesturePrefs.read(ctx).relativeMouseMode) }
+                            ChoiceRow(
+                                host, "relative-mouse", stringResource(R.string.drawer_relative_mouse), null,
+                                listOf(
+                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_AUTO to stringResource(R.string.drawer_relative_mouse_auto),
+                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_ON to stringResource(R.string.drawer_relative_mouse_on),
+                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_OFF to stringResource(R.string.drawer_relative_mouse_off),
+                                ),
+                                relativeMouse, onPick = { mode ->
+                                    relativeMouse = mode
+                                    val base = com.droidhost.launcher.input.GesturePrefs.read(ctx)
+                                    com.droidhost.launcher.input.GesturePrefs.save(ctx, null, base.copy(relativeMouseMode = mode))
+                                },
+                            )
+                            var evdev by remember { mutableStateOf(SessionPrefs.evdevMouse(ctx)) }
+                            ToggleRow(host, "evdev-mouse", stringResource(R.string.drawer_evdev_mouse), null, evdev) { on ->
+                                evdev = on
+                                SessionPrefs.setEvdevMouse(ctx, on)
+                            }
+                            var adaptiveSticks by remember { mutableStateOf(com.droidhost.launcher.input.ControllerPrefs.read(ctx).adaptiveSticks) }
+                            ToggleRow(host, "adaptive-sticks", stringResource(R.string.ctrl_adaptive), null, adaptiveSticks) { on ->
+                                adaptiveSticks = on
+                                com.droidhost.launcher.input.ControllerPrefs.setAdaptiveSticks(ctx, on)
+                            }
+                        }
+                        Box(Modifier.weight(1f).fillMaxWidth()) {
+                            if (s.controller != null && a.controller != null) InputSettingsPage(onBack = { pick(TAB_INPUT) }, embedded = true)
+                            else Note(stringResource(R.string.setup_controller_unavailable))
+                        }
                         if (s.dualScreenDevice) {
                             SettingsGroup(stringResource(R.string.setup_group_device)) {
                                 if (s.dualScreenSessions != com.droidhost.launcher.input.DualScreen.MODE_OFF) {
@@ -292,12 +379,9 @@ internal fun SetupPanel(
                                     null, s.androidTextFieldKeyboard) { a.onAndroidTextFieldKeyboard(it) }
                             }
                         }
-                        Box(Modifier.weight(1f).fillMaxWidth()) {
-                            if (s.controller != null && a.controller != null) InputSettingsPage(onBack = { pick(TAB_INPUT) }, embedded = true)
-                            else Note(stringResource(R.string.setup_controller_unavailable))
-                        }
                     }
                     TAB_PERFORMANCE -> {
+                        DroidHostHudSettings(host)
                         SettingsGroup(stringResource(R.string.setup_group_memory)) {
                             ChoiceRow(
                                 host, "memory-hud", stringResource(R.string.setup_memory_hud), stringResource(R.string.setup_memory_hud_hint),
@@ -362,27 +446,8 @@ internal fun SetupPanel(
                     }
                     TAB_LAUNCHER -> {
                         TabsSettingsGroup(host, s, a)
-                        SettingsGroup(stringResource(R.string.setup_group_device)) {
-                            ToggleRow(
-                                host, "home-screen", stringResource(R.string.setup_home),
-                                if (s.homeScreenEnabled) stringResource(R.string.setup_home_on) else stringResource(R.string.setup_home_off),
-                                s.homeScreenEnabled,
-                            ) { a.onHomeScreen(it) }
-                            if (s.homeScreenEnabled) {
-                                ActionRow(stringResource(R.string.setup_default_home), s.defaultHomeLabel ?: stringResource(R.string.setup_choose_home), stringResource(R.string.setup_choose), a.onHomeApp)
-                                ToggleRow(
-                                    host, "hide-home-from-recents", stringResource(R.string.setup_hide_home_from_recents),
-                                    stringResource(R.string.setup_hide_home_from_recents_hint), hideHomeFromRecents,
-                                ) { hidden ->
-                                    hideHomeFromRecents = hidden
-                                    com.droidhost.launcher.core.AppUiPrefs.setHideHomeFromRecents(ctx, hidden)
-                                }
-                                ChoiceRow(
-                                    host, "home-page", stringResource(R.string.setup_home_page), stringResource(R.string.setup_home_page_hint),
-                                    com.droidhost.launcher.core.AppUiPrefs.homePageOptions.map { (value, label) -> value to stringResource(label) },
-                                    s.homePage, onPick = a.onHomePage,
-                                )
-                            }
+                        SettingsGroup(stringResource(R.string.setup_group_download)) {
+                            Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp)) { DownloadControls(s, a) }
                         }
                     }
                     TAB_NETWORK -> {
@@ -493,6 +558,14 @@ internal fun SetupPanel(
                             ActionRow(stringResource(R.string.setup_saved_logs), stringResource(R.string.setup_saved_logs_hint, com.droidhost.launcher.session.SessionPaths.KEEP_SESSIONS), stringResource(R.string.setup_clear_logs), a.onClearLogs)
                             ActionRow(stringResource(R.string.setup_reset_settings), stringResource(R.string.setup_reset_settings_hint),
                                 stringResource(R.string.setup_reset_settings_button), a.onResetSettings)
+                        }
+                        SettingsGroup(stringResource(R.string.setup_group_container)) {
+                            GameEnvironmentRow(initialScope = "")
+                            val allFilesMissing = com.droidhost.launcher.files.AllFilesAccess.missing()
+                            SettingsRow(stringResource(R.string.setup_all_files),
+                                stringResource(if (allFilesMissing) R.string.setup_all_files_hint else R.string.setup_all_files_granted)) {
+                                SecondaryButton(stringResource(R.string.upd_open_settings)) { com.droidhost.launcher.files.AllFilesAccess.open(ctx) }
+                            }
                         }
                         SettingsGroup(stringResource(R.string.setup_group_memory)) {
                             ToggleRow(

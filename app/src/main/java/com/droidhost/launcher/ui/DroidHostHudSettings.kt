@@ -19,13 +19,41 @@ import com.droidhost.launcher.session.StripMetric
 
 @Composable
 internal fun DroidHostHudSettings(host: MenuHost, a: DrawerActions, track: (String) -> Modifier) {
-    val cfg = a.hudConfig
+    HudSettingsBody(host, a.hudOn, a.hudConfig,
+        showBottomStrip = a.dashboardAvailable && a.secondScreenDisplays.isNotEmpty(), track = track,
+        onHud = a.onHud, onHudSetting = a.onHudSetting, onHudOrder = a.onHudOrder,
+        onHudOrderReset = a.onHudOrderReset, onHudExport = a.onHudExport, onHudReset = a.onHudReset)
+}
+
+// Global setup entry: writes the same prefs the session HUD loads, no running session needed.
+// Live diagnostics export stays session-only (onHudExport = null hides the row).
+@Composable
+internal fun DroidHostHudSettings(host: MenuHost, track: (String) -> Modifier = { Modifier }) {
+    val context = LocalContext.current
+    var hudOn by remember { mutableStateOf(SessionPrefs.hudEnabled(context)) }
+    var cfg by remember { mutableStateOf<Map<String, String>>(DroidHostHudConfig.load(context)) }
+    HudSettingsBody(host, hudOn, cfg, showBottomStrip = true, track = track,
+        onHud = { on -> hudOn = on; SessionPrefs.setHudEnabled(context, on) },
+        onHudSetting = { key, value -> cfg = DroidHostHudConfig.set(context, key, value) },
+        onHudOrder = { switches, order -> cfg = DroidHostHudConfig.choose(context, switches, order) },
+        onHudOrderReset = { cfg = DroidHostHudConfig.clearOrder(context) },
+        onHudExport = null,
+        onHudReset = { cfg = DroidHostHudConfig.reset(context) })
+}
+
+@Composable
+private fun HudSettingsBody(
+    host: MenuHost, hudOn: Boolean, cfg: Map<String, String>, showBottomStrip: Boolean, track: (String) -> Modifier,
+    onHud: (Boolean) -> Unit, onHudSetting: (String, String) -> Unit,
+    onHudOrder: (Map<String, Boolean>, List<String>) -> Unit, onHudOrderReset: () -> Unit,
+    onHudExport: (() -> Unit)?, onHudReset: () -> Unit,
+) {
     fun on(key: String) = cfg[key] == "1"
     fun int(key: String, fallback: Int) = cfg[key]?.toIntOrNull() ?: fallback
 
     SettingsGroup(stringResource(R.string.drawer_hud)) {
-        ToggleRow(host, "hud", stringResource(R.string.drawer_hud), null, a.hudOn, chipModifier = track("hud"), onChange = a.onHud)
-        if (!a.hudOn) return@SettingsGroup
+        ToggleRow(host, "hud", stringResource(R.string.drawer_hud), null, hudOn, chipModifier = track("hud"), onChange = onHud)
+        if (!hudOn) return@SettingsGroup
         val size = DroidHostHudSize.from(cfg["hudSize"])
         ChoiceRow(host, "hud-size", stringResource(R.string.hud_size), stringResource(R.string.hud_size_hint),
             listOf(
@@ -36,35 +64,35 @@ internal fun DroidHostHudSettings(host: MenuHost, a: DrawerActions, track: (Stri
                 DroidHostHudSize.MEGA to stringResource(R.string.hud_size_mega),
                 DroidHostHudSize.STRIP to stringResource(R.string.hud_size_strip),
             ),
-            size, chipModifier = track("hud-size")) { a.onHudSetting("hudSize", it.token) }
+            size, chipModifier = track("hud-size")) { onHudSetting("hudSize", it.token) }
         ToggleRow(host, "hud-locked", stringResource(R.string.hud_locked), stringResource(R.string.hud_locked_hint), on("hudLocked"),
-            chipModifier = track("hud-locked")) { a.onHudSetting("hudLocked", flag(it)) }
+            chipModifier = track("hud-locked")) { onHudSetting("hudLocked", flag(it)) }
         ToggleRow(host, "hud-snap", stringResource(R.string.hud_snap), stringResource(R.string.hud_snap_hint), on("hudSnap"),
-            chipModifier = track("hud-snap")) { a.onHudSetting("hudSnap", flag(it)) }
+            chipModifier = track("hud-snap")) { onHudSetting("hudSnap", flag(it)) }
     }
-    if (a.dashboardAvailable && a.secondScreenDisplays.isNotEmpty()) BottomStripSettings(host, track)
-    if (!a.hudOn) return
+    if (showBottomStrip) BottomStripSettings(host, track)
+    if (!hudOn) return
 
     SettingsGroup(stringResource(R.string.hud_group_look)) {
         SliderRow(stringResource(R.string.hud_scale), null, int("hudScale", 100), 50..150, step = 5, format = { "$it%" },
-            modifier = track("hud-scale")) { a.onHudSetting("hudScale", it.toString()) }
+            modifier = track("hud-scale")) { onHudSetting("hudScale", it.toString()) }
         SliderRow(stringResource(R.string.drawer_hud_opacity), null, int("hudOpacity", 80), 0..100, step = 5, format = { "$it%" },
-            modifier = track("hud-opacity")) { a.onHudSetting("hudOpacity", it.toString()) }
+            modifier = track("hud-opacity")) { onHudSetting("hudOpacity", it.toString()) }
         ChoiceRow(host, "hud-color", stringResource(R.string.drawer_hud_color), null,
             listOf("soft" to stringResource(R.string.hud_color_soft), "mid" to stringResource(R.string.hud_color_mid),
                 "vivid" to stringResource(R.string.hud_color_vivid)),
-            cfg["hudColor"] ?: "mid", chipModifier = track("hud-color")) { a.onHudSetting("hudColor", it) }
+            cfg["hudColor"] ?: "mid", chipModifier = track("hud-color")) { onHudSetting("hudColor", it) }
         SliderRow(stringResource(R.string.hud_outline), null, int("hudOutline", 40), 0..100, step = 10,
-            modifier = track("hud-outline")) { a.onHudSetting("hudOutline", it.toString()) }
+            modifier = track("hud-outline")) { onHudSetting("hudOutline", it.toString()) }
         ChoiceRow(host, "hud-outline-color", stringResource(R.string.hud_outline_color), null,
             listOf("0" to stringResource(R.string.hud_outline_gray), "1" to stringResource(R.string.hud_outline_theme)),
-            if (cfg["hudOutlineAccent"] == "0") "0" else "1", chipModifier = track("hud-outline-color")) { a.onHudSetting("hudOutlineAccent", it) }
+            if (cfg["hudOutlineAccent"] == "0") "0" else "1", chipModifier = track("hud-outline-color")) { onHudSetting("hudOutlineAccent", it) }
         ToggleRow(host, "hud-fps-decimal", stringResource(R.string.hud_metric_decimal), null, on("fpsDecimal"),
-            chipModifier = track("hud-fps-decimal")) { a.onHudSetting("fpsDecimal", flag(it)) }
+            chipModifier = track("hud-fps-decimal")) { onHudSetting("fpsDecimal", flag(it)) }
         ToggleRow(host, "hud-clock", stringResource(R.string.hud_metric_clock), null, on("showClock"),
-            chipModifier = track("hud-clock")) { a.onHudSetting("showClock", flag(it)) }
+            chipModifier = track("hud-clock")) { onHudSetting("showClock", flag(it)) }
         ToggleRow(host, "hud-graph", stringResource(R.string.hud_metric_graph), null, on("showFPSGraph"),
-            chipModifier = track("hud-graph")) { a.onHudSetting("showFPSGraph", flag(it)) }
+            chipModifier = track("hud-graph")) { onHudSetting("showFPSGraph", flag(it)) }
     }
 
     var editing by remember { mutableStateOf(false) }
@@ -81,15 +109,15 @@ internal fun DroidHostHudSettings(host: MenuHost, a: DrawerActions, track: (Stri
             initialOrder = rows,
             initialOn = rows.associateWith { on(it) },
             onDismiss = { editing = false },
-            onSave = { switches, order -> a.onHudOrder(switches, order) },
-            onReset = a.onHudOrderReset,
+            onSave = { switches, order -> onHudOrder(switches, order) },
+            onReset = onHudOrderReset,
         )
     }
 
     if (on("showTemp") || on("showGpuTemp") || on("showBatteryTemp")) SettingsGroup(stringResource(R.string.hud_group_temps)) {
         ChoiceRow(host, "hud-temp-unit", stringResource(R.string.hud_temp_unit), null,
             listOf("c" to "°C", "f" to "°F"), if (cfg["tempUnit"].equals("f", true)) "f" else "c",
-            chipModifier = track("hud-temp-unit")) { a.onHudSetting("tempUnit", it) }
+            chipModifier = track("hud-temp-unit")) { onHudSetting("tempUnit", it) }
         val bands = when {
             cfg["tempBands"] == "0" -> "0"
             cfg["tempAuto"] == "0" -> "2"
@@ -99,24 +127,24 @@ internal fun DroidHostHudSettings(host: MenuHost, a: DrawerActions, track: (Stri
             listOf("0" to stringResource(R.string.hud_temp_bands_off), "1" to stringResource(R.string.hud_temp_bands_auto),
                 "2" to stringResource(R.string.hud_temp_bands_manual)),
             bands, chipModifier = track("hud-temp-bands")) {
-            a.onHudSetting("tempBands", if (it == "0") "0" else "1")
-            a.onHudSetting("tempAuto", if (it == "2") "0" else "1")
+            onHudSetting("tempBands", if (it == "0") "0" else "1")
+            onHudSetting("tempAuto", if (it == "2") "0" else "1")
         }
         if (bands == "2") {
             SliderRow(stringResource(R.string.hud_temp_red_cpu), null, int("tempRedCpu", 90), 50..110, format = { "$it°C" },
-                modifier = track("hud-red-cpu")) { a.onHudSetting("tempRedCpu", it.toString()) }
+                modifier = track("hud-red-cpu")) { onHudSetting("tempRedCpu", it.toString()) }
             SliderRow(stringResource(R.string.hud_temp_red_gpu), null, int("tempRedGpu", 90), 50..110, format = { "$it°C" },
-                modifier = track("hud-red-gpu")) { a.onHudSetting("tempRedGpu", it.toString()) }
+                modifier = track("hud-red-gpu")) { onHudSetting("tempRedGpu", it.toString()) }
             SliderRow(stringResource(R.string.hud_temp_red_battery), null, int("tempRedBat", 48), 35..60, format = { "$it°C" },
-                modifier = track("hud-red-battery")) { a.onHudSetting("tempRedBat", it.toString()) }
+                modifier = track("hud-red-battery")) { onHudSetting("tempRedBat", it.toString()) }
         }
     }
 
     SettingsGroup(stringResource(R.string.hud_group_more)) {
-        ActionRow(stringResource(R.string.hud_export), stringResource(R.string.hud_export_hint),
-            stringResource(R.string.hud_export_button), onClick = a.onHudExport, modifier = track("hud-export"))
+        if (onHudExport != null) ActionRow(stringResource(R.string.hud_export), stringResource(R.string.hud_export_hint),
+            stringResource(R.string.hud_export_button), onClick = onHudExport, modifier = track("hud-export"))
         ActionRow(stringResource(R.string.hud_reset), null, stringResource(R.string.hud_reset_button),
-            onClick = a.onHudReset, modifier = track("hud-reset"))
+            onClick = onHudReset, modifier = track("hud-reset"))
     }
 }
 
