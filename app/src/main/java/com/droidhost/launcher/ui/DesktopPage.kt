@@ -252,7 +252,9 @@ internal fun DesktopPage(s: FrontEndState, a: FrontEndActions, modifier: Modifie
         selectedId = null
     }
 
-    BoxWithConstraints(modifier.fillMaxSize().background(pal.background).screenTexture()) {
+    // The shell (FrontEndScreen) already paints the full-bleed background + screen texture;
+    // repainting it here was a second full-screen gradient + dot-grid raster per frame.
+    BoxWithConstraints(modifier.fillMaxSize()) {
         // Two columns only when both axes have room; a landscape phone keeps the inline list.
         val wide = !LocalNarrowPane.current && maxWidth >= 840.dp && maxHeight >= 600.dp
         val padH = if (LocalNarrowPane.current) 20.dp else 28.dp
