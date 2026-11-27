@@ -641,6 +641,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var androidTextFieldKeyboard by mutableStateOf(false)
     private var launcherStarted = false
     private lateinit var displayManager: DisplayManager
+    private var peakVote: com.droidhost.launcher.ui.PeakSurfaceVote? = null
     private val secondScreenDisplayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) = refreshSecondScreenDisplays()
         override fun onDisplayRemoved(displayId: Int) = refreshSecondScreenDisplays()
@@ -1961,6 +1962,21 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         val best = sameRes.filter { it.refreshRate <= cap + 0.5f }.maxByOrNull { it.refreshRate }
             ?: sameRes.maxByOrNull { it.refreshRate }
         android.util.Log.i("PeakRefresh", "cur=${cur.refreshRate} cap=$cap modes=${sameRes.map { it.refreshRate }} target=${best?.refreshRate} id=${best?.modeId}")
+        if (com.droidhost.launcher.ui.PeakSurfaceVote.needed()) {
+            // nubia's AppRequestObserver ignores the window-level votes below; cast the
+            // SurfaceFlinger producer vote instead, the same channel the video session uses.
+            if (peakVote == null) peakVote = com.droidhost.launcher.ui.PeakSurfaceVote(this)
+            peakVote?.setHz(best?.refreshRate ?: 0f)
+            // Measured on nubia: the uid-level 60 Hz cap lifts as soon as the overlay keeps
+            // posting frames, so declaring a gameplay state is not needed here. The switch
+            // stays for OEM policies that gate on it.
+            if (Build.VERSION.SDK_INT >= 33 && gameStateEnabled()) {
+                try {
+                    getSystemService(android.app.GameManager::class.java)?.setGameState(
+                        android.app.GameState(false, android.app.GameState.MODE_GAMEPLAY_INTERRUPTIBLE))
+                } catch (t: Throwable) { android.util.Log.w("PeakRefresh", "game state", t) }
+            }
+        }
         if (best == null || best.refreshRate <= cur.refreshRate + 0.5f) {
             if (best != null && Build.VERSION.SDK_INT >= 30 && !window.attributes.preferMinimalPostProcessing) {
                 // The session window gets 144 Hz on nubia with preferMinimalPostProcessing while
@@ -1974,6 +1990,19 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             @Suppress("DEPRECATION") preferredRefreshRate = best.refreshRate
             if (Build.VERSION.SDK_INT >= 30) preferMinimalPostProcessing = true
         }
+    }
+
+    private fun gameStateEnabled(): Boolean = try {
+        android.provider.Settings.Global.getInt(contentResolver, "droidhost_peak_game_state", 0) != 0
+    } catch (_: Throwable) {
+        false
+    }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
+        val active = event.actionMasked == android.view.MotionEvent.ACTION_DOWN ||
+            event.actionMasked == android.view.MotionEvent.ACTION_MOVE
+        peakVote?.setTouching(active)
+        return super.dispatchTouchEvent(event)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -2009,6 +2038,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     }
 
     override fun onPause() {
+        peakVote?.setHz(0f)
         compatLaunchVisible = false
         if (android.os.Build.VERSION.SDK_INT >= 29) com.droidhost.launcher.ui.DualScreenPanel.ownerPaused(taskId, true)
         super.onPause()
