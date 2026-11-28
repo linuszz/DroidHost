@@ -2006,6 +2006,9 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // A gamepad or keyboard produces no touch events, so it would never wake the
+        // producer vote and the panel would stay at the OEM's 60 Hz cap.
+        peakVote?.setTouching(event.action == KeyEvent.ACTION_DOWN)
         if (com.droidhost.launcher.ui.AgentPet.handleBack(this, event)) return true
         if (compatLaunch != null) {
             if (event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_BUTTON_B) {
@@ -2032,6 +2035,9 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     }
 
     override fun dispatchGenericMotionEvent(event: android.view.MotionEvent): Boolean {
+        // A gamepad stick reports motion without a matching up event: keep the vote awake
+        // while the pad is in use.
+        peakVote?.setTouching(true)
         if (compatLaunch != null && !compatLaunch!!.loading.ended &&
             com.droidhost.launcher.input.PadBridge.isControllerMotionEvent(event)) return true
         return super.dispatchGenericMotionEvent(event)
