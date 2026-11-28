@@ -1223,6 +1223,8 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         clearCachedApps = clearCachedApps, adbPaired = adbPaired, memoryHud = memoryHud, backgroundAppLimit = backgroundAppLimit,
                         tpUbwcMode = drivers.tpUbwcModeForDevice(), tpUbwcRestartRequired = drivers.tpUbwcRestartRequired(), canRestartApp = !runtimeChangesBlocked(),
                         gpuRuntimeDriver = gpuRuntimeDriver, gpuDisplayDriver = gpuDisplayDriver,
+                        bootMovie = bootMovie, bootMovieSound = bootMovieSound,
+                        bootMovieImporting = bootMovieImporting, bootMovieProgress = bootMovieProgress,
                         steamGames = steamGames, steamGamesX64 = steamGamesX64, emulators = emulatorList, running = runningLabel,
                         frameGen = FrameGen.mode(this),
                         lossless = lossless,
@@ -1435,6 +1437,12 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         onComponents = { focusContent -> openComponents(focusContent) },
                         onGameComponents = { game -> openComponents(gameKey = game.profileKey) },
                         onComponentsTab = { tab -> openComponents(focusContent = true, tab = tab) },
+                        onBootMovie = { id -> com.droidhost.launcher.session.BootMovie.select(this, id); loadBootMovie() },
+                        onBootMovieSound = { on -> SessionPrefs.setBootMovieSound(this, on); bootMovieSound = on },
+                        onImportBootMovie = {
+                            pickBootMovie.launch(InAppFilePicker.buildIntent(this, com.droidhost.launcher.session.BootMovie.PICKER_EXTENSIONS, getString(R.string.boot_movie_pick)))
+                        },
+                        onBootMovieChanged = { loadBootMovie() },
                         onSaveImport = { sg -> importSaves(sg.name) { GameSaves.game(sg) } },
                         onAddonImport = { sg, target -> importAddons(sg.name, target) },
                         onAddonDelete = { target, name ->

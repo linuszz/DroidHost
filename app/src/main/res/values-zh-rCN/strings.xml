@@ -1566,6 +1566,8 @@
     <string name="rail_more">更多</string>
     <string name="more_edit_tabs">编辑标签页</string>
     <string name="setup_group_tabs">标签页</string>
+    <string name="setup_default_tab">默认标签页</string>
+    <string name="setup_default_tab_hint">DroidHost 启动时打开的页面。</string>
     <string name="rail_percent">%1$d%%</string>
     <string name="rail_resume_named">恢复 %1$s</string>
     <string name="system_tab_overview">概览</string>

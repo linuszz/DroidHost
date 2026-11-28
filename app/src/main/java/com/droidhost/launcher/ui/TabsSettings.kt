@@ -73,7 +73,11 @@ internal fun moveTabRow(rows: List<String>, key: String, step: Int): List<String
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-internal fun TabsSettingsGroup(host: MenuHost, s: FrontEndState, a: FrontEndActions) {
+internal fun TabsSettingsGroup(
+    host: MenuHost, s: FrontEndState, a: FrontEndActions,
+    defaultTab: String? = null,
+    onDefaultTab: (String) -> Unit = {},
+) {
     val ctx = LocalContext.current
     val reveal = remember { BringIntoViewRequester() }
     LaunchedEffect(Unit) {
@@ -110,6 +114,19 @@ internal fun TabsSettingsGroup(host: MenuHost, s: FrontEndState, a: FrontEndActi
 
     Box(Modifier.bringIntoViewRequester(reveal)) {
         SettingsGroup(stringResource(R.string.setup_group_tabs)) {
+            if (defaultTab != null) {
+                // 默认标签页（原型⑥屏「启动器与 Tab」）：DroidHost 启动时落在哪个页面。
+                ChoiceRow(
+                    host, "default-tab", stringResource(R.string.setup_default_tab), stringResource(R.string.setup_default_tab_hint),
+                    listOf(
+                        "desktop" to stringResource(R.string.rail_desktop),
+                        "android-apps" to stringResource(R.string.rail_apps),
+                        "setup" to stringResource(R.string.rail_setup),
+                        "system" to stringResource(R.string.rail_system),
+                    ).filter { NavTabs.available(s, it.first) },
+                    defaultTab, onPick = onDefaultTab,
+                )
+            }
             Column(
                 Modifier.fillMaxWidth().pointerInput(Unit) {
                     awaitEachGesture {

@@ -428,9 +428,10 @@ internal fun SetupPanel(
                         }
                     }
                     TAB_LAUNCHER -> {
-                        TabsSettingsGroup(host, s, a)
-                        SettingsGroup(stringResource(R.string.setup_group_download)) {
-                            Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp)) { DownloadControls(s, a) }
+                        var defaultTab by remember { mutableStateOf(SessionPrefs.defaultNavTab(ctx)) }
+                        TabsSettingsGroup(host, s, a, defaultTab) { key ->
+                            defaultTab = key
+                            SessionPrefs.setDefaultNavTab(ctx, key)
                         }
                         SettingsGroup(stringResource(R.string.setup_group_cache)) {
                             ToggleRow(
@@ -455,10 +456,29 @@ internal fun SetupPanel(
                                 stringResource(R.string.setup_adb_pair_button), onPairWirelessDebugging,
                             )
                         }
+                        // 开机动画是全局项：从模式设置迁到「启动器与 Tab」（设计 §4.3 / 原型⑥屏）。
+                        if (s.bootMovie != null) BootMovieGroup(
+                            ModeSettings(
+                                bootMovie = s.bootMovie,
+                                bootMovieSound = s.bootMovieSound,
+                                bootMovieImporting = s.bootMovieImporting,
+                                bootMovieProgress = s.bootMovieProgress,
+                            ),
+                            ModeSettingsActions(
+                                onResolution = {},
+                                onHdr = {},
+                                onBootMovie = a.onBootMovie,
+                                onBootMovieSound = a.onBootMovieSound,
+                                onImportBootMovie = a.onImportBootMovie,
+                                onBootMovieChanged = a.onBootMovieChanged,
+                            ),
+                            host,
+                        )
                     }
                     TAB_NETWORK -> {
                         SyncPanel(host, runtimeOk) { syncAdvanced = true }
                         SettingsGroup(stringResource(R.string.setup_group_download)) {
+                            Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp)) { DownloadControls(s, a) }
                             ChoiceRow(
                                 host, "download-source", stringResource(R.string.setup_download_source), null,
                                 listOf(

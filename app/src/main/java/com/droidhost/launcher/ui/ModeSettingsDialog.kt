@@ -54,24 +54,24 @@ internal fun driverTagLabel(tag: String): String = when (tag) {
 class DownloadRow(val key: String, val label: String, val detail: String, val progress: Int? = null)
 
 class ModeSettings(
-    val mode: String,
-    val resolution: String,
+    val mode: String = "",
+    val resolution: String = "",
     val panelSize: Pair<Int, Int> = 1280 to 720,
-    val hdr: Boolean,
-    val hdrReason: String?,
+    val hdr: Boolean = false,
+    val hdrReason: String? = null,
     val gpuDrivers: String? = null,
     val upscaler: Int = 0,
     val upscaleSharpness: Int = 75,
-    val touchMode: String,
-    val suspendPolicy: String,
+    val touchMode: String = "",
+    val suspendPolicy: String = "",
     val steamDownloadsInBackground: Boolean = false,
     val pipSupported: Boolean = false,
     val pipAutoEnter: Boolean = false,
-    val oscMode: String?,
+    val oscMode: String? = null,
     val backHold: Boolean = true,
     val backActionsInverted: Boolean = false,
-    val directAudio: Boolean?,
-    val mic: Boolean?,
+    val directAudio: Boolean? = null,
+    val mic: Boolean? = null,
     val gameStorage: String? = null,
     val storageOptions: List<com.droidhost.launcher.session.GameStorage.Option> = emptyList(),
     val steamLibraries: List<com.droidhost.launcher.session.SteamLibraries.Entry> = emptyList(),
@@ -110,21 +110,21 @@ class ModeSettings(
 )
 
 class ModeSettingsActions(
-    val onResolution: (String) -> Unit,
-    val onHdr: (Boolean) -> Unit,
+    val onResolution: (String) -> Unit = {},
+    val onHdr: (Boolean) -> Unit = {},
     val onGpuDrivers: () -> Unit = {},
     val onUpscaler: (Int) -> Unit = {},
     val onUpscaleSharpness: (Int) -> Unit = {},
-    val onTouch: (String) -> Unit,
-    val onSuspendPolicy: (String) -> Unit,
+    val onTouch: (String) -> Unit = {},
+    val onSuspendPolicy: (String) -> Unit = {},
     val onSteamDownloadsInBackground: (Boolean) -> Unit = {},
     val onPipAutoEnter: (Boolean) -> Unit = {},
-    val onOsc: (String) -> Unit,
-    val onInputSettings: () -> Unit,
+    val onOsc: (String) -> Unit = {},
+    val onInputSettings: () -> Unit = {},
     val onBackHold: (Boolean) -> Unit = {},
     val onBackActionsInverted: (Boolean) -> Unit = {},
-    val onDirectAudio: (Boolean) -> Unit,
-    val onMic: (Boolean) -> Unit,
+    val onDirectAudio: (Boolean) -> Unit = {},
+    val onMic: (Boolean) -> Unit = {},
     val onGameStorage: (path: String, label: String) -> Unit = { _, _ -> },
     val onPickGameStorageFolder: () -> Unit = {},
     val onStorageDiagnostics: (Boolean) -> Unit = {},
@@ -160,7 +160,7 @@ class ModeSettingsActions(
     val onDeckyEnabled: (Boolean) -> Unit = {},
     val onDeckyUninstall: () -> Unit = {},
     val onPickDeckyPluginZip: () -> Unit = {},
-    val onDismiss: () -> Unit,
+    val onDismiss: () -> Unit = {},
 )
 
 internal fun fexVersionOf(script: String): String? =
@@ -560,7 +560,7 @@ fun ModeSheetRows(s: ModeSettings, a: ModeSettingsActions, tab: String, extras: 
                 onPick = a.onSteamClientArch,
             )
         }
-        if (s.bootMovie != null) BootMovieGroup(s, a, host)
+        // 开机动画是全局项，已迁到「设置·启动器与 Tab」（设计 §4.3），此处不再重复。
         if (s.integration != null) SteamIntegrationGroup(s.integration,
             onFeature = a.onIntegration, onAppInfo = a.onIntegrationAppInfo, onLocation = a.onIntegrationLocation)
     }

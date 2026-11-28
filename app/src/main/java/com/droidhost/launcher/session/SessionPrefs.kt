@@ -352,6 +352,13 @@ object SessionPrefs {
         prefs(context).edit().putString("navTabHidden", keys.joinToString(",")).apply()
     }
 
+    fun defaultNavTab(context: Context): String =
+        prefs(context).getString("defaultNavTab", "desktop")?.takeIf { it.isNotBlank() } ?: "desktop"
+
+    fun setDefaultNavTab(context: Context, key: String) {
+        prefs(context).edit().putString("defaultNavTab", key).apply()
+    }
+
     private fun idList(raw: String?): List<String> = raw.orEmpty().split(',').map { it.trim() }.filter { it.isNotEmpty() }
 
     val STORES_SORTS = listOf("lastPlayed", "recentlyInstalled", "titleAsc", "titleDesc", "sizeDesc", "sizeAsc", "releaseDateDesc")

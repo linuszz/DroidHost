@@ -122,6 +122,10 @@ class FrontEndState(
     val tpUbwcRestartRequired: Boolean = false,
     val gpuRuntimeDriver: String = "",
     val gpuDisplayDriver: String = "",
+    val bootMovie: String? = null,
+    val bootMovieSound: Boolean = true,
+    val bootMovieImporting: Boolean = false,
+    val bootMovieProgress: Int = -1,
     val canRestartApp: Boolean = false,
     val steamGames: List<Library.SteamGame>,
     val steamGamesX64: Boolean = false,
@@ -245,6 +249,10 @@ class FrontEndActions(
     val onComponents: (focusContent: Boolean) -> Unit,
     val onGameComponents: (Library.SteamGame) -> Unit = { onComponents(true) },
     val onComponentsTab: (String) -> Unit = {},
+    val onBootMovie: (String) -> Unit = {},
+    val onBootMovieSound: (Boolean) -> Unit = {},
+    val onImportBootMovie: () -> Unit = {},
+    val onBootMovieChanged: () -> Unit = {},
     val onSaveImport: (Library.SteamGame) -> Unit = {},
     val onAddonImport: (Library.SteamGame, com.droidhost.launcher.runtime.WowAddons.Target) -> Unit = { _, _ -> },
     val onAddonDelete: (com.droidhost.launcher.runtime.WowAddons.Target, String) -> Unit = { _, _ -> },
@@ -473,8 +481,16 @@ fun FrontEndScreen(s: FrontEndState, a: FrontEndActions, page: (@Composable () -
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Composable () -> Unit)?, frontFocus: FrontFocus) {
+    val screenContext = LocalContext.current
     var selected by rememberSaveable {
-        mutableStateOf(if (s.shortcutPicker) "games" else if (NavTabs.place(s, "desktop") == TabPlace.HIDDEN) navigationKeys(s).first { it != "components" } else "desktop")
+        mutableStateOf(
+            if (s.shortcutPicker) "games" else {
+                // 设计§4.3「启动器与 Tab」：默认 Tab 决定启动落在哪个页面（原型⑥屏）。
+                val preferred = SessionPrefs.defaultNavTab(screenContext)
+                if (preferred in NavTabs.ALL && NavTabs.place(s, preferred) == TabPlace.BAR) preferred
+                else if (NavTabs.place(s, "desktop") == TabPlace.HIDDEN) navigationKeys(s).first { it != "components" } else "desktop"
+            }
+        )
     }
     LaunchedEffect(s.shortcutPicker) { if (s.shortcutPicker) selected = "games" }
     LaunchedEffect(s.navigate) {
