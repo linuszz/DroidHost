@@ -530,6 +530,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var bootMovieProgress by mutableStateOf(-1)
     private var theme by mutableStateOf("graphite")
     private var appScale by mutableStateOf(com.droidhost.launcher.core.AppUiPrefs.DEFAULT_SCALE)
+    private var fontScale by mutableStateOf(com.droidhost.launcher.session.SessionPrefs.FONT_SCALE_DEFAULT)
     private var hdrOn by mutableStateOf(false)
     private var upscaler by mutableStateOf(0)
     private var upscaleSharpness by mutableStateOf(75)
@@ -1151,6 +1152,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         theme = SessionPrefs.theme(this)
         frameGenLabel = getString(R.string.frame_gen_off)
         appScale = com.droidhost.launcher.core.AppUiPrefs.scale(this)
+        fontScale = SessionPrefs.fontScale(this)
         val (cached, cachedX64) = com.droidhost.launcher.frontend.LibraryCache.snapshot(this)
         steamGames = if (shortcutPicker) emptyList() else cached
         steamGamesX64 = cachedX64
@@ -1184,7 +1186,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             androidx.compose.runtime.LaunchedEffect(prootPack) {
                 if (prootPack == com.droidhost.launcher.core.AddonPack.State.Ready && installed == null) refresh()
             }
-            DroidHostTheme(theme, appScale = appScale) {
+            DroidHostTheme(theme, appScale = appScale, fontScale = fontScale) {
             com.droidhost.launcher.ui.FocusGlideHost(androidx.compose.ui.Modifier.fillMaxSize().exposeTestTags()) {
                 if (decky.deckyPendingZip != null) com.droidhost.launcher.ui.DeckyZipWarningDialog(
                     onConfirm = { decky.confirmPluginZip() }, onCancel = { decky.cancelPluginZip() },
@@ -1232,6 +1234,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         theme = theme,
                         language = com.droidhost.launcher.core.AppLanguage.chosen(this),
                         appScale = appScale,
+                        fontScale = fontScale,
                         isHomeApp = homeAppSelected,
                         homeScreenEnabled = homeScreenEnabled,
                         defaultHomeLabel = defaultHomeLabel,
@@ -1594,6 +1597,10 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         onAppScale = { percent ->
                             com.droidhost.launcher.core.AppUiPrefs.setScale(this, percent)
                             appScale = com.droidhost.launcher.core.AppUiPrefs.scale(this)
+                        },
+                        onFontScale = { percent ->
+                            SessionPrefs.setFontScale(this, percent)
+                            fontScale = SessionPrefs.fontScale(this)
                         },
                         onOrientation = { value ->
                             SessionPrefs.setOrientation(this, value)

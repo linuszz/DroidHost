@@ -403,6 +403,11 @@ internal fun SetupPanel(
                                     )
                                 }, s.appScale, onPick = a.onAppScale,
                             )
+                            SliderRow(
+                                stringResource(R.string.setup_font_scale), stringResource(R.string.setup_font_scale_hint),
+                                s.fontScale, SessionPrefs.FONT_SCALE_RANGE, step = 5, format = { "$it%" },
+                                onChange = a.onFontScale,
+                            )
                             ChoiceRow(
                                 host, "launcher-icon", stringResource(R.string.setup_launcher_icon), null,
                                 com.droidhost.launcher.LauncherIcon.options.map { (style, label) -> style to stringResource(label) },

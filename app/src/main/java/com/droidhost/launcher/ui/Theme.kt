@@ -348,7 +348,12 @@ internal fun Modifier.machinedPanel(shape: Shape): Modifier {
 }
 
 @Composable
-fun DroidHostTheme(theme: String? = null, appScale: Int = AppUiPrefs.DEFAULT_SCALE, content: @Composable () -> Unit) {
+fun DroidHostTheme(
+    theme: String? = null,
+    appScale: Int = AppUiPrefs.DEFAULT_SCALE,
+    fontScale: Int = SessionPrefs.FONT_SCALE_DEFAULT,
+    content: @Composable () -> Unit,
+) {
     val id = theme ?: SessionPrefs.theme(LocalContext.current)
     if (id == Themes.INNER_GAMER) InnerGamerHue(Themes.rgbSpeed)
     val p = Themes.byId(id)
@@ -361,7 +366,8 @@ fun DroidHostTheme(theme: String? = null, appScale: Int = AppUiPrefs.DEFAULT_SCA
     )
     val baseDensity = LocalDensity.current
     val baseConfiguration = LocalConfiguration.current
-    val density = remember(baseDensity, appScale) { scaledAppDensity(baseDensity, appScale) }
+    val fontPercent = fontScale
+    val density = remember(baseDensity, appScale, fontPercent) { scaledAppDensity(baseDensity, appScale, fontPercent) }
     val configuration = remember(baseConfiguration, appScale) { scaledAppConfiguration(baseConfiguration, appScale) }
     CompositionLocalProvider(
         LocalPalette provides p,

@@ -1646,6 +1646,8 @@
     <string name="setup_group_tabs">Tabs</string>
     <string name="setup_default_tab">Default tab</string>
     <string name="setup_default_tab_hint">The page DroidHost opens on start.</string>
+    <string name="setup_font_scale">Text size</string>
+    <string name="setup_font_scale_hint">Scales the launcher text; the layout keeps its size.</string>
     <string name="rail_percent">%1$d%%</string>
     <string name="rail_resume_named">Resume %1$s</string>
     <string name="system_tab_overview">Overview</string>

@@ -1568,6 +1568,8 @@
     <string name="setup_group_tabs">标签页</string>
     <string name="setup_default_tab">默认标签页</string>
     <string name="setup_default_tab_hint">DroidHost 启动时打开的页面。</string>
+    <string name="setup_font_scale">字号</string>
+    <string name="setup_font_scale_hint">只缩放启动器文字，不改变界面布局。</string>
     <string name="rail_percent">%1$d%%</string>
     <string name="rail_resume_named">恢复 %1$s</string>
     <string name="system_tab_overview">概览</string>

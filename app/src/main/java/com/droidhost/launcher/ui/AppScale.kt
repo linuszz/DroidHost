@@ -5,9 +5,10 @@ import androidx.compose.ui.unit.Density
 import com.droidhost.launcher.core.AppUiPrefs
 import kotlin.math.roundToInt
 
-internal fun scaledAppDensity(base: Density, percent: Int): Density {
+internal fun scaledAppDensity(base: Density, percent: Int, fontPercent: Int = 100): Density {
     val scale = AppUiPrefs.normalizeScale(percent) / 100f
-    return if (scale == 1f) base else Density(base.density * scale, base.fontScale)
+    val fontScale = base.fontScale * (fontPercent / 100f)
+    return if (scale == 1f && fontScale == base.fontScale) base else Density(base.density * scale, fontScale)
 }
 
 internal fun scaledAppConfiguration(base: Configuration, percent: Int): Configuration {

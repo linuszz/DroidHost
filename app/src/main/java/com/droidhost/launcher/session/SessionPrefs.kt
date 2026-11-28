@@ -477,6 +477,16 @@ object SessionPrefs {
         prefs(context).edit().putInt("pcKeyboardOpacity", percent.coerceIn(PC_KEYBOARD_OPACITY_RANGE)).apply()
     }
 
+    const val FONT_SCALE_DEFAULT = 100
+    val FONT_SCALE_RANGE = 85..150
+
+    fun fontScale(context: Context): Int =
+        prefs(context).getInt("fontScale", FONT_SCALE_DEFAULT).takeIf { it in FONT_SCALE_RANGE } ?: FONT_SCALE_DEFAULT
+
+    fun setFontScale(context: Context, percent: Int) {
+        prefs(context).edit().putInt("fontScale", percent.coerceIn(FONT_SCALE_RANGE)).apply()
+    }
+
     fun pcKeyboardHiddenKeys(context: Context): Set<String> =
         idList(prefs(context).getString("pcKeyboardHiddenKeys", null)).toSet()
 
