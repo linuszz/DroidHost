@@ -525,6 +525,7 @@
     <string name="comp_esync_wanted">%1$s · 尚无 droiddeck-esync 包</string>
     <string name="comp_esync_builtin">%1$s · 内置 esync，无需包</string>
     <string name="comp_gpu_drivers">GPU 驱动</string>
+    <string name="comp_runtime_components">运行时组件</string>
     <string name="comp_reapplied">%1$s · 于 %2$s 启动时重新应用</string>
     <string name="comp_next_queued">下一个：%1$s · 在游戏关闭后</string>
     <string name="comp_in_use">正在使用 %1$s：%2$s</string>
@@ -2891,6 +2892,9 @@
     <string name="setup_group_launcher_display">启动器显示</string>
     <string name="setup_group_session_display">会话显示默认</string>
     <string name="setup_group_touch_mouse">触摸与鼠标</string>
+    <string name="setup_group_input_global">响应与键盘</string>
+    <string name="setup_group_cache">缓存与后台</string>
+    <string name="setup_frame_gen_global_hint">所有游戏的默认值，每个游戏可单独覆盖；下次会话生效。</string>
     <string name="setup_refresh_rate">刷新率</string>
     <string name="setup_refresh_rate_hint">会话画面的刷新率上限。自动跟随面板峰值。</string>
     <string name="setup_group_container">容器与文件</string>

@@ -555,6 +555,7 @@
     <string name="comp_esync_wanted">%1$s · no droiddeck-esync pack yet</string>
     <string name="comp_esync_builtin">%1$s · esync built in, no pack needed</string>
     <string name="comp_gpu_drivers">GPU drivers</string>
+    <string name="comp_runtime_components">Runtime components</string>
     <string name="comp_reapplied">%1$s · re-applied at launch %2$s</string>
     <string name="comp_next_queued">Next: %1$s · after the game closes</string>
     <string name="comp_in_use">%1$s in use: %2$s</string>
@@ -3094,6 +3095,9 @@
     <string name="setup_group_launcher_display">Launcher display</string>
     <string name="setup_group_session_display">Session display defaults</string>
     <string name="setup_group_touch_mouse">Touch &amp; mouse</string>
+    <string name="setup_group_input_global">Response &amp; keyboard</string>
+    <string name="setup_group_cache">Cache &amp; background</string>
+    <string name="setup_frame_gen_global_hint">Default for every game; each game can override it. Applies to the next session.</string>
     <string name="setup_refresh_rate">Refresh rate</string>
     <string name="setup_refresh_rate_hint">Ceiling for the session picture. Auto follows the panel\'s peak rate.</string>
     <string name="setup_group_container">Container &amp; files</string>

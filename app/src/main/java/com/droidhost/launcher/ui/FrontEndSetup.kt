@@ -325,46 +325,29 @@ internal fun SetupPanel(
                             onEffects = { e -> effects = e; SessionPrefs.setScreenEffects(ctx, e) },
                             onUpscaler = { mode -> upscaler = mode; SessionPrefs.setUpscaler(ctx, mode) },
                             advancedExpanded = effectsExpanded, onAdvancedToggle = { effectsExpanded = !effectsExpanded }) { Modifier }
-                    }
-                    TAB_INPUT -> {
-                        SettingsGroup(stringResource(R.string.setup_group_touch_mouse)) {
-                            var touch by remember { mutableStateOf(SessionPrefs.touchMode(ctx)) }
+                        // 帧生成：写 frame_gen 的全局键，每游戏覆盖仍留在游戏上下文（设计 §4.5 / 原型⑥）。
+                        var frameGen by remember { mutableStateOf(com.droidhost.launcher.gpu.FrameGen.mode(ctx)) }
+                        val losslessReady = remember(ctx) { com.droidhost.launcher.gpu.Lossless.state(ctx).ready }
+                        SettingsGroup(stringResource(R.string.frame_gen_title)) {
                             ChoiceRow(
-                                host, "touch-mode", stringResource(R.string.input_touchscreen), stringResource(R.string.input_touchscreen_hint),
-                                listOf(
-                                    SessionPrefs.TOUCH_AUTO to stringResource(R.string.common_auto),
-                                    SessionPrefs.TOUCH_PAD to stringResource(R.string.mode_touch_touchpad),
-                                    SessionPrefs.TOUCH_DIRECT to stringResource(R.string.mode_touch_direct),
-                                    SessionPrefs.TOUCH_GESTURES to stringResource(R.string.mode_touch_gestures),
-                                    SessionPrefs.TOUCH_OFF to stringResource(R.string.widgets_off),
-                                ),
-                                touch, onPick = { mode -> touch = mode; SessionPrefs.setTouchMode(ctx, mode) },
-                            )
-                            var relativeMouse by remember { mutableStateOf(com.droidhost.launcher.input.GesturePrefs.read(ctx).relativeMouseMode) }
-                            ChoiceRow(
-                                host, "relative-mouse", stringResource(R.string.drawer_relative_mouse), null,
-                                listOf(
-                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_AUTO to stringResource(R.string.drawer_relative_mouse_auto),
-                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_ON to stringResource(R.string.drawer_relative_mouse_on),
-                                    com.droidhost.launcher.input.TouchGestureConfig.RELATIVE_MOUSE_OFF to stringResource(R.string.drawer_relative_mouse_off),
-                                ),
-                                relativeMouse, onPick = { mode ->
-                                    relativeMouse = mode
-                                    val base = com.droidhost.launcher.input.GesturePrefs.read(ctx)
-                                    com.droidhost.launcher.input.GesturePrefs.save(ctx, null, base.copy(relativeMouseMode = mode))
+                                host, "frame-gen", stringResource(R.string.frame_gen_title),
+                                stringResource(R.string.setup_frame_gen_global_hint),
+                                buildList {
+                                    add(com.droidhost.launcher.gpu.FrameGen.ENGINE_OFF to stringResource(R.string.frame_gen_off))
+                                    add(com.droidhost.launcher.gpu.FrameGen.ENGINE_DDFG to stringResource(R.string.frame_gen_ddfg, 2))
+                                    if (losslessReady) add(com.droidhost.launcher.gpu.FrameGen.ENGINE_LSFG to stringResource(R.string.frame_gen_lsfg, 2))
+                                },
+                                frameGen.engine,
+                                onPick = { engine ->
+                                    val mode = com.droidhost.launcher.gpu.FrameGen.Mode(engine, multiplier = frameGen.multiplier)
+                                    com.droidhost.launcher.gpu.FrameGen.set(ctx, mode)
+                                    frameGen = mode
                                 },
                             )
-                            var evdev by remember { mutableStateOf(SessionPrefs.evdevMouse(ctx)) }
-                            ToggleRow(host, "evdev-mouse", stringResource(R.string.drawer_evdev_mouse), null, evdev) { on ->
-                                evdev = on
-                                SessionPrefs.setEvdevMouse(ctx, on)
-                            }
-                            var adaptiveSticks by remember { mutableStateOf(com.droidhost.launcher.input.ControllerPrefs.read(ctx).adaptiveSticks) }
-                            ToggleRow(host, "adaptive-sticks", stringResource(R.string.ctrl_adaptive), null, adaptiveSticks) { on ->
-                                adaptiveSticks = on
-                                com.droidhost.launcher.input.ControllerPrefs.setAdaptiveSticks(ctx, on)
-                            }
                         }
+                    }
+                    TAB_INPUT -> {
+                        // 触摸与鼠标等全局输入项已并入内嵌输入页（同一滚动列表，见 InputSettingsPage）。
                         Box(Modifier.weight(1f).fillMaxWidth()) {
                             if (s.controller != null && a.controller != null) InputSettingsPage(onBack = { pick(TAB_INPUT) }, embedded = true)
                             else Note(stringResource(R.string.setup_controller_unavailable))
@@ -448,6 +431,29 @@ internal fun SetupPanel(
                         TabsSettingsGroup(host, s, a)
                         SettingsGroup(stringResource(R.string.setup_group_download)) {
                             Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 11.dp)) { DownloadControls(s, a) }
+                        }
+                        SettingsGroup(stringResource(R.string.setup_group_cache)) {
+                            ToggleRow(
+                                host, "clear-cached-apps", stringResource(R.string.setup_clear_cached),
+                                stringResource(if (s.adbPaired) R.string.setup_clear_cached_hint else R.string.setup_clear_cached_unpaired),
+                                s.clearCachedApps, enabled = s.adbPaired || s.clearCachedApps,
+                            ) { a.onClearCachedApps(it) }
+                            ChoiceRow(
+                                host, "background-app-limit", stringResource(R.string.setup_bg_limit),
+                                stringResource(if (s.adbPaired) R.string.setup_bg_limit_hint else R.string.setup_clear_cached_unpaired),
+                                listOf(
+                                    com.droidhost.launcher.core.BackgroundAppLimit.OFF to stringResource(R.string.game_env_off),
+                                    4 to stringResource(R.string.setup_bg_limit_4),
+                                    1 to stringResource(R.string.setup_bg_limit_1),
+                                    0 to stringResource(R.string.setup_bg_limit_0),
+                                ),
+                                s.backgroundAppLimit, enabled = s.adbPaired || s.backgroundAppLimit != com.droidhost.launcher.core.BackgroundAppLimit.OFF,
+                                onPick = a.onBackgroundAppLimit,
+                            )
+                            if (!s.adbPaired) ActionRow(
+                                stringResource(R.string.setup_adb_pair), stringResource(R.string.setup_adb_pair_hint),
+                                stringResource(R.string.setup_adb_pair_button), onPairWirelessDebugging,
+                            )
                         }
                     }
                     TAB_NETWORK -> {
@@ -566,29 +572,6 @@ internal fun SetupPanel(
                                 stringResource(if (allFilesMissing) R.string.setup_all_files_hint else R.string.setup_all_files_granted)) {
                                 SecondaryButton(stringResource(R.string.upd_open_settings)) { com.droidhost.launcher.files.AllFilesAccess.open(ctx) }
                             }
-                        }
-                        SettingsGroup(stringResource(R.string.setup_group_memory)) {
-                            ToggleRow(
-                                host, "clear-cached-apps", stringResource(R.string.setup_clear_cached),
-                                stringResource(if (s.adbPaired) R.string.setup_clear_cached_hint else R.string.setup_clear_cached_unpaired),
-                                s.clearCachedApps, enabled = s.adbPaired || s.clearCachedApps,
-                            ) { a.onClearCachedApps(it) }
-                            ChoiceRow(
-                                host, "background-app-limit", stringResource(R.string.setup_bg_limit),
-                                stringResource(if (s.adbPaired) R.string.setup_bg_limit_hint else R.string.setup_clear_cached_unpaired),
-                                listOf(
-                                    com.droidhost.launcher.core.BackgroundAppLimit.OFF to stringResource(R.string.game_env_off),
-                                    4 to stringResource(R.string.setup_bg_limit_4),
-                                    1 to stringResource(R.string.setup_bg_limit_1),
-                                    0 to stringResource(R.string.setup_bg_limit_0),
-                                ),
-                                s.backgroundAppLimit, enabled = s.adbPaired || s.backgroundAppLimit != com.droidhost.launcher.core.BackgroundAppLimit.OFF,
-                                onPick = a.onBackgroundAppLimit,
-                            )
-                            if (!s.adbPaired) ActionRow(
-                                stringResource(R.string.setup_adb_pair), stringResource(R.string.setup_adb_pair_hint),
-                                stringResource(R.string.setup_adb_pair_button), onPairWirelessDebugging,
-                            )
                         }
                     }
                 }

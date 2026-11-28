@@ -120,6 +120,8 @@ class FrontEndState(
     val memoryHud: String = "off",
     val tpUbwcMode: String? = null,
     val tpUbwcRestartRequired: Boolean = false,
+    val gpuRuntimeDriver: String = "",
+    val gpuDisplayDriver: String = "",
     val canRestartApp: Boolean = false,
     val steamGames: List<Library.SteamGame>,
     val steamGamesX64: Boolean = false,

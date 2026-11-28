@@ -199,6 +199,63 @@ private fun InputSettingsContent(onBack: () -> Unit, onChanged: () -> Unit, embe
             onBack = ::back, showBack = !(embedded && page == InputPage.HOME), compactLayout = true) {
             when (page) {
                 InputPage.HOME -> {
+                    if (embedded) {
+                        // 全局输入项：与设置页的「输入」子页同源（设计 §4.3），并入同一滚动列表。
+                        SettingsGroup(stringResource(R.string.setup_group_touch_mouse)) {
+                            var touch by remember { mutableStateOf(SessionPrefs.touchMode(context)) }
+                            ChoiceRow(host, "touch-mode", stringResource(R.string.input_touchscreen), stringResource(R.string.input_touchscreen_hint),
+                                listOf(
+                                    SessionPrefs.TOUCH_AUTO to stringResource(R.string.common_auto),
+                                    SessionPrefs.TOUCH_PAD to stringResource(R.string.mode_touch_touchpad),
+                                    SessionPrefs.TOUCH_DIRECT to stringResource(R.string.mode_touch_direct),
+                                    SessionPrefs.TOUCH_GESTURES to stringResource(R.string.mode_touch_gestures),
+                                    SessionPrefs.TOUCH_OFF to stringResource(R.string.widgets_off),
+                                ),
+                                touch, onPick = { mode -> touch = mode; SessionPrefs.setTouchMode(context, mode) },
+                            )
+                            var relativeMouse by remember { mutableStateOf(GesturePrefs.read(context).relativeMouseMode) }
+                            ChoiceRow(host, "relative-mouse", stringResource(R.string.drawer_relative_mouse), null,
+                                listOf(
+                                    TouchGestureConfig.RELATIVE_MOUSE_AUTO to stringResource(R.string.drawer_relative_mouse_auto),
+                                    TouchGestureConfig.RELATIVE_MOUSE_ON to stringResource(R.string.drawer_relative_mouse_on),
+                                    TouchGestureConfig.RELATIVE_MOUSE_OFF to stringResource(R.string.drawer_relative_mouse_off),
+                                ),
+                                relativeMouse, onPick = { mode ->
+                                    relativeMouse = mode
+                                    val base = GesturePrefs.read(context)
+                                    GesturePrefs.save(context, null, base.copy(relativeMouseMode = mode))
+                                },
+                            )
+                            var evdev by remember { mutableStateOf(SessionPrefs.evdevMouse(context)) }
+                            ToggleRow(host, "evdev-mouse", stringResource(R.string.drawer_evdev_mouse), null, evdev) { on ->
+                                evdev = on
+                                SessionPrefs.setEvdevMouse(context, on)
+                            }
+                            var adaptiveSticks by remember { mutableStateOf(ControllerPrefs.read(context).adaptiveSticks) }
+                            ToggleRow(host, "adaptive-sticks", stringResource(R.string.ctrl_adaptive), null, adaptiveSticks) { on ->
+                                adaptiveSticks = on
+                                ControllerPrefs.setAdaptiveSticks(context, on)
+                            }
+                        }
+                        // 低延迟与 PC 键盘外观：会话抽屉写同一组键（设计 §1.3③ N5 同源）。
+                        var lowLatency by remember { mutableStateOf(SessionPrefs.lowLatency(context)) }
+                        remember { PcKeyboardPrefs.load(context) }
+                        SettingsGroup(stringResource(R.string.setup_group_input_global)) {
+                            ToggleRow(host, "low-latency", stringResource(R.string.drawer_low_latency),
+                                stringResource(R.string.drawer_low_latency_hint), lowLatency) {
+                                SessionPrefs.setLowLatency(context, it)
+                                lowLatency = it
+                            }
+                            SliderRow(stringResource(R.string.pckb_size), stringResource(R.string.pckb_size_hint),
+                                PcKeyboardPrefs.size, SessionPrefs.PC_KEYBOARD_SIZE_RANGE, step = 1, format = { "$it%" }) {
+                                PcKeyboardPrefs.setSize(context, it)
+                            }
+                            SliderRow(stringResource(R.string.pckb_opacity), stringResource(R.string.pckb_opacity_hint),
+                                PcKeyboardPrefs.opacity, SessionPrefs.PC_KEYBOARD_OPACITY_RANGE, step = 5, format = { "$it%" }) {
+                                PcKeyboardPrefs.setOpacity(context, it)
+                            }
+                        }
+                    }
                     SettingsGroup(stringResource(R.string.input_default_profiles)) {
                         ChoiceRow(host, "auto-desktop", stringResource(R.string.input_desktop_mode), null,
                             library.profiles.map { it.id to it.name }, library.desktop) { id -> update { it.copy(desktop = id) } }

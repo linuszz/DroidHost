@@ -99,7 +99,7 @@ internal class DriverMenus(private val activity: Activity, private val ui: Handl
         else -> R.string.gpu_src_chosen
     })
 
-    private fun displaySlot(): DriverSlot {
+    fun displaySlot(): DriverSlot {
         val row = androidRows.firstOrNull { it.id == androidSelected }
         val live = androidRows.firstOrNull { it.id == CompositorHost.displayChoice }?.name
         return DriverSlot(
@@ -114,7 +114,7 @@ internal class DriverMenus(private val activity: Activity, private val ui: Handl
         )
     }
 
-    private fun runtimeSlot(): DriverSlot {
+    fun runtimeSlot(): DriverSlot {
         val row = linuxRows.firstOrNull { it.id == linuxSelected }
         val live = SessionState.runtimeDriver?.let { id -> linuxRows.firstOrNull { it.id == id }?.name }
         return DriverSlot(

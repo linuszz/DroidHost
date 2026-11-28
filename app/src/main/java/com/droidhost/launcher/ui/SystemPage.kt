@@ -187,11 +187,30 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                         }
                     }
                     SYSTEM_COMPONENTS_TAB -> {
-                        SettingCard(
-                            stringResource(R.string.system_tab_components),
-                            stringResource(R.string.system_components_open),
-                            "system:components", Modifier.fillMaxWidth(),
-                        ) { a.onComponents(true) }
+                        SettingsGroup(stringResource(R.string.comp_gpu_drivers)) {
+                            SettingCard(
+                                stringResource(R.string.comp_runtime_driver),
+                                s.gpuRuntimeDriver.ifBlank { stringResource(R.string.gpu_runtime_default) },
+                                "system:gpu-runtime", Modifier.fillMaxWidth(),
+                            ) { a.onComponentsTab(GPU_TAB) }
+                            SettingCard(
+                                stringResource(R.string.comp_display_driver),
+                                s.gpuDisplayDriver.ifBlank { stringResource(R.string.gpu_auto_by_gpu) },
+                                "system:gpu-display", Modifier.fillMaxWidth(),
+                            ) { a.onComponentsTab(GPU_TAB) }
+                        }
+                        SettingsGroup(stringResource(R.string.comp_title)) {
+                            SettingCard(
+                                stringResource(R.string.comp_runtime_components),
+                                stringResource(R.string.system_components_open),
+                                "system:components", Modifier.fillMaxWidth(),
+                            ) { a.onComponents(true) }
+                            SettingCard(
+                                stringResource(R.string.comp_proton),
+                                stringResource(R.string.system_components_open),
+                                "system:proton", Modifier.fillMaxWidth(),
+                            ) { a.onComponentsTab(PROTON_TAB) }
+                        }
                         Box(Modifier.fillMaxWidth().padding(top = 10.dp)) { Note(stringResource(R.string.system_components_hint)) }
                     }
                     SYSTEM_STORAGE_TAB -> StoragePanel(s, a)

@@ -611,6 +611,8 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     private var clearCachedApps by mutableStateOf(false)
     private var adbPaired by mutableStateOf(false)
     private var memoryHud by mutableStateOf(SessionPrefs.MEMORY_HUD_OFF)
+    private var gpuRuntimeDriver by mutableStateOf("")
+    private var gpuDisplayDriver by mutableStateOf("")
     private var backgroundAppLimit by mutableStateOf(com.droidhost.launcher.core.BackgroundAppLimit.OFF)
     private var showRoms by mutableStateOf(false)
     private var homeAppSelected by mutableStateOf(false)
@@ -1220,6 +1222,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         buildWatermark = buildWatermark,
                         clearCachedApps = clearCachedApps, adbPaired = adbPaired, memoryHud = memoryHud, backgroundAppLimit = backgroundAppLimit,
                         tpUbwcMode = drivers.tpUbwcModeForDevice(), tpUbwcRestartRequired = drivers.tpUbwcRestartRequired(), canRestartApp = !runtimeChangesBlocked(),
+                        gpuRuntimeDriver = gpuRuntimeDriver, gpuDisplayDriver = gpuDisplayDriver,
                         steamGames = steamGames, steamGamesX64 = steamGamesX64, emulators = emulatorList, running = runningLabel,
                         frameGen = FrameGen.mode(this),
                         lossless = lossless,
@@ -3180,6 +3183,8 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         adbPaired = WirelessAdbFix.hasSavedPairing(this)
         memoryHud = SessionPrefs.memoryHud(this)
         backgroundAppLimit = SessionPrefs.backgroundAppLimit(this)
+        gpuRuntimeDriver = drivers.runtimeSlot().name
+        gpuDisplayDriver = drivers.displaySlot().name
         runningLabel = if (SessionState.running) when (SessionState.mode) {
             SessionService.MODE_DESKTOP -> getString(R.string.rail_desktop)
             SessionService.MODE_RUN -> Library.nameForProgram(SessionState.program)
