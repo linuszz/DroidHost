@@ -35,6 +35,7 @@ internal object SystemTabs {
     var openComponents = false
     var openStorage = false
     var openUpdates = false
+    var openAbout = false
 }
 
 private const val SYSTEM_OVERVIEW_TAB = 0
@@ -58,6 +59,7 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                 SystemTabs.openComponents -> SYSTEM_COMPONENTS_TAB
                 SystemTabs.openStorage -> SYSTEM_STORAGE_TAB
                 SystemTabs.openUpdates -> SYSTEM_UPDATES_TAB
+                SystemTabs.openAbout -> SYSTEM_ABOUT_TAB
                 else -> SYSTEM_OVERVIEW_TAB
             },
         )
@@ -66,6 +68,7 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
     if (SystemTabs.openComponents) { tab = SYSTEM_COMPONENTS_TAB; SystemTabs.openComponents = false }
     if (SystemTabs.openStorage) { tab = SYSTEM_STORAGE_TAB; SystemTabs.openStorage = false }
     if (SystemTabs.openUpdates) { tab = SYSTEM_UPDATES_TAB; SystemTabs.openUpdates = false }
+    if (SystemTabs.openAbout) { tab = SYSTEM_ABOUT_TAB; SystemTabs.openAbout = false }
     val chipFocus = remember { List(tabs.size) { FocusRequester() } }
     var tabTurned by remember { mutableStateOf(false) }
     val pick: (Int) -> Unit = { i -> tab = i; tabTurned = true }
@@ -192,11 +195,13 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                                 stringResource(R.string.comp_runtime_driver),
                                 s.gpuRuntimeDriver.ifBlank { stringResource(R.string.gpu_runtime_default) },
                                 "system:gpu-runtime", Modifier.fillMaxWidth(),
+                                badge = stringResource(R.string.setup_tag_needs_restart),
                             ) { a.onComponentsTab(GPU_TAB) }
                             SettingCard(
                                 stringResource(R.string.comp_display_driver),
                                 s.gpuDisplayDriver.ifBlank { stringResource(R.string.gpu_auto_by_gpu) },
                                 "system:gpu-display", Modifier.fillMaxWidth(),
+                                badge = stringResource(R.string.setup_tag_needs_restart),
                             ) { a.onComponentsTab(GPU_TAB) }
                         }
                         SettingsGroup(stringResource(R.string.comp_title)) {
@@ -204,11 +209,13 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                                 stringResource(R.string.comp_runtime_components),
                                 stringResource(R.string.system_components_open),
                                 "system:components", Modifier.fillMaxWidth(),
+                                badge = stringResource(R.string.setup_tag_needs_restart),
                             ) { a.onComponents(true) }
                             SettingCard(
                                 stringResource(R.string.comp_proton),
                                 stringResource(R.string.system_components_open),
                                 "system:proton", Modifier.fillMaxWidth(),
+                                badge = stringResource(R.string.setup_tag_needs_restart),
                             ) { a.onComponentsTab(PROTON_TAB) }
                         }
                         Box(Modifier.fillMaxWidth().padding(top = 10.dp)) { Note(stringResource(R.string.system_components_hint)) }

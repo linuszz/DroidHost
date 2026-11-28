@@ -54,14 +54,20 @@ fun GameEnvironmentRow(
     modifier: Modifier = Modifier,
     showHint: Boolean = true,
     initialScope: String = "",
+    label: String? = null,
+    hint: String? = null,
+    restartTag: Boolean = false,
 ) {
     var open by remember { mutableStateOf(false) }
     var byPad by remember { mutableStateOf(false) }
     val inputMode = LocalInputModeManager.current
-    SettingsRow(stringResource(R.string.game_env_title), if (showHint) stringResource(R.string.game_env_hint) else null) {
-        SecondaryButton(stringResource(R.string.game_env_edit), modifier = modifier) {
-            byPad = inputMode.inputMode == InputMode.Keyboard
-            open = true
+    SettingsRow(label ?: stringResource(R.string.game_env_title), hint ?: if (showHint) stringResource(R.string.game_env_hint) else null) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SecondaryButton(stringResource(R.string.game_env_edit), modifier = modifier) {
+                byPad = inputMode.inputMode == InputMode.Keyboard
+                open = true
+            }
+            if (restartTag) NeedsRestartTag()
         }
     }
     if (open) GameEnvironmentEditor(byPad, initialScope) { open = false }

@@ -104,6 +104,15 @@ internal fun SectionTitle(t: String, detail: String?) {
 
 @Composable internal fun Note(t: String) = Text(t, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth().clip(Shape12).background(MaterialTheme.colorScheme.surface).border(1.dp, LocalPalette.current.line2, Shape12).padding(12.dp))
 
+/** Amber "needs a restart" pill: design §4.6/§4.8, the change only lands after the session restarts. */
+@Composable
+internal fun NeedsRestartTag(text: String = stringResource(R.string.setup_tag_needs_restart)) {
+    Text(
+        text.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp, color = AttentionAmber,
+        modifier = Modifier.clip(RoundedCornerShape(5.dp)).background(AttentionAmber.copy(alpha = 0.12f)).padding(horizontal = 6.dp, vertical = 2.dp),
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun Actions(content: @Composable () -> Unit) = FlowRow(

@@ -513,10 +513,15 @@ fun <T> ChoiceRow(
     chipModifier: Modifier = Modifier,
     hintLines: Int? = null,
     stacked: Boolean = false,
+    badge: String? = null,
     onPick: (T) -> Unit,
 ) {
     SettingsRow(label, hint, highlighted = host.open == key, hintLines = hintLines, stacked = stacked) {
-        ChoiceChip(host, key, label, options, selected, enabled, note, chipModifier, onPick)
+        if (badge == null) ChoiceChip(host, key, label, options, selected, enabled, note, chipModifier, onPick)
+        else Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChoiceChip(host, key, label, options, selected, enabled, note, chipModifier, onPick)
+            NeedsRestartTag(badge)
+        }
     }
 }
 

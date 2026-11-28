@@ -515,6 +515,7 @@ private fun FrontEndScreenBody(s: FrontEndState, a: FrontEndActions, page: (@Com
             "system:components" -> { SystemTabs.openComponents = true; selected = "system" }
             "system:storage" -> { SystemTabs.openStorage = true; selected = "system" }
             "system:updates" -> { SystemTabs.openUpdates = true; selected = "system" }
+            "system:about" -> { SystemTabs.openAbout = true; selected = "system" }
             com.droidhost.launcher.core.AppUiPrefs.HOME_PAGE_APPS -> {
                 // Home lands on the apps page itself, so a page open over the rail (Components, Performance) closes first.
                 if (s.pageKey != null) a.onPageBack()

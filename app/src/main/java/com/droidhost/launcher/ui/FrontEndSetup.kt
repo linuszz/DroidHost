@@ -316,6 +316,16 @@ internal fun SetupPanel(
                                 stringResource(R.string.display_sharpness), null, sharpness, 0..100, step = 5,
                                 format = { "$it%" }, onChange = { pct -> sharpness = pct; SessionPrefs.setUpscaleSharpness(ctx, pct) },
                             )
+                            // 界面缩放：会话内桌面输出的缩放，与会话快捷键同源（SessionPrefs.guestUiScalePercent，设计 §4.3）。
+                            var guestUiScale by remember { mutableStateOf(SessionPrefs.guestUiScalePercent(ctx)) }
+                            ChoiceRow(
+                                host, "guest-ui-scale", stringResource(R.string.quick_ui_scale),
+                                stringResource(R.string.setup_guest_ui_scale_hint),
+                                listOf(100 to "100%", 150 to "150%", 200 to "200%"),
+                                guestUiScale,
+                                badge = stringResource(R.string.setup_tag_needs_restart),
+                                onPick = { pct -> guestUiScale = pct; SessionPrefs.setGuestUiScalePercent(ctx, pct) },
+                            )
                             ToggleRow(host, "pip-auto", stringResource(R.string.pip_auto), null, pipAuto) { on ->
                                 pipAuto = on
                                 SessionPrefs.setPipAutoEnter(ctx, on)
@@ -591,7 +601,12 @@ internal fun SetupPanel(
                                 stringResource(R.string.setup_reset_settings_button), a.onResetSettings)
                         }
                         SettingsGroup(stringResource(R.string.setup_group_container)) {
-                            GameEnvironmentRow(initialScope = "")
+                            GameEnvironmentRow(
+                                initialScope = "",
+                                label = stringResource(R.string.setup_container_env),
+                                hint = stringResource(R.string.setup_container_env_hint),
+                                restartTag = true,
+                            )
                             val allFilesMissing = com.droidhost.launcher.files.AllFilesAccess.missing()
                             SettingsRow(stringResource(R.string.setup_all_files),
                                 stringResource(if (allFilesMissing) R.string.setup_all_files_hint else R.string.setup_all_files_granted)) {
@@ -736,7 +751,7 @@ internal fun LaunchSettings(s: FrontEndState, a: FrontEndActions, host: MenuHost
                 )
             }
         }
-        if (controller != null) add { m -> SettingCard(stringResource(R.string.setup_card_controls), stringResource(R.string.setup_card_controls_hint), "card:controls", m, controller.onMapping) }
+        if (controller != null) add { m -> SettingCard(stringResource(R.string.setup_card_controls), stringResource(R.string.setup_card_controls_hint), "card:controls", m, onClick = controller.onMapping) }
         if (steamCard != null) add(steamCard)
         val cardStore = com.droidhost.launcher.stores.Store.byId(game?.source.orEmpty())?.takeIf { it == com.droidhost.launcher.stores.Store.EPIC || it == com.droidhost.launcher.stores.Store.GOG }
         if (cardStore != null && game?.gameFiles != null) add { m ->
@@ -1029,7 +1044,7 @@ private fun StoreLaunchCard(host: MenuHost, folder: java.io.File, store: com.dro
 }
 
 @Composable
-internal fun SettingCard(label: String, value: String, id: String, modifier: Modifier, onClick: () -> Unit) {
+internal fun SettingCard(label: String, value: String, id: String, modifier: Modifier, badge: String? = null, onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val pal = LocalPalette.current
     val src = remember { MutableInteractionSource() }
@@ -1046,7 +1061,10 @@ internal fun SettingCard(label: String, value: String, id: String, modifier: Mod
             .controllerConfirm(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
     ) {
-        Text(label, fontSize = 13.sp, color = if (hot) pal.signal else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(label, fontSize = 13.sp, color = if (hot) pal.signal else colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            if (badge != null) NeedsRestartTag(badge)
+        }
         Text(value, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = colors.onBackground, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
