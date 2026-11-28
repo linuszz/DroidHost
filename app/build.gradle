@@ -265,6 +265,11 @@ android {
             }
             maxHeapSize = '2g'
             maxParallelForks = 2
+            // Robolectric's native graphics allocations live outside the Java heap, so a
+            // worker that renders many Compose trees keeps growing its RSS. Restarting
+            // the JVM periodically returns that memory instead of letting the CI runner
+            // hit a fatal error.
+            forkEvery = 20
             def logTarget = providers.systemProperty('robolectric.logging').orNull
             if (logTarget != null) systemProperty 'robolectric.logging', logTarget
             def repoUrl = providers.systemProperty('robolectric.dependency.repo.url').orNull

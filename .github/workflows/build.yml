@@ -674,6 +674,9 @@ jobs:
             app/build/unit-tests.log
             app/build/test-results/testReleaseUnitTest/
             app/build/reports/tests/testReleaseUnitTest/
+            app/hs_err_pid*.log
+            app/replay_pid*.log
+            hs_err_pid*.log
           if-no-files-found: ignore
           retention-days: 14
           overwrite: true
