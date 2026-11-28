@@ -202,6 +202,8 @@ class FrontEndState(
     val storesView: String = SessionPrefs.DEFAULT_STORES_VIEW,
     val storeDownloadsActive: Int = 0,
     val updates: UpdatesState = UpdatesState(),
+    // System tab renders the component manager inline (design §4.4); the activity supplies it.
+    val componentsPanel: (@Composable () -> Unit)? = null,
 )
 
 class FrontEndActions(
@@ -250,6 +252,8 @@ class FrontEndActions(
     val onComponents: (focusContent: Boolean) -> Unit,
     val onGameComponents: (Library.SteamGame) -> Unit = { onComponents(true) },
     val onComponentsTab: (String) -> Unit = {},
+    // Called when the system tab shows the component manager, so the host can refresh it.
+    val onOpenComponents: () -> Unit = {},
     val onFontScale: (Int) -> Unit = {},
     val onBootMovie: (String) -> Unit = {},
     val onBootMovieSound: (Boolean) -> Unit = {},

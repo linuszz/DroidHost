@@ -1287,6 +1287,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         storesSort = storesSort,
                         storesView = storesView,
                         storeDownloadsActive = com.droidhost.launcher.stores.StoresState.activeDownloads,
+                        componentsPanel = { ComponentsHost(embedded = true) },
                     ),
                     FrontEndActions(
                         onPlay = { playSteam() },
@@ -1438,6 +1439,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
                         },
                         onProtons = { openProtons() },
                         onComponents = { focusContent -> openComponents(focusContent) },
+                        onOpenComponents = { refreshComponentState() },
                         onGameComponents = { game -> openComponents(gameKey = game.profileKey) },
                         onComponentsTab = { tab -> openComponents(focusContent = true, tab = tab) },
                         onBootMovie = { id -> com.droidhost.launcher.session.BootMovie.select(this, id); loadBootMovie() },
@@ -2353,6 +2355,11 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
         showPerformance = false
         showMapping = false
         showComponents = true
+        refreshComponentState()
+    }
+
+    /** Refresh the component, driver and Proton state the component manager reads (design §4.4). */
+    private fun refreshComponentState() {
         fexPreset = SessionPrefs.fexPreset(this)
         forceSsbs = SessionPrefs.forceSsbs(this)
         fastSync = SessionPrefs.fastSync(this)
@@ -2376,7 +2383,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
     }
 
     @Composable
-    private fun ComponentsHost() {
+    private fun ComponentsHost(embedded: Boolean = false) {
         ComponentsPage(
             snapshot = components.compSnapshot,
             catalog = components.compCatalog,
@@ -2386,7 +2393,8 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             checking = components.compChecking,
             busy = if (busy) stage else components.compBusy,
             downloads = components.compDownloads,
-            requestInitialFocus = focusComponentsContent,
+            requestInitialFocus = if (embedded) false else focusComponentsContent,
+            embedded = embedded,
             onProton = { components.chooseProton(it) },
             onComp = { components.compComp = it },
             onSwap = { file -> components.compProton?.let { pid -> components.componentAction(getString(R.string.comp_busy_swapping)) { ComponentsManager.swap(this, pid, file) } } },
@@ -2405,7 +2413,7 @@ class FrontEndActivity : ComponentActivity(), com.droidhost.launcher.ui.AgentPet
             compAutoChecking = components.compAutoChecking,
             onCompMode = { comp, mode -> components.chooseComponentMode(comp, mode) },
             onImport = { pickComponent.launch(InAppFilePicker.buildIntent(this, WCP_EXT, getString(R.string.comp_pick_wcp))) },
-            onBack = { if (!com.droidhost.launcher.ui.Hops.back { showComponents = false }) showComponents = false },
+            onBack = { if (!embedded && !com.droidhost.launcher.ui.Hops.back { showComponents = false }) showComponents = false },
             games = steamGames,
             initialGameKey = componentsGameKey,
             generalFexPreset = fexPreset,

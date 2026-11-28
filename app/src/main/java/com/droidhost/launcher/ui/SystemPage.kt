@@ -69,6 +69,8 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
     if (SystemTabs.openStorage) { tab = SYSTEM_STORAGE_TAB; SystemTabs.openStorage = false }
     if (SystemTabs.openUpdates) { tab = SYSTEM_UPDATES_TAB; SystemTabs.openUpdates = false }
     if (SystemTabs.openAbout) { tab = SYSTEM_ABOUT_TAB; SystemTabs.openAbout = false }
+    // The component manager refreshes itself when the tab shows it (design §4.4).
+    LaunchedEffect(tab) { if (tab == SYSTEM_COMPONENTS_TAB) a.onOpenComponents() }
     val chipFocus = remember { List(tabs.size) { FocusRequester() } }
     var tabTurned by remember { mutableStateOf(false) }
     val pick: (Int) -> Unit = { i -> tab = i; tabTurned = true }
@@ -97,7 +99,7 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
             ChipBar {
                 Box(Modifier.weight(1f)) { SheetChips(tabs, tab, chipFocus, onPick = pick) }
             }
-            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == SYSTEM_UPDATES_TAB) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == SYSTEM_UPDATES_TAB) 0.dp else maxOf(24.dp, LocalNavOverlayInset.current))) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().then(if (tab == SYSTEM_UPDATES_TAB || tab == SYSTEM_COMPONENTS_TAB) Modifier else Modifier.verticalScroll(rememberScrollState())).padding(bottom = if (tab == SYSTEM_UPDATES_TAB) 0.dp else maxOf(24.dp, LocalNavOverlayInset.current))) {
                 when (tab) {
                     SYSTEM_OVERVIEW_TAB -> {
                         val ctx = LocalContext.current
@@ -190,35 +192,41 @@ internal fun SystemPage(s: FrontEndState, a: FrontEndActions, modifier: Modifier
                         }
                     }
                     SYSTEM_COMPONENTS_TAB -> {
-                        SettingsGroup(stringResource(R.string.comp_gpu_drivers)) {
-                            SettingCard(
-                                stringResource(R.string.comp_runtime_driver),
-                                s.gpuRuntimeDriver.ifBlank { stringResource(R.string.gpu_runtime_default) },
-                                "system:gpu-runtime", Modifier.fillMaxWidth(),
-                                badge = stringResource(R.string.setup_tag_needs_restart),
-                            ) { a.onComponentsTab(GPU_TAB) }
-                            SettingCard(
-                                stringResource(R.string.comp_display_driver),
-                                s.gpuDisplayDriver.ifBlank { stringResource(R.string.gpu_auto_by_gpu) },
-                                "system:gpu-display", Modifier.fillMaxWidth(),
-                                badge = stringResource(R.string.setup_tag_needs_restart),
-                            ) { a.onComponentsTab(GPU_TAB) }
+                        val panel = s.componentsPanel
+                        if (panel != null) {
+                            // Design §4.4: the component manager lives inside the system tab.
+                            Box(Modifier.weight(1f).fillMaxWidth()) { panel() }
+                        } else {
+                            SettingsGroup(stringResource(R.string.comp_gpu_drivers)) {
+                                SettingCard(
+                                    stringResource(R.string.comp_runtime_driver),
+                                    s.gpuRuntimeDriver.ifBlank { stringResource(R.string.gpu_runtime_default) },
+                                    "system:gpu-runtime", Modifier.fillMaxWidth(),
+                                    badge = stringResource(R.string.setup_tag_needs_restart),
+                                ) { a.onComponentsTab(GPU_TAB) }
+                                SettingCard(
+                                    stringResource(R.string.comp_display_driver),
+                                    s.gpuDisplayDriver.ifBlank { stringResource(R.string.gpu_auto_by_gpu) },
+                                    "system:gpu-display", Modifier.fillMaxWidth(),
+                                    badge = stringResource(R.string.setup_tag_needs_restart),
+                                ) { a.onComponentsTab(GPU_TAB) }
+                            }
+                            SettingsGroup(stringResource(R.string.comp_title)) {
+                                SettingCard(
+                                    stringResource(R.string.comp_runtime_components),
+                                    stringResource(R.string.system_components_open),
+                                    "system:components", Modifier.fillMaxWidth(),
+                                    badge = stringResource(R.string.setup_tag_needs_restart),
+                                ) { a.onComponents(true) }
+                                SettingCard(
+                                    stringResource(R.string.comp_proton),
+                                    stringResource(R.string.system_components_open),
+                                    "system:proton", Modifier.fillMaxWidth(),
+                                    badge = stringResource(R.string.setup_tag_needs_restart),
+                                ) { a.onComponentsTab(PROTON_TAB) }
+                            }
+                            Box(Modifier.fillMaxWidth().padding(top = 10.dp)) { Note(stringResource(R.string.system_components_hint)) }
                         }
-                        SettingsGroup(stringResource(R.string.comp_title)) {
-                            SettingCard(
-                                stringResource(R.string.comp_runtime_components),
-                                stringResource(R.string.system_components_open),
-                                "system:components", Modifier.fillMaxWidth(),
-                                badge = stringResource(R.string.setup_tag_needs_restart),
-                            ) { a.onComponents(true) }
-                            SettingCard(
-                                stringResource(R.string.comp_proton),
-                                stringResource(R.string.system_components_open),
-                                "system:proton", Modifier.fillMaxWidth(),
-                                badge = stringResource(R.string.setup_tag_needs_restart),
-                            ) { a.onComponentsTab(PROTON_TAB) }
-                        }
-                        Box(Modifier.fillMaxWidth().padding(top = 10.dp)) { Note(stringResource(R.string.system_components_hint)) }
                     }
                     SYSTEM_STORAGE_TAB -> StoragePanel(s, a)
                     SYSTEM_UPDATES_TAB -> UpdatesPage(s, a, Modifier.fillMaxSize())

@@ -160,6 +160,9 @@ fun ComponentsPage(
     generalFexPreset: String = "",
     onGeneralFexPreset: (String) -> Unit = {},
     requestInitialFocus: Boolean = true,
+    // Inline mode: the system tab hosts the component manager (design §4.4), so the page
+    // drops its own title bar and back handling.
+    embedded: Boolean = false,
     gpu: GpuDriversState = GpuDriversState(),
     gpuActions: GpuDriversActions = GpuDriversActions(),
     protons: ProtonsState = ProtonsState(),
@@ -178,7 +181,7 @@ fun ComponentsPage(
     val density = LocalDensity.current
     val inputMode = LocalInputModeManager.current
     val layer = if (comp in LAYERS) comp else GPU_TAB
-    BackHandler(onBack = onBack)
+    BackHandler(enabled = !embedded) { onBack() }
     var scopeMenu by remember { mutableStateOf(false) }
     var selectedGameKey by remember(initialGameKey) { mutableStateOf(initialGameKey) }
     var fexMenu by remember { mutableStateOf(false) }
@@ -748,14 +751,18 @@ fun ComponentsPage(
                 ) else Modifier),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.comp_title), fontSize = if (narrow) 22.sp else 26.sp, fontWeight = FontWeight.Bold, color = colors.onBackground, maxLines = 1)
-                if (!narrow) DeviceChip(gpu)
+                if (!embedded) {
+                    Text(stringResource(R.string.comp_title), fontSize = if (narrow) 22.sp else 26.sp, fontWeight = FontWeight.Bold, color = colors.onBackground, maxLines = 1)
+                    if (!narrow) DeviceChip(gpu)
+                }
                 Spacer(Modifier.weight(1f))
-                HopBackChip(onBack)
-                if (!narrow) Text(
+                if (!embedded) HopBackChip(onBack)
+                if (!narrow || embedded) Text(
                     if (busy != null) "$busy…" else stringResource(R.string.comp_checked, checked),
                     fontSize = 13.sp, color = colors.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
+                // The driver and component swaps only land on the next session (design §4.6).
+                if (embedded) NeedsRestartTag()
                 val refreshing = checking || gpu.checking
                 ToolIcon(Icons.Outlined.Refresh, stringResource(R.string.comp_check_all), busy = refreshing, enabled = !refreshing && gpu.busy == null) {
                     onRefresh(); gpuActions.onRefresh()
